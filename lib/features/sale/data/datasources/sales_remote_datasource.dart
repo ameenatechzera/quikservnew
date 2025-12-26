@@ -30,6 +30,7 @@ class SalesRemoteDataSourceImpl implements SalesRemoteDataSource {
       print('🔹 Save Sale URL: $url');
       print('🔹 DB Name: $dbName');
       print('🔹 Token exists: ${token.isNotEmpty}');
+      print('🔹 Token: ${token}');
 
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
 

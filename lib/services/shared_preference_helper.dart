@@ -26,6 +26,16 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
   }
+  /// ------------------ BranchID ------------------
+  Future<bool> setBranchId(String branchId) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("branchId", branchId);
+  }
+
+  Future<String> getBranchId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("branchId") ?? '';
+  }
 
   /// ------------------ DATABASE NAME ------------------
   Future<void> setDatabaseName(String dbName) async {

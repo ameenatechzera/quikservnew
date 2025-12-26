@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_screen.dart';
 
 class CommomBottomBar extends StatelessWidget {
   const CommomBottomBar({super.key});
@@ -62,17 +63,25 @@ class CommomBottomBar extends StatelessWidget {
               ),
 
               // CENTER ICON
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.pause_rounded,
-                  color: Colors.black,
-                  size: 20,
+              InkWell(
+                onTap: (){
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SalesReportScreen()));
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.pause_rounded,
+                    color: Colors.black,
+                    size: 20,
+                  ),
                 ),
               ),
 
