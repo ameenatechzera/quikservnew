@@ -83,7 +83,7 @@ class FetchProductDetailsModel extends FetchProductDetails {
       modifiedUser: json['ModifiedUser'],
       barcode: json['barcode'],
       mrp: json['MRP'],
-      salesPrice: json['SalesPrice'],
+      salesPrice: json['salesPrice'],
       conversionRate: json['conversionRate'],
       unitId: json['unit_id'],
       unitName: json['unit_name'],

@@ -22,3 +22,23 @@ class ProductFailure extends ProductsState {
 
   const ProductFailure(this.error);
 }
+
+// ⭐ Category-wise Product States
+class ProductsByCategoryLoading extends ProductsState {}
+
+class ProductsByCategoryEmpty extends ProductsState {}
+
+class ProductsByCategoryLoaded extends ProductsState {
+  final List<FetchProductDetails> products;
+  ProductsByCategoryLoaded({required this.products});
+}
+
+class ProductLoadingFromLocal extends ProductsState {}
+
+class ProductsEmptyFromLocal extends ProductsState {}
+
+class ProductLoadedFromLocal extends ProductsState {
+  final List<FetchProductDetails> products;
+
+  ProductLoadedFromLocal(this.products);
+}

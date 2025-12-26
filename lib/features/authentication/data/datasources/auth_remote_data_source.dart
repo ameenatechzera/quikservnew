@@ -71,7 +71,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           headers: {
             "Accept": "application/json",
             "X-Database-Name":
-                "eyJpdiI6InFpLysrc1VoMWdDcUppb3dEZWZrdnc9PSIsInZhbHVlIjoieVBJdTZ2RmIwalF4VjlhRU5wNlZxQzk3Z2x2ZGwzZFZtNExQZEVFOG40ST0iLCJtYWMiOiIwOTU5ZTdlMTI3ODdkZGZmMjkzNDdkYThhZTBlY2Q5YzdjY2E5YWExZDNjYTc1NWRjNWRkMmE1YzM4NDBlMmVkIiwidGFnIjoiIn0=",
+                "eyJpdiI6IkVNVmZidnI0dWlDaVk1bmJJZytxK3c9PSIsInZhbHVlIjoiMTBobEx1WlhxSjR2ZFhETTllOHFkb1pIY0NOaStjL3VsMkZlYXVaQVFKZz0iLCJtYWMiOiI1N2NlNTlkOTgwZGZjZDY3M2E1ZjBjZWU3ZDdlNWRkNzJlYTg4ZmJkMWY4NzJlZGU5ZjNjNWI5MzQ2NTg5ZTA4IiwidGFnIjoiIn0=",
           },
         ),
       );

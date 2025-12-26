@@ -25,7 +25,7 @@ class UserData {
   final String password;
   final int isActive;
   final String name;
-  final int branchId;
+  final List<int> branchIds;
   final String? createdDate;
   final String? modifiedDate;
   final String userTypeName;
@@ -37,7 +37,7 @@ class UserData {
     required this.password,
     required this.isActive,
     required this.name,
-    required this.branchId,
+    required this.branchIds,
     this.createdDate,
     this.modifiedDate,
     required this.userTypeName,
@@ -51,7 +51,16 @@ class UserData {
       password: json["password"],
       isActive: json["isactive"],
       name: json["name"],
-      branchId: json["branchid"],
+      // ✅ SAFE conversion
+      branchIds:
+          json["branchids"] == null
+              ? []
+              : (json["branchids"] is List
+                  ? json["branchids"]
+                      .map<int>((e) => int.parse(e.toString()))
+                      .toList()
+                  : [int.parse(json["branchids"].toString())]),
+
       createdDate: json["createddate"],
       modifiedDate: json["modifieddate"],
       userTypeName: json["usertype"],

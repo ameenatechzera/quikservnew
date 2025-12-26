@@ -20,13 +20,14 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
 
-      if (baseUrl == null || baseUrl.isEmpty)
+      if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
+      }
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
 
       final url = ApiConstants.getProductsPath(baseUrl);
-
-      final response = await dio.post(
+      print(url);
+      final response = await dio.get(
         url,
         options: Options(
           contentType: "application/json",

@@ -1,3 +1,5 @@
+import 'package:floor/floor.dart';
+
 class FetchProductResponse {
   final int? status;
   final bool? error;
@@ -12,6 +14,7 @@ class FetchProductResponse {
   });
 }
 
+@Entity(tableName: 'tbl_products', primaryKeys: ['productCode'])
 class FetchProductDetails {
   final String? productCode;
   final String? productName;

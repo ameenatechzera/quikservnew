@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
@@ -8,8 +9,11 @@ import 'package:quikservnew/features/authentication/presentation/bloc/logincubit
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/category/data/datasources/categories_remote_data_source.dart';
 import 'package:quikservnew/features/category/data/repositories/categories_repository_impl.dart';
+import 'package:quikservnew/features/category/data/repositories/category_local_repository_impl.dart';
+import 'package:quikservnew/features/category/domain/repositories/category_local_repository.dart';
 import 'package:quikservnew/features/category/domain/repositories/category_repository.dart';
 import 'package:quikservnew/features/category/domain/usecases/fetch_categories_usecase.dart';
+import 'package:quikservnew/features/category/domain/usecases/local_fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/groups/data/datasources/group_remote_data_source.dart';
 import 'package:quikservnew/features/groups/data/repositories/group_repository_impl.dart';
@@ -17,10 +21,18 @@ import 'package:quikservnew/features/groups/domain/repositories/group_repository
 import 'package:quikservnew/features/groups/domain/usecases/fetch_groups_usecase.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
 import 'package:quikservnew/features/products/data/datasources/product_remote_data_source.dart';
+import 'package:quikservnew/features/products/data/repositories/product_repositories_local_impl.dart';
 import 'package:quikservnew/features/products/data/repositories/products_repository_impl.dart';
+import 'package:quikservnew/features/products/domain/repositories/product_local_repository.dart';
 import 'package:quikservnew/features/products/domain/repositories/product_repository.dart';
 import 'package:quikservnew/features/products/domain/usecases/fetch_product_usecase.dart';
+import 'package:quikservnew/features/products/domain/usecases/get_products_by_category_usecase.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
+import 'package:quikservnew/features/sale/data/datasources/sales_remote_datasource.dart';
+import 'package:quikservnew/features/sale/data/repositories/sale_repository_impl.dart';
+import 'package:quikservnew/features/sale/domain/repositories/sale_repository.dart';
+import 'package:quikservnew/features/sale/domain/usecases/save_sale_toserver_usecase.dart';
+import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';
 import 'package:quikservnew/features/settings/data/repositories/settings_repository_impl.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
@@ -36,6 +48,7 @@ import 'package:quikservnew/features/vat/data/repositories/vat_repository_impl.d
 import 'package:quikservnew/features/vat/domain/repositories/vat_repository.dart';
 import 'package:quikservnew/features/vat/domain/usecases/fetch_vat_usecase.dart';
 import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
+import 'package:quikservnew/main.dart';
 
 final sl = GetIt.instance;
 
@@ -105,16 +118,25 @@ class ServiceLocator {
 
     // ------------------- PRODUCTS -------------------
     // Cubit
-    sl.registerFactory(() => ProductCubit(fetchProductsUseCase: sl()));
+    sl.registerFactory(
+      () => ProductCubit(
+        fetchProductsUseCase: sl(),
+        productLocalRepository: sl(),
+        getProductsByCategoryUseCase: sl(),
+      ),
+    );
 
     // UseCase
     sl.registerLazySingleton(() => FetchProductsUseCase(sl()));
+    sl.registerLazySingleton(() => GetProductsByCategoryUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<ProductsRemoteDataSource>(
       () => ProductsRemoteDataSourceImpl(),
     );
-
+    sl.registerLazySingleton<ProductLocalRepository>(
+      () => ProductLocalRepositoryImpl(sl()), // <-- Inject Floor DAO here
+    );
     // Repository
     sl.registerLazySingleton<ProductsRepository>(
       () => ProductsRepositoryImpl(remoteDataSource: sl()),
@@ -135,8 +157,18 @@ class ServiceLocator {
     );
 
     // ------------------- CATEGORIES -------------------
+    // Floor Database
+    sl.registerLazySingleton<AppDatabase>(() => appDb);
+
     // Cubit
-    sl.registerFactory(() => CategoriesCubit(fetchCategoriesUseCase: sl()));
+    sl.registerFactory(
+      () => CategoriesCubit(
+        fetchCategoriesUseCase: sl(),
+        categoryLocalRepository: sl(),
+
+        getLocalCategoriesUseCase: sl(),
+      ),
+    );
     // UseCase
     sl.registerLazySingleton(() => FetchCategoriesUseCase(sl()));
     // Data Source
@@ -146,6 +178,21 @@ class ServiceLocator {
     // Repository
     sl.registerLazySingleton<CategoriesRepository>(
       () => CategoriesRepositoryImpl(remoteDataSource: sl()),
+    );
+    sl.registerLazySingleton<CategoryLocalRepository>(
+      () => CategoryLocalRepositoryImpl(sl()),
+    );
+    sl.registerLazySingleton(() => GetLocalCategoriesUseCase(sl()));
+    // ------------------- SALES -------------------
+    sl.registerFactory(
+      () => SaleCubit(saveSaleUseCase: sl(), salesRepository: sl()),
+    );
+    sl.registerLazySingleton(() => SaveSaleUseCase(sl()));
+    sl.registerLazySingleton<SalesRemoteDataSource>(
+      () => SalesRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<SalesRepository>(
+      () => SalesRepositoryImpl(remoteDataSource: sl()),
     );
   }
 }

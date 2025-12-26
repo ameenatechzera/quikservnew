@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/splash_screen.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
+import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/features/units/presentation/bloc/unit_cubit.dart';
 import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
 import 'package:quikservnew/services/service_locator.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
+late final AppDatabase appDb;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  appDb = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   await ServiceLocator.init();
   final sharedPrefHelper = SharedPreferenceHelper();
 
@@ -32,6 +36,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // SystemChrome.setSystemUIOverlayStyle(
+    //   const SystemUiOverlayStyle(
+    //     statusBarColor: Color(0xFFffeeb7), // 👈 background color
+    //     statusBarIconBrightness: Brightness.dark, // Android icons
+    //     statusBarBrightness: Brightness.dark, // iOS icons
+    //   ),
+    // );
     return MultiBlocProvider(
       providers: [
         BlocProvider<RegisterCubit>(create: (_) => sl<RegisterCubit>()),
@@ -42,6 +53,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<ProductCubit>(create: (_) => sl<ProductCubit>()),
         BlocProvider<SettingsCubit>(create: (_) => sl<SettingsCubit>()),
         BlocProvider<CategoriesCubit>(create: (_) => sl<CategoriesCubit>()),
+        BlocProvider<SaleCubit>(create: (_) => sl<SaleCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

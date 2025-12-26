@@ -1,3 +1,5 @@
+import 'package:floor/floor.dart';
+
 class FetchCategoryResponseEntity {
   final int? status;
   final bool? error;
@@ -12,6 +14,7 @@ class FetchCategoryResponseEntity {
   });
 }
 
+@Entity(tableName: 'tbl_category', primaryKeys: ['categoryId'])
 class FetchCategoryDetailsEntity {
   final int? categoryId;
   final String? categoryName;

@@ -30,7 +30,7 @@ class ApiConstants {
 
   ///for products fetching
   static String getProductsPath(String baseUrl) {
-    return '$baseUrl/product/productsNew';
+    return '$baseUrl/product/productsNew/1';
   }
 
   ///for settings fetching
@@ -41,5 +41,10 @@ class ApiConstants {
   ///for categories fetching
   static String getCategoriesPath(String baseUrl) {
     return '$baseUrl/category/categories';
+  }
+
+  ///for saving sales
+  static String getSaveSalePath(String baseUrl) {
+    return '$baseUrl/salesmaster/save-salesmaster';
   }
 }

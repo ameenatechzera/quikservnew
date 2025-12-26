@@ -1,5 +1,5 @@
 class RegisterServerRequest {
-  final int slno;
+  final String slno;
 
   RegisterServerRequest({required this.slno});
 
