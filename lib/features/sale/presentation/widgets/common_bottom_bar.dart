@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quikservnew/features/reports/presentation/screens/dashboard_screen.dart';
+import 'package:quikservnew/features/settings/presentation/screens/printer_settings.dart';
 
 class CommomBottomBar extends StatelessWidget {
   const CommomBottomBar({super.key});
@@ -62,24 +64,48 @@ class CommomBottomBar extends StatelessWidget {
               ),
 
               // CENTER ICON
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.pause_rounded,
-                  color: Colors.black,
-                  size: 20,
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return
+                        //PrinterSettingsUiOnly();
+                        DashboardScreen();
+                      },
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.pause_rounded,
+                    color: Colors.black,
+                    size: 20,
+                  ),
                 ),
               ),
 
-              const Icon(
-                Icons.settings_outlined,
-                color: Colors.black,
-                size: 28,
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return PrinterSettingsUiOnly();
+                      },
+                    ),
+                  );
+                },
+                child: const Icon(
+                  Icons.settings_outlined,
+                  color: Colors.black,
+                  size: 28,
+                ),
               ),
             ],
           ),

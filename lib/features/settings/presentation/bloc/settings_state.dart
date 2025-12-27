@@ -22,3 +22,12 @@ class SettingsError extends SettingsState {
 
   const SettingsError({required this.error});
 }
+
+class PrintTypeSelected extends SettingsState {
+  final String st_PrintType;
+
+  const PrintTypeSelected(this.st_PrintType);
+
+  @override
+  List<Object> get props => [st_PrintType];
+}

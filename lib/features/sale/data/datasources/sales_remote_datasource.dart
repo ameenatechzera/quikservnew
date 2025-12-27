@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/error_message_model.dart';
@@ -30,6 +32,11 @@ class SalesRemoteDataSourceImpl implements SalesRemoteDataSource {
       print('🔹 Save Sale URL: $url');
       print('🔹 DB Name: $dbName');
       print('🔹 Token exists: ${token.isNotEmpty}');
+
+      /// 🔹 PRINT REQUEST BODY
+      final requestBody = request.toJson();
+      print('📤 Save Sale Request Body:');
+      print(const JsonEncoder.withIndent('  ').convert(requestBody));
 
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
 

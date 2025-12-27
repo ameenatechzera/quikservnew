@@ -6,6 +6,7 @@ class PaymentOption extends StatelessWidget {
   final String subtitle;
   final bool selected;
   final IconData icon;
+  final double amount;
 
   const PaymentOption({
     super.key,
@@ -13,6 +14,7 @@ class PaymentOption extends StatelessWidget {
     required this.subtitle,
     required this.selected,
     required this.icon,
+    required this.amount,
   });
 
   @override
@@ -41,6 +43,20 @@ class PaymentOption extends StatelessWidget {
               color: textColor,
             ),
           ),
+
+          /// 🔹 SHOW AMOUNT ONLY WHEN SELECTED
+          if (selected)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '₹ ${amount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
           if (subtitle.isNotEmpty)
             Text(
               subtitle,

@@ -22,4 +22,8 @@ class SettingsCubit extends Cubit<SettingsState> {
       (response) => emit(SettingsLoaded(settings: response)),
     );
   }
+
+  Future<void> printSelection(String st_PrintType) async {
+    emit(PrintTypeSelected(st_PrintType));
+  }
 }

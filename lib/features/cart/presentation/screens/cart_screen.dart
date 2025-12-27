@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
@@ -14,6 +15,8 @@ class CartScreen extends StatelessWidget {
 
   /// 🔹 UI-only payment selection
   final ValueNotifier<String> selectedPayment = ValueNotifier<String>('Cash');
+  final ValueNotifier<double> multiCashAmount = ValueNotifier<double>(0);
+  final ValueNotifier<double> multiCardAmount = ValueNotifier<double>(0);
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +165,7 @@ class CartScreen extends StatelessWidget {
                                     subtitle: '',
                                     selected: payment == 'Cash',
                                     icon: Icons.money,
+                                    amount: payment == 'Cash' ? total : 0,
                                   ),
                                 ),
                               ),
@@ -174,6 +178,7 @@ class CartScreen extends StatelessWidget {
                                     subtitle: '',
                                     selected: payment == 'Card',
                                     icon: Icons.credit_card,
+                                    amount: payment == 'Card' ? total : 0,
                                   ),
                                 ),
                               ),
@@ -181,14 +186,38 @@ class CartScreen extends StatelessWidget {
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
+                                    final prevPayment =
+                                        selectedPayment
+                                            .value; // ✅ capture BEFORE switching
                                     selectedPayment.value = 'Multi';
-                                    _showMultiPaymentModal(context);
+                                    _showMultiPaymentModal(
+                                      context,
+                                      total: total,
+                                      prevPayment: prevPayment,
+                                    );
                                   },
-                                  child: PaymentOption(
-                                    title: 'Multi',
-                                    subtitle: '',
-                                    selected: payment == 'Multi',
-                                    icon: Icons.dashboard_customize_outlined,
+                                  child: ValueListenableBuilder(
+                                    valueListenable: multiCashAmount,
+                                    builder: (context, cash, _) {
+                                      return ValueListenableBuilder(
+                                        valueListenable: multiCardAmount,
+                                        builder: (context, card, __) {
+                                          return PaymentOption(
+                                            title: 'Multi',
+                                            subtitle:
+                                                cash == 0 && card == 0
+                                                    ? ''
+                                                    : 'Cash ₹${cash.toStringAsFixed(0)} | '
+                                                        'Card ₹${card.toStringAsFixed(0)}',
+                                            selected: payment == 'Multi',
+                                            icon:
+                                                Icons
+                                                    .dashboard_customize_outlined,
+                                            amount: cash + card,
+                                          );
+                                        },
+                                      );
+                                    },
                                   ),
                                 ),
                               ),
@@ -216,6 +245,36 @@ class CartScreen extends StatelessWidget {
                                     elevation: 0,
                                   ),
                                   onPressed: () {
+                                    final payment = selectedPayment.value;
+
+                                    double cashAmt = 0;
+                                    double cardAmt = 0;
+
+                                    if (payment == 'Cash') {
+                                      cashAmt = total;
+                                      cardAmt = 0;
+                                    } else if (payment == 'Card') {
+                                      cashAmt = 0;
+                                      cardAmt = total;
+                                    } else if (payment == 'Multi') {
+                                      cashAmt = multiCashAmount.value;
+                                      cardAmt = multiCardAmount.value;
+
+                                      // safety check (only if user did not press OK or mismatch)
+                                      if ((cashAmt + cardAmt - total).abs() >
+                                          0.01) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Multi payment amount mismatch',
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                    }
                                     // Build SaveSaleRequest from cart
                                     final request = SaveSaleRequest(
                                       invoiceDate:
@@ -236,9 +295,9 @@ class CartScreen extends StatelessWidget {
                                       vatAmount: tax,
                                       grandTotal: total,
                                       cashLedgerId: 1,
-                                      cashAmount: total, // simple example
+                                      cashAmount: cashAmt, // simple example
                                       cardLedgerId: 0,
-                                      cardAmount: 0,
+                                      cardAmount: cardAmt,
                                       creditAmount: 0,
                                       tableId: 1,
                                       supplierId: null,
@@ -306,7 +365,43 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  void _showMultiPaymentModal(BuildContext context) {
+  void _showMultiPaymentModal(
+    BuildContext context, {
+    required double total,
+    required String prevPayment,
+  }) {
+    final double initialCash = prevPayment == 'Cash' ? total : 0;
+    final double initialCard = prevPayment == 'Card' ? total : 0;
+
+    // ✅ TEMP values (only commit on OK)
+    double tempCash = initialCash;
+    double tempCard = initialCard;
+
+    final cashCtrl = TextEditingController(
+      text: initialCash == 0 ? '' : initialCash.toStringAsFixed(2),
+    );
+    final cardCtrl = TextEditingController(
+      text: initialCard == 0 ? '' : initialCard.toStringAsFixed(2),
+    );
+
+    bool isAutoUpdating = false;
+
+    double _parse(String v) => double.tryParse(v.trim()) ?? 0;
+
+    double _clampToTotal(double v) {
+      if (v < 0) return 0;
+      if (v > total) return total;
+      return v;
+    }
+
+    void _setText(TextEditingController c, double value) {
+      final t = value == 0 ? '' : value.toStringAsFixed(2);
+      c.value = TextEditingValue(
+        text: t,
+        selection: TextSelection.collapsed(offset: t.length),
+      );
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -328,6 +423,14 @@ class CartScreen extends StatelessWidget {
                 'Multi Payment',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Total: ₹ ${total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
               const SizedBox(height: 16),
 
               /// 🔹 Cash row
@@ -336,13 +439,34 @@ class CartScreen extends StatelessWidget {
                   const SizedBox(width: 160, child: Text('Cash')),
                   Expanded(
                     child: TextField(
-                      keyboardType: TextInputType.number,
+                      controller: cashCtrl,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Amount',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
+                      onChanged: (v) {
+                        if (isAutoUpdating) return;
+                        isAutoUpdating = true;
+
+                        final cash = _clampToTotal(_parse(v));
+                        final card = total - cash;
+
+                        // ✅ update TEMP only
+                        tempCash = cash;
+                        tempCard = card;
+
+                        if ((_parse(v) - cash).abs() > 0.001) {
+                          _setText(cashCtrl, cash);
+                        }
+                        _setText(cardCtrl, card);
+
+                        isAutoUpdating = false;
+                      },
                     ),
                   ),
                 ],
@@ -356,13 +480,34 @@ class CartScreen extends StatelessWidget {
                   const SizedBox(width: 160, child: Text('Card')),
                   Expanded(
                     child: TextField(
-                      keyboardType: TextInputType.number,
+                      controller: cardCtrl,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Amount',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
+                      onChanged: (v) {
+                        if (isAutoUpdating) return;
+                        isAutoUpdating = true;
+
+                        final card = _clampToTotal(_parse(v));
+                        final cash = total - card;
+
+                        // ✅ update TEMP only
+                        tempCard = card;
+                        tempCash = cash;
+
+                        if ((_parse(v) - card).abs() > 0.001) {
+                          _setText(cardCtrl, card);
+                        }
+                        _setText(cashCtrl, cash);
+
+                        isAutoUpdating = false;
+                      },
                     ),
                   ),
                 ],
@@ -370,12 +515,12 @@ class CartScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              /// 🔹 Buttons
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
+                        // ✅ Cancel = do nothing, just close
                         Navigator.pop(context);
                       },
                       child: const Text('Cancel'),
@@ -389,6 +534,19 @@ class CartScreen extends StatelessWidget {
                         foregroundColor: Colors.black,
                       ),
                       onPressed: () {
+                        // ✅ OK = commit values
+                        if ((tempCash + tempCard - total).abs() > 0.01) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Cash + Card must equal Total'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        multiCashAmount.value = tempCash;
+                        multiCardAmount.value = tempCard;
+
                         Navigator.pop(context);
                       },
                       child: const Text('OK'),
