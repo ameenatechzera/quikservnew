@@ -8,6 +8,7 @@ import 'package:quikservnew/features/category/presentation/bloc/category_cubit.d
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
+import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/features/units/presentation/bloc/unit_cubit.dart';
 import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<SettingsCubit>(create: (_) => sl<SettingsCubit>()),
         BlocProvider<CategoriesCubit>(create: (_) => sl<CategoriesCubit>()),
         BlocProvider<SaleCubit>(create: (_) => sl<SaleCubit>()),
+        BlocProvider<SalesReportCubit>(create: (_) => sl<SalesReportCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -32,6 +32,7 @@ class SalesRemoteDataSourceImpl implements SalesRemoteDataSource {
       print('🔹 Save Sale URL: $url');
       print('🔹 DB Name: $dbName');
       print('🔹 Token exists: ${token.isNotEmpty}');
+      print('🔹 Token: ${token}');
 
       /// 🔹 PRINT REQUEST BODY
       final requestBody = request.toJson();

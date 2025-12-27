@@ -437,14 +437,14 @@ import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PrinterSettingsUiOnly extends StatefulWidget {
-  const PrinterSettingsUiOnly({super.key});
+class PrinterSettingsScreen extends StatefulWidget {
+  const PrinterSettingsScreen({super.key});
 
   @override
-  State<PrinterSettingsUiOnly> createState() => _PrinterSettingsUiOnlyState();
+  State<PrinterSettingsScreen> createState() => _PrinterSettingsScreenState();
 }
 
-class _PrinterSettingsUiOnlyState extends State<PrinterSettingsUiOnly> {
+class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
   String printerType = 'Wifi';
   String paperSize = '2 inch';
 

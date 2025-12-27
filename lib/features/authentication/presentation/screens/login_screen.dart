@@ -65,6 +65,9 @@ class LoginScreen extends StatelessWidget {
                 await SharedPreferenceHelper().setToken(
                   state.loginResponse.token,
                 );
+                await SharedPreferenceHelper().setBranchId(
+                  state.loginResponse.data.first.branchIds.first.toString(),
+                );
 
                 /// Trigger fetching units
                 await context.read<UnitCubit>().fetchUnits();
