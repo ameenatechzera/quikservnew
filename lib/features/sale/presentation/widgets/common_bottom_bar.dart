@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_screen.dart';
+import 'package:quikservnew/features/settings/presentation/screens/printer_settings.dart';
 
 class CommomBottomBar extends StatelessWidget {
   const CommomBottomBar({super.key});
