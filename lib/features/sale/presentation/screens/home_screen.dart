@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
@@ -42,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
+    requestBluetoothPermissions();
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Color(0xFFffeeb7),
@@ -1449,5 +1450,18 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+}
+Future<void> requestBluetoothPermissions() async {
+  if (await Permission.bluetoothConnect.isDenied) {
+    await Permission.bluetoothConnect.request();
+  }
+
+  if (await Permission.bluetoothScan.isDenied) {
+    await Permission.bluetoothScan.request();
+  }
+
+  if (await Permission.location.isDenied) {
+    await Permission.location.request();
   }
 }

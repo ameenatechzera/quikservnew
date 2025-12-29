@@ -13,6 +13,7 @@ import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/dottedLinePainter.dart';
+import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 // import 'package:share_plus/share_plus.dart';
 
@@ -1798,17 +1799,17 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                       onPressed: () {
                                                         print('pressed');
 
-                                                        // Navigator.push(
-                                                        //     context,
-                                                        //     MaterialPageRoute(
-                                                        //         builder:
-                                                        //             (context) =>
-                                                        //             PrintPage(
-                                                        //               pageFrom:
-                                                        //               'SalesReport',
-                                                        //               sales:
-                                                        //               saleList.first,
-                                                        //             )));
+                                                        Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                    PrintPage(
+                                                                      pageFrom:
+                                                                      'SalesReport',
+                                                                      sales:
+                                                                      saleList.first,
+                                                                    )));
 
                                                         // Navigator.push(
                                                         //     context,
