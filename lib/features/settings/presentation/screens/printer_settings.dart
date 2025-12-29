@@ -1,436 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class PrinterSettingsUiOnly extends StatefulWidget {
-//   const PrinterSettingsUiOnly({super.key});
-
-//   @override
-//   State<PrinterSettingsUiOnly> createState() => _PrinterSettingsUiOnlyState();
-// }
-
-// class _PrinterSettingsUiOnlyState extends State<PrinterSettingsUiOnly> {
-//   // UI state only
-//   String printerType = 'Wifi';
-//   String paperSize = '2 inch';
-
-//   bool deviceListStatus = false;
-
-//   final TextEditingController ipController = TextEditingController(
-//     text: '192.168.1.40:5000',
-//   );
-//   final TextEditingController connectedDeviceController = TextEditingController(
-//     text: 'Not connected',
-//   );
-
-//   // dummy lists for UI
-//   final List<String> printerTypesList = ['Wifi', 'Bluetooth'];
-//   final List<String> blPrinterTypes = ['2 inch', '3 inch', 'No print'];
-
-//   final List<String> printersList = [
-//     'MainPrinter_1',
-//     'MainPrinter_2',
-//     'MainPrinter_3',
-//   ];
-//   final List<String> printersKitchenList = [
-//     'KitchenPrinter_1',
-//     'KitchenPrinter_2',
-//     'KitchenPrinter_3',
-//   ];
-
-//   String? selectedMainPrinter;
-//   String? selectedKitchenPrinter;
-
-//   final List<Map<String, String>> bluetoothDevices = const [
-//     {'name': 'BT Printer A', 'mac': '00:11:22:33:44:55'},
-//     {'name': 'BT Printer B', 'mac': '66:77:88:99:AA:BB'},
-//     {'name': 'BT Printer C', 'mac': 'CC:DD:EE:FF:00:11'},
-//   ];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     selectedMainPrinter = printersList.first;
-//     selectedKitchenPrinter = printersKitchenList.first;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       appBar: AppBar(
-//         backgroundColor: Colors.white,
-//         elevation: 0,
-//         title: const Text(
-//           'Printer Settings',
-//           style: TextStyle(color: Colors.black),
-//         ),
-//         iconTheme: const IconThemeData(color: Colors.black),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             // --- Printer type card ---
-//             Padding(
-//               padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-//               child: Card(
-//                 elevation: 4,
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(10),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         'Select Printer Type',
-//                         style: TextStyle(
-//                           fontSize: 13,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 6),
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                         children:
-//                             printerTypesList.map((t) {
-//                               return Row(
-//                                 mainAxisSize: MainAxisSize.min,
-//                                 children: [
-//                                   Radio<String>(
-//                                     value: t,
-//                                     groupValue: printerType,
-//                                     onChanged: (v) {
-//                                       if (v == null) return;
-//                                       setState(() {
-//                                         printerType = v;
-//                                       });
-//                                     },
-//                                   ),
-//                                   Text(t, style: const TextStyle(fontSize: 15)),
-//                                   const SizedBox(width: 12),
-//                                 ],
-//                               );
-//                             }).toList(),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-
-//             // --- Content based on printer type ---
-//             if (printerType == 'Bluetooth') _bluetoothUi() else _wifiUi(),
-
-//             // --- Save button ---
-//             Padding(
-//               padding: const EdgeInsets.fromLTRB(15, 10, 15, 18),
-//               child: SizedBox(
-//                 width: double.infinity,
-//                 child: ElevatedButton(
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: const Color(0xFFFF8A00), // orange
-//                     foregroundColor: Colors.white,
-//                     elevation: 8,
-//                     padding: const EdgeInsets.symmetric(vertical: 12),
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(6),
-//                     ),
-//                   ),
-//                   onPressed: () {
-//                     // UI only - no logic
-//                     ScaffoldMessenger.of(context).showSnackBar(
-//                       SnackBar(
-//                         content: Text(
-//                           printerType == 'Wifi'
-//                               ? 'Saved WiFi settings'
-//                               : 'Saved Bluetooth settings',
-//                         ),
-//                       ),
-//                     );
-//                   },
-//                   child: const Text(
-//                     'Save',
-//                     style: TextStyle(fontWeight: FontWeight.bold),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _bluetoothUi() {
-//     return Padding(
-//       padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           // Choose Bluetooth Printer Type
-//           Card(
-//             elevation: 4,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(12),
-//             ),
-//             child: Padding(
-//               padding: const EdgeInsets.all(10),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   const Text(
-//                     'Choose Bluetooth Printer Type',
-//                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-//                   ),
-//                   const SizedBox(height: 6),
-//                   ...blPrinterTypes.map((t) {
-//                     return RadioListTile<String>(
-//                       value: t,
-//                       groupValue: paperSize,
-//                       contentPadding: EdgeInsets.zero,
-//                       onChanged: (v) {
-//                         if (v == null) return;
-//                         setState(() => paperSize = v);
-//                       },
-//                       title: Text(t, style: const TextStyle(fontSize: 15)),
-//                     );
-//                   }).toList(),
-//                 ],
-//               ),
-//             ),
-//           ),
-
-//           const SizedBox(height: 8),
-
-//           // Change Printer card
-//           Card(
-//             elevation: 4,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(12),
-//             ),
-//             child: Padding(
-//               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Row(
-//                     children: [
-//                       const Text(
-//                         'Change Printer',
-//                         style: TextStyle(
-//                           fontSize: 13,
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black87,
-//                         ),
-//                       ),
-//                       const Spacer(),
-//                       Switch(
-//                         value: deviceListStatus,
-//                         onChanged: (v) => setState(() => deviceListStatus = v),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 10),
-
-//                   // Connected device box
-//                   Container(
-//                     padding: const EdgeInsets.all(12),
-//                     decoration: BoxDecoration(
-//                       color: Colors.grey[100],
-//                       borderRadius: BorderRadius.circular(8),
-//                     ),
-//                     child: Row(
-//                       children: [
-//                         const Icon(Icons.print, color: Colors.blueGrey),
-//                         const SizedBox(width: 12),
-//                         Expanded(
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               const Text(
-//                                 'Connected Device',
-//                                 style: TextStyle(
-//                                   fontSize: 12,
-//                                   color: Colors.grey,
-//                                 ),
-//                               ),
-//                               Text(
-//                                 connectedDeviceController.text.isNotEmpty
-//                                     ? connectedDeviceController.text
-//                                     : 'Not connected',
-//                                 style: const TextStyle(
-//                                   fontSize: 16,
-//                                   fontWeight: FontWeight.w500,
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-
-//                   // Available printers list (toggle)
-//                   if (deviceListStatus) ...[
-//                     const SizedBox(height: 14),
-//                     const Text(
-//                       'Available Printers',
-//                       style: TextStyle(
-//                         fontSize: 13,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                     const SizedBox(height: 8),
-//                     Container(
-//                       constraints: const BoxConstraints(maxHeight: 200),
-//                       decoration: BoxDecoration(
-//                         border: Border.all(color: Colors.grey.shade300),
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                       child: ListView.builder(
-//                         shrinkWrap: true,
-//                         itemCount: bluetoothDevices.length,
-//                         itemBuilder: (context, i) {
-//                           final d = bluetoothDevices[i];
-//                           return ListTile(
-//                             leading: const Icon(
-//                               Icons.bluetooth,
-//                               color: Colors.blue,
-//                             ),
-//                             title: Text(d['name'] ?? 'Unknown'),
-//                             subtitle: Text(d['mac'] ?? ''),
-//                             trailing: IconButton(
-//                               icon: const Icon(
-//                                 Icons.link,
-//                                 color: Color(0xFFFF8A00),
-//                               ),
-//                               onPressed: () {
-//                                 // UI only: set connected name
-//                                 setState(() {
-//                                   connectedDeviceController.text =
-//                                       d['name'] ?? 'Unknown';
-//                                 });
-//                               },
-//                             ),
-//                           );
-//                         },
-//                       ),
-//                     ),
-//                   ],
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _wifiUi() {
-//     return Card(
-//       elevation: 4,
-//       margin: const EdgeInsets.all(20),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-//       child: Padding(
-//         padding: const EdgeInsets.all(10),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             const Row(
-//               children: [
-//                 Text(
-//                   'Printer settings',
-//                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-//                 ),
-//               ],
-//             ),
-//             const SizedBox(height: 16),
-
-//             // IP + Port
-//             TextFormField(
-//               controller: ipController,
-//               decoration: InputDecoration(
-//                 hintText: "e.g. 192.168.1.40:5000",
-//                 border: const OutlineInputBorder(),
-//                 enabledBorder: const OutlineInputBorder(
-//                   borderSide: BorderSide(color: Colors.black, width: 1),
-//                 ),
-//                 focusedBorder: const OutlineInputBorder(
-//                   borderSide: BorderSide(color: Colors.black, width: 1),
-//                 ),
-//                 suffixIcon: IconButton(
-//                   icon: const Icon(Icons.refresh),
-//                   onPressed: () {
-//                     // UI only
-//                   },
-//                 ),
-//               ),
-//             ),
-
-//             const SizedBox(height: 16),
-
-//             // Main printer
-//             DropdownButtonFormField<String>(
-//               value: selectedMainPrinter,
-//               decoration: const InputDecoration(
-//                 labelText: "Select Main Printer",
-//                 border: OutlineInputBorder(),
-//               ),
-//               items:
-//                   printersList
-//                       .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-//                       .toList(),
-//               onChanged: (v) => setState(() => selectedMainPrinter = v),
-//             ),
-
-//             const SizedBox(height: 16),
-
-//             // Kitchen printer
-//             DropdownButtonFormField<String>(
-//               value: selectedKitchenPrinter,
-//               decoration: const InputDecoration(
-//                 labelText: "Select Kitchen Printer",
-//                 border: OutlineInputBorder(),
-//               ),
-//               items:
-//                   printersKitchenList
-//                       .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-//                       .toList(),
-//               onChanged: (v) => setState(() => selectedKitchenPrinter = v),
-//             ),
-
-//             const SizedBox(height: 10),
-
-//             // Add Group Printer (UI only)
-//             Align(
-//               alignment: Alignment.centerRight,
-//               child: InkWell(
-//                 onTap: () {},
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(8.0),
-//                   child: Row(
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: const [
-//                       Text(
-//                         "Add Group Printer",
-//                         style: TextStyle(
-//                           fontSize: 13,
-//                           fontWeight: FontWeight.w500,
-//                         ),
-//                       ),
-//                       SizedBox(width: 6),
-//                       Icon(Icons.add, color: Color(0xFFFF8A00)),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
@@ -602,19 +169,18 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:
-                    printerTypesList.map((t) {
-                      return Row(
-                        children: [
-                          Radio<String>(
-                            value: t,
-                            groupValue: printerType,
-                            onChanged: (v) => setState(() => printerType = v!),
-                          ),
-                          Text(t),
-                        ],
-                      );
-                    }).toList(),
+                children: printerTypesList.map((t) {
+                  return Row(
+                    children: [
+                      Radio<String>(
+                        value: t,
+                        groupValue: printerType,
+                        onChanged: (v) => setState(() => printerType = v!),
+                      ),
+                      Text(t),
+                    ],
+                  );
+                }).toList(),
               ),
             ],
           ),
@@ -635,15 +201,14 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
-              children:
-                  blPrinterTypes.map((t) {
-                    return RadioListTile(
-                      value: t,
-                      groupValue: paperSize,
-                      onChanged: (v) => setState(() => paperSize = v!),
-                      title: Text(t),
-                    );
-                  }).toList(),
+              children: blPrinterTypes.map((t) {
+                return RadioListTile(
+                  value: t,
+                  groupValue: paperSize,
+                  onChanged: (v) => setState(() => paperSize = v!),
+                  title: Text(t),
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 8),
@@ -733,32 +298,23 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(8),
           ),
-          child:
-              bluetoothDevices.isEmpty
-                  ? const Center(child: Text('No printers found'))
-                  : ListView.builder(
-                    itemCount: bluetoothDevices.length,
-                    itemBuilder: (context, i) {
-                      final d = bluetoothDevices[i];
-                      return ListTile(
-                        leading: const Icon(
-                          Icons.bluetooth,
-                          color: Colors.blue,
-                        ),
-                        title: Text(d.name ?? 'Unknown'),
-                        subtitle: Text(d.macAdress ?? ''),
-                        trailing: IconButton(
-                          icon: const Icon(
-                            Icons.link,
-                            color: Color(0xFFFF8A00),
-                          ),
-                          onPressed:
-                              () =>
-                                  _connectAndPrint(d.macAdress!, d.name ?? ''),
-                        ),
-                      );
-                    },
-                  ),
+          child: bluetoothDevices.isEmpty
+              ? const Center(child: Text('No printers found'))
+              : ListView.builder(
+                  itemCount: bluetoothDevices.length,
+                  itemBuilder: (context, i) {
+                    final d = bluetoothDevices[i];
+                    return ListTile(
+                      leading: const Icon(Icons.bluetooth, color: Colors.blue),
+                      title: Text(d.name),
+                      subtitle: Text(d.macAdress),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.link, color: Color(0xFFFF8A00)),
+                        onPressed: () => _connectAndPrint(d.macAdress, d.name),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -808,10 +364,9 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                 labelText: "Select Main Printer",
                 border: OutlineInputBorder(),
               ),
-              items:
-                  printersList
-                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                      .toList(),
+              items: printersList
+                  .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                  .toList(),
               onChanged: (v) => setState(() => selectedMainPrinter = v),
             ),
             const SizedBox(height: 16),
@@ -821,10 +376,9 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                 labelText: "Select Kitchen Printer",
                 border: OutlineInputBorder(),
               ),
-              items:
-                  printersKitchenList
-                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                      .toList(),
+              items: printersKitchenList
+                  .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                  .toList(),
               onChanged: (v) => setState(() => selectedKitchenPrinter = v),
             ),
             const SizedBox(height: 10),

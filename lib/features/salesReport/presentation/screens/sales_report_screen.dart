@@ -83,7 +83,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     saleTotal = 0;
 
     for (final item in list) {
-      saleTotal += double.tryParse(item.grandTotal ?? '0') ?? 0;
+      saleTotal += double.tryParse(item.grandTotal) ?? 0;
     }
 
     _totalRecordsController.text = list.length.toString();
@@ -146,44 +146,44 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     itemBuilder: (context, index) {
                       final sale = salesList[index];
                       return InkWell(
-                        onTap: (){
+                        onTap: () {
                           Navigator.push(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (context, animation,
-                                  secondaryAnimation) =>
-                                  SaleReportPreviewScreen(
-                                    st_fromDate:
-                                    _fromDateFormattedController
-                                        .text
-                                        .toString(),
-                                    st_toDate:
-                                    _toDateFormattedController
-                                        .text
-                                        .toString(),
-                                    pagefrom: 'SalesReport',
-                                    masterId: salesList[0]
-                                        .salesMasterId.toString(),
-                                  ),
-                              transitionsBuilder: (context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child) {
-                                const begin = Offset(1.0, 0.0);
-                                const end = Offset.zero;
-                                const curve = Curves.ease;
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      SaleReportPreviewScreen(
+                                        st_fromDate:
+                                            _fromDateFormattedController.text
+                                                .toString(),
+                                        st_toDate: _toDateFormattedController
+                                            .text
+                                            .toString(),
+                                        pagefrom: 'SalesReport',
+                                        masterId: salesList[0].salesMasterId
+                                            .toString(),
+                                      ),
+                              transitionsBuilder:
+                                  (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) {
+                                    const begin = Offset(1.0, 0.0);
+                                    const end = Offset.zero;
+                                    const curve = Curves.ease;
 
-                                var tween = Tween(
-                                    begin: begin, end: end)
-                                    .chain(
-                                    CurveTween(curve: curve));
+                                    var tween = Tween(
+                                      begin: begin,
+                                      end: end,
+                                    ).chain(CurveTween(curve: curve));
 
-                                return SlideTransition(
-                                  position:
-                                  animation.drive(tween),
-                                  child: child,
-                                );
-                              },
+                                    return SlideTransition(
+                                      position: animation.drive(tween),
+                                      child: child,
+                                    );
+                                  },
                             ),
                           );
                         },
@@ -248,7 +248,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   Widget dateCard(String title, DateTime date, VoidCallback onTap) {
     return Card(
       child: InkWell(
-        onTap: (){
+        onTap: () {
           // Navigator.push(
           //   context,
           //   PageRouteBuilder(

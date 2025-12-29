@@ -73,8 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(10),
                     child: BlocBuilder<SaleCubit, SaleState>(
                       builder: (context, state) {
-                        final selectedIndex =
-                            context.read<SaleCubit>().selectedTabIndex;
+                        final selectedIndex = context
+                            .read<SaleCubit>()
+                            .selectedTabIndex;
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -141,35 +142,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           // ✅ Title changes based on mode
                           Expanded(
-                            child:
-                                menuVisible
-                                    ? BlocBuilder<ProductCubit, ProductsState>(
-                                      builder: (context, state) {
-                                        int count = 0;
-                                        if (state is ProductSuccess) {
-                                          count =
-                                              state
-                                                  .products
-                                                  .productDetails
-                                                  ?.length ??
-                                              0;
-                                        } else if (state
-                                            is ProductsByCategoryLoaded) {
-                                          count = state.products.length;
-                                        } else if (state
-                                            is ProductLoadedFromLocal) {
-                                          count = state.products.length;
-                                        }
+                            child: menuVisible
+                                ? BlocBuilder<ProductCubit, ProductsState>(
+                                    builder: (context, state) {
+                                      int count = 0;
+                                      if (state is ProductSuccess) {
+                                        count =
+                                            state
+                                                .products
+                                                .productDetails
+                                                ?.length ??
+                                            0;
+                                      } else if (state
+                                          is ProductsByCategoryLoaded) {
+                                        count = state.products.length;
+                                      } else if (state
+                                          is ProductLoadedFromLocal) {
+                                        count = state.products.length;
+                                      }
 
-                                        return ValueListenableBuilder<String>(
-                                          valueListenable: selectedCategoryName,
-                                          builder: (context, name, _) {
-                                            return Text("$name ($count)");
-                                          },
-                                        );
-                                      },
-                                    )
-                                    : const Text("All (12)"),
+                                      return ValueListenableBuilder<String>(
+                                        valueListenable: selectedCategoryName,
+                                        builder: (context, name, _) {
+                                          return Text("$name ($count)");
+                                        },
+                                      );
+                                    },
+                                  )
+                                : const Text("All (12)"),
                           ),
 
                           IconButton(
@@ -254,39 +254,40 @@ class _HomeScreenState extends State<HomeScreen> {
                             // Left Categories
                             SizedBox(
                               width: 120,
-                              child: BlocBuilder<
-                                CategoriesCubit,
-                                CategoryState
-                              >(
-                                builder: (context, state) {
-                                  if (state is CategoryLoading) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
+                              child:
+                                  BlocBuilder<CategoriesCubit, CategoryState>(
+                                    builder: (context, state) {
+                                      if (state is CategoryLoading) {
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
 
-                                  if (state is CategoryLoadedFromLocal) {
-                                    return CategoryListWidget(
-                                      categories: state.categories,
-                                      selectedCategoryId: selectedCategoryId,
-                                      selectedCategoryName:
-                                          selectedCategoryName,
-                                    );
-                                  }
+                                      if (state is CategoryLoadedFromLocal) {
+                                        return CategoryListWidget(
+                                          categories: state.categories,
+                                          selectedCategoryId:
+                                              selectedCategoryId,
+                                          selectedCategoryName:
+                                              selectedCategoryName,
+                                        );
+                                      }
 
-                                  if (state is CategoryEmpty) {
-                                    return const Center(
-                                      child: Text("No categories in local DB"),
-                                    );
-                                  }
+                                      if (state is CategoryEmpty) {
+                                        return const Center(
+                                          child: Text(
+                                            "No categories in local DB",
+                                          ),
+                                        );
+                                      }
 
-                                  if (state is CategoryError) {
-                                    return Center(child: Text(state.error));
-                                  }
+                                      if (state is CategoryError) {
+                                        return Center(child: Text(state.error));
+                                      }
 
-                                  return const SizedBox();
-                                },
-                              ),
+                                      return const SizedBox();
+                                    },
+                                  ),
                             ),
 
                             // Right Products Grid
@@ -324,13 +325,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context, constraints) {
                                         final double screenWidth =
                                             constraints.maxWidth;
-                                        final double textScale =
-                                            MediaQuery.of(
-                                              context,
-                                            ).textScaleFactor;
+                                        final double textScale = MediaQuery.of(
+                                          context,
+                                        ).textScaleFactor;
 
-                                        double maxItemWidth =
-                                            screenWidth > 600 ? 200 : 160;
+                                        double maxItemWidth = screenWidth > 600
+                                            ? 200
+                                            : 160;
                                         if (textScale > 1.0) {
                                           maxItemWidth +=
                                               30 *
@@ -389,31 +390,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         1.0,
                                                                         1.2,
                                                                       ),
-                                                              child:
-                                                                  (() {
-                                                                    final Uint8List?
-                                                                    imageBytes =
-                                                                        decodeImage(
-                                                                          product
-                                                                              .productImageByte,
-                                                                        );
-
-                                                                    if (imageBytes !=
-                                                                        null) {
-                                                                      return Image.memory(
-                                                                        imageBytes,
-                                                                        fit:
-                                                                            BoxFit.cover,
-                                                                      );
-                                                                    }
-
-                                                                    return Image.asset(
-                                                                      "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
-                                                                      fit:
-                                                                          BoxFit
-                                                                              .cover,
+                                                              child: (() {
+                                                                final Uint8List?
+                                                                imageBytes =
+                                                                    decodeImage(
+                                                                      product
+                                                                          .productImageByte,
                                                                     );
-                                                                  })(),
+
+                                                                if (imageBytes !=
+                                                                    null) {
+                                                                  return Image.memory(
+                                                                    imageBytes,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  );
+                                                                }
+
+                                                                return Image.asset(
+                                                                  "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                );
+                                                              })(),
                                                             ),
                                                           ),
                                                         ),
@@ -470,16 +469,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     left: 10,
                                                     right: 10,
                                                   ),
-                                                  child: ValueListenableBuilder<
-                                                    List<CartItem>
-                                                  >(
+                                                  child: ValueListenableBuilder<List<CartItem>>(
                                                     valueListenable:
                                                         cartManager.cartItems,
-                                                    builder: (
-                                                      context,
-                                                      cartItems,
-                                                      _,
-                                                    ) {
+                                                    builder: (context, cartItems, _) {
                                                       CartItem? cartItem;
                                                       try {
                                                         cartItem = cartItems
@@ -500,12 +493,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               CartItem(
                                                                 lineNo: 0,
                                                                 customerId: 1,
-                                                                productCode:
-                                                                    product
-                                                                        .productCode!,
-                                                                productName:
-                                                                    product
-                                                                        .productName!,
+                                                                productCode: product
+                                                                    .productCode!,
+                                                                productName: product
+                                                                    .productName!,
                                                                 qty: 1,
                                                                 oldQty: 0,
                                                                 salesRate:
@@ -514,28 +505,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           '0',
                                                                     ) ??
                                                                     0.0,
-                                                                unitId:
-                                                                    product
-                                                                        .unitId
-                                                                        .toString(),
+                                                                unitId: product
+                                                                    .unitId
+                                                                    .toString(),
                                                                 purchaseCost:
                                                                     product
                                                                         .purchaseRate!,
-                                                                groupId:
-                                                                    product
-                                                                        .group_id,
-                                                                categoryId:
-                                                                    product
-                                                                        .categoryId!,
+                                                                groupId: product
+                                                                    .group_id,
+                                                                categoryId: product
+                                                                    .categoryId!,
                                                                 productImage:
                                                                     product
                                                                         .productImageByte!,
                                                                 excludeRate: '',
                                                                 subtotal: '0.0',
-                                                                vatId:
-                                                                    product
-                                                                        .vatId!
-                                                                        .toString(),
+                                                                vatId: product
+                                                                    .vatId!
+                                                                    .toString(),
                                                                 vatAmount:
                                                                     '0.0',
                                                                 totalAmount:
@@ -543,12 +530,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 conversion_rate:
                                                                     product
                                                                         .conversionRate!,
-                                                                category:
-                                                                    product
-                                                                        .categoryName!,
-                                                                groupName:
-                                                                    product
-                                                                        .groupName,
+                                                                category: product
+                                                                    .categoryName!,
+                                                                groupName: product
+                                                                    .groupName,
                                                                 product_description:
                                                                     '',
                                                               ),
@@ -604,9 +589,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 5,
                                                               ),
                                                           border: Border.all(
-                                                            color:
-                                                                AppColors
-                                                                    .primary,
+                                                            color: AppColors
+                                                                .primary,
                                                           ),
                                                         ),
                                                         child: Row(
@@ -629,20 +613,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     Icons
                                                                         .remove,
                                                                     size: 20,
-                                                                    color:
-                                                                        AppColors
-                                                                            .black,
+                                                                    color: AppColors
+                                                                        .black,
                                                                   ),
                                                                 ),
                                                               ),
                                                             ),
                                                             MediaQuery(
-                                                              data: MediaQuery.of(
-                                                                context,
-                                                              ).copyWith(
-                                                                textScaleFactor:
-                                                                    1.0,
-                                                              ),
+                                                              data:
+                                                                  MediaQuery.of(
+                                                                    context,
+                                                                  ).copyWith(
+                                                                    textScaleFactor:
+                                                                        1.0,
+                                                                  ),
                                                               child: Text(
                                                                 cartItem.qty
                                                                     .toString(),
@@ -671,9 +655,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   child: Icon(
                                                                     Icons.add,
                                                                     size: 20,
-                                                                    color:
-                                                                        AppColors
-                                                                            .black,
+                                                                    color: AppColors
+                                                                        .black,
                                                                   ),
                                                                 ),
                                                               ),
@@ -722,17 +705,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: const EdgeInsets.all(8.0),
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
-                                  final screenWidth =
-                                      MediaQuery.of(context).size.width;
-                                  final textScale =
-                                      MediaQuery.of(context).textScaleFactor;
+                                  final screenWidth = MediaQuery.of(
+                                    context,
+                                  ).size.width;
+                                  final textScale = MediaQuery.of(
+                                    context,
+                                  ).textScaleFactor;
 
-                                  double maxWidthPerItem =
-                                      screenWidth > 600 ? 180 : 160;
+                                  double maxWidthPerItem = screenWidth > 600
+                                      ? 180
+                                      : 160;
                                   if (textScale > 1.2) maxWidthPerItem += 30;
 
-                                  double baseAspectRatio =
-                                      screenWidth > 600 ? 0.8 : 0.75;
+                                  double baseAspectRatio = screenWidth > 600
+                                      ? 0.8
+                                      : 0.71;
                                   final childAspectRatio =
                                       baseAspectRatio /
                                       textScale.clamp(1.0, 1.7);
@@ -776,8 +763,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             '0',
                                                       ) ??
                                                       0.0,
-                                                  unitId:
-                                                      product.unitId.toString(),
+                                                  unitId: product.unitId
+                                                      .toString(),
                                                   purchaseCost:
                                                       product.purchaseRate!,
                                                   groupId: product.group_id,
@@ -787,8 +774,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       product.productImageByte!,
                                                   excludeRate: '',
                                                   subtotal: '0.0',
-                                                  vatId:
-                                                      product.vatId!.toString(),
+                                                  vatId: product.vatId!
+                                                      .toString(),
                                                   vatAmount: '0.0',
                                                   totalAmount: '0.00',
                                                   conversion_rate:
@@ -801,8 +788,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               );
                                               showCartBar.value = true;
                                             },
-                                            onLongPress:
-                                                () => showProductDialog(
+                                            onLongPress: () =>
+                                                showProductDialog(
                                                   context,
                                                   product,
                                                   cartManager,
@@ -831,32 +818,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             ),
                                                         child: SizedBox(
                                                           height: imageHeight,
-                                                          child:
-                                                              (() {
-                                                                final Uint8List?
-                                                                imageBytes =
-                                                                    decodeImage(
-                                                                      product
-                                                                          .productImageByte,
-                                                                    );
-
-                                                                if (imageBytes !=
-                                                                    null) {
-                                                                  return Image.memory(
-                                                                    imageBytes,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                  );
-                                                                }
-
-                                                                return Image.asset(
-                                                                  "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
-                                                                  fit:
-                                                                      BoxFit
-                                                                          .cover,
+                                                          child: (() {
+                                                            final Uint8List?
+                                                            imageBytes =
+                                                                decodeImage(
+                                                                  product
+                                                                      .productImageByte,
                                                                 );
-                                                              })(),
+
+                                                            if (imageBytes !=
+                                                                null) {
+                                                              return Image.memory(
+                                                                imageBytes,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              );
+                                                            }
+
+                                                            return Image.asset(
+                                                              "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
+                                                              fit: BoxFit.cover,
+                                                            );
+                                                          })(),
                                                         ),
                                                       ),
                                                     ),
@@ -875,7 +858,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 .start,
                                                         children: [
                                                           Expanded(
-                                                            flex: 2,
+                                                            flex: 5,
                                                             child: Text(
                                                               product
                                                                   .productName!,
@@ -917,9 +900,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               left: 10,
                                               right: 10,
                                             ),
-                                            child: ValueListenableBuilder<
-                                              List<CartItem>
-                                            >(
+                                            child: ValueListenableBuilder<List<CartItem>>(
                                               valueListenable:
                                                   cartManager.cartItems,
                                               builder: (context, cartItems, _) {
@@ -944,12 +925,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         CartItem(
                                                           lineNo: 0,
                                                           customerId: 1,
-                                                          productCode:
-                                                              product
-                                                                  .productCode!,
-                                                          productName:
-                                                              product
-                                                                  .productName!,
+                                                          productCode: product
+                                                              .productCode!,
+                                                          productName: product
+                                                              .productName!,
                                                           qty: 1,
                                                           oldQty: 0,
                                                           salesRate:
@@ -958,33 +937,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     '0',
                                                               ) ??
                                                               0.0,
-                                                          unitId:
-                                                              product.unitId
-                                                                  .toString(),
-                                                          purchaseCost:
-                                                              product
-                                                                  .purchaseRate!,
+                                                          unitId: product.unitId
+                                                              .toString(),
+                                                          purchaseCost: product
+                                                              .purchaseRate!,
                                                           groupId:
                                                               product.group_id,
-                                                          categoryId:
-                                                              product
-                                                                  .categoryId!,
-                                                          productImage:
-                                                              product
-                                                                  .productImageByte!,
+                                                          categoryId: product
+                                                              .categoryId!,
+                                                          productImage: product
+                                                              .productImageByte!,
                                                           excludeRate: '',
                                                           subtotal: '0.0',
-                                                          vatId:
-                                                              product.vatId!
-                                                                  .toString(),
+                                                          vatId: product.vatId!
+                                                              .toString(),
                                                           vatAmount: '0.0',
                                                           totalAmount: '0.00',
-                                                          conversion_rate:
-                                                              product
-                                                                  .conversionRate!,
-                                                          category:
-                                                              product
-                                                                  .categoryName!,
+                                                          conversion_rate: product
+                                                              .conversionRate!,
+                                                          category: product
+                                                              .categoryName!,
                                                           groupName:
                                                               product.groupName,
                                                           product_description:
@@ -1061,27 +1033,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             child: Icon(
                                                               Icons.remove,
                                                               size: 20,
-                                                              color:
-                                                                  AppColors
-                                                                      .black,
+                                                              color: AppColors
+                                                                  .black,
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                       MediaQuery(
-                                                        data: MediaQuery.of(
-                                                          context,
-                                                        ).copyWith(
-                                                          textScaleFactor: 1.0,
-                                                        ),
+                                                        data:
+                                                            MediaQuery.of(
+                                                              context,
+                                                            ).copyWith(
+                                                              textScaleFactor:
+                                                                  1.0,
+                                                            ),
                                                         child: Text(
                                                           (cartItem.qty % 1 ==
                                                                   0)
                                                               ? cartItem.qty
-                                                                  .toInt()
-                                                                  .toString()
+                                                                    .toInt()
+                                                                    .toString()
                                                               : cartItem.qty
-                                                                  .toString(),
+                                                                    .toString(),
                                                           style:
                                                               const TextStyle(
                                                                 fontWeight:
@@ -1107,9 +1080,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             child: Icon(
                                                               Icons.add,
                                                               size: 20,
-                                                              color:
-                                                                  AppColors
-                                                                      .black,
+                                                              color: AppColors
+                                                                  .black,
                                                             ),
                                                           ),
                                                         ),

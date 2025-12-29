@@ -26,6 +26,7 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
   }
+
   /// ------------------ BranchID ------------------
   Future<bool> setBranchId(String branchId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -46,16 +47,5 @@ class SharedPreferenceHelper {
   Future<String?> getDatabaseName() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_databaseNameKey);
-  }
-
-  //paper size
-  Future<bool> saveSelectedPrinter(String selectedPrinter) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.setString("selectedPrinter", selectedPrinter);
-  }
-
-  Future<String?> loadSelectedPrinter() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("selectedPrinter");
   }
 }

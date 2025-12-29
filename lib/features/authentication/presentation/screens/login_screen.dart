@@ -101,7 +101,7 @@ class LoginScreen extends StatelessWidget {
       /// ------------------- UI STARTS HERE ------------------------
       child: Scaffold(
         backgroundColor: AppColors.white,
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -178,45 +178,36 @@ class LoginScreen extends StatelessWidget {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed:
-                                processing
-                                    ? null
-                                    : () {
-                                      final slno = codeCtrl.text;
-                                      if (slno == null) {
-                                        showAppSnackBar(
-                                          context,
-                                          "Please enter a valid code",
+                            onPressed: processing
+                                ? null
+                                : () {
+                                    final slno = codeCtrl.text;
+
+                                    // Start processing
+                                    isProcessing.value = true;
+
+                                    // Trigger register first
+                                    context
+                                        .read<RegisterCubit>()
+                                        .registerServer(
+                                          RegisterServerRequest(slno: slno),
                                         );
-                                        return;
-                                      }
-
-                                      // Start processing
-                                      isProcessing.value = true;
-
-                                      // Trigger register first
-                                      context
-                                          .read<RegisterCubit>()
-                                          .registerServer(
-                                            RegisterServerRequest(slno: slno),
-                                          );
-                                    },
+                                  },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child:
-                                processing
-                                    ? Text('processing.......')
-                                    : const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        color: AppColors.black,
-                                        fontSize: 18,
-                                      ),
+                            child: processing
+                                ? Text('processing.......')
+                                : const Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      color: AppColors.black,
+                                      fontSize: 18,
                                     ),
+                                  ),
                           ),
                         );
                       },

@@ -231,9 +231,11 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
 
                             String amPmTime = '';
                             try {
-                              String st_Time =
-                                  state.response.salesMaster!.invoiceTime
-                                      .toString();
+                              String st_Time = state
+                                  .response
+                                  .salesMaster!
+                                  .invoiceTime
+                                  .toString();
                               // Parse the railway time to a DateTime object
                               DateTime time = DateFormat(
                                 'HH:mm',
@@ -244,18 +246,24 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                             // String st_custName = state
                             //     .salesDetailsResult.salesMaster!.ledgerName
                             //     .toString();
-                            String st_custName =
-                                state.response.salesMaster!.ledgerName
-                                    .toString();
-                            String st_custAddress =
-                                state.response.salesMaster!.ledgerName
-                                    .toString(); // Assuming there's an address field
+                            String st_custName = state
+                                .response
+                                .salesMaster!
+                                .ledgerName
+                                .toString();
+                            String st_custAddress = state
+                                .response
+                                .salesMaster!
+                                .ledgerName
+                                .toString(); // Assuming there's an address field
 
                             // Handle null cases
-                            st_custName =
-                                st_custName == 'null' ? '' : st_custName;
-                            st_custAddress =
-                                st_custAddress == 'null' ? '' : st_custAddress;
+                            st_custName = st_custName == 'null'
+                                ? ''
+                                : st_custName;
+                            st_custAddress = st_custAddress == 'null'
+                                ? ''
+                                : st_custAddress;
 
                             String st_custName1 = '', st_custName2 = '';
                             bool custSecondStatus = false;
@@ -317,24 +325,22 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                               text:
                                                                   ('Invoice No :'),
                                                               style: TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .red[900],
+                                                                color: Colors
+                                                                    .red[900],
                                                                 fontSize: 15,
                                                               ),
                                                             ),
                                                             TextSpan(
                                                               text:
                                                                   ("  " +
-                                                                      state
-                                                                          .response
-                                                                          .salesMaster!
-                                                                          .invoiceNo
-                                                                          .toString()),
+                                                                  state
+                                                                      .response
+                                                                      .salesMaster!
+                                                                      .invoiceNo
+                                                                      .toString()),
                                                               style: TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .red[900],
+                                                                color: Colors
+                                                                    .red[900],
                                                                 fontSize: 18,
                                                               ),
                                                             ),
@@ -360,26 +366,24 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                               text:
                                                                   ('Bill Date :'),
                                                               style: TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .red[900],
+                                                                color: Colors
+                                                                    .red[900],
                                                                 fontSize: 13,
                                                               ),
                                                             ),
                                                             TextSpan(
                                                               text:
                                                                   ("  " +
-                                                                      (_formatDate(
-                                                                        state
-                                                                            .response
-                                                                            .salesMaster!
-                                                                            .invoiceDate
-                                                                            .toString(),
-                                                                      ))),
+                                                                  (_formatDate(
+                                                                    state
+                                                                        .response
+                                                                        .salesMaster!
+                                                                        .invoiceDate
+                                                                        .toString(),
+                                                                  ))),
                                                               style: TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .red[900],
+                                                                color: Colors
+                                                                    .red[900],
                                                                 fontSize: 15,
                                                               ),
                                                             ),
@@ -398,21 +402,19 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                               text:
                                                                   ('Bill Time :'),
                                                               style: TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .red[900],
+                                                                color: Colors
+                                                                    .red[900],
                                                                 fontSize: 13,
                                                               ),
                                                             ),
                                                             TextSpan(
                                                               text:
                                                                   ("  " +
-                                                                      amPmTime
-                                                                          .toString()),
+                                                                  amPmTime
+                                                                      .toString()),
                                                               style: TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .red[900],
+                                                                color: Colors
+                                                                    .red[900],
                                                                 fontSize: 15,
                                                               ),
                                                             ),
@@ -453,9 +455,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                     text:
                                                                         ('Customer Name : '),
                                                                     style: TextStyle(
-                                                                      color:
-                                                                          Colors
-                                                                              .black,
+                                                                      color: Colors
+                                                                          .black,
                                                                       fontSize:
                                                                           13,
                                                                     ),
@@ -464,9 +465,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                     text:
                                                                         (st_custName1),
                                                                     style: const TextStyle(
-                                                                      color:
-                                                                          Colors
-                                                                              .black,
+                                                                      color: Colors
+                                                                          .black,
                                                                       fontSize:
                                                                           11,
                                                                     ),
@@ -491,8 +491,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                       text:
                                                                           ('                                '),
                                                                       style: TextStyle(
-                                                                        color:
-                                                                            Colors.black,
+                                                                        color: Colors
+                                                                            .black,
                                                                         fontSize:
                                                                             13,
                                                                       ),
@@ -500,10 +500,10 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                     TextSpan(
                                                                       text:
                                                                           ("  " +
-                                                                              st_custName2),
+                                                                          st_custName2),
                                                                       style: TextStyle(
-                                                                        color:
-                                                                            Colors.black,
+                                                                        color: Colors
+                                                                            .black,
                                                                         fontSize:
                                                                             11,
                                                                       ),
@@ -520,9 +520,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                   text:
                                                                       ('Customer Address : '),
                                                                   style: TextStyle(
-                                                                    color:
-                                                                        Colors
-                                                                            .black,
+                                                                    color: Colors
+                                                                        .black,
                                                                     fontSize:
                                                                         13,
                                                                   ),
@@ -536,11 +535,10 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                   //         .toString()),
                                                                   text:
                                                                       ("  " +
-                                                                          st_custAddress),
+                                                                      st_custAddress),
                                                                   style: TextStyle(
-                                                                    color:
-                                                                        Colors
-                                                                            .black,
+                                                                    color: Colors
+                                                                        .black,
                                                                     fontSize:
                                                                         15,
                                                                   ),
@@ -671,42 +669,40 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                 shrinkWrap: true,
                                                 physics:
                                                     const NeverScrollableScrollPhysics(),
-                                                itemCount:
-                                                    state
-                                                        .response
-                                                        .salesDetails
-                                                        .length,
+                                                itemCount: state
+                                                    .response
+                                                    .salesDetails
+                                                    .length,
                                                 separatorBuilder:
                                                     (
                                                       BuildContext context,
                                                       int index,
                                                     ) => Container(height: 10),
-                                                itemBuilder: (
-                                                  BuildContext context,
-                                                  int index,
-                                                ) {
+                                                itemBuilder: (BuildContext context, int index) {
                                                   int slno = index + 1;
 
-                                                  SalesDetail data =
-                                                      state
-                                                          .response
-                                                          .salesDetails[index];
+                                                  SalesDetail data = state
+                                                      .response
+                                                      .salesDetails[index];
                                                   String st_qty = '',
                                                       st_rate = '',
                                                       st_total = '';
                                                   try {
-                                                    st_qty = double.parse(
-                                                      data.qty.toString(),
-                                                    ).toStringAsFixed(
-                                                      get_decimalpoints(),
-                                                    );
+                                                    st_qty =
+                                                        double.parse(
+                                                          data.qty.toString(),
+                                                        ).toStringAsFixed(
+                                                          get_decimalpoints(),
+                                                        );
                                                   } catch (_) {}
                                                   try {
-                                                    st_rate = double.parse(
-                                                      data.salesRate.toString(),
-                                                    ).toStringAsFixed(
-                                                      get_decimalpoints(),
-                                                    );
+                                                    st_rate =
+                                                        double.parse(
+                                                          data.salesRate
+                                                              .toString(),
+                                                        ).toStringAsFixed(
+                                                          get_decimalpoints(),
+                                                        );
                                                   } catch (_) {}
                                                   try {
                                                     double dblQty =
@@ -759,9 +755,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                     style: const TextStyle(
                                                                       fontSize:
                                                                           11,
-                                                                      color:
-                                                                          Colors
-                                                                              .black,
+                                                                      color: Colors
+                                                                          .black,
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold,
@@ -807,9 +802,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                       data.unitName
                                                                           .toString(),
                                                                   style: const TextStyle(
-                                                                    color:
-                                                                        Colors
-                                                                            .red,
+                                                                    color: Colors
+                                                                        .red,
                                                                     fontSize:
                                                                         11,
                                                                   ),
@@ -851,9 +845,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
-                                                                    color:
-                                                                        Colors
-                                                                            .red,
+                                                                    color: Colors
+                                                                        .red,
                                                                     fontSize:
                                                                         11,
                                                                   ),
@@ -1707,20 +1700,21 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                             MaterialStateProperty.all<
                                                               Color
                                                             >(appBarColor),
-                                                        shape: MaterialStateProperty.all<
-                                                          RoundedRectangleBorder
-                                                        >(
-                                                          RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  18.0,
+                                                        shape:
+                                                            MaterialStateProperty.all<
+                                                              RoundedRectangleBorder
+                                                            >(
+                                                              RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      18.0,
+                                                                    ),
+                                                                side: BorderSide(
+                                                                  color:
+                                                                      appBarColor,
                                                                 ),
-                                                            side: BorderSide(
-                                                              color:
-                                                                  appBarColor,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
                                                       ),
                                                       onPressed: () async {
                                                         print('pressed');
@@ -1780,20 +1774,21 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                             MaterialStateProperty.all(
                                                               appBarColor,
                                                             ),
-                                                        shape: MaterialStateProperty.all<
-                                                          RoundedRectangleBorder
-                                                        >(
-                                                          RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  18.0,
+                                                        shape:
+                                                            MaterialStateProperty.all<
+                                                              RoundedRectangleBorder
+                                                            >(
+                                                              RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      18.0,
+                                                                    ),
+                                                                side: BorderSide(
+                                                                  color:
+                                                                      appBarColor,
                                                                 ),
-                                                            side: BorderSide(
-                                                              color:
-                                                                  appBarColor,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
                                                       ),
                                                       onPressed: () {
                                                         print('pressed');
@@ -1877,16 +1872,17 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                     value:
                                                                         selectedPdfWithBgIndex,
                                                                     // Check if the current item is selected
-                                                                    onChanged: (
-                                                                      bool?
-                                                                      newValue,
-                                                                    ) {
-                                                                      setState(() {
-                                                                        // If the current checkbox is clicked, update the selectedIndex
-                                                                        selectedPdfWithBgIndex =
-                                                                            newValue;
-                                                                      });
-                                                                    },
+                                                                    onChanged:
+                                                                        (
+                                                                          bool?
+                                                                          newValue,
+                                                                        ) {
+                                                                          setState(() {
+                                                                            // If the current checkbox is clicked, update the selectedIndex
+                                                                            selectedPdfWithBgIndex =
+                                                                                newValue;
+                                                                          });
+                                                                        },
                                                                   ),
                                                                 ),
                                                                 const Visibility(
@@ -1934,20 +1930,21 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                     >(
                                                                       appBarColor,
                                                                     ),
-                                                                shape: MaterialStateProperty.all<
-                                                                  RoundedRectangleBorder
-                                                                >(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          18.0,
+                                                                shape:
+                                                                    MaterialStateProperty.all<
+                                                                      RoundedRectangleBorder
+                                                                    >(
+                                                                      RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                              18.0,
+                                                                            ),
+                                                                        side: BorderSide(
+                                                                          color:
+                                                                              appBarColor,
                                                                         ),
-                                                                    side: BorderSide(
-                                                                      color:
-                                                                          appBarColor,
+                                                                      ),
                                                                     ),
-                                                                  ),
-                                                                ),
                                                               ),
                                                               onPressed: () {
                                                                 clickPdfFlag =
@@ -1964,9 +1961,8 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                               child: const Text(
                                                                 'PDF',
                                                                 style: TextStyle(
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
+                                                                  color: Colors
+                                                                      .white,
                                                                 ),
                                                               ),
                                                             ),
@@ -2004,17 +2000,20 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                 MaterialStateProperty.all(
                                                   appBarColor,
                                                 ),
-                                            shape: MaterialStateProperty.all<
-                                              RoundedRectangleBorder
-                                            >(
-                                              RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(18.0),
-                                                side: BorderSide(
-                                                  color: appBarColor,
+                                            shape:
+                                                MaterialStateProperty.all<
+                                                  RoundedRectangleBorder
+                                                >(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          18.0,
+                                                        ),
+                                                    side: BorderSide(
+                                                      color: appBarColor,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
                                           ),
                                           onPressed: () {
                                             // context
