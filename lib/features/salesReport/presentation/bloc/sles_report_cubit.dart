@@ -47,4 +47,9 @@ class SalesReportCubit extends Cubit<SlesReportState> {
       emit(SalesDetailsError(error: e.toString()));
     }
   }
+// --------------------- API Fetch Bill Save_finished ---------------------
+  Future<void> saleSaveFinished(int seconds_timer) async {
+    await Future.delayed(Duration(seconds: seconds_timer));
+    emit(SaleFinishSuccess(response: 'success'));
+  }
 }

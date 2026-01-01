@@ -18,6 +18,12 @@ class SalesDetailsSuccess extends SlesReportState {
   SalesDetailsSuccess({required this.response});
 }
 
+class SaleFinishSuccess extends SlesReportState {
+  final String response;
+
+  SaleFinishSuccess({required this.response});
+}
+
 class SalesReportError extends SlesReportState {
   final String error;
 

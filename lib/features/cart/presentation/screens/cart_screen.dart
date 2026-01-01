@@ -300,7 +300,7 @@ class CartScreen extends StatelessWidget {
                                       cardAmount: cardAmt,
                                       creditAmount: 0,
                                       tableId: 1,
-                                      supplierId: null,
+                                      supplierId: 1,
                                       cashierId: 1,
                                       orderMasterId: 10,
                                       billStatus: '',

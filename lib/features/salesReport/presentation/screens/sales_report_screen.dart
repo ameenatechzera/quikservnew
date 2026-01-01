@@ -5,7 +5,7 @@ import 'package:quikservnew/features/salesReport/domain/entities/salesReportResu
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportPreviewScreen.dart';
-import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_preview_screen.dart';
+
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class SalesReportScreen extends StatefulWidget {
