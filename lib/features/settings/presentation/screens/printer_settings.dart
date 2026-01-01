@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrinterSettingsScreen extends StatefulWidget {
@@ -70,6 +71,9 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
   }
 
   Future<void> _connectAndPrint(String mac, String name) async {
+    await SharedPreferenceHelper().saveSelectedPrinter(
+        mac
+    );
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Connecting... Please wait')));
@@ -419,7 +423,10 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
           backgroundColor: AppColors.primary,
           minimumSize: const Size.fromHeight(48),
         ),
-        onPressed: () {
+        onPressed: () async {
+          // await SharedPreferenceHelper().saveSelectedPrinter(
+          //     mac
+          // );
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));

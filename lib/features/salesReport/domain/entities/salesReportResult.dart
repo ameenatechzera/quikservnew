@@ -139,7 +139,7 @@ class SalesMaster extends Equatable {
   final int tableId;
   static const String tableIdKey = "table_id";
 
-  final String supplierId;
+  final int supplierId;
   static const String supplierIdKey = "supplierId";
 
   final int cashierId;
@@ -198,7 +198,7 @@ class SalesMaster extends Equatable {
     String? cardAmount,
     String? creditAmount,
     int? tableId,
-    String? supplierId,
+    int? supplierId,
     int? cashierId,
     int? orderMasterId,
     String? billStatus,
@@ -263,7 +263,7 @@ class SalesMaster extends Equatable {
       cardAmount: json["CardAmount"] ?? "",
       creditAmount: json["creditAmount"] ?? "",
       tableId: json["table_id"] ?? 0,
-      supplierId: json["supplierId"] ?? "",
+      supplierId: json["supplierId"] ?? 0,
       cashierId: json["cashierId"] ?? 0,
       orderMasterId: json["orderMasterId"] ?? 0,
       billStatus: json["BillStatus"] ?? "",

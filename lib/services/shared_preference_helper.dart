@@ -48,4 +48,15 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_databaseNameKey);
   }
+
+  //printer
+  Future<bool> saveSelectedPrinter(String selectedPrinter) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("selectedPrinter", selectedPrinter);
+  }
+
+  Future<String?> loadSelectedPrinter() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("selectedPrinter");
+  }
 }

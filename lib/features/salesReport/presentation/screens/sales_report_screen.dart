@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
+import 'package:quikservnew/features/salesReport/presentation/screens/salesReportPreviewScreen.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_preview_screen.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
@@ -46,6 +47,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   }
 
   Future<void> pickDate({required bool isFrom}) async {
+    print('reached SalesReport');
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isFrom ? fromDate : toDate,
@@ -152,7 +154,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                             PageRouteBuilder(
                               pageBuilder:
                                   (context, animation, secondaryAnimation) =>
-                                      SaleReportPreviewScreen(
+                                      salesReportPreviewScreen(
                                         st_fromDate:
                                             _fromDateFormattedController.text
                                                 .toString(),
@@ -248,47 +250,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   Widget dateCard(String title, DateTime date, VoidCallback onTap) {
     return Card(
       child: InkWell(
-        onTap: () {
-          // Navigator.push(
-          //   context,
-          //   PageRouteBuilder(
-          //     pageBuilder: (context, animation,
-          //         secondaryAnimation) =>
-          //         SaleReportPreviewScreen(
-          //           st_fromDate:
-          //           _fromDateFormattedController
-          //               .text
-          //               .toString(),
-          //           st_toDate:
-          //           _toDateFormattedController
-          //               .text
-          //               .toString(),
-          //           pagefrom: 'SalesReport',
-          //           masterId: salesList[0]
-          //               .salesMasterId.toString(),
-          //         ),
-          //     transitionsBuilder: (context,
-          //         animation,
-          //         secondaryAnimation,
-          //         child) {
-          //       const begin = Offset(1.0, 0.0);
-          //       const end = Offset.zero;
-          //       const curve = Curves.ease;
-          //
-          //       var tween = Tween(
-          //           begin: begin, end: end)
-          //           .chain(
-          //           CurveTween(curve: curve));
-          //
-          //       return SlideTransition(
-          //         position:
-          //         animation.drive(tween),
-          //         child: child,
-          //       );
-          //     },
-          //   ),
-          // );
-        },
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
