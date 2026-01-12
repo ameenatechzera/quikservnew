@@ -1,18 +1,3 @@
-// class CartItem {
-//   final String? productId;
-//   final String productName;
-//   final double price;
-//   int quantity;
-
-//   CartItem({
-//     required this.productId,
-//     required this.productName,
-//     required this.price,
-//     this.quantity = 1,
-//   });
-
-//   double get totalPrice => price * quantity;
-// }
 class CartItem {
   final int lineNo;
   final int customerId;
@@ -59,8 +44,32 @@ class CartItem {
     required this.groupName,
     required this.product_description,
   });
+  CartItem copyWith({double? salesRate, double? qty}) {
+    return CartItem(
+      lineNo: lineNo,
+      customerId: customerId,
+      productCode: productCode,
+      productName: productName,
+      qty: qty ?? this.qty,
+      oldQty: oldQty,
+      salesRate: salesRate ?? this.salesRate,
+      unitId: unitId,
+      purchaseCost: purchaseCost,
+      groupId: groupId,
+      categoryId: categoryId,
+      productImage: productImage,
+      excludeRate: excludeRate,
+      subtotal: subtotal,
+      vatId: vatId,
+      vatAmount: vatAmount,
+      totalAmount: totalAmount,
+      conversion_rate: conversion_rate,
+      category: category,
+      groupName: groupName,
+      product_description: product_description,
+    );
+  }
 
-  /// ✅ SAFE total price
   double get totalPrice {
     final rate = salesRate;
     final quantity = qty;

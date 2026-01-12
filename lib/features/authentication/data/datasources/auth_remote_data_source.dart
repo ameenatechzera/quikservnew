@@ -25,9 +25,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     // Load base URL safely
     final baseUrl = await SharedPreferenceHelper().getBaseUrl();
 
-    if (baseUrl == null || baseUrl.isEmpty) {
-      print('object');
-    }
+    if (baseUrl == null || baseUrl.isEmpty) {}
 
     final url = ApiConstants.getRegisterServerPath(baseUrl!);
     print('Register URL: $url');

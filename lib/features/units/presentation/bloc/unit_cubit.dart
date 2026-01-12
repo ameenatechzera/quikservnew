@@ -12,7 +12,7 @@ class UnitCubit extends Cubit<UnitState> {
     : _fetchUnitsUseCase = fetchUnitsUseCase,
       super(UnitInitial());
 
-  /// 🔥 Call this method to fetch units
+  /// 🔥 Called this method to fetch units
   Future<void> fetchUnits() async {
     emit(UnitLoading());
 

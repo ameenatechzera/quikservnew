@@ -13,7 +13,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     : _registerServerUseCase = registerServerUseCase,
       super(RegisterInitial());
 
-  /// 🔥 Call this method to register server
+  /// 🔥 Called this method to register server
   Future<void> registerServer(
     RegisterServerRequest registerServerRequest,
   ) async {

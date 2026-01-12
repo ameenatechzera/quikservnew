@@ -38,6 +38,7 @@ import 'package:quikservnew/features/salesReport/data/repositories/salesReport_r
 import 'package:quikservnew/features/salesReport/domain/repositories/salesReport_repository.dart';
 import 'package:quikservnew/features/salesReport/domain/usecases/salesDetailsByMasterIdUseCase.dart';
 import 'package:quikservnew/features/salesReport/domain/usecases/salesReportFromServerUseCase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/sales_masterreport_bydate_usecase.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';
 import 'package:quikservnew/features/settings/data/repositories/settings_repository_impl.dart';
@@ -80,7 +81,6 @@ class ServiceLocator {
     // ------------------- UNITS -------------------
     // Cubit
     sl.registerFactory(() => UnitCubit(fetchUnitsUseCase: sl()));
-
 
     // UseCase
     sl.registerLazySingleton(() => FetchUnitsUseCase(sl()));
@@ -136,26 +136,30 @@ class ServiceLocator {
     // ------------------- Sales Report -------------------
 
     // Cubit
-    sl.registerFactory(() => SalesReportCubit(salesReportFromServerUseCase: sl(), salesDetailsByMasterIdUseCase: sl()));
+    sl.registerFactory(
+      () => SalesReportCubit(
+        salesReportFromServerUseCase: sl(),
+        salesDetailsByMasterIdUseCase: sl(),
+        salesReportMasterByDateUseCase: sl(),
+      ),
+    );
     // UseCase
     sl.registerLazySingleton(() => SalesReportFromServerUseCase(sl()));
     sl.registerLazySingleton(() => SalesDetailsByMasterIdUseCase(sl()));
-
-
+    sl.registerLazySingleton(() => SalesReportMasterByDateUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<SalesReportRemoteDataSource>(
-          () => SalesReportRemoteDataSourceImpl(),
+      () => SalesReportRemoteDataSourceImpl(),
     );
     // Repository
     sl.registerLazySingleton<SalesReportRepository>(
-          () => SalesReportRepositoryImpl(remoteDataSource: sl()),
+      () => SalesReportRepositoryImpl(remoteDataSource: sl()),
     );
 
     // UseCase
     sl.registerLazySingleton(() => FetchProductsUseCase(sl()));
     sl.registerLazySingleton(() => GetProductsByCategoryUseCase(sl()));
-
 
     // Data Source
     sl.registerLazySingleton<ProductsRemoteDataSource>(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/database/app_database.dart';
+import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/splash_screen.dart';
@@ -17,7 +19,14 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 
 late final AppDatabase appDb;
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // ✅ Put this BEFORE runApp
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: AppColors.theme, // your yellow
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.dark,
+    ),
+  );
   appDb = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   await ServiceLocator.init();
   final sharedPrefHelper = SharedPreferenceHelper();
@@ -39,7 +48,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // SystemChrome.setSystemUIOverlayStyle(
     //   const SystemUiOverlayStyle(
-    //     statusBarColor: Color(0xFFffeeb7), // 👈 background color
+    //     statusBarColor: AppColors.theme, // 👈 background color
     //     statusBarIconBrightness: Brightness.dark, // Android icons
     //     statusBarBrightness: Brightness.dark, // iOS icons
     //   ),

@@ -1,4 +1,3 @@
-// groups_state.dart
 part of 'groups_cubit.dart';
 
 sealed class GroupsState extends Equatable {

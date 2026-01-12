@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class SalesReportResult extends Equatable {
-  SalesReportResult({
+  const SalesReportResult({
     required this.status,
     required this.error,
     required this.message,
@@ -20,7 +20,6 @@ class SalesReportResult extends Equatable {
   final List<SalesMaster> salesMaster;
   static const String salesMasterKey = "sales_master";
 
-
   SalesReportResult copyWith({
     int? status,
     bool? error,
@@ -35,12 +34,16 @@ class SalesReportResult extends Equatable {
     );
   }
 
-  factory SalesReportResult.fromJson(Map<String, dynamic> json){
+  factory SalesReportResult.fromJson(Map<String, dynamic> json) {
     return SalesReportResult(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
       message: json["message"] ?? "",
-      salesMaster: json["sales_master"] == null ? [] : List<SalesMaster>.from(json["sales_master"]!.map((x) => SalesMaster.fromJson(x))),
+      salesMaster: json["sales_master"] == null
+          ? []
+          : List<SalesMaster>.from(
+              json["sales_master"]!.map((x) => SalesMaster.fromJson(x)),
+            ),
     );
   }
 
@@ -48,17 +51,16 @@ class SalesReportResult extends Equatable {
     "status": status,
     "error": error,
     "message": message,
-    "sales_master": salesMaster.map((x) => x?.toJson()).toList(),
+    "sales_master": salesMaster.map((x) => x.toJson()).toList(),
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$status, $error, $message, $salesMaster, ";
   }
 
   @override
-  List<Object?> get props => [
-    status, error, message, salesMaster, ];
+  List<Object?> get props => [status, error, message, salesMaster];
 }
 
 class SalesMaster extends Equatable {
@@ -181,7 +183,6 @@ class SalesMaster extends Equatable {
   final String cardLedgerName;
   static const String cardLedgerNameKey = "cardLedgerName";
 
-
   SalesMaster copyWith({
     int? salesMasterId,
     String? invoiceNo,
@@ -246,7 +247,7 @@ class SalesMaster extends Equatable {
     );
   }
 
-  factory SalesMaster.fromJson(Map<String, dynamic> json){
+  factory SalesMaster.fromJson(Map<String, dynamic> json) {
     return SalesMaster(
       salesMasterId: json["SalesMasterId"] ?? 0,
       invoiceNo: json["InvoiceNo"] ?? "",
@@ -313,11 +314,40 @@ class SalesMaster extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$salesMasterId, $invoiceNo, $invoiceDate, $invoiceTime, $ledgerId, $subTotal, $discountAmount, $vatAmount, $grandTotal, $cashLedgerId, $cashAmount, $cardLedgerId, $cardAmount, $creditAmount, $tableId, $supplierId, $cashierId, $orderMasterId, $billStatus, $salesType, $billTokenNo, $createdDate, $createdUser, $modifiedDate, $modifiedUser, $branchId, $ledgerName, $cashLedgerName, $cardLedgerName, ";
   }
 
   @override
   List<Object?> get props => [
-    salesMasterId, invoiceNo, invoiceDate, invoiceTime, ledgerId, subTotal, discountAmount, vatAmount, grandTotal, cashLedgerId, cashAmount, cardLedgerId, cardAmount, creditAmount, tableId, supplierId, cashierId, orderMasterId, billStatus, salesType, billTokenNo, createdDate, createdUser, modifiedDate, modifiedUser, branchId, ledgerName, cashLedgerName, cardLedgerName, ];
+    salesMasterId,
+    invoiceNo,
+    invoiceDate,
+    invoiceTime,
+    ledgerId,
+    subTotal,
+    discountAmount,
+    vatAmount,
+    grandTotal,
+    cashLedgerId,
+    cashAmount,
+    cardLedgerId,
+    cardAmount,
+    creditAmount,
+    tableId,
+    supplierId,
+    cashierId,
+    orderMasterId,
+    billStatus,
+    salesType,
+    billTokenNo,
+    createdDate,
+    createdUser,
+    modifiedDate,
+    modifiedUser,
+    branchId,
+    ledgerName,
+    cashLedgerName,
+    cardLedgerName,
+  ];
 }

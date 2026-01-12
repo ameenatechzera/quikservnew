@@ -1,5 +1,5 @@
-// ================== PAYMENT OPTION ==================
 import 'package:flutter/material.dart';
+import 'package:quikservnew/core/theme/colors.dart';
 
 class PaymentOption extends StatelessWidget {
   final String title;
@@ -19,9 +19,9 @@ class PaymentOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color bg = selected ? Colors.black : Colors.white;
-    final Color border = selected ? Colors.black : Colors.grey.shade300;
-    final Color textColor = selected ? Colors.white : Colors.black;
+    final Color bg = selected ? AppColors.black : AppColors.white;
+    final Color border = selected ? AppColors.black : Colors.grey.shade300;
+    final Color textColor = selected ? AppColors.white : AppColors.black;
 
     return Container(
       height: 100,
@@ -33,7 +33,11 @@ class PaymentOption extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 24, color: selected ? Colors.white : Colors.black87),
+          Icon(
+            icon,
+            size: 24,
+            color: selected ? AppColors.white : Colors.black87,
+          ),
           const SizedBox(height: 6),
           Text(
             title,
@@ -49,11 +53,11 @@ class PaymentOption extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                '₹ ${amount.toStringAsFixed(2)}',
+                amount.toStringAsFixed(2),
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.white,
                 ),
               ),
             ),

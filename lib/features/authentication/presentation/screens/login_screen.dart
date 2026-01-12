@@ -96,6 +96,34 @@ class LoginScreen extends StatelessWidget {
             }
           },
         ),
+
+        /// ------------------- SETTINGS LISTENER (VAT STORE HERE) -------------------
+        BlocListener<SettingsCubit, SettingsState>(
+          listener: (context, state) async {
+            if (state is SettingsLoaded) {
+              final settings = state.settings.settings!.first;
+
+              /// 🔍 DEBUG: Print raw values from API
+              debugPrint('🧾 SETTINGS API RESPONSE');
+              debugPrint('VAT STATUS  : ${settings.vatStatus}');
+              debugPrint('VAT TYPE    : ${settings.vatType}');
+
+              /// ✅ STORE VAT STATUS & TYPE FROM SETTINGS API
+              final storedVatStatus = await SharedPreferenceHelper()
+                  .getVatStatus();
+              final storedVatType = await SharedPreferenceHelper().getVatType();
+
+              debugPrint('💾 STORED IN SHARED PREFS');
+              debugPrint('VAT STATUS  : $storedVatStatus');
+              debugPrint('VAT TYPE    : $storedVatType');
+            }
+
+            if (state is SettingsError) {
+              debugPrint('❌ SETTINGS ERROR: ${state.error}');
+              showAppSnackBar(context, state.error);
+            }
+          },
+        ),
       ],
 
       /// ------------------- UI STARTS HERE ------------------------

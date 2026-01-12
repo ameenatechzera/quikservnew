@@ -15,6 +15,7 @@ import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:dartarabic/dartarabic.dart';
+import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
@@ -218,6 +219,13 @@ class _PrintPageState extends State<PrintPage> {
     final result = await PrintBluetoothThermal.writeBytes(ticket);
     PrintBluetoothThermal.disconnect;
     print('resultPrint $result');
+    context.read<SalesReportCubit>().saleSaveFinished(1);
+
+    // print('enteredPrint');
+    // final ticket = await _generateTicket();
+    // final result = await PrintBluetoothThermal.writeBytes(ticket);
+    // PrintBluetoothThermal.disconnect;
+    // print('resultPrint $result');
     //context.read<SaleCubit>().saleSaveFinished(1);
   }
 
@@ -338,26 +346,16 @@ class _PrintPageState extends State<PrintPage> {
                 color: Colors.white,
                 child: BlocConsumer<SalesReportCubit, SlesReportState>(
                   listener: (context, state) {
-                    // if (state is SaleFinishSuccess) {
-                    //   print('Finished');
-                    //   if(widget.pageFrom=='DailyClosingReport'){
-                    //
-                    //     WidgetsBinding.instance.addPostFrameCallback((_) {
-                    //       Navigator.push(
-                    //         context,
-                    //         MaterialPageRoute(builder: (context) => SideNavigationPage()),
-                    //       );
-                    //     });
-                    //
-                    //   }
-                    //   else {
-                    //     context.read<AppbarCubit>().homeScreenPageSelected();
-                    //     Navigator.pushReplacement(
-                    //         context,
-                    //         MaterialPageRoute(
-                    //             builder: (context) => SideNavigationPage()));
-                    //   }
-                    //}
+                    if (state is SaleFinishSuccess) {
+                      print('Finished');
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                        );
+                      });
+                    }
                   },
                   builder: (context, state) {
                     return const Column(children: [
@@ -1448,7 +1446,7 @@ class _PrintPageState extends State<PrintPage> {
         height: PosTextSize.size2,
         width: PosTextSize.size1,
       ),
-      linesAfter: 0,
+      linesAfter: 10,
     );
     return bytes;
   }

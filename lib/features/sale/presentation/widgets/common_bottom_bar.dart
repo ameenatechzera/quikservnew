@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_screen.dart';
-import 'package:quikservnew/features/settings/presentation/screens/printer_settings.dart';
 
 class CommomBottomBar extends StatelessWidget {
-  const CommomBottomBar({super.key});
+  final int currentTabIndex;
+  final Function(int) onTabChanged;
+  const CommomBottomBar({
+    super.key,
+    required this.currentTabIndex,
+    required this.onTabChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +33,7 @@ class CommomBottomBar extends StatelessWidget {
               // HOME (selected)
               GestureDetector(
                 onTap: () {
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(
-                  //     builder: (context) {
-                  //       return HomeCart();
-                  //     },
-                  //   ),
-                  // );
+                  onTabChanged(0); // Switch to Sales tab
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -43,17 +41,27 @@ class CommomBottomBar extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.black,
+                    color: currentTabIndex == 0
+                        ? Colors.black
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
-                    children: const [
-                      Icon(Icons.home_outlined, color: Colors.white, size: 20),
+                    children: [
+                      Icon(
+                        Icons.home_outlined,
+                        color: currentTabIndex == 0
+                            ? Colors.white
+                            : Colors.black,
+                        size: 20,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         "Home",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: currentTabIndex == 0
+                              ? Colors.white
+                              : Colors.black,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -66,23 +74,24 @@ class CommomBottomBar extends StatelessWidget {
               // CENTER ICON
               InkWell(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SalesReportScreen(),
-                    ),
-                  );
+                  onTabChanged(1); // Switch to Dashboard tab
                 },
                 child: Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 2),
+                    color: currentTabIndex == 1
+                        ? Colors.black
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: currentTabIndex == 1 ? Colors.black : Colors.black,
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.pause_rounded,
-                    color: Colors.black,
+                    color: currentTabIndex == 1 ? Colors.white : Colors.black,
                     size: 20,
                   ),
                 ),
@@ -90,18 +99,22 @@ class CommomBottomBar extends StatelessWidget {
 
               InkWell(
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return PrinterSettingsScreen();
-                      },
-                    ),
-                  );
+                  onTabChanged(2); // Switch to Settings tab
                 },
-                child: const Icon(
-                  Icons.settings_outlined,
-                  color: Colors.black,
-                  size: 28,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: currentTabIndex == 2
+                        ? Colors.black
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.settings_outlined,
+                    color: currentTabIndex == 2 ? Colors.white : Colors.black,
+                    size: 28,
+                  ),
                 ),
               ),
             ],

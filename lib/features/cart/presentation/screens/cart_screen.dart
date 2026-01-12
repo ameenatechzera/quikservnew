@@ -9,6 +9,7 @@ import 'package:quikservnew/features/cart/presentation/widgets/payment_option.da
 import 'package:quikservnew/features/cart/presentation/widgets/summary_row.dart';
 import 'package:quikservnew/features/sale/domain/parameters/sale_save_request_parameter.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
+import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class CartScreen extends StatelessWidget {
   CartScreen({super.key});
@@ -86,17 +87,22 @@ class CartScreen extends StatelessWidget {
             },
           ),
         ),
-        bottomNavigationBar: ValueListenableBuilder<List<CartItem>>(
-          valueListenable: CartManager().cartItems,
-          builder: (context, items, _) {
-            // 🔹 Always calculate dynamically
-            double subTotal = items.fold(
-              0.0,
-              (sum, item) => sum + item.totalPrice,
-            );
-            double discount = 0;
-            double tax = subTotal * 0.01;
-            double total = subTotal - discount + tax;
+        bottomNavigationBar: FutureBuilder(
+          future: _calculateTotals(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SizedBox(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            final totals = snapshot.data!;
+            final subTotal = totals['subTotal'] as double;
+            final discount = totals['discount'] as double;
+            final tax = totals['tax'] as double;
+            final total = totals['total'] as double;
+            final vatType = totals['vatType'] as String?;
 
             return BlocBuilder<SaleCubit, SaleState>(
               builder: (context, state) {
@@ -129,19 +135,26 @@ class CartScreen extends StatelessWidget {
                           children: [
                             summaryRow(
                               'Sub Total :',
-                              '₹ ${subTotal.toStringAsFixed(2)}',
+                              subTotal.toStringAsFixed(2),
                             ),
                             const SizedBox(height: 4),
                             summaryRow(
                               'Discount :',
-                              '₹ ${discount.toStringAsFixed(2)}',
+                              discount.toStringAsFixed(2),
                             ),
-                            const SizedBox(height: 4),
-                            summaryRow('Tax :', '₹ ${tax.toStringAsFixed(2)}'),
+                            const SizedBox(
+                              height: 4,
+                            ), // Will Show tax label based on vatType
+                            if (tax > 0)
+                              summaryRow(
+                                '${_getTaxLabel(vatType)} :',
+                                tax.toStringAsFixed(2),
+                              ),
+                            //summaryRow('Tax :', '₹ ${tax.toStringAsFixed(2)}'),
                             const Divider(height: 16),
                             summaryRow(
                               'Total :',
-                              '₹ ${total.toStringAsFixed(2)}',
+                              total.toStringAsFixed(2),
                               isBold: true,
                             ),
                           ],
@@ -186,9 +199,7 @@ class CartScreen extends StatelessWidget {
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    final prevPayment =
-                                        selectedPayment
-                                            .value; // ✅ capture BEFORE switching
+                                    final prevPayment = selectedPayment.value;
                                     selectedPayment.value = 'Multi';
                                     _showMultiPaymentModal(
                                       context,
@@ -204,15 +215,13 @@ class CartScreen extends StatelessWidget {
                                         builder: (context, card, __) {
                                           return PaymentOption(
                                             title: 'Multi',
-                                            subtitle:
-                                                cash == 0 && card == 0
-                                                    ? ''
-                                                    : 'Cash ₹${cash.toStringAsFixed(0)} | '
-                                                        'Card ₹${card.toStringAsFixed(0)}',
+                                            subtitle: cash == 0 && card == 0
+                                                ? ''
+                                                : 'Cash ${cash.toStringAsFixed(0)} | '
+                                                      'Card ${card.toStringAsFixed(0)}',
                                             selected: payment == 'Multi',
-                                            icon:
-                                                Icons
-                                                    .dashboard_customize_outlined,
+                                            icon: Icons
+                                                .dashboard_customize_outlined,
                                             amount: cash + card,
                                           );
                                         },
@@ -231,128 +240,119 @@ class CartScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: 48,
-                        child:
-                            state is SaleLoading
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFEAB307),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    elevation: 0,
+                        child: state is SaleLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFEAB307),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  onPressed: () {
-                                    final payment = selectedPayment.value;
+                                  elevation: 0,
+                                ),
+                                onPressed: () {
+                                  final payment = selectedPayment.value;
 
-                                    double cashAmt = 0;
-                                    double cardAmt = 0;
+                                  double cashAmt = 0;
+                                  double cardAmt = 0;
 
-                                    if (payment == 'Cash') {
-                                      cashAmt = total;
-                                      cardAmt = 0;
-                                    } else if (payment == 'Card') {
-                                      cashAmt = 0;
-                                      cardAmt = total;
-                                    } else if (payment == 'Multi') {
-                                      cashAmt = multiCashAmount.value;
-                                      cardAmt = multiCardAmount.value;
+                                  if (payment == 'Cash') {
+                                    cashAmt = total;
+                                    cardAmt = 0;
+                                  } else if (payment == 'Card') {
+                                    cashAmt = 0;
+                                    cardAmt = total;
+                                  } else if (payment == 'Multi') {
+                                    cashAmt = multiCashAmount.value;
+                                    cardAmt = multiCardAmount.value;
 
-                                      // safety check (only if user did not press OK or mismatch)
-                                      if ((cashAmt + cardAmt - total).abs() >
-                                          0.01) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Multi payment amount mismatch',
-                                            ),
+                                    // safety check (only if user did not press OK or mismatch)
+                                    if ((cashAmt + cardAmt - total).abs() >
+                                        0.01) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Multi payment amount mismatch',
                                           ),
-                                        );
-                                        return;
-                                      }
+                                        ),
+                                      );
+                                      return;
                                     }
-                                    // Build SaveSaleRequest from cart
-                                    final request = SaveSaleRequest(
-                                      invoiceDate:
-                                          DateTime.now()
-                                              .toIso8601String()
-                                              .split('T')
-                                              .first,
-                                      invoiceTime:
-                                          DateTime.now()
-                                              .toIso8601String()
-                                              .split('T')
-                                              .last
-                                              .split('.')
-                                              .first,
-                                      ledgerId: 1,
-                                      subTotal: subTotal,
-                                      discountAmount: discount,
-                                      vatAmount: tax,
-                                      grandTotal: total,
-                                      cashLedgerId: 1,
-                                      cashAmount: cashAmt, // simple example
-                                      cardLedgerId: 0,
-                                      cardAmount: cardAmt,
-                                      creditAmount: 0,
-                                      tableId: 1,
-                                      supplierId: null,
-                                      cashierId: 1,
-                                      orderMasterId: 10,
-                                      billStatus: '',
-                                      salesType: '',
-                                      billTokenNo: 22,
-                                      createdUser: 1,
-                                      branchId: 1,
-                                      totalTax: tax,
-                                      salesDetails:
-                                          items
-                                              .map(
-                                                (e) => SaleDetail(
-                                                  productCode: e.productCode,
-                                                  productName: e.productName,
-                                                  qty:
-                                                      (e.qty as num)
-                                                          .toInt(), // safer
-                                                  unitId:
-                                                      double.parse(
-                                                        e.unitId,
-                                                      ).toInt(), // safer if unitId is string
-                                                  // qty: int.parse(e.qty.toString()),
-                                                  // unitId: int.parse(e.unitId),
-                                                  purchaseCost: double.parse(
-                                                    e.purchaseCost,
-                                                  ),
-                                                  salesRate: e.salesRate,
-                                                  excludeRate: e.salesRate,
-                                                  subtotal: e.totalPrice,
-                                                  vatId: 1,
-                                                  vatAmount: tax / items.length,
-                                                  totalAmount:
-                                                      e.totalPrice +
-                                                      (tax / items.length),
-                                                  conversionRate: 1,
-                                                ),
-                                              )
-                                              .toList(),
-                                    );
+                                  }
+                                  final items = CartManager().cartItems.value;
+                                  // Build SaveSaleRequest from cart
+                                  final request = SaveSaleRequest(
+                                    invoiceDate: DateTime.now()
+                                        .toIso8601String()
+                                        .split('T')
+                                        .first,
+                                    invoiceTime: DateTime.now()
+                                        .toIso8601String()
+                                        .split('T')
+                                        .last
+                                        .split('.')
+                                        .first,
+                                    ledgerId: 1,
+                                    subTotal: subTotal,
+                                    discountAmount: discount,
+                                    vatAmount: tax,
+                                    grandTotal: total,
+                                    cashLedgerId: 1,
+                                    cashAmount: cashAmt,
+                                    cardLedgerId: 0,
+                                    cardAmount: cardAmt,
+                                    creditAmount: 0,
+                                    tableId: 1,
+                                    supplierId: 1,
+                                    cashierId: 1,
+                                    orderMasterId: 10,
+                                    billStatus: '',
+                                    salesType: '',
+                                    billTokenNo: 22,
+                                    createdUser: 1,
+                                    branchId: 1,
+                                    totalTax: tax,
+                                    salesDetails: items
+                                        .map(
+                                          (e) => SaleDetail(
+                                            productCode: e.productCode,
+                                            productName: e.productName,
+                                            qty: (e.qty as num)
+                                                .toInt(), // safer
+                                            unitId: double.parse(
+                                              e.unitId,
+                                            ).toInt(),
+                                            purchaseCost: double.parse(
+                                              e.purchaseCost,
+                                            ),
+                                            salesRate: e.salesRate,
+                                            excludeRate: e.salesRate,
+                                            subtotal: e.totalPrice,
+                                            vatId: 1,
+                                            vatAmount: tax / items.length,
+                                            totalAmount:
+                                                e.totalPrice +
+                                                (tax / items.length),
+                                            conversionRate: 1,
+                                          ),
+                                        )
+                                        .toList(),
+                                  );
 
-                                    // Trigger cubit
-                                    context.read<SaleCubit>().saveSale(request);
-                                  },
-                                  child: const Text(
-                                    'Confirm Sale',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
+                                  // Trigger cubit
+                                  context.read<SaleCubit>().saveSale(request);
+                                },
+                                child: const Text(
+                                  'Confirm Sale',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: Colors.black,
                                   ),
                                 ),
+                              ),
                       ),
                     ],
                   ),
@@ -363,6 +363,42 @@ class CartScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// 🔹 Get the appropriate tax label based on vatType
+  String _getTaxLabel(String? vatType) {
+    switch (vatType?.toLowerCase()) {
+      case 'tax':
+        return 'Tax';
+      case 'gst':
+        return 'GST';
+      default:
+        return ''; // Default label if null or unknown
+    }
+  }
+
+  /// 🔹 Calculate totals dynamically using VAT settings
+  Future<Map<String, dynamic>> _calculateTotals() async {
+    final items = CartManager().cartItems.value;
+    final subTotal = items.fold(0.0, (sum, item) => sum + item.totalPrice);
+    final discount = 0.0;
+
+    final vatStatus = await SharedPreferenceHelper().getVatStatus();
+    final vatType = await SharedPreferenceHelper().getVatType();
+    double tax = 0.0;
+    if (vatStatus == true) {
+      // Apply 1% tax regardless of tax type (tax or gst)
+      tax = subTotal * 0.01; // 1% tax
+    }
+    final total = subTotal - discount + tax;
+
+    return {
+      'subTotal': subTotal,
+      'discount': discount,
+      'tax': tax,
+      'total': total,
+      'vatType': vatType,
+    };
   }
 
   void _showMultiPaymentModal(
@@ -427,7 +463,7 @@ class CartScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Total: ₹ ${total.toStringAsFixed(2)}',
+                  'Total: ${total.toStringAsFixed(2)}',
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),

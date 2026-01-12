@@ -12,17 +12,22 @@ class CartManager {
     [],
   );
 
-  /// ➕ Add product to cart
   void addToCart(CartItem item) {
-    final index = cartItems.value.indexWhere((e) => e.qty == item.productCode);
+    final items = List<CartItem>.from(cartItems.value);
+
+    final index = items.indexWhere((e) => e.productCode == item.productCode);
 
     if (index != -1) {
-      cartItems.value[index].qty++;
+      // ✅ UPDATE PRICE EVERY TIME
+      items[index] = items[index].copyWith(
+        qty: items[index].qty + item.qty,
+        salesRate: item.salesRate,
+      );
     } else {
-      cartItems.value.add(item);
+      items.add(item);
     }
 
-    cartItems.notifyListeners();
+    cartItems.value = items;
   }
 
   /// ➖ Remove product

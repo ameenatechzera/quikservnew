@@ -5,14 +5,14 @@ import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PrinterSettingsScreen extends StatefulWidget {
-  const PrinterSettingsScreen({super.key});
+class PrinterSettingsContent extends StatefulWidget {
+  const PrinterSettingsContent({super.key});
 
   @override
-  State<PrinterSettingsScreen> createState() => _PrinterSettingsScreenState();
+  State<PrinterSettingsContent> createState() => _PrinterSettingsContentState();
 }
 
-class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
+class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   String printerType = 'Wifi';
   String paperSize = '2 inch';
 
@@ -71,9 +71,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
   }
 
   Future<void> _connectAndPrint(String mac, String name) async {
-    await SharedPreferenceHelper().saveSelectedPrinter(
-        mac
-    );
+    await SharedPreferenceHelper().saveSelectedPrinter(mac);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Connecting... Please wait')));
@@ -135,7 +133,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFFE38A),
         elevation: 0,
         title: const Text(
           'Printer Settings',

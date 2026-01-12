@@ -24,7 +24,6 @@ class SalesDetailsByMasterIdResult extends Equatable {
   final List<SalesDetail> salesDetails;
   static const String salesDetailsKey = "sales_details";
 
-
   SalesDetailsByMasterIdResult copyWith({
     int? status,
     bool? error,
@@ -41,13 +40,19 @@ class SalesDetailsByMasterIdResult extends Equatable {
     );
   }
 
-  factory SalesDetailsByMasterIdResult.fromJson(Map<String, dynamic> json){
+  factory SalesDetailsByMasterIdResult.fromJson(Map<String, dynamic> json) {
     return SalesDetailsByMasterIdResult(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
       message: json["message"] ?? "",
-      salesMaster: json["sales_master"] == null ? null : SalesMaster.fromJson(json["sales_master"]),
-      salesDetails: json["sales_details"] == null ? [] : List<SalesDetail>.from(json["sales_details"]!.map((x) => SalesDetail.fromJson(x))),
+      salesMaster: json["sales_master"] == null
+          ? null
+          : SalesMaster.fromJson(json["sales_master"]),
+      salesDetails: json["sales_details"] == null
+          ? []
+          : List<SalesDetail>.from(
+              json["sales_details"]!.map((x) => SalesDetail.fromJson(x)),
+            ),
     );
   }
 
@@ -56,17 +61,22 @@ class SalesDetailsByMasterIdResult extends Equatable {
     "error": error,
     "message": message,
     "sales_master": salesMaster?.toJson(),
-    "sales_details": salesDetails.map((x) => x?.toJson()).toList(),
+    "sales_details": salesDetails.map((x) => x.toJson()).toList(),
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$status, $error, $message, $salesMaster, $salesDetails, ";
   }
 
   @override
   List<Object?> get props => [
-    status, error, message, salesMaster, salesDetails, ];
+    status,
+    error,
+    message,
+    salesMaster,
+    salesDetails,
+  ];
 }
 
 class SalesDetail extends Equatable {
@@ -177,7 +187,6 @@ class SalesDetail extends Equatable {
   final String productCodeRef;
   static const String productCodeRefKey = "ProductCode_ref";
 
-
   SalesDetail copyWith({
     int? salesDetailsId,
     int? salesMasterId,
@@ -236,7 +245,7 @@ class SalesDetail extends Equatable {
     );
   }
 
-  factory SalesDetail.fromJson(Map<String, dynamic> json){
+  factory SalesDetail.fromJson(Map<String, dynamic> json) {
     return SalesDetail(
       salesDetailsId: json["SalesDetailsId"] ?? 0,
       salesMasterId: json["SalesMasterId"] ?? 0,
@@ -297,13 +306,39 @@ class SalesDetail extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$salesDetailsId, $salesMasterId, $productCode, $qty, $unitId, $purchaseCost, $salesRate, $excludeRate, $subtotal, $vatId, $vatAmount, $totalAmount, $branchId, $createdDate, $createdUser, $modifiedDate, $modifiedUser, $salesMasterRefId, $salesMasterIdRef, $productName, $salesDetailUnitId, $unitName, $salesDetailVatId, $vatName, $vatPercentage, $productCodeRef, ";
   }
 
   @override
   List<Object?> get props => [
-    salesDetailsId, salesMasterId, productCode, qty, unitId, purchaseCost, salesRate, excludeRate, subtotal, vatId, vatAmount, totalAmount, branchId, createdDate, createdUser, modifiedDate, modifiedUser, salesMasterRefId, salesMasterIdRef, productName, salesDetailUnitId, unitName, salesDetailVatId, vatName, vatPercentage, productCodeRef, ];
+    salesDetailsId,
+    salesMasterId,
+    productCode,
+    qty,
+    unitId,
+    purchaseCost,
+    salesRate,
+    excludeRate,
+    subtotal,
+    vatId,
+    vatAmount,
+    totalAmount,
+    branchId,
+    createdDate,
+    createdUser,
+    modifiedDate,
+    modifiedUser,
+    salesMasterRefId,
+    salesMasterIdRef,
+    productName,
+    salesDetailUnitId,
+    unitName,
+    salesDetailVatId,
+    vatName,
+    vatPercentage,
+    productCodeRef,
+  ];
 }
 
 class SalesMaster extends Equatable {
@@ -384,7 +419,7 @@ class SalesMaster extends Equatable {
   final int tableId;
   static const String tableIdKey = "table_id";
 
-  final String supplierId;
+  final int supplierId;
   static const String supplierIdKey = "supplierId";
 
   final int cashierId;
@@ -426,7 +461,6 @@ class SalesMaster extends Equatable {
   final String cardLedgerName;
   static const String cardLedgerNameKey = "cardLedgerName";
 
-
   SalesMaster copyWith({
     int? salesMasterId,
     String? invoiceNo,
@@ -443,7 +477,7 @@ class SalesMaster extends Equatable {
     String? cardAmount,
     String? creditAmount,
     int? tableId,
-    String? supplierId,
+    int? supplierId,
     int? cashierId,
     int? orderMasterId,
     String? billStatus,
@@ -491,7 +525,7 @@ class SalesMaster extends Equatable {
     );
   }
 
-  factory SalesMaster.fromJson(Map<String, dynamic> json){
+  factory SalesMaster.fromJson(Map<String, dynamic> json) {
     return SalesMaster(
       salesMasterId: json["SalesMasterId"] ?? 0,
       invoiceNo: json["InvoiceNo"] ?? "",
@@ -508,7 +542,7 @@ class SalesMaster extends Equatable {
       cardAmount: json["CardAmount"] ?? "",
       creditAmount: json["creditAmount"] ?? "",
       tableId: json["table_id"] ?? 0,
-      supplierId: json["supplierId"]?? "",
+      supplierId: json["supplierId"] ?? 0,
       cashierId: json["cashierId"] ?? 0,
       orderMasterId: json["orderMasterId"] ?? 0,
       billStatus: json["BillStatus"] ?? "",
@@ -558,11 +592,40 @@ class SalesMaster extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$salesMasterId, $invoiceNo, $invoiceDate, $invoiceTime, $ledgerId, $subTotal, $discountAmount, $vatAmount, $grandTotal, $cashLedgerId, $cashAmount, $cardLedgerId, $cardAmount, $creditAmount, $tableId, $supplierId, $cashierId, $orderMasterId, $billStatus, $salesType, $billTokenNo, $createdDate, $createdUser, $modifiedDate, $modifiedUser, $branchId, $ledgerName, $cashLedgerName, $cardLedgerName, ";
   }
 
   @override
   List<Object?> get props => [
-    salesMasterId, invoiceNo, invoiceDate, invoiceTime, ledgerId, subTotal, discountAmount, vatAmount, grandTotal, cashLedgerId, cashAmount, cardLedgerId, cardAmount, creditAmount, tableId, supplierId, cashierId, orderMasterId, billStatus, salesType, billTokenNo, createdDate, createdUser, modifiedDate, modifiedUser, branchId, ledgerName, cashLedgerName, cardLedgerName, ];
+    salesMasterId,
+    invoiceNo,
+    invoiceDate,
+    invoiceTime,
+    ledgerId,
+    subTotal,
+    discountAmount,
+    vatAmount,
+    grandTotal,
+    cashLedgerId,
+    cashAmount,
+    cardLedgerId,
+    cardAmount,
+    creditAmount,
+    tableId,
+    supplierId,
+    cashierId,
+    orderMasterId,
+    billStatus,
+    salesType,
+    billTokenNo,
+    createdDate,
+    createdUser,
+    modifiedDate,
+    modifiedUser,
+    branchId,
+    ledgerName,
+    cashLedgerName,
+    cardLedgerName,
+  ];
 }

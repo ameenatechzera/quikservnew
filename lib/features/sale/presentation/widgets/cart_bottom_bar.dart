@@ -55,7 +55,7 @@ Widget cartBottomBar(BuildContext context) {
 
               // TOTAL PRICE
               Text(
-                "₹ ${totalPrice.toStringAsFixed(2)}",
+                totalPrice.toStringAsFixed(2),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,

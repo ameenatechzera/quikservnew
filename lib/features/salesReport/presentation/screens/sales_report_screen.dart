@@ -5,7 +5,7 @@ import 'package:quikservnew/features/salesReport/domain/entities/salesReportResu
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportPreviewScreen.dart';
-import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_preview_screen.dart';
+
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class SalesReportScreen extends StatefulWidget {
@@ -142,81 +142,52 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                 if (salesList.isEmpty) {
                   return const Center(child: Text("No data found"));
                 }
-                if (state is SalesReportSuccess) {
-                  return ListView.builder(
-                    itemCount: salesList.length,
-                    itemBuilder: (context, index) {
-                      final sale = salesList[index];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      salesReportPreviewScreen(
-                                        st_fromDate:
-                                            _fromDateFormattedController.text
-                                                .toString(),
-                                        st_toDate: _toDateFormattedController
-                                            .text
-                                            .toString(),
-                                        pagefrom: 'SalesReport',
-                                        masterId: salesList[0].salesMasterId
-                                            .toString(),
-                                      ),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
+                //  if (state is SalesReportSuccess) {
+                return ListView.builder(
+                  itemCount: salesList.length,
+                  itemBuilder: (context, index) {
+                    final sale = salesList[index];
+                    return InkWell(
+                      onTap: () {
+                        debugPrint(
+                          "TAPPED index=$index id=${sale.salesMasterId}",
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => salesReportPreviewScreen(
+                              st_fromDate: _fromDateFormattedController.text
+                                  .toString(),
+                              st_toDate: _toDateFormattedController.text
+                                  .toString(),
+                              pagefrom: 'SalesReport',
+                              masterId: sale.salesMasterId.toString(),
+                            ),
+                            // transitionsBuilder:
+                            //     (
+                            //       context,
+                            //       animation,
+                            //       secondaryAnimation,
+                            //       child,
+                            //     ) {
+                            //       const begin = Offset(1.0, 0.0);
+                            //       const end = Offset.zero;
+                            //       const curve = Curves.ease;
 
-                                    var tween = Tween(
-                                      begin: begin,
-                                      end: end,
-                                    ).chain(CurveTween(curve: curve));
+                            //       var tween = Tween(
+                            //         begin: begin,
+                            //         end: end,
+                            //       ).chain(CurveTween(curve: curve));
 
-                                    return SlideTransition(
-                                      position: animation.drive(tween),
-                                      child: child,
-                                    );
-                                  },
-                            ),
-                          );
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            //       return SlideTransition(
+                            //         position: animation.drive(tween),
+                            //         child: child,
+                            //       );
+                            //     },
                           ),
-                          child: ListTile(
-                            title: Text("Invoice: ${sale.invoiceNo}"),
-                            subtitle: Text(
-                              "Date: ${displayDate.format(DateTime.parse(sale.createdDate!))}",
-                            ),
-                            trailing: Text(
-                              "₹${sale.grandTotal}",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                } else {
-                  return ListView.builder(
-                    itemCount: salesList.length,
-                    itemBuilder: (context, index) {
-                      final sale = salesList[index];
-                      return Card(
+                        );
+                      },
+                      child: Card(
                         margin: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 4,
@@ -227,18 +198,46 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                             "Date: ${displayDate.format(DateTime.parse(sale.createdDate!))}",
                           ),
                           trailing: Text(
-                            "₹${sale.grandTotal}",
+                            sale.grandTotal,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.green,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  );
-                }
+                      ),
+                    );
+                  },
+                );
               },
+              // else {
+              //   return ListView.builder(
+              //     itemCount: salesList.length,
+              //     itemBuilder: (context, index) {
+              //       final sale = salesList[index];
+              //       return Card(
+              //         margin: const EdgeInsets.symmetric(
+              //           horizontal: 8,
+              //           vertical: 4,
+              //         ),
+              //         child: ListTile(
+              //           title: Text("Invoice: ${sale.invoiceNo}"),
+              //           subtitle: Text(
+              //             "Date: ${displayDate.format(DateTime.parse(sale.createdDate!))}",
+              //           ),
+              //           trailing: Text(
+              //             "₹${sale.grandTotal}",
+              //             style: const TextStyle(
+              //               fontWeight: FontWeight.bold,
+              //               color: Colors.green,
+              //             ),
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //   );
+              // }
+              //   },
             ),
           ),
         ],

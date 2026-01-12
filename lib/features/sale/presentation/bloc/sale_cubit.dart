@@ -9,20 +9,102 @@ part 'sale_state.dart';
 
 class SaleCubit extends Cubit<SaleState> {
   final SaveSaleUseCase _saveSaleUseCase;
-  final SalesRepository _salesRepository;
-  int selectedTabIndex = 0;
+  //final SalesRepository _salesRepository;
+  //int _selectedSaleTab = 0;
+  bool _isSearchBarVisible = false;
+  bool _isMenuMode = false;
+  String _searchQuery = ''; // ✅ ADD category state variables
+  int _selectedCategoryId = 0;
+  String _selectedCategoryName = 'All';
+  double _editedPrice = 0;
+  bool _isPriceEditing = false;
+
+  double get editedPrice => _editedPrice;
+  bool get isPriceEditing => _isPriceEditing;
   SaleCubit({
     required SaveSaleUseCase saveSaleUseCase,
     required SalesRepository salesRepository,
   }) : _saveSaleUseCase = saveSaleUseCase,
-       _salesRepository = salesRepository,
+       // _salesRepository = salesRepository,
        super(SaleInitial());
 
-  void selectTab(int index) {
-    selectedTabIndex = index;
-    emit(SaleTabChanged(index));
+  // void selectSaleTab(int index) {
+  //   _selectedSaleTab = index;
+  //   emit(SaleTabChanged(_selectedSaleTab));
+  // }
+
+  // int get selectedSaleTab => _selectedSaleTab; // ✅ ADD getter
+
+  // ✅ NEW: Search bar methods
+  void showSearchBar() {
+    _isSearchBarVisible = true;
+    emit(SearchBarState(_isSearchBarVisible));
   }
 
+  void hideSearchBar() {
+    _isSearchBarVisible = false;
+    emit(SearchBarState(_isSearchBarVisible));
+  }
+
+  void toggleSearchBar() {
+    _isSearchBarVisible = !_isSearchBarVisible;
+    emit(SearchBarState(_isSearchBarVisible));
+  }
+
+  // ✅ Getter for search bar visibility
+  bool get isSearchBarVisible => _isSearchBarVisible;
+  // ✅ NEW: Menu mode methods
+  void enableMenuMode() {
+    _isMenuMode = true;
+    emit(MenuModeState(_isMenuMode));
+  }
+
+  void disableMenuMode() {
+    _isMenuMode = false;
+    emit(MenuModeState(_isMenuMode));
+  }
+
+  void toggleMenuMode() {
+    _isMenuMode = !_isMenuMode;
+    emit(MenuModeState(_isMenuMode));
+  }
+
+  // ✅ Getter for menu mode
+  bool get isMenuMode => _isMenuMode;
+  // ✅ NEW: Search query methods
+  void updateSearchQuery(String query) {
+    _searchQuery = query.trim();
+    emit(SearchQueryState(_searchQuery));
+  }
+
+  void clearSearchQuery() {
+    _searchQuery = '';
+    emit(SearchQueryState(_searchQuery));
+  }
+
+  // ✅ Getter for search query
+  String get searchQuery => _searchQuery;
+  // =================== ✅ Category Selection ===================
+  // ✅ Category methods
+  void selectCategory(int id, String name) {
+    _selectedCategoryId = id;
+    _selectedCategoryName = name;
+    emit(
+      SelectedCategoryState(
+        id: _selectedCategoryId,
+        name: _selectedCategoryName,
+      ),
+    );
+  }
+
+  void resetCategory() {
+    _selectedCategoryId = 0;
+    _selectedCategoryName = 'All';
+    emit(const SelectedCategoryState(id: 0, name: 'All'));
+  }
+
+  int get selectedCategoryId => _selectedCategoryId;
+  String get selectedCategoryName => _selectedCategoryName;
   // --------------------- API Save Sale ---------------------
   Future<void> saveSale(SaveSaleRequest request) async {
     emit(SaleLoading());

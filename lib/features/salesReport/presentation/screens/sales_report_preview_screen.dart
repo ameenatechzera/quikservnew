@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 //import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
@@ -454,7 +453,7 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                                 children: [
                                                                   const TextSpan(
                                                                     text:
-                                                                        ('Customer Name : '),
+                                                                        ('Customer Name: '),
                                                                     style: TextStyle(
                                                                       color: Colors
                                                                           .black,
@@ -1795,16 +1794,19 @@ class _SaleReportPreviewScreenState extends State<SaleReportPreviewScreen> {
                                                         print('pressed');
 
                                                         Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                    PrintPage(
-                                                                      pageFrom:
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (
+                                                                  context,
+                                                                ) => PrintPage(
+                                                                  pageFrom:
                                                                       'SalesReport',
-                                                                      sales:
-                                                                      saleList.first,
-                                                                    )));
+                                                                  sales: saleList
+                                                                      .first,
+                                                                ),
+                                                          ),
+                                                        );
 
                                                         // Navigator.push(
                                                         //     context,

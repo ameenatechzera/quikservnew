@@ -19,6 +19,26 @@ class _SplashScreenState extends State<SplashScreen> {
     _navigateNext();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              "assets/icons/QUIKSERV LOGO 02 1.png",
+
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _navigateNext() async {
     final sharedPrefHelper = SharedPreferenceHelper();
     final token = await sharedPrefHelper.getToken();
@@ -39,25 +59,5 @@ class _SplashScreenState extends State<SplashScreen> {
         MaterialPageRoute(builder: (_) => LoginScreen()),
       );
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              "assets/icons/QUIKSERV LOGO 02 1.png",
-
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
   }
 }

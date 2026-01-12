@@ -4,6 +4,8 @@ class SharedPreferenceHelper {
   static const String _baseUrlKey = 'base_url';
   static const String _tokenKey = 'auth_token';
   static const String _databaseNameKey = 'database_name';
+  static const String _vatStatusKey = 'vat_status';
+  static const String _vatTypeKey = 'vat_type';
 
   /// ------------------ BASE URL ------------------
   Future<void> setBaseUrl(String url) async {
@@ -58,5 +60,27 @@ class SharedPreferenceHelper {
   Future<String?> loadSelectedPrinter() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("selectedPrinter");
+  }
+
+  /// ------------------ VAT STATUS ------------------
+  Future<void> setVatStatus(bool status) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_vatStatusKey, status);
+  }
+
+  Future<bool> getVatStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_vatStatusKey) ?? false;
+  }
+
+  /// ------------------ VAT TYPE ------------------
+  Future<void> setVatType(String type) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_vatTypeKey, type);
+  }
+
+  Future<String> getVatType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_vatTypeKey) ?? '';
   }
 }
