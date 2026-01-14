@@ -216,7 +216,7 @@ class ServiceLocator {
     sl.registerLazySingleton(() => GetLocalCategoriesUseCase(sl()));
     // ------------------- SALES -------------------
     sl.registerFactory(
-      () => SaleCubit(saveSaleUseCase: sl(), salesRepository: sl()),
+      () => SaleCubit(saveSaleUseCase: sl(), salesRepository: sl(), salesDetailsByMasterIdUseCase: sl()),
     );
     sl.registerLazySingleton(() => SaveSaleUseCase(sl()));
     sl.registerLazySingleton<SalesRemoteDataSource>(

@@ -4,11 +4,15 @@ import 'package:quikservnew/features/sale/domain/entities/sale_save_response_ent
 import 'package:quikservnew/features/sale/domain/parameters/sale_save_request_parameter.dart';
 import 'package:quikservnew/features/sale/domain/repositories/sale_repository.dart';
 import 'package:quikservnew/features/sale/domain/usecases/save_sale_toserver_usecase.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
+import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesDetailsByMasterIdUseCase.dart';
 
 part 'sale_state.dart';
 
 class SaleCubit extends Cubit<SaleState> {
   final SaveSaleUseCase _saveSaleUseCase;
+  final SalesDetailsByMasterIdUseCase _salesDetailsByMasterIdUseCase;
   //final SalesRepository _salesRepository;
   //int _selectedSaleTab = 0;
   bool _isSearchBarVisible = false;
@@ -24,7 +28,9 @@ class SaleCubit extends Cubit<SaleState> {
   SaleCubit({
     required SaveSaleUseCase saveSaleUseCase,
     required SalesRepository salesRepository,
+    required SalesDetailsByMasterIdUseCase salesDetailsByMasterIdUseCase
   }) : _saveSaleUseCase = saveSaleUseCase,
+        _salesDetailsByMasterIdUseCase = salesDetailsByMasterIdUseCase,
        // _salesRepository = salesRepository,
        super(SaleInitial());
 
@@ -118,6 +124,23 @@ class SaleCubit extends Cubit<SaleState> {
       );
     } catch (e) {
       emit(SaleError(error: e.toString()));
+    }
+  }
+  // --------------------- API Fetch SalesDetails By MasterId ---------------------
+  Future<void> fetchSalesDetailsByMasterId(
+      FetchSalesDetailsRequest request,
+      ) async {
+    emit(SlesDetailsFetchInitial());
+
+    try {
+      final response = await _salesDetailsByMasterIdUseCase(request);
+
+      response.fold(
+            (failure) => emit(SalesReportFetchError(error: failure.message)),
+            (saleResponse) => emit(SalesDetailsFetchSuccess(response: saleResponse)),
+      );
+    } catch (e) {
+      emit(SalesReportFetchError(error: e.toString()));
     }
   }
 }

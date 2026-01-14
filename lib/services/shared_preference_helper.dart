@@ -40,6 +40,17 @@ class SharedPreferenceHelper {
     return prefs.getString("branchId") ?? '';
   }
 
+  /// ------------------ setStaffName ------------------
+  Future<bool> setStaffName(String staffName) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("staffName", staffName);
+  }
+
+  Future<String> getStaffName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("staffName") ?? '';
+  }
+
   /// ------------------ DATABASE NAME ------------------
   Future<void> setDatabaseName(String dbName) async {
     final prefs = await SharedPreferences.getInstance();

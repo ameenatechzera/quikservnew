@@ -8,7 +8,7 @@ sealed class SaleState extends Equatable {
 }
 
 final class SaleInitial extends SaleState {}
-
+final class SlesDetailsFetchInitial extends SaleState {}
 class SaleLoading extends SaleState {}
 
 class SaleSuccess extends SaleState {
@@ -68,4 +68,15 @@ class SelectedCategoryState extends SaleState {
 
   @override
   List<Object> get props => [id, name];
+}
+class SalesReportFetchError extends SaleState {
+  final String error;
+
+  SalesReportFetchError({required this.error});
+}
+
+class SalesDetailsFetchSuccess extends SaleState {
+  final SalesDetailsByMasterIdResult response;
+
+  SalesDetailsFetchSuccess({required this.response});
 }

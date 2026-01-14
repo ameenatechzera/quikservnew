@@ -4,11 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
+import 'package:quikservnew/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/cart_item_row.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/payment_option.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/summary_row.dart';
 import 'package:quikservnew/features/sale/domain/parameters/sale_save_request_parameter.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
+import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
+import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class CartScreen extends StatelessWidget {
@@ -31,7 +34,22 @@ class CartScreen extends StatelessWidget {
         ),
         body: SafeArea(
           child: BlocConsumer<SaleCubit, SaleState>(
-            listener: (context, state) {
+            listener: (context, state) async {
+              if(state is SalesDetailsFetchSuccess){
+                //print('response ${state.}')
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PrintPage(
+                      pageFrom: 'SalesReport',
+                      // sales: saleList.first,
+                      sales: state.response,
+                    ),
+                  ),
+                );
+                // Navigator.pop(context);
+              }
               if (state is SaleSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -42,7 +60,14 @@ class CartScreen extends StatelessWidget {
                   ),
                 );
                 CartManager().clearCart();
-                Navigator.pop(context);
+                final branchId = await SharedPreferenceHelper().getBranchId();
+                context.read<SaleCubit>().fetchSalesDetailsByMasterId(
+                  FetchSalesDetailsRequest(
+                    branchId: branchId,
+                    SalesMasterId: state.response.details!.salesMasterId.toString(),
+                  ),
+                );
+                // Navigator.pop(context);
               } else if (state is SaleError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error: ${state.error}')),
