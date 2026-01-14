@@ -21,47 +21,49 @@ class SaleSettingsScreen extends StatelessWidget {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                cursorFocusSection(),
-                const SizedBox(height: 16),
-                itemTapBehaviorSection(),
-                const SizedBox(height: 16),
-                paymentOptionsSection(),
-              ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  cursorFocusSection(),
+                  const SizedBox(height: 16),
+                  itemTapBehaviorSection(),
+                  const SizedBox(height: 16),
+                  paymentOptionsSection(),
+                ],
+              ),
             ),
-          ),
-
-          /// BOTTOM ACTIONS
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: actionButton(
-                    label: "CANCEL",
-                    color: Colors.grey.shade300,
-                    textColor: Colors.black87,
-                    onTap: () => Navigator.pop(context),
+        
+            /// BOTTOM ACTIONS
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: actionButton(
+                      label: "CANCEL",
+                      color: Colors.grey.shade300,
+                      textColor: Colors.black87,
+                      onTap: () => Navigator.pop(context),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: actionButton(
-                    label: "SAVE",
-                    color: AppColors.primary,
-                    textColor: AppColors.black,
-                    onTap: () {},
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: actionButton(
+                      label: "SAVE",
+                      color: AppColors.primary,
+                      textColor: AppColors.black,
+                      onTap: () {},
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

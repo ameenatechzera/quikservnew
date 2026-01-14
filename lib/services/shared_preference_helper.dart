@@ -73,6 +73,17 @@ class SharedPreferenceHelper {
     return prefs.getString("selectedPrinter");
   }
 
+  //printer
+  Future<bool> saveSelectedPrinterSize(String printerSize) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("printerSize", printerSize);
+  }
+
+  Future<String?> loadSelectedPrinterSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("printerSize");
+  }
+
   /// ------------------ VAT STATUS ------------------
   Future<void> setVatStatus(bool status) async {
     final prefs = await SharedPreferences.getInstance();

@@ -14,7 +14,7 @@ class PrinterSettingsContent extends StatefulWidget {
 
 class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   String printerType = 'Wifi';
-  String paperSize = '2 inch';
+  String? paperSize = '2 inch';
 
   bool deviceListStatus = false;
 
@@ -52,6 +52,9 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     super.initState();
     selectedMainPrinter = printersList.first;
     selectedKitchenPrinter = printersKitchenList.first;
+
+   fetchPrinterSettings();
+
 
     _initBluetooth();
   }
@@ -141,13 +144,15 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _printerTypeCard(),
-            printerType == 'Bluetooth' ? _bluetoothUi() : _wifiUi(),
-            _saveButton(),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _printerTypeCard(),
+              printerType == 'Bluetooth' ? _bluetoothUi() : _wifiUi(),
+              _saveButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -425,6 +430,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           // await SharedPreferenceHelper().saveSelectedPrinter(
           //     mac
           // );
+          Navigator.pop(context);
+
+          print('paperSize $paperSize');
+          await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));
@@ -432,6 +441,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
         child: const Text('Save'),
       ),
     );
+  }
+
+  Future<void> fetchPrinterSettings() async {
+    paperSize = await (SharedPreferenceHelper().loadSelectedPrinterSize());
   }
 }
 

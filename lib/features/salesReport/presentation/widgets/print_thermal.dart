@@ -313,7 +313,7 @@ class _PrintPageState extends State<PrintPage> {
     var generator = Generator(PaperSize.mm58, profile);
     String line ='-----------------------------------------------';
     print('selectedPrinter $selectedPrinter');
-    selectedPrinter = '3 inch';
+    //selectedPrinter = '3 inch';
     if(selectedPrinter=='2 inch') {
       print('if $selectedPrinter');
       generator = Generator(PaperSize.mm58, profile);
@@ -426,7 +426,7 @@ class _PrintPageState extends State<PrintPage> {
     await Future.delayed(const Duration(seconds: 2));
     final kitchenTicket = await _generateKitchenPrintFromSales();
     await sendBytesInChunks(kitchenTicket);
-    PrintBluetoothThermal.disconnect;
+    //PrintBluetoothThermal.disconnect;
     print('resultPrint $result');
     context.read<SalesReportCubit>().saleSaveFinished(1);
 
@@ -577,7 +577,9 @@ class _PrintPageState extends State<PrintPage> {
     }
 
     st_connectedDevicePref = (await SharedPreferenceHelper().loadSelectedPrinter())!;
+    selectedPrinter = (await SharedPreferenceHelper().loadSelectedPrinterSize())!;
     print('st_connectedDevicePref $st_connectedDevicePref');
+    print('selectedPrinter $selectedPrinter');
     // await SharedPrefrence().getBluetoothMacAddress().then((value) async {
     //   print('st_connectedDevicePref $value');
     //   st_connectedDevicePref = value.toString();
@@ -661,6 +663,7 @@ class _PrintPageState extends State<PrintPage> {
     }catch(_){}
     ////////////////////////////////////////
     String line ='-----------------------------------------------';
+    print('selectedPrinterHARIS $selectedPrinter');
     if(selectedPrinter=='2 inch') {
       print('if $selectedPrinter');
 
