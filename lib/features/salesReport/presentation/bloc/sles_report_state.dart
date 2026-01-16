@@ -40,6 +40,8 @@ class SalesDetailsError extends SlesReportState {
 // New states for MasterByDate
 class SalesReportMasterByDateInitial extends SlesReportState {}
 
+class SalesDeleteLoading extends SlesReportState {}
+
 class SalesReportMasterByDateSuccess extends SlesReportState {
   final SalesReportResult response;
   final int totalSalesCount;
@@ -57,3 +59,12 @@ class SalesReportMasterByDateError extends SlesReportState {
   final String error;
   SalesReportMasterByDateError({required this.error});
 }
+class SalesDeleteSuccess extends SlesReportState {
+  SalesDeleteSuccess();
+}
+
+class SalesDeleteFailure extends SlesReportState {
+  final String error;
+  SalesDeleteFailure(this.error);
+}
+

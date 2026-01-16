@@ -5,6 +5,10 @@ import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
+import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/commonResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
+import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
@@ -23,6 +27,49 @@ class SettingsRepositoryImpl implements SettingsRepository {
       return Left(ServerFailure(failure.message.toString()));
     } catch (e) {
       return Left(ServerFailure("Unexpected error: $e"));
+    }
+  }
+
+  @override
+  ResultFuture<CommonResult> refreshSalesToken() async {
+    try {
+      final result = await remoteDataSource.refreshSalesToken();
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    } catch (e) {
+      return Left(ServerFailure("Unexpected error: $e"));
+    }
+  }
+
+  @override
+  ResultFuture<TokenDetailsResult> fetchCurrentSalesTokenDetails() async {
+    try {
+      final result = await remoteDataSource
+          .fetchCurrentSalesToken();
+      print('📊 API Response: ${result.toJson()}');
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<TokenUpdateResult> updateSalesTokenToServer(
+      UpdateSalesTokenRequest updateSalesTokenRequest) async {
+    try {
+      final result = await remoteDataSource
+          .updateSalesTokenToServer(updateSalesTokenRequest);
+      print('📊 API Response: ${result.toJson()}');
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
     }
   }
 }

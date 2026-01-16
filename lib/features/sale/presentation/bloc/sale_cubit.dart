@@ -130,8 +130,8 @@ class SaleCubit extends Cubit<SaleState> {
   Future<void> fetchSalesDetailsByMasterId(
       FetchSalesDetailsRequest request,
       ) async {
+    print('FetchSalesDetailsRequest ${request.toJson()}');
     emit(SlesDetailsFetchInitial());
-
     try {
       final response = await _salesDetailsByMasterIdUseCase(request);
 

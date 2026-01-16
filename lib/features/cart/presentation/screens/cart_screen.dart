@@ -36,8 +36,8 @@ class CartScreen extends StatelessWidget {
           child: BlocConsumer<SaleCubit, SaleState>(
             listener: (context, state) async {
               if(state is SalesDetailsFetchSuccess){
-                //print('response ${state.}')
-
+                print('responseFromSales ${state.response}');
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -61,13 +61,14 @@ class CartScreen extends StatelessWidget {
                 );
                 CartManager().clearCart();
                 final branchId = await SharedPreferenceHelper().getBranchId();
+                print('reachedHHHHHHHHHHHHHHHH');
                 context.read<SaleCubit>().fetchSalesDetailsByMasterId(
                   FetchSalesDetailsRequest(
                     branchId: branchId,
                     SalesMasterId: state.response.details!.salesMasterId.toString(),
                   ),
                 );
-                // Navigator.pop(context);
+
               } else if (state is SaleError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error: ${state.error}')),
@@ -334,7 +335,7 @@ class CartScreen extends StatelessWidget {
                                     cashierId: 1,
                                     orderMasterId: 10,
                                     billStatus: '',
-                                    salesType: '',
+                                    salesType: selectedPayment.value,
                                     billTokenNo: 22,
                                     createdUser: 1,
                                     branchId: 1,

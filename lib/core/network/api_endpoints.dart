@@ -57,4 +57,21 @@ class ApiConstants {
   static String getFetchSalesDetailsReportPath(String baseUrl) {
     return '$baseUrl/salesmaster/get-salesmaster';
   }
+
+  //reset sales Token
+  static String resetSalesTokenPath(String baseUrl) {
+    return '$baseUrl/salesmaster/reset-sales-token/1';
+  }
+
+  static String fetchSalesTokenPath(String baseUrl) {
+    return '$baseUrl/settings/fetch-salesToken/1';
+  }
+  static String updateSalesTokenPath(String baseUrl) {
+    return '$baseUrl/settings/update-salesToken';
+  }
+
+  static String deleteSalesByMasterIdPath(String baseUrl, String masterId) {
+
+    return '$baseUrl/salesmaster/delete-salesmaster/'+masterId;
+  }
 }

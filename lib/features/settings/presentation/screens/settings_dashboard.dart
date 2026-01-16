@@ -11,6 +11,7 @@ import 'package:quikservnew/features/masters/presentation/screens/vat_listing_sc
 import 'package:quikservnew/features/settings/presentation/screens/account_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/printer_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/sale_settings_screen.dart';
+import 'package:quikservnew/features/settings/presentation/screens/tokenResetScreen.dart';
 import 'package:quikservnew/features/settings/presentation/widgets/dashboard_listtile.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -58,6 +59,13 @@ class SettingsScreen extends StatelessWidget {
                     icon: Icons.receipt_long_outlined,
                     title: "Sales Settings",
                     page: SaleSettingsScreen(),
+
+                  ),
+                  buildTile(
+                    context: context,
+                    icon: Icons.token_outlined,
+                    title: "Reset Token",
+                    page: ResetTokenScreen(),
                   ),
                 ],
               ),

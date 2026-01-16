@@ -169,7 +169,7 @@ class _PrintPageState extends State<PrintPage> {
 
     bytes += await printKotItemDetails(generator);
     bytes.addAll(generator.text(line,
-        styles: PosStyles(align: PosAlign.center), linesAfter: 10));
+        styles: PosStyles(align: PosAlign.center), linesAfter: 0));
 
     // Feed only one small line before cut
     bytes.addAll(generator.feed(1));
@@ -1546,7 +1546,7 @@ class _PrintPageState extends State<PrintPage> {
         height: PosTextSize.size2,
         width: PosTextSize.size1,
       ),
-      linesAfter: 10,
+      linesAfter: 0,
     );
     return bytes;
   }

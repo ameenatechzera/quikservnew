@@ -43,7 +43,9 @@ import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_c
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';
 import 'package:quikservnew/features/settings/data/repositories/settings_repository_impl.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetchCurrenSalesTokenUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/updatesalesTokenUseCase.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/features/units/data/datasources/units_remote_datasource.dart';
 import 'package:quikservnew/features/units/data/repositories/units_repository_impl.dart';
@@ -175,9 +177,13 @@ class ServiceLocator {
 
     // ------------------- SETTINGS -------------------
     // Cubit
-    sl.registerFactory(() => SettingsCubit(fetchSettingsUseCase: sl()));
+    sl.registerFactory(() => SettingsCubit(fetchSettingsUseCase: sl(), fetchCurrentSalesTokenUseCase: sl(), updateSalesTokenUseCase: sl()));
     // UseCase
     sl.registerLazySingleton(() => FetchSettingsUseCase(sl()));
+    sl.registerLazySingleton(() => FetchCurrentSalesTokenUseCase(sl()));
+    sl.registerLazySingleton(() => UpdateSalesTokenUseCase(sl()));
+
+
     // Data Source
     sl.registerLazySingleton<SettingsRemoteDataSource>(
       () => SettingsRemoteDataSourceImpl(),

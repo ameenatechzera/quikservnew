@@ -10,9 +10,9 @@ import 'package:quikservnew/features/salesReport/presentation/widgets/print_ther
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class salesReportPreviewScreen extends StatefulWidget {
-  final String st_fromDate;
-
-  final String st_toDate;
+  // final String st_fromDate;
+  //
+  // final String st_toDate;
 
   final String pagefrom;
 
@@ -20,8 +20,8 @@ class salesReportPreviewScreen extends StatefulWidget {
 
   const salesReportPreviewScreen({
     super.key,
-    required this.st_fromDate,
-    required this.st_toDate,
+    // required this.st_fromDate,
+    // required this.st_toDate,
     required this.pagefrom,
     required this.masterId,
   });
