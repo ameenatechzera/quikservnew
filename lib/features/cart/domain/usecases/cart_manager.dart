@@ -64,6 +64,7 @@ class CartManager {
   void clearCart() {
     cartItems.value.clear();
     cartItems.notifyListeners();
+    showCartBar.value = false;
   }
 
   void incrementQuantity(String productId) {

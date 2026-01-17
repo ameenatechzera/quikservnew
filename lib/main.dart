@@ -19,10 +19,10 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 
 late final AppDatabase appDb;
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // ✅ Put this BEFORE runApp
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: AppColors.theme, // your yellow
+      statusBarColor: AppColors.theme,
       statusBarIconBrightness: Brightness.dark,
       statusBarBrightness: Brightness.dark,
     ),
@@ -46,20 +46,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // SystemChrome.setSystemUIOverlayStyle(
-    //   const SystemUiOverlayStyle(
-    //     statusBarColor: AppColors.theme, // 👈 background color
-    //     statusBarIconBrightness: Brightness.dark, // Android icons
-    //     statusBarBrightness: Brightness.dark, // iOS icons
-    //   ),
-    // );
     return MultiBlocProvider(
       providers: [
         BlocProvider<RegisterCubit>(create: (_) => sl<RegisterCubit>()),
         BlocProvider<LoginCubit>(create: (_) => sl<LoginCubit>()),
-        BlocProvider<UnitCubit>(create: (_) => sl<UnitCubit>()),
-        BlocProvider<VatCubit>(create: (_) => sl<VatCubit>()),
-        BlocProvider<GroupsCubit>(create: (_) => sl<GroupsCubit>()),
+        BlocProvider<UnitCubit>(create: (_) => sl<UnitCubit>()..fetchUnits()),
+        BlocProvider<VatCubit>(create: (_) => sl<VatCubit>()..fetchVat()),
+        BlocProvider<GroupsCubit>(
+          create: (_) => sl<GroupsCubit>()..fetchGroups(),
+        ),
         BlocProvider<ProductCubit>(create: (_) => sl<ProductCubit>()),
         BlocProvider<SettingsCubit>(create: (_) => sl<SettingsCubit>()),
         BlocProvider<CategoriesCubit>(create: (_) => sl<CategoriesCubit>()),
@@ -68,9 +63,20 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'QuikSERV',
         theme: ThemeData(
+          useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          appBarTheme: const AppBarTheme(
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: AppColors.theme,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            ),
+          ),
         ),
         home: const SplashScreen(),
       ),

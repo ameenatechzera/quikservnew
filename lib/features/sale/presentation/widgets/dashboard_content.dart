@@ -6,6 +6,9 @@ import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterr
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_screen.dart';
 
+// ✅ add this (same used in HomeScreen)
+import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
+
 final DateFormat formatter = DateFormat('dd MMM yyyy');
 
 class DashboardContent extends StatefulWidget {
@@ -16,21 +19,19 @@ class DashboardContent extends StatefulWidget {
 }
 
 class _DashboardContentState extends State<DashboardContent> {
-  // ValueNotifiers (can be moved to controller later)
   final ValueNotifier<DateTime> fromDateNotifier = ValueNotifier(
     DateTime.now(),
   );
   final ValueNotifier<DateTime> toDateNotifier = ValueNotifier(DateTime.now());
+
   @override
   void initState() {
     super.initState();
 
-    /// Initial fetch
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchReport();
     });
 
-    /// Fetch again when date changes
     fromDateNotifier.addListener(_fetchReport);
     toDateNotifier.addListener(_fetchReport);
   }
@@ -44,7 +45,6 @@ class _DashboardContentState extends State<DashboardContent> {
     super.dispose();
   }
 
-  /// Convert any dynamic/Object to double safely
   double _toDouble(dynamic value) {
     return double.tryParse(value?.toString() ?? '') ?? 0.0;
   }
@@ -72,7 +72,6 @@ class _DashboardContentState extends State<DashboardContent> {
     if (selected != null) {
       notifier.value = selected;
 
-      /// Ensure fromDate <= toDate
       if (fromDateNotifier.value.isAfter(toDateNotifier.value)) {
         toDateNotifier.value = fromDateNotifier.value;
       }
@@ -81,201 +80,215 @@ class _DashboardContentState extends State<DashboardContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.theme,
-        title: Text('Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
-      ),
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// DATE PICKERS
-              Row(
+    return ScrollConfiguration(
+      behavior: const AppScrollBehavior(), // ✅ no glow + consistent behavior
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 40,
+          backgroundColor: AppColors.theme,
+          title: const Text(
+            'Dashboard',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        backgroundColor: AppColors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            // ✅ Soft/reduced bounce
+            physics: const SoftBounceScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 5, 16, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DateCard(
-                    title: 'From Date',
-                    dateNotifier: fromDateNotifier,
-                    onTap: () => _pickDate(context, fromDateNotifier),
-                  ),
-                  const SizedBox(width: 12),
-                  DateCard(
-                    title: 'To Date',
-                    dateNotifier: toDateNotifier,
-                    onTap: () => _pickDate(context, toDateNotifier),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              /// SALES STATS
-              BlocBuilder<SalesReportCubit, SlesReportState>(
-                builder: (context, state) {
-                  if (state is SalesReportMasterByDateSuccess) {
-                    final list = state.response.salesMaster;
-
-                    final totalCount = list.length;
-                    final totalAmount = list.fold<double>(
-                      0.0,
-                      (sum, item) => sum + _toDouble(item.grandTotal),
-                    );
-
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: _StatCard(
-                            title: 'Total Sales Count',
-                            value: totalCount.toString(),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _StatCard(
-                            title: 'Total Sales Amount',
-                            value: totalAmount.toStringAsFixed(2),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-
-                  if (state is SalesReportMasterByDateError) {
-                    return const Text('Failed to load sales data');
-                  }
-
-                  return const Center(child: CircularProgressIndicator());
-                },
-              ),
-
-              const SizedBox(height: 14),
-
-              /// CASH BALANCE
-              BlocBuilder<SalesReportCubit, SlesReportState>(
-                builder: (context, state) {
-                  if (state is SalesReportMasterByDateSuccess) {
-                    final list = state.response.salesMaster;
-
-                    final cashBalance = list.fold<double>(
-                      0.0,
-                      (sum, item) => sum + _toDouble(item.cashAmount),
-                    );
-
-                    return Container(
-                      height: 100,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF6E0),
-                        borderRadius: BorderRadius.circular(14),
+                  /// DATE PICKERS
+                  Row(
+                    children: [
+                      DateCard(
+                        title: 'From Date',
+                        dateNotifier: fromDateNotifier,
+                        onTap: () => _pickDate(context, fromDateNotifier),
                       ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Cash Balance',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            cashBalance.toStringAsFixed(2),
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: 12),
+                      DateCard(
+                        title: 'To Date',
+                        dateNotifier: toDateNotifier,
+                        onTap: () => _pickDate(context, toDateNotifier),
                       ),
-                    );
-                  }
-
-                  return const SizedBox(height: 100);
-                },
-              ),
-
-              const SizedBox(height: 18),
-
-              // TRANSACTION
-              const Text(
-                'Transaction',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ActionTile(
-                      onTap: () {},
-                      icon: Icons.receipt_long_outlined,
-                      label: 'Sales Invoice',
-                    ),
+                    ],
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: _ActionTile(
-                      icon: Icons.camera_alt_outlined,
-                      label: 'Payment',
-                      onTap: () {},
-                    ),
+                  const SizedBox(height: 10),
+
+                  /// SALES STATS
+                  BlocBuilder<SalesReportCubit, SlesReportState>(
+                    builder: (context, state) {
+                      if (state is SalesReportMasterByDateSuccess) {
+                        final list = state.response.salesMaster;
+
+                        final totalCount = list.length;
+                        final totalAmount = list.fold<double>(
+                          0.0,
+                          (sum, item) => sum + _toDouble(item.grandTotal),
+                        );
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: _StatCard(
+                                title: 'Total Sales Count',
+                                value: totalCount.toString(),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _StatCard(
+                                title: 'Total Sales Amount',
+                                value: totalAmount.toStringAsFixed(2),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      if (state is SalesReportMasterByDateError) {
+                        return const Text('Failed to load sales data');
+                      }
+
+                      return const Center(child: CircularProgressIndicator());
+                    },
                   ),
-                ],
-              ),
 
-              const SizedBox(height: 18),
+                  const SizedBox(height: 14),
 
-              // REPORTS
-              const Text(
-                'Reports',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ActionTile(
-                      icon: Icons.receipt_outlined,
-                      label: 'Sales Report',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SalesReportScreen(),
+                  /// CASH BALANCE
+                  BlocBuilder<SalesReportCubit, SlesReportState>(
+                    builder: (context, state) {
+                      if (state is SalesReportMasterByDateSuccess) {
+                        final list = state.response.salesMaster;
+
+                        final cashBalance = list.fold<double>(
+                          0.0,
+                          (sum, item) => sum + _toDouble(item.cashAmount),
+                        );
+
+                        return Container(
+                          height: 100,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF6E0),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Cash Balance',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                cashBalance.toStringAsFixed(2),
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
                           ),
                         );
-                      },
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: _ActionTile(
-                      icon: Icons.flag_outlined,
-                      label: 'Item Report',
-                      onTap: () {},
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ActionTile(
-                      icon: Icons.calendar_month_outlined,
-                      label: 'Daily Closing\nReport',
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(child: SizedBox()),
-                ],
-              ),
+                      }
 
-              const Spacer(),
-            ],
+                      return const SizedBox(height: 100);
+                    },
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // TRANSACTION
+                  const Text(
+                    'Transaction',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionTile(
+                          onTap: () {},
+                          icon: Icons.receipt_long_outlined,
+                          label: 'Sales Invoice',
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ActionTile(
+                          icon: Icons.camera_alt_outlined,
+                          label: 'Payment',
+                          onTap: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // REPORTS
+                  const Text(
+                    'Reports',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionTile(
+                          icon: Icons.receipt_outlined,
+                          label: 'Sales Report',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SalesReportScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ActionTile(
+                          icon: Icons.flag_outlined,
+                          label: 'Item Report',
+                          onTap: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionTile(
+                          icon: Icons.calendar_month_outlined,
+                          label: 'Daily Closing\nReport',
+                          onTap: () {},
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24), // ✅ some bottom space
+                ],
+              ),
+            ),
           ),
         ),
       ),

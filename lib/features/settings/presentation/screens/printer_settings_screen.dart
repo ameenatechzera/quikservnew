@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/app_toast.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -132,15 +134,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFE38A),
-        elevation: 0,
-        title: const Text(
-          'Printer Settings',
-          style: TextStyle(color: Colors.black),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
+      appBar: const CommonAppBar(title: "Printer Settings"),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -425,9 +419,14 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           // await SharedPreferenceHelper().saveSelectedPrinter(
           //     mac
           // );
-          ScaffoldMessenger.of(
+          showAnimatedToast(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Settings saved')));
+            message: 'Settings saved',
+            isSuccess: true,
+          );
+          // ScaffoldMessenger.of(
+          //   context,
+          // ).showSnackBar(const SnackBar(content: Text('Settings saved')));
         },
         child: const Text('Save'),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/navigation/app_navigator.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/masters/presentation/screens/account_ledger_creation_screen.dart';
 import 'package:quikservnew/features/masters/presentation/widgets/accountledger_widgets.dart';
 
@@ -23,14 +24,9 @@ class AccountLedgerListingScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6FA),
-      appBar: AppBar(
-        backgroundColor: AppColors.theme,
-        elevation: 0,
+      appBar: CommonAppBar(
+        title: "Account Ledgers",
 
-        title: const Text(
-          "Account Ledgers",
-          style: TextStyle(color: AppColors.black),
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add, color: AppColors.black),

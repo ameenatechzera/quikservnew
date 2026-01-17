@@ -18,6 +18,7 @@ import 'package:quikservnew/features/sale/presentation/widgets/category_list.dar
 import 'package:quikservnew/features/sale/presentation/widgets/common_bottom_bar.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/custom_search_icon.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/product_dialog.dart';
+import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/tabs.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/top_price_container_widget.dart';
 import 'package:quikservnew/features/settings/presentation/screens/settings_dashboard.dart';
@@ -31,12 +32,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final CartManager cartManager;
-
-  /// ✅ Category selection state (same as MenuScreen)
-  // final ValueNotifier<int> selectedCategoryId = ValueNotifier<int>(0);
-  // final ValueNotifier<String> selectedCategoryName = ValueNotifier<String>(
-  //   'All',
-  // );
+  int _previousTabIndex = 0;
 
   /// ✅ SIMPLE ValueNotifier for top tabs (Dine-In, Takeaway, Delivery)
   final ValueNotifier<int> selectedSaleTab = ValueNotifier<int>(0);
@@ -46,10 +42,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Search controller
   final TextEditingController _searchController = TextEditingController();
+  // ✅ Adjust if needed (match your real widget heights)
+  final double _bottomBarHeight = 70; // CommomBottomBar height
+  final double _cartBarHeight = 60; // cartBottomBar height
+  final double _extraGap = 16;
+
+  double _contentBottomPadding(bool cartVisible) {
+    return _bottomBarHeight +
+        (cartVisible ? (_cartBarHeight + _extraGap) : _extraGap);
+  }
 
   @override
   void initState() {
-    super.initState();
+    super
+        .initState(); // ✅ Reset global status bar when entering Home (fix after login/splash)
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: AppColors.theme,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
     cartManager = CartManager();
     requestBluetoothPermissions();
 
@@ -70,13 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     // Dispose all ValueNotifiers
     selectedSaleTab.dispose();
-    //  showSearchBar.dispose();
     showCartBar.dispose();
-    //showMenuMode.dispose();
-    // selectedCategoryId.dispose();
-    // selectedCategoryName.dispose();
+
     _searchController.dispose();
-    //_searchQuery.dispose();
     super.dispose();
   }
 
@@ -124,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Added this method to handle tab switching
   void _switchTab(int index) {
     setState(() {
+      _previousTabIndex = _currentTabIndex;
       _currentTabIndex = index;
       // Reset search and menu mode when switching away from Sales tab
       if (index != 0) {
@@ -132,9 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
         saleCubit.disableMenuMode();
         _searchController.clear();
         saleCubit.clearSearchQuery();
-
-        // ✅ reset category selection too
         saleCubit.resetCategory();
+      } else {
+        // ✅ When coming back to Home, show cartbar if cart has items
+        showCartBar.value = cartManager.cartItems.value.isNotEmpty;
       }
     });
   }
@@ -145,9 +156,10 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         // Top Tabs
         Container(
+          height: 40,
           color: const Color(0xFFFFE38A),
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(5),
             child: ValueListenableBuilder<int>(
               valueListenable: selectedSaleTab,
               builder: (context, selectedIndex, _) {
@@ -198,14 +210,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(20),
                       onTap: () {
-                        context.read<SaleCubit>().toggleMenuMode();
+                        final saleCubit = context.read<SaleCubit>();
+                        final wasMenuMode = saleCubit.isMenuMode;
 
-                        // Clear search when switching modes
-                        if (context.read<SaleCubit>().isMenuMode) {
-                          context.read<SaleCubit>().hideSearchBar();
+                        saleCubit
+                            .toggleMenuMode(); // Clear search when switching modes
+                        if (saleCubit.isMenuMode) {
+                          // ✅ entering menu mode -> refresh categories + products
+                          context
+                              .read<CategoriesCubit>()
+                              .loadCategoriesFromLocal();
+                          context.read<ProductCubit>().loadProductsFromLocal();
+                          saleCubit.hideSearchBar();
                           _searchController.clear();
-                          context.read<SaleCubit>().clearSearchQuery();
+                          saleCubit.clearSearchQuery();
                         }
+
+                        // ✅ IMPORTANT: when coming BACK from menu/category to home grid
+                        if (wasMenuMode) {
+                          saleCubit.resetCategory(); // set "All"
+                          context
+                              .read<ProductCubit>()
+                              .loadProductsFromLocal(); // reload all products
+                        }
+                        // context.read<SaleCubit>().toggleMenuMode();
+
+                        // // Clear search when switching modes
+                        // if (context.read<SaleCubit>().isMenuMode) {
+                        //   context.read<SaleCubit>().hideSearchBar();
+                        //   _searchController.clear();
+                        //   context.read<SaleCubit>().clearSearchQuery();
+                        // }
                       },
                       child: Center(
                         child: Icon(
@@ -305,19 +340,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           size: 20,
                         ),
                         onPressed: () {
-                          if (saleCubit.isSearchBarVisible) {
-                            // ✅ Close search bar using SaleCubit
-                            saleCubit.hideSearchBar();
-                            _searchController.clear();
-                            saleCubit.clearSearchQuery();
-                          } else if (saleCubit.isMenuMode) {
-                            saleCubit
-                                .disableMenuMode(); // ✅ reset category and load all
-                            saleCubit.resetCategory();
-                            context
-                                .read<ProductCubit>()
-                                .loadProductsFromLocal();
-                          }
+                          // ✅ ALWAYS clear cart in normal mode
+                          cartManager.clearCart();
+                          showCartBar.value = false;
+                          // if (saleCubit.isSearchBarVisible) {
+                          //   // ✅ Close search bar using SaleCubit
+                          //   saleCubit.hideSearchBar();
+                          //   _searchController.clear();
+                          //   saleCubit.clearSearchQuery();
+                          //   return;
+                          // }
+                          // if (saleCubit.isMenuMode) {
+                          //   saleCubit
+                          //       .disableMenuMode(); // ✅ reset category and load all
+                          //   saleCubit.resetCategory();
+                          //   context
+                          //       .read<ProductCubit>()
+                          //       .loadProductsFromLocal();
+                          //   return;
+                          // }
                         },
                       );
                     },
@@ -419,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder<SaleCubit, SaleState>(
             builder: (context, state) {
               final isMenuMode = context.read<SaleCubit>().isMenuMode;
-              final saleCubit = context.read<SaleCubit>();
+              //final saleCubit = context.read<SaleCubit>();
               if (isMenuMode) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -549,338 +590,458 @@ class _HomeScreenState extends State<HomeScreen> {
                                         baseAspectRatio /
                                         textScale.clamp(1.0, 1.6);
 
-                                    return GridView.builder(
-                                      itemCount: filteredProducts.length,
-                                      gridDelegate:
-                                          SliverGridDelegateWithMaxCrossAxisExtent(
-                                            maxCrossAxisExtent: maxItemWidth,
-                                            childAspectRatio: childAspectRatio,
-                                            crossAxisSpacing: 5,
-                                            mainAxisSpacing: 5,
+                                    return ValueListenableBuilder<bool>(
+                                      valueListenable: showCartBar,
+                                      builder: (context, cartVisible, _) {
+                                        final bottomPad = _contentBottomPadding(
+                                          cartVisible,
+                                        );
+
+                                        return GridView.builder(
+                                          physics: const SoftBounceScrollPhysics(
+                                            parent:
+                                                AlwaysScrollableScrollPhysics(),
                                           ),
-                                      itemBuilder: (context, index) {
-                                        final product = filteredProducts[index];
+                                          padding: EdgeInsets.only(
+                                            bottom: bottomPad,
+                                          ),
+                                          itemCount: filteredProducts.length,
+                                          gridDelegate:
+                                              SliverGridDelegateWithMaxCrossAxisExtent(
+                                                maxCrossAxisExtent:
+                                                    maxItemWidth,
+                                                childAspectRatio:
+                                                    childAspectRatio,
+                                                crossAxisSpacing: 5,
+                                                mainAxisSpacing: 5,
+                                              ),
+                                          itemBuilder: (context, index) {
+                                            final product =
+                                                filteredProducts[index];
 
-                                        return Stack(
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              child: Container(
-                                                width: double.infinity,
-                                                color: const Color.fromARGB(
-                                                  255,
-                                                  232,
-                                                  229,
-                                                  229,
-                                                ),
-                                                child: Column(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            5.0,
-                                                          ),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              12,
-                                                            ),
-                                                        child: SizedBox(
-                                                          height:
-                                                              120 *
-                                                              textScale.clamp(
-                                                                1.0,
-                                                                1.2,
-                                                              ),
-                                                          child: (() {
-                                                            final Uint8List?
-                                                            imageBytes =
-                                                                decodeImage(
-                                                                  product
-                                                                      .productImageByte,
-                                                                );
+                                            return Stack(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    final items = cartManager
+                                                        .cartItems
+                                                        .value;
+                                                    final exists = items.any(
+                                                      (e) =>
+                                                          e.productCode ==
+                                                          product.productCode,
+                                                    );
 
-                                                            if (imageBytes !=
-                                                                null) {
-                                                              return Image.memory(
-                                                                imageBytes,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              );
-                                                            }
-
-                                                            return Image.asset(
-                                                              "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
-                                                              fit: BoxFit.cover,
-                                                            );
-                                                          })(),
+                                                    if (exists) {
+                                                      cartManager
+                                                          .incrementQuantity(
+                                                            product
+                                                                .productCode!,
+                                                          );
+                                                    } else {
+                                                      cartManager.addToCart(
+                                                        CartItem(
+                                                          lineNo: 0,
+                                                          customerId: 1,
+                                                          productCode: product
+                                                              .productCode!,
+                                                          productName: product
+                                                              .productName!,
+                                                          qty: 1,
+                                                          oldQty: 0,
+                                                          salesRate:
+                                                              double.tryParse(
+                                                                product.salesPrice ??
+                                                                    '0',
+                                                              ) ??
+                                                              0.0,
+                                                          unitId: product.unitId
+                                                              .toString(),
+                                                          purchaseCost: product
+                                                              .purchaseRate!,
+                                                          groupId:
+                                                              product.group_id,
+                                                          categoryId: product
+                                                              .categoryId!,
+                                                          productImage:
+                                                              product
+                                                                  .productImageByte ??
+                                                              '',
+                                                          excludeRate: '',
+                                                          subtotal: '0.0',
+                                                          vatId: product.vatId!
+                                                              .toString(),
+                                                          vatAmount: '0.0',
+                                                          totalAmount: '0.00',
+                                                          conversion_rate: product
+                                                              .conversionRate!,
+                                                          category: product
+                                                              .categoryName!,
+                                                          groupName:
+                                                              product.groupName,
+                                                          product_description:
+                                                              '',
                                                         ),
+                                                      );
+                                                      showCartBar.value = true;
+                                                    }
+                                                  },
+                                                  onLongPress: () =>
+                                                      showProductDialog(
+                                                        context,
+                                                        product,
+                                                        cartManager,
                                                       ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            8.0,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    child: Container(
+                                                      width: double.infinity,
+                                                      color:
+                                                          const Color.fromARGB(
+                                                            255,
+                                                            232,
+                                                            229,
+                                                            229,
                                                           ),
                                                       child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
                                                         children: [
-                                                          Text(
-                                                            product.productName ??
-                                                                "Product",
-                                                            maxLines: 2,
-                                                            style: const TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 12,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  5.0,
+                                                                ),
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    12,
+                                                                  ),
+                                                              child: SizedBox(
+                                                                height:
+                                                                    120 *
+                                                                    textScale
+                                                                        .clamp(
+                                                                          1.0,
+                                                                          1.2,
+                                                                        ),
+                                                                child: (() {
+                                                                  final Uint8List?
+                                                                  imageBytes =
+                                                                      decodeImage(
+                                                                        product
+                                                                            .productImageByte,
+                                                                      );
+
+                                                                  if (imageBytes !=
+                                                                      null) {
+                                                                    return Image.memory(
+                                                                      imageBytes,
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    );
+                                                                  }
+
+                                                                  return Image.asset(
+                                                                    "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  );
+                                                                })(),
+                                                              ),
                                                             ),
                                                           ),
-                                                          Text(
-                                                            product.groupName,
-                                                            style:
-                                                                const TextStyle(
-                                                                  fontSize: 10,
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  8.0,
                                                                 ),
+                                                            child: Row(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Expanded(
+                                                                  flex: 5,
+                                                                  child: Text(
+                                                                    product.productName ??
+                                                                        "Product",
+                                                                    maxLines: 2,
+                                                                    style: const TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          12,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 6,
+                                                                ),
+                                                                Expanded(
+                                                                  flex: 1,
+                                                                  child: productGroupBagde(
+                                                                    context,
+                                                                    product
+                                                                        .groupName,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
                                                     ),
-                                                  ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
 
-                                            // Add / Qty
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                top:
-                                                    90 *
-                                                    textScale.clamp(1.0, 1.15),
-                                                left: 10,
-                                                right: 10,
-                                              ),
-                                              child: ValueListenableBuilder<List<CartItem>>(
-                                                valueListenable:
-                                                    cartManager.cartItems,
-                                                builder: (context, cartItems, _) {
-                                                  CartItem? cartItem;
-                                                  try {
-                                                    cartItem = cartItems
-                                                        .firstWhere(
-                                                          (item) =>
-                                                              item.productCode ==
-                                                              product
-                                                                  .productCode,
-                                                        );
-                                                  } catch (e) {
-                                                    cartItem = null;
-                                                  }
-
-                                                  if (cartItem == null) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        final items =
-                                                            cartManager
-                                                                .cartItems
-                                                                .value;
-                                                        final exists = items.any(
-                                                          (e) =>
-                                                              e.productCode ==
-                                                              product
-                                                                  .productCode,
-                                                        );
-
-                                                        if (exists) {
-                                                          cartManager
-                                                              .incrementQuantity(
-                                                                product
-                                                                    .productCode!,
-                                                              );
-                                                        } else {
-                                                          cartManager.addToCart(
-                                                            CartItem(
-                                                              lineNo: 0,
-                                                              customerId: 1,
-                                                              productCode: product
-                                                                  .productCode!,
-                                                              productName: product
-                                                                  .productName!,
-                                                              qty: 1,
-                                                              oldQty: 0,
-                                                              salesRate:
-                                                                  double.tryParse(
-                                                                    product.salesPrice ??
-                                                                        '0',
-                                                                  ) ??
-                                                                  0.0,
-                                                              unitId: product
-                                                                  .unitId
-                                                                  .toString(),
-                                                              purchaseCost: product
-                                                                  .purchaseRate!,
-                                                              groupId: product
-                                                                  .group_id,
-                                                              categoryId: product
-                                                                  .categoryId!,
-                                                              productImage: product
-                                                                  .productImageByte!,
-                                                              excludeRate: '',
-                                                              subtotal: '0.0',
-                                                              vatId: product
-                                                                  .vatId!
-                                                                  .toString(),
-                                                              vatAmount: '0.0',
-                                                              totalAmount:
-                                                                  '0.00',
-                                                              conversion_rate:
+                                                // Add / Qty
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    top:
+                                                        90 *
+                                                        textScale.clamp(
+                                                          1.0,
+                                                          1.15,
+                                                        ),
+                                                    left: 10,
+                                                    right: 10,
+                                                  ),
+                                                  child: ValueListenableBuilder<List<CartItem>>(
+                                                    valueListenable:
+                                                        cartManager.cartItems,
+                                                    builder: (context, cartItems, _) {
+                                                      CartItem? cartItem;
+                                                      try {
+                                                        cartItem = cartItems
+                                                            .firstWhere(
+                                                              (item) =>
+                                                                  item.productCode ==
                                                                   product
-                                                                      .conversionRate!,
-                                                              category: product
-                                                                  .categoryName!,
-                                                              groupName: product
-                                                                  .groupName,
-                                                              product_description:
-                                                                  '',
+                                                                      .productCode,
+                                                            );
+                                                      } catch (e) {
+                                                        cartItem = null;
+                                                      }
+
+                                                      if (cartItem == null) {
+                                                        return GestureDetector(
+                                                          onTap: () {
+                                                            final items =
+                                                                cartManager
+                                                                    .cartItems
+                                                                    .value;
+                                                            final exists = items.any(
+                                                              (e) =>
+                                                                  e.productCode ==
+                                                                  product
+                                                                      .productCode,
+                                                            );
+
+                                                            if (exists) {
+                                                              cartManager
+                                                                  .incrementQuantity(
+                                                                    product
+                                                                        .productCode!,
+                                                                  );
+                                                            } else {
+                                                              cartManager.addToCart(
+                                                                CartItem(
+                                                                  lineNo: 0,
+                                                                  customerId: 1,
+                                                                  productCode:
+                                                                      product
+                                                                          .productCode!,
+                                                                  productName:
+                                                                      product
+                                                                          .productName!,
+                                                                  qty: 1,
+                                                                  oldQty: 0,
+                                                                  salesRate:
+                                                                      double.tryParse(
+                                                                        product.salesPrice ??
+                                                                            '0',
+                                                                      ) ??
+                                                                      0.0,
+                                                                  unitId: product
+                                                                      .unitId
+                                                                      .toString(),
+                                                                  purchaseCost:
+                                                                      product
+                                                                          .purchaseRate!,
+                                                                  groupId: product
+                                                                      .group_id,
+                                                                  categoryId:
+                                                                      product
+                                                                          .categoryId!,
+                                                                  productImage:
+                                                                      product
+                                                                          .productImageByte!,
+                                                                  excludeRate:
+                                                                      '',
+                                                                  subtotal:
+                                                                      '0.0',
+                                                                  vatId: product
+                                                                      .vatId!
+                                                                      .toString(),
+                                                                  vatAmount:
+                                                                      '0.0',
+                                                                  totalAmount:
+                                                                      '0.00',
+                                                                  conversion_rate:
+                                                                      product
+                                                                          .conversionRate!,
+                                                                  category: product
+                                                                      .categoryName!,
+                                                                  groupName: product
+                                                                      .groupName,
+                                                                  product_description:
+                                                                      '',
+                                                                ),
+                                                              );
+                                                              showCartBar
+                                                                      .value =
+                                                                  true;
+                                                            }
+                                                          },
+                                                          child: Container(
+                                                            height: 30,
+                                                            decoration: BoxDecoration(
+                                                              color:
+                                                                  const Color(
+                                                                    0xFFEAB307,
+                                                                  ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    5,
+                                                                  ),
                                                             ),
-                                                          );
-                                                          showCartBar.value =
-                                                              true;
-                                                        }
-                                                      },
-                                                      child: Container(
-                                                        height: 30,
-                                                        decoration: BoxDecoration(
-                                                          color: const Color(
-                                                            0xFFEAB307,
+                                                            child: const Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.add,
+                                                                  size: 15,
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 4,
+                                                                ),
+                                                                Text(
+                                                                  'Add',
+                                                                  style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
+                                                        );
+                                                      }
+
+                                                      return Container(
+                                                        height: 30,
+                                                        width: 120,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white,
                                                           borderRadius:
                                                               BorderRadius.circular(
                                                                 5,
                                                               ),
+                                                          border: Border.all(
+                                                            color: AppColors
+                                                                .primary,
+                                                          ),
                                                         ),
-                                                        child: const Row(
+                                                        child: Row(
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
-                                                                  .center,
+                                                                  .spaceBetween,
                                                           children: [
-                                                            Icon(
-                                                              Icons.add,
-                                                              size: 15,
-                                                            ),
-                                                            SizedBox(width: 4),
-                                                            Text(
-                                                              'Add',
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                            InkWell(
+                                                              onTap: () {
+                                                                cartManager
+                                                                    .decrementQuantity(
+                                                                      cartItem!
+                                                                          .productCode,
+                                                                    );
+                                                              },
+                                                              child: const SizedBox(
+                                                                width: 30,
+                                                                child: Center(
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .remove,
+                                                                    size: 20,
+                                                                    color: AppColors
+                                                                        .black,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }
-
-                                                  return Container(
-                                                    height: 30,
-                                                    width: 120,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            5,
-                                                          ),
-                                                      border: Border.all(
-                                                        color:
-                                                            AppColors.primary,
-                                                      ),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        InkWell(
-                                                          onTap: () {
-                                                            cartManager
-                                                                .decrementQuantity(
-                                                                  cartItem!
-                                                                      .productCode,
-                                                                );
-                                                          },
-                                                          child: const SizedBox(
-                                                            width: 30,
-                                                            child: Center(
-                                                              child: Icon(
-                                                                Icons.remove,
-                                                                size: 20,
-                                                                color: AppColors
-                                                                    .black,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        MediaQuery(
-                                                          data:
-                                                              MediaQuery.of(
-                                                                context,
-                                                              ).copyWith(
-                                                                textScaleFactor:
-                                                                    1.0,
-                                                              ),
-                                                          child: Text(
-                                                            cartItem.qty
-                                                                .toString(),
-                                                            style:
-                                                                const TextStyle(
+                                                            MediaQuery(
+                                                              data:
+                                                                  MediaQuery.of(
+                                                                    context,
+                                                                  ).copyWith(
+                                                                    textScaleFactor:
+                                                                        1.0,
+                                                                  ),
+                                                              child: Text(
+                                                                cartItem.qty
+                                                                    .toString(),
+                                                                style: const TextStyle(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
                                                                 ),
-                                                          ),
-                                                        ),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            cartManager
-                                                                .incrementQuantity(
-                                                                  cartItem!
-                                                                      .productCode,
-                                                                );
-                                                          },
-                                                          child: Container(
-                                                            width: 30,
-                                                            color: const Color(
-                                                              0xFFffeeb7,
-                                                            ),
-                                                            child: const Center(
-                                                              child: Icon(
-                                                                Icons.add,
-                                                                size: 20,
-                                                                color: AppColors
-                                                                    .black,
                                                               ),
                                                             ),
-                                                          ),
+                                                            InkWell(
+                                                              onTap: () {
+                                                                cartManager
+                                                                    .incrementQuantity(
+                                                                      cartItem!
+                                                                          .productCode,
+                                                                    );
+                                                              },
+                                                              child: Container(
+                                                                width: 30,
+                                                                color:
+                                                                    const Color(
+                                                                      0xFFffeeb7,
+                                                                    ),
+                                                                child: const Center(
+                                                                  child: Icon(
+                                                                    Icons.add,
+                                                                    size: 20,
+                                                                    color: AppColors
+                                                                        .black,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
 
-                                            TopPriceContainer(
-                                              price: product.salesPrice,
-                                            ),
-                                          ],
+                                                TopPriceContainer(
+                                                  price: product.salesPrice,
+                                                ),
+                                              ],
+                                            );
+                                          },
                                         );
                                       },
                                     );
@@ -978,389 +1139,429 @@ class _HomeScreenState extends State<HomeScreen> {
                               if (textScale > 1.0) {
                                 imageHeight = 120 * textScale.clamp(1.0, 1.2);
                               }
-
-                              return GridView.builder(
-                                itemCount: products.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: maxWidthPerItem,
-                                      childAspectRatio: childAspectRatio,
-                                      crossAxisSpacing: 5,
-                                      mainAxisSpacing: 5,
+                              return ValueListenableBuilder<bool>(
+                                valueListenable: showCartBar,
+                                builder: (context, cartVisible, _) {
+                                  final bottomPad = _contentBottomPadding(
+                                    cartVisible,
+                                  );
+                                  return GridView.builder(
+                                    physics: const SoftBounceScrollPhysics(
+                                      parent: AlwaysScrollableScrollPhysics(),
                                     ),
-                                itemBuilder: (context, index) {
-                                  final product = products[index];
-
-                                  return Stack(
-                                    children: [
-                                      // ================= MAIN CARD =================
-                                      GestureDetector(
-                                        onTap: () {
-                                          final items =
-                                              cartManager.cartItems.value;
-                                          final exists = items.any(
-                                            (e) =>
-                                                e.productCode ==
-                                                product.productCode,
-                                          );
-
-                                          if (exists) {
-                                            cartManager.incrementQuantity(
-                                              product.productCode!,
-                                            );
-                                          } else {
-                                            cartManager.addToCart(
-                                              CartItem(
-                                                lineNo: 0,
-                                                customerId: 1,
-                                                productCode:
-                                                    product.productCode!,
-                                                productName:
-                                                    product.productName!,
-                                                qty: 1,
-                                                oldQty: 0,
-                                                salesRate:
-                                                    double.tryParse(
-                                                      product.salesPrice ?? '0',
-                                                    ) ??
-                                                    0.0,
-                                                unitId: product.unitId
-                                                    .toString(),
-                                                purchaseCost:
-                                                    product.purchaseRate!,
-                                                groupId: product.group_id,
-                                                categoryId: product.categoryId!,
-                                                productImage:
-                                                    product.productImageByte!,
-                                                excludeRate: '',
-                                                subtotal: '0.0',
-                                                vatId: product.vatId!
-                                                    .toString(),
-                                                vatAmount: '0.0',
-                                                totalAmount: '0.00',
-                                                conversion_rate:
-                                                    product.conversionRate!,
-                                                category: product.categoryName!,
-                                                groupName: product.groupName,
-                                                product_description: '',
-                                              ),
-                                            );
-                                            showCartBar.value = true;
-                                          }
-                                        },
-                                        onLongPress: () => showProductDialog(
-                                          context,
-                                          product,
-                                          cartManager,
+                                    padding: EdgeInsets.only(bottom: bottomPad),
+                                    itemCount: products.length,
+                                    gridDelegate:
+                                        SliverGridDelegateWithMaxCrossAxisExtent(
+                                          maxCrossAxisExtent: maxWidthPerItem,
+                                          childAspectRatio: childAspectRatio,
+                                          crossAxisSpacing: 5,
+                                          mainAxisSpacing: 5,
                                         ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          child: Container(
-                                            color: const Color.fromARGB(
-                                              255,
-                                              232,
-                                              229,
-                                              229,
-                                            ),
-                                            child: Column(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.all(
-                                                    5.0,
-                                                  ),
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
-                                                    child: SizedBox(
-                                                      height: imageHeight,
-                                                      child: (() {
-                                                        final Uint8List?
-                                                        imageBytes = decodeImage(
-                                                          product
-                                                              .productImageByte,
-                                                        );
+                                    itemBuilder: (context, index) {
+                                      final product = products[index];
 
-                                                        if (imageBytes !=
-                                                            null) {
-                                                          return Image.memory(
-                                                            imageBytes,
-                                                            fit: BoxFit.cover,
-                                                          );
-                                                        }
-
-                                                        return Image.asset(
-                                                          "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
-                                                          fit: BoxFit.cover,
-                                                        );
-                                                      })(),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4,
-                                                      ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Expanded(
-                                                        flex: 5,
-                                                        child: Text(
-                                                          product.productName!,
-                                                          maxLines: 2,
-                                                          softWrap: true,
-                                                          style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 11,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 1,
-                                                        child:
-                                                            productGroupBagde(
-                                                              context,
-                                                              product.groupName,
-                                                            ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      // ================= ADD / QTY OVERLAY =================
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 90,
-                                          left: 10,
-                                          right: 10,
-                                        ),
-                                        child: ValueListenableBuilder<List<CartItem>>(
-                                          valueListenable:
-                                              cartManager.cartItems,
-                                          builder: (context, cartItems, _) {
-                                            CartItem? cartItem;
-
-                                            try {
-                                              cartItem = cartItems.firstWhere(
-                                                (item) =>
-                                                    item.productCode ==
+                                      return Stack(
+                                        children: [
+                                          // ================= MAIN CARD =================
+                                          GestureDetector(
+                                            onTap: () {
+                                              final items =
+                                                  cartManager.cartItems.value;
+                                              final exists = items.any(
+                                                (e) =>
+                                                    e.productCode ==
                                                     product.productCode,
                                               );
-                                            } catch (e) {
-                                              cartItem = null;
-                                            }
 
-                                            // ---------- ADD BUTTON ----------
-                                            if (cartItem == null) {
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  cartManager.addToCart(
-                                                    CartItem(
-                                                      lineNo: 0,
-                                                      customerId: 1,
-                                                      productCode:
-                                                          product.productCode!,
-                                                      productName:
-                                                          product.productName!,
-                                                      qty: 1,
-                                                      oldQty: 0,
-                                                      salesRate:
-                                                          double.tryParse(
-                                                            product.salesPrice ??
-                                                                '0',
-                                                          ) ??
-                                                          0.0,
-                                                      unitId: product.unitId
-                                                          .toString(),
-                                                      purchaseCost:
-                                                          product.purchaseRate!,
-                                                      groupId: product.group_id,
-                                                      categoryId:
-                                                          product.categoryId!,
-                                                      productImage: product
-                                                          .productImageByte!,
-                                                      excludeRate: '',
-                                                      subtotal: '0.0',
-                                                      vatId: product.vatId!
-                                                          .toString(),
-                                                      vatAmount: '0.0',
-                                                      totalAmount: '0.00',
-                                                      conversion_rate: product
-                                                          .conversionRate!,
-                                                      category:
-                                                          product.categoryName!,
-                                                      groupName:
-                                                          product.groupName,
-                                                      product_description: '',
+                                              if (exists) {
+                                                cartManager.incrementQuantity(
+                                                  product.productCode!,
+                                                );
+                                              } else {
+                                                cartManager.addToCart(
+                                                  CartItem(
+                                                    lineNo: 0,
+                                                    customerId: 1,
+                                                    productCode:
+                                                        product.productCode!,
+                                                    productName:
+                                                        product.productName!,
+                                                    qty: 1,
+                                                    oldQty: 0,
+                                                    salesRate:
+                                                        double.tryParse(
+                                                          product.salesPrice ??
+                                                              '0',
+                                                        ) ??
+                                                        0.0,
+                                                    unitId: product.unitId
+                                                        .toString(),
+                                                    purchaseCost:
+                                                        product.purchaseRate!,
+                                                    groupId: product.group_id,
+                                                    categoryId:
+                                                        product.categoryId!,
+                                                    productImage: product
+                                                        .productImageByte!,
+                                                    excludeRate: '',
+                                                    subtotal: '0.0',
+                                                    vatId: product.vatId!
+                                                        .toString(),
+                                                    vatAmount: '0.0',
+                                                    totalAmount: '0.00',
+                                                    conversion_rate:
+                                                        product.conversionRate!,
+                                                    category:
+                                                        product.categoryName!,
+                                                    groupName:
+                                                        product.groupName,
+                                                    product_description: '',
+                                                  ),
+                                                );
+                                                showCartBar.value = true;
+                                              }
+                                            },
+                                            onLongPress: () =>
+                                                showProductDialog(
+                                                  context,
+                                                  product,
+                                                  cartManager,
+                                                ),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              child: Container(
+                                                color: const Color.fromARGB(
+                                                  255,
+                                                  232,
+                                                  229,
+                                                  229,
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            5.0,
+                                                          ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        child: SizedBox(
+                                                          height: imageHeight,
+                                                          child: (() {
+                                                            final Uint8List?
+                                                            imageBytes =
+                                                                decodeImage(
+                                                                  product
+                                                                      .productImageByte,
+                                                                );
+
+                                                            if (imageBytes !=
+                                                                null) {
+                                                              return Image.memory(
+                                                                imageBytes,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              );
+                                                            }
+
+                                                            return Image.asset(
+                                                              "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
+                                                              fit: BoxFit.cover,
+                                                            );
+                                                          })(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4,
+                                                          ),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Expanded(
+                                                            flex: 5,
+                                                            child: Text(
+                                                              product
+                                                                  .productName!,
+                                                              maxLines: 2,
+                                                              softWrap: true,
+                                                              style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontSize: 11,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            flex: 1,
+                                                            child:
+                                                                productGroupBagde(
+                                                                  context,
+                                                                  product
+                                                                      .groupName,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                          // ================= ADD / QTY OVERLAY =================
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 90,
+                                              left: 10,
+                                              right: 10,
+                                            ),
+                                            child: ValueListenableBuilder<List<CartItem>>(
+                                              valueListenable:
+                                                  cartManager.cartItems,
+                                              builder: (context, cartItems, _) {
+                                                CartItem? cartItem;
+
+                                                try {
+                                                  cartItem = cartItems
+                                                      .firstWhere(
+                                                        (item) =>
+                                                            item.productCode ==
+                                                            product.productCode,
+                                                      );
+                                                } catch (e) {
+                                                  cartItem = null;
+                                                }
+
+                                                // ---------- ADD BUTTON ----------
+                                                if (cartItem == null) {
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      cartManager.addToCart(
+                                                        CartItem(
+                                                          lineNo: 0,
+                                                          customerId: 1,
+                                                          productCode: product
+                                                              .productCode!,
+                                                          productName: product
+                                                              .productName!,
+                                                          qty: 1,
+                                                          oldQty: 0,
+                                                          salesRate:
+                                                              double.tryParse(
+                                                                product.salesPrice ??
+                                                                    '0',
+                                                              ) ??
+                                                              0.0,
+                                                          unitId: product.unitId
+                                                              .toString(),
+                                                          purchaseCost: product
+                                                              .purchaseRate!,
+                                                          groupId:
+                                                              product.group_id,
+                                                          categoryId: product
+                                                              .categoryId!,
+                                                          productImage: product
+                                                              .productImageByte!,
+                                                          excludeRate: '',
+                                                          subtotal: '0.0',
+                                                          vatId: product.vatId!
+                                                              .toString(),
+                                                          vatAmount: '0.0',
+                                                          totalAmount: '0.00',
+                                                          conversion_rate: product
+                                                              .conversionRate!,
+                                                          category: product
+                                                              .categoryName!,
+                                                          groupName:
+                                                              product.groupName,
+                                                          product_description:
+                                                              '',
+                                                        ),
+                                                      );
+                                                      showCartBar.value = true;
+                                                    },
+                                                    child: Container(
+                                                      height: 30,
+                                                      width: 200,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            AppColors.primary,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              5,
+                                                            ),
+                                                      ),
+                                                      child: const Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.add,
+                                                            size: 15,
+                                                          ),
+                                                          SizedBox(width: 4),
+                                                          Text(
+                                                            'Add',
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   );
-                                                  showCartBar.value = true;
-                                                },
-                                                child: Container(
+                                                }
+
+                                                // ---------- QTY CONTROLLER ----------
+                                                return Container(
                                                   height: 30,
-                                                  width: 200,
+                                                  width: 120,
                                                   decoration: BoxDecoration(
-                                                    color: AppColors.primary,
+                                                    color: Colors.white,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                           5,
                                                         ),
+                                                    border: Border.all(
+                                                      color: AppColors.primary,
+                                                    ),
                                                   ),
-                                                  child: const Row(
+                                                  child: Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
-                                                            .center,
+                                                            .spaceBetween,
                                                     children: [
-                                                      Icon(Icons.add, size: 15),
-                                                      SizedBox(width: 4),
-                                                      Text(
-                                                        'Add',
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                      InkWell(
+                                                        onTap: () {
+                                                          cartManager
+                                                              .decrementQuantity(
+                                                                cartItem!
+                                                                    .productCode,
+                                                              );
+                                                        },
+                                                        child: const SizedBox(
+                                                          width: 30,
+                                                          child: Center(
+                                                            child: Icon(
+                                                              Icons.remove,
+                                                              size: 20,
+                                                              color: AppColors
+                                                                  .black,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      MediaQuery(
+                                                        data:
+                                                            MediaQuery.of(
+                                                              context,
+                                                            ).copyWith(
+                                                              textScaleFactor:
+                                                                  1.0,
+                                                            ),
+                                                        child: Text(
+                                                          (cartItem.qty % 1 ==
+                                                                  0)
+                                                              ? cartItem.qty
+                                                                    .toInt()
+                                                                    .toString()
+                                                              : cartItem.qty
+                                                                    .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                      InkWell(
+                                                        onTap: () {
+                                                          cartManager
+                                                              .incrementQuantity(
+                                                                cartItem!
+                                                                    .productCode,
+                                                              );
+                                                        },
+                                                        child: Container(
+                                                          width: 30,
+                                                          color: const Color(
+                                                            0xFFffeeb7,
+                                                          ),
+                                                          child: const Center(
+                                                            child: Icon(
+                                                              Icons.add,
+                                                              size: 20,
+                                                              color: AppColors
+                                                                  .black,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+
+                                          // ================= PRICE BADGE =================
+                                          // TopPriceContainer(
+                                          //   price: product.salesPrice,
+                                          // ),
+                                          ValueListenableBuilder<
+                                            List<CartItem>
+                                          >(
+                                            valueListenable:
+                                                cartManager.cartItems,
+                                            builder: (context, cartItems, _) {
+                                              CartItem? cartItem;
+                                              try {
+                                                cartItem = cartItems.firstWhere(
+                                                  (item) =>
+                                                      item.productCode ==
+                                                      product.productCode,
+                                                );
+                                              } catch (_) {
+                                                cartItem = null;
+                                              }
+
+                                              final String priceToShow =
+                                                  cartItem != null
+                                                  ? cartItem.salesRate
+                                                        .toStringAsFixed(2)
+                                                  : (product.salesPrice ?? '0');
+
+                                              return TopPriceContainer(
+                                                price: priceToShow,
                                               );
-                                            }
-
-                                            // ---------- QTY CONTROLLER ----------
-                                            return Container(
-                                              height: 30,
-                                              width: 120,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                border: Border.all(
-                                                  color: AppColors.primary,
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () {
-                                                      cartManager
-                                                          .decrementQuantity(
-                                                            cartItem!
-                                                                .productCode,
-                                                          );
-                                                    },
-                                                    child: const SizedBox(
-                                                      width: 30,
-                                                      child: Center(
-                                                        child: Icon(
-                                                          Icons.remove,
-                                                          size: 20,
-                                                          color:
-                                                              AppColors.black,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  MediaQuery(
-                                                    data: MediaQuery.of(context)
-                                                        .copyWith(
-                                                          textScaleFactor: 1.0,
-                                                        ),
-                                                    child: Text(
-                                                      (cartItem.qty % 1 == 0)
-                                                          ? cartItem.qty
-                                                                .toInt()
-                                                                .toString()
-                                                          : cartItem.qty
-                                                                .toString(),
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  InkWell(
-                                                    onTap: () {
-                                                      cartManager
-                                                          .incrementQuantity(
-                                                            cartItem!
-                                                                .productCode,
-                                                          );
-                                                    },
-                                                    child: Container(
-                                                      width: 30,
-                                                      color: const Color(
-                                                        0xFFffeeb7,
-                                                      ),
-                                                      child: const Center(
-                                                        child: Icon(
-                                                          Icons.add,
-                                                          size: 20,
-                                                          color:
-                                                              AppColors.black,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-
-                                      // ================= PRICE BADGE =================
-                                      // TopPriceContainer(
-                                      //   price: product.salesPrice,
-                                      // ),
-                                      ValueListenableBuilder<List<CartItem>>(
-                                        valueListenable: cartManager.cartItems,
-                                        builder: (context, cartItems, _) {
-                                          CartItem? cartItem;
-                                          try {
-                                            cartItem = cartItems.firstWhere(
-                                              (item) =>
-                                                  item.productCode ==
-                                                  product.productCode,
-                                            );
-                                          } catch (_) {
-                                            cartItem = null;
-                                          }
-
-                                          final String priceToShow =
-                                              cartItem != null
-                                              ? cartItem.salesRate
-                                                    .toStringAsFixed(2)
-                                              : (product.salesPrice ?? '0');
-
-                                          return TopPriceContainer(
-                                            price: priceToShow,
-                                          );
-                                        },
-                                      ),
-                                    ],
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   );
                                 },
                               );
@@ -1382,35 +1583,102 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Show content based on current tab
-            if (_currentTabIndex == 0)
-              _buildSalesContent()
-            else if (_currentTabIndex == 1)
-              DashboardContent() // Your existing DashboardScreen
-            else
-              SettingsScreen(), // Your existing PrinterSettingsScreen
-            // Bottom bar (always visible)
-            CommomBottomBar(
-              currentTabIndex: _currentTabIndex,
-              onTabChanged: _switchTab,
-            ), // CART BAR (same)
-            ValueListenableBuilder<bool>(
-              valueListenable: showCartBar,
-              builder: (context, visible, _) {
-                if (!visible) return const SizedBox();
-                return Positioned(
-                  left: 20,
-                  right: 20,
-                  bottom: 80,
-                  child: cartBottomBar(context),
-                );
-              },
-            ),
-          ],
+    return ScrollConfiguration(
+      behavior: const AppScrollBehavior(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: SafeArea(
+          bottom: false,
+          child: Stack(
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 320),
+                reverseDuration: const Duration(milliseconds: 280),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final bool isForward = _currentTabIndex > _previousTabIndex;
+
+                  final beginOffset = isForward
+                      ? const Offset(0.12, 0)
+                      : const Offset(-0.12, 0);
+                  final endOffset = isForward
+                      ? const Offset(-0.12, 0)
+                      : const Offset(0.12, 0);
+
+                  final inSlide = Tween<Offset>(
+                    begin: beginOffset,
+                    end: Offset.zero,
+                  ).animate(animation);
+                  final outSlide = Tween<Offset>(
+                    begin: Offset.zero,
+                    end: endOffset,
+                  ).animate(animation);
+
+                  // AnimatedSwitcher uses the same animation for both incoming/outgoing.
+                  // We detect which child is incoming by checking its key.
+                  final bool isIncoming =
+                      (child.key == ValueKey(_currentTabIndex));
+
+                  final slideAnim = isIncoming ? inSlide : outSlide;
+
+                  final fade = CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut,
+                  );
+
+                  return FadeTransition(
+                    opacity: fade,
+                    child: SlideTransition(position: slideAnim, child: child),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey(
+                    _currentTabIndex,
+                  ), // ✅ IMPORTANT: key by tab index
+                  child: _currentTabIndex == 0
+                      ? _buildSalesContent()
+                      : _currentTabIndex == 1
+                      ? const DashboardContent()
+                      : const SettingsScreen(),
+                ),
+              ),
+
+              // ✅ BOTTOM BAR (unchanged)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MediaQuery.removeViewInsets(
+                  context: context,
+                  removeBottom: true,
+                  child: CommomBottomBar(
+                    currentTabIndex: _currentTabIndex,
+                    onTabChanged: _switchTab,
+                  ),
+                ),
+              ),
+
+              // ✅ CART BAR ONLY FOR HOME
+              if (_currentTabIndex == 0)
+                ValueListenableBuilder<bool>(
+                  valueListenable: showCartBar,
+                  builder: (context, visible, _) {
+                    if (!visible) return const SizedBox();
+                    return Positioned(
+                      left: 20,
+                      right: 20,
+                      bottom: 80,
+                      child: MediaQuery.removeViewInsets(
+                        context: context,
+                        removeBottom: true,
+                        child: cartBottomBar(context),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
         ),
       ),
     );

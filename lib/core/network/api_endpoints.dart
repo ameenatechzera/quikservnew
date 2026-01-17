@@ -57,4 +57,46 @@ class ApiConstants {
   static String getFetchSalesDetailsReportPath(String baseUrl) {
     return '$baseUrl/salesmaster/get-salesmaster';
   }
+
+  //for Saveunit
+  static String saveUnitPath(String baseUrl) {
+    return '$baseUrl/unit/save-unit';
+  }
+
+  //for Saveunit
+  static String deleteUnitPath(String baseUrl, int unitId) {
+    return '$baseUrl/unit/delete-unit/$unitId';
+  }
+
+  static String editUnitPath(String baseUrl, int unitId) {
+    return '$baseUrl/unit/update-unit/$unitId';
+  }
+
+  static String saveProductGroupPath(String baseUrl) {
+    return '$baseUrl/group/save-group';
+  }
+
+  static String deleteProductGroupPath(String baseUrl, int groupId) {
+    return '$baseUrl/group/delete-group/$groupId';
+  }
+
+  static String editProductGroupPath(String baseUrl, int groupId) {
+    return '$baseUrl/group/update-group/$groupId';
+  }
+
+  static String addVatPath(String baseUrl) {
+    return '$baseUrl/vat/save-vat';
+  }
+
+  static String deleteVatPath(String baseUrl, int vatId) {
+    return '$baseUrl/vat/delete-vat/$vatId';
+  }
+
+  static String editVatPath(String baseUrl, int vatId) {
+    return '$baseUrl/vat/update-vat/$vatId';
+  }
+
+  static String saveCategoryPath(String baseUrl) {
+    return '$baseUrl/category/save-category';
+  }
 }

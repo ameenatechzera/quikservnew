@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/settings/presentation/widgets/accountsettings_widget.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
@@ -9,15 +10,7 @@ class AccountSettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF3F6),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFE38A),
-        elevation: 0,
-
-        title: const Text(
-          "Account Settings",
-          style: TextStyle(color: AppColors.black),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Account Settings"),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

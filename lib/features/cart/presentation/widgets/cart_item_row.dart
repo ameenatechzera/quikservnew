@@ -1,4 +1,3 @@
-// ================== CART ITEM ROW ==================
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
@@ -52,8 +51,14 @@ class CartItemRow extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 GestureDetector(
-                  onTap: () =>
-                      CartManager().decrementQuantity(item.productCode),
+                  onTap: () {
+                    final currentQty = (item.qty as num).toDouble();
+
+                    // ✅ stop at 1 (do not decrement to 0)
+                    if (currentQty <= 1) return;
+
+                    CartManager().decrementQuantity(item.productCode);
+                  },
                   child: const Icon(Icons.remove, size: 18),
                 ),
                 const SizedBox(width: 10),

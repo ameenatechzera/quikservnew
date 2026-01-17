@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
@@ -28,6 +29,14 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Override global status bar ONLY for login
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // or login bg color
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
     return MultiBlocListener(
       listeners: [
         /// ------------------- REGISTER LISTENER -------------------

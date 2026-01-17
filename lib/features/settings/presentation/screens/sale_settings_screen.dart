@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/settings/presentation/widgets/salesettings_widgets.dart';
 
 class SaleSettingsScreen extends StatelessWidget {
@@ -9,18 +10,7 @@ class SaleSettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF3F6),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFE38A),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Sale Settings",
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Sale Settings"),
       body: Column(
         children: [
           Expanded(

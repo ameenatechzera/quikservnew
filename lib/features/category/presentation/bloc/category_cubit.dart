@@ -2,9 +2,12 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:quikservnew/features/category/data/models/fetch_category_model.dart';
 import 'package:quikservnew/features/category/domain/entities/fetch_categories_entity.dart';
+import 'package:quikservnew/features/category/domain/entities/save_category_entity.dart';
 import 'package:quikservnew/features/category/domain/repositories/category_local_repository.dart';
 import 'package:quikservnew/features/category/domain/usecases/fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/local_fetch_categories_usecase.dart';
+import 'package:quikservnew/features/category/domain/usecases/save_category_usecase.dart';
+import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 
 part 'category_state.dart';
 
@@ -12,13 +15,16 @@ class CategoriesCubit extends Cubit<CategoryState> {
   final FetchCategoriesUseCase _fetchCategoriesUseCase;
   final CategoryLocalRepository _categoryLocalRepository;
   final GetLocalCategoriesUseCase _getLocalCategoriesUseCase;
+  final SaveCategoryUseCase _saveCategoryUseCase;
   CategoriesCubit({
     required FetchCategoriesUseCase fetchCategoriesUseCase,
     required CategoryLocalRepository categoryLocalRepository,
     required GetLocalCategoriesUseCase getLocalCategoriesUseCase,
+    required SaveCategoryUseCase saveCategoryUseCase,
   }) : _fetchCategoriesUseCase = fetchCategoriesUseCase,
        _categoryLocalRepository = categoryLocalRepository,
        _getLocalCategoriesUseCase = getLocalCategoriesUseCase,
+       _saveCategoryUseCase = saveCategoryUseCase,
        super(CategoryInitial());
   // --------------------- API Fetch ---------------------
   Future<void> fetchCategories() async {
@@ -56,5 +62,21 @@ class CategoriesCubit extends Cubit<CategoryState> {
     } catch (e) {
       emit(CategoryError(error: e.toString()));
     }
+  }
+
+  // --------------------- SAVE CATEGORY ---------------------
+  Future<void> saveCategory(SaveCategoryRequestModel request) async {
+    emit(CategoryAddLoading());
+
+    final response = await _saveCategoryUseCase(request);
+
+    response.fold((failure) => emit(CategoryAddError(error: failure.message)), (
+      MasterResponseModel success,
+    ) async {
+      emit(CategoryAddSuccess(response: success));
+
+      // refresh list after save
+      await fetchCategories();
+    });
   }
 }

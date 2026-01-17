@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 
 class CategoryCreationScreen extends StatelessWidget {
   CategoryCreationScreen({super.key});
@@ -11,15 +12,7 @@ class CategoryCreationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      appBar: AppBar(
-        backgroundColor: AppColors.theme,
-        elevation: 0,
-
-        title: const Text(
-          "Add Category",
-          style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w600),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Add Category"),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

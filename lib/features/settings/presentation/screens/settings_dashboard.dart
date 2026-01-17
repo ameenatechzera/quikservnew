@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/masters/presentation/screens/account_group_listing_screen.dart';
 import 'package:quikservnew/features/masters/presentation/screens/account_ledger_listing_screen.dart';
-import 'package:quikservnew/features/masters/presentation/screens/category_listing_screen.dart';
-import 'package:quikservnew/features/masters/presentation/screens/product_listing_screen.dart';
-import 'package:quikservnew/features/masters/presentation/screens/productgroup_listing_screen.dart';
-import 'package:quikservnew/features/masters/presentation/screens/unit_listing_screen.dart';
+import 'package:quikservnew/features/category/presentation/screens/category_listing_screen.dart';
+import 'package:quikservnew/features/products/presentation/screens/product_listing_screen.dart';
+import 'package:quikservnew/features/groups/presentation/screens/productgroup_listing_screen.dart';
+import 'package:quikservnew/features/units/presentation/screens/unit_listing_screen.dart';
 import 'package:quikservnew/features/masters/presentation/screens/user_listing_screen.dart';
-import 'package:quikservnew/features/masters/presentation/screens/vat_listing_screen.dart';
+import 'package:quikservnew/features/vat/presentation/screens/vat_listing_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/account_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/printer_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/sale_settings_screen.dart';
@@ -20,6 +20,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 40,
         title: const Text(
           "Configurations",
           style: TextStyle(fontWeight: FontWeight.bold),

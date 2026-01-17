@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/navigation/app_navigator.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/masters/presentation/screens/user_creation_screen.dart';
 import 'package:quikservnew/features/masters/presentation/widgets/user_widgets.dart';
 
@@ -11,14 +12,9 @@ class UsersListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF3F6),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFE38A),
-        elevation: 0,
+      appBar: CommonAppBar(
+        title: "Users List",
 
-        title: const Text(
-          'Users List',
-          style: TextStyle(color: AppColors.black),
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add, color: AppColors.black),

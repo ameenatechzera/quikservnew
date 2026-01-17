@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/config/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
@@ -101,7 +102,7 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
     final timeFormatter = DateFormat('hh:mm a');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bill Preview')),
+      appBar: const CommonAppBar(title: "Bill Preview"),
       body: SingleChildScrollView(
         child: Column(
           children: [

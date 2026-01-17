@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/masters/presentation/widgets/accountledger_widgets.dart';
 
 class AccountLedgerCreationScreen extends StatelessWidget {
@@ -9,15 +10,7 @@ class AccountLedgerCreationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6FA),
-      appBar: AppBar(
-        backgroundColor: AppColors.theme,
-        elevation: 0,
-
-        title: const Text(
-          "Add Account Ledger",
-          style: TextStyle(color: AppColors.black),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Add Account Ledger"),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

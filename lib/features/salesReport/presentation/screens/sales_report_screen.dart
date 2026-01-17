@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
@@ -95,7 +96,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sales Report')),
+      appBar: const CommonAppBar(title: "Sales Report"),
       body: Column(
         children: [
           /// 🔹 DATE SELECTION

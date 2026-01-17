@@ -28,3 +28,45 @@ final class VatError extends VatState {
   @override
   List<Object> get props => [error];
 }
+
+/// 🔹 Add VAT
+class VatAddLoading extends VatState {}
+
+class VatAdded extends VatState {
+  final MasterResponseModel response;
+
+  const VatAdded({required this.response});
+}
+
+class VatAddError extends VatState {
+  final String error;
+
+  const VatAddError({required this.error});
+}
+
+/// ================= DELETE VAT STATES =================
+class VatDeleteLoading extends VatState {}
+
+class VatDeleted extends VatState {
+  final MasterResponseModel response;
+
+  const VatDeleted({required this.response});
+}
+
+class VatDeleteError extends VatState {
+  final String error;
+
+  const VatDeleteError({required this.error});
+}
+
+class VatEditLoading extends VatState {}
+
+class VatEdited extends VatState {
+  final MasterResponseModel response;
+  const VatEdited({required this.response});
+}
+
+class VatEditError extends VatState {
+  final String error;
+  const VatEditError({required this.error});
+}
