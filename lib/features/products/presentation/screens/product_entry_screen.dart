@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 
 class ProductEntryUiOnlyScreen extends StatefulWidget {
   final String pageFrom; // keep for your navigation later
@@ -83,15 +84,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
 
-      appBar: AppBar(
-        backgroundColor: AppColors.theme,
-        elevation: 0,
-
-        title: const Text(
-          "Add Products",
-          style: TextStyle(color: AppColors.black),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Add Products"),
 
       body: SingleChildScrollView(
         child: Container(

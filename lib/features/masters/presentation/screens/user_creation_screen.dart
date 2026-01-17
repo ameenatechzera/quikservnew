@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/masters/presentation/widgets/user_widgets.dart';
 
 class UserCreationScreen extends StatelessWidget {
@@ -10,14 +11,7 @@ class UserCreationScreen extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFFEFF2F6),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFE38A),
-        elevation: 0,
-        title: const Text(
-          'User Creation',
-          style: TextStyle(color: AppColors.black),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "User Creation"),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           16,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 
 class AccountGroupCreationScreen extends StatelessWidget {
   const AccountGroupCreationScreen({super.key});
@@ -9,15 +10,7 @@ class AccountGroupCreationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: AppColors.theme,
-        elevation: 0,
-
-        title: const Text(
-          "Add Group",
-          style: TextStyle(color: AppColors.black),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Add Group"),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
         child: Column(

@@ -3,20 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/features/category/domain/entities/fetch_categories_entity.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
+import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
 
 class CategoryListWidget extends StatelessWidget {
   final List<FetchCategoryDetailsEntity> categories;
 
-  // /// ✅ Shared notifiers from MenuScreen
-  // final ValueNotifier<int> selectedCategoryId;
-  // final ValueNotifier<String> selectedCategoryName;
-
-  CategoryListWidget({
-    super.key,
-    required this.categories,
-    // required this.selectedCategoryId,
-    // required this.selectedCategoryName,
-  });
+  const CategoryListWidget({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +31,9 @@ class CategoryListWidget extends StatelessWidget {
         final selectedId = context.read<SaleCubit>().selectedCategoryId;
 
         return ListView.builder(
+          physics: const SoftBounceScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
           itemCount: displayCategories.length,
           itemBuilder: (context, index) {
             final category = displayCategories[index];

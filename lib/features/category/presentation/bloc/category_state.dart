@@ -29,3 +29,18 @@ final class CategoryError extends CategoryState {
 
   const CategoryError({required this.error});
 }
+// ---------------- SAVE STATES ----------------
+
+final class CategoryAddLoading extends CategoryState {}
+
+final class CategoryAddSuccess extends CategoryState {
+  final MasterResponseModel response;
+
+  const CategoryAddSuccess({required this.response});
+}
+
+final class CategoryAddError extends CategoryState {
+  final String error;
+
+  const CategoryAddError({required this.error});
+}

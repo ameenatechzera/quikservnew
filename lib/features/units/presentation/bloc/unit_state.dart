@@ -22,3 +22,46 @@ class UnitError extends UnitState {
 
   const UnitError({required this.error});
 }
+
+// 🔹 States for saving a unit
+class UnitSaveLoading extends UnitState {}
+
+class UnitSaved extends UnitState {
+  final MasterResponseModel response;
+  const UnitSaved({required this.response});
+}
+
+class UnitSaveError extends UnitState {
+  final String error;
+  const UnitSaveError({required this.error});
+}
+
+/* ---------- DELETE ---------- */
+class UnitDeleteLoading extends UnitState {}
+
+class UnitDeleted extends UnitState {
+  final MasterResponseModel response;
+
+  const UnitDeleted({required this.response});
+}
+
+class UnitDeleteError extends UnitState {
+  final String error;
+
+  const UnitDeleteError({required this.error});
+}
+
+/// ================= EDIT =================
+class UnitEditLoading extends UnitState {}
+
+class UnitEdited extends UnitState {
+  final MasterResponseModel response;
+
+  const UnitEdited({required this.response});
+}
+
+class UnitEditError extends UnitState {
+  final String error;
+
+  const UnitEditError({required this.error});
+}
