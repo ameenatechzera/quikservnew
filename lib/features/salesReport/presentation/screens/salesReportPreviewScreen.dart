@@ -497,6 +497,9 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
 Widget topBillInfoCard({required String billDate, required String billTime}) {
   return BlocConsumer<SalesReportCubit, SlesReportState>(
     listener: (context, state) {
+      if(state is SlesDetailsInitial){
+        //showLoadingDialog(context);
+      }
       if (state is SalesDetailsSuccess) {
         st_custName = state.response.salesMaster!.ledgerName;
         //st_custAddress = state.response.salesMaster!.add;

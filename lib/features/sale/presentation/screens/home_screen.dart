@@ -1580,7 +1580,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
@@ -1588,7 +1587,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: SafeArea(
-          bottom: false,
+          bottom: true,
           child: Stack(
             children: [
               AnimatedSwitcher(

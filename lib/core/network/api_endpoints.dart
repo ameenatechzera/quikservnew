@@ -45,7 +45,7 @@ class ApiConstants {
 
   ///for saving sales
   static String getSaveSalePath(String baseUrl) {
-    return '$baseUrl/salesmaster/save-salesmaster';
+    return '$baseUrl/salesmaster/save-salesmasterNew';
   }
 
   ///for sales report
