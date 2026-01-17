@@ -15,10 +15,8 @@ class CommomBottomBar extends StatelessWidget {
       data: MediaQuery.of(context).copyWith(
         textScaleFactor: 1.0, // 🔑 LOCK font scaling
       ),
-      child: Positioned(
-        left: 30,
-        right: 30,
-        bottom: 0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Container(
           margin: const EdgeInsets.all(10),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -63,12 +61,12 @@ class CommomBottomBar extends StatelessWidget {
       onTap: () => onTabChanged(index),
       child: Container(
         padding: isSelected
-            ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
+            ? const EdgeInsets.symmetric(horizontal: 14, vertical: 9)
             : const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: isSelected ? Colors.black : Colors.transparent,
           border: Border.all(color: Colors.black, width: 2),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
           children: [

@@ -40,6 +40,17 @@ class SharedPreferenceHelper {
     return prefs.getString("branchId") ?? '';
   }
 
+  /// ------------------ setStaffName ------------------
+  Future<bool> setStaffName(String staffName) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("staffName", staffName);
+  }
+
+  Future<String> getStaffName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("staffName") ?? '';
+  }
+
   /// ------------------ DATABASE NAME ------------------
   Future<void> setDatabaseName(String dbName) async {
     final prefs = await SharedPreferences.getInstance();
@@ -60,6 +71,17 @@ class SharedPreferenceHelper {
   Future<String?> loadSelectedPrinter() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("selectedPrinter");
+  }
+
+  //printer
+  Future<bool> saveSelectedPrinterSize(String printerSize) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("printerSize", printerSize);
+  }
+
+  Future<String?> loadSelectedPrinterSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("printerSize");
   }
 
   /// ------------------ VAT STATUS ------------------

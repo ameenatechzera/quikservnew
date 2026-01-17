@@ -16,7 +16,7 @@ class PrinterSettingsContent extends StatefulWidget {
 
 class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   String printerType = 'Wifi';
-  String paperSize = '2 inch';
+  String? paperSize = '2 inch';
 
   bool deviceListStatus = false;
 
@@ -54,6 +54,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     super.initState();
     selectedMainPrinter = printersList.first;
     selectedKitchenPrinter = printersKitchenList.first;
+
+    fetchPrinterSettings();
 
     _initBluetooth();
   }
@@ -419,18 +421,21 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           // await SharedPreferenceHelper().saveSelectedPrinter(
           //     mac
           // );
-          showAnimatedToast(
+          Navigator.pop(context);
+
+          print('paperSize $paperSize');
+          await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
+          ScaffoldMessenger.of(
             context,
-            message: 'Settings saved',
-            isSuccess: true,
-          );
-          // ScaffoldMessenger.of(
-          //   context,
-          // ).showSnackBar(const SnackBar(content: Text('Settings saved')));
+          ).showSnackBar(const SnackBar(content: Text('Settings saved')));
         },
         child: const Text('Save'),
       ),
     );
+  }
+
+  Future<void> fetchPrinterSettings() async {
+    paperSize = await (SharedPreferenceHelper().loadSelectedPrinterSize());
   }
 }
 

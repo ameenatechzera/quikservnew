@@ -6,6 +6,7 @@ import 'package:quikservnew/features/salesReport/domain/entities/salesReportResu
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportPreviewScreen.dart';
+import 'package:quikservnew/features/salesReport/presentation/screens/salesReportScreen.dart';
 
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
@@ -156,13 +157,13 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => salesReportPreviewScreen(
-                              st_fromDate: _fromDateFormattedController.text
-                                  .toString(),
-                              st_toDate: _toDateFormattedController.text
-                                  .toString(),
-                              pagefrom: 'SalesReport',
-                              masterId: sale.salesMasterId.toString(),
+                            builder: (context) => SalesReportPage(
+                              // st_fromDate: _fromDateFormattedController.text
+                              //     .toString(),
+                              // st_toDate: _toDateFormattedController.text
+                              //     .toString(),
+                              // pagefrom: 'SalesReport',
+                              // masterId: sale.salesMasterId.toString(),
                             ),
                             // transitionsBuilder:
                             //     (

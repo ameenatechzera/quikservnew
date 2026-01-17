@@ -77,6 +77,9 @@ class LoginScreen extends StatelessWidget {
                 await SharedPreferenceHelper().setBranchId(
                   state.loginResponse.data.first.branchIds.first.toString(),
                 );
+                await SharedPreferenceHelper().setStaffName(
+                  state.loginResponse.data.first.name,
+                );
 
                 /// Trigger fetching units
                 await context.read<UnitCubit>().fetchUnits();

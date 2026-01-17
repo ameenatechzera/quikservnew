@@ -11,9 +11,9 @@ import 'package:quikservnew/features/salesReport/presentation/widgets/print_ther
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class salesReportPreviewScreen extends StatefulWidget {
-  final String st_fromDate;
-
-  final String st_toDate;
+  // final String st_fromDate;
+  //
+  // final String st_toDate;
 
   final String pagefrom;
 
@@ -21,8 +21,8 @@ class salesReportPreviewScreen extends StatefulWidget {
 
   const salesReportPreviewScreen({
     super.key,
-    required this.st_fromDate,
-    required this.st_toDate,
+    // required this.st_fromDate,
+    // required this.st_toDate,
     required this.pagefrom,
     required this.masterId,
   });
@@ -131,7 +131,7 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Visibility(
-                        visible: true,
+                        visible: false,
                         child: Expanded(
                           flex: 1,
                           child: Padding(
@@ -202,7 +202,7 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
                               top: 12.0,
                             ),
                             child: Container(
-                              width: 150,
+                              width: double.infinity,
                               height: 40,
                               child: ElevatedButton(
                                 style: ButtonStyle(
@@ -261,133 +261,133 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
                           ),
                         ),
                       ),
-                      Visibility(
-                        visible: true,
-                        child: Expanded(
-                          flex: 1,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 2.0,
-                              right: 2.0,
-                              bottom: 2.0,
-                            ),
-                            child: Container(
-                              width: 150,
-                              height: 90,
-                              child: Column(
-                                children: [
-                                  Visibility(
-                                    visible: true,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            flex: 1,
-                                            child: Checkbox(
-                                              visualDensity:
-                                                  VisualDensity.compact,
-                                              // Reduces the size
-                                              materialTapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                              // Shrinks tap area
-                                              value: selectedPdfWithBgIndex,
-                                              // Check if the current item is selected
-                                              onChanged: (bool? newValue) {
-                                                setState(() {
-                                                  // If the current checkbox is clicked, update the selectedIndex
-                                                  selectedPdfWithBgIndex =
-                                                      newValue;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                          const Visibility(
-                                            visible: true,
-                                            child: Expanded(
-                                              flex: 6,
-                                              child: Padding(
-                                                padding: EdgeInsets.only(
-                                                  left: 2.0,
-                                                ),
-                                                child: Text(
-                                                  ' with header',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 11,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Visibility(
-                                    visible: true,
-                                    child: Container(
-                                      width: 150,
-                                      height: 40,
-                                      child: ElevatedButton(
-                                        style: ButtonStyle(
-                                          foregroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                appBarColor,
-                                              ),
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                appBarColor,
-                                              ),
-                                          shape:
-                                              MaterialStateProperty.all<
-                                                RoundedRectangleBorder
-                                              >(
-                                                RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        18.0,
-                                                      ),
-                                                  side: BorderSide(
-                                                    color: appBarColor,
-                                                  ),
-                                                ),
-                                              ),
-                                        ),
-                                        onPressed: () {
-                                          clickPdfFlag = 1;
-                                          // if (selectedPdfWithBgIndex == true) {
-                                          //   SharedPrefrence().setPdfPrintWithBgStatus('true');
-                                          // } else {
-                                          //   SharedPrefrence()
-                                          //       .setPdfPrintWithBgStatus('false');
-                                          // }
-                                          //st_pdfTypeSelected ='type_1';
-                                          // createPdfNew(saleList.first,st_pdfTypeSelected);
-                                        },
-                                        child: const Text(
-                                          'PDF',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Visibility(
+                      //   visible: true,
+                      //   child: Expanded(
+                      //     flex: 1,
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.only(
+                      //         left: 2.0,
+                      //         right: 2.0,
+                      //         bottom: 2.0,
+                      //       ),
+                      //       child: Container(
+                      //         width: 150,
+                      //         height: 90,
+                      //         child: Column(
+                      //           children: [
+                      //             Visibility(
+                      //               visible: false,
+                      //               child: Padding(
+                      //                 padding: const EdgeInsets.only(left: 8.0),
+                      //                 child: Row(
+                      //                   mainAxisAlignment:
+                      //                       MainAxisAlignment.center,
+                      //                   children: [
+                      //                     Expanded(
+                      //                       flex: 1,
+                      //                       child: Checkbox(
+                      //                         visualDensity:
+                      //                             VisualDensity.compact,
+                      //                         // Reduces the size
+                      //                         materialTapTargetSize:
+                      //                             MaterialTapTargetSize
+                      //                                 .shrinkWrap,
+                      //                         // Shrinks tap area
+                      //                         value: selectedPdfWithBgIndex,
+                      //                         // Check if the current item is selected
+                      //                         onChanged: (bool? newValue) {
+                      //                           setState(() {
+                      //                             // If the current checkbox is clicked, update the selectedIndex
+                      //                             selectedPdfWithBgIndex =
+                      //                                 newValue;
+                      //                           });
+                      //                         },
+                      //                       ),
+                      //                     ),
+                      //                     const Visibility(
+                      //                       visible: true,
+                      //                       child: Expanded(
+                      //                         flex: 6,
+                      //                         child: Padding(
+                      //                           padding: EdgeInsets.only(
+                      //                             left: 2.0,
+                      //                           ),
+                      //                           child: Text(
+                      //                             ' with header',
+                      //                             style: TextStyle(
+                      //                               fontWeight: FontWeight.bold,
+                      //                               fontSize: 11,
+                      //                             ),
+                      //                           ),
+                      //                         ),
+                      //                       ),
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //             Visibility(
+                      //               visible: false,
+                      //               child: Container(
+                      //                 width: 150,
+                      //                 height: 40,
+                      //                 child: ElevatedButton(
+                      //                   style: ButtonStyle(
+                      //                     foregroundColor:
+                      //                         MaterialStateProperty.all<Color>(
+                      //                           appBarColor,
+                      //                         ),
+                      //                     backgroundColor:
+                      //                         MaterialStateProperty.all<Color>(
+                      //                           appBarColor,
+                      //                         ),
+                      //                     shape:
+                      //                         MaterialStateProperty.all<
+                      //                           RoundedRectangleBorder
+                      //                         >(
+                      //                           RoundedRectangleBorder(
+                      //                             borderRadius:
+                      //                                 BorderRadius.circular(
+                      //                                   18.0,
+                      //                                 ),
+                      //                             side: BorderSide(
+                      //                               color: appBarColor,
+                      //                             ),
+                      //                           ),
+                      //                         ),
+                      //                   ),
+                      //                   onPressed: () {
+                      //                     clickPdfFlag = 1;
+                      //                     // if (selectedPdfWithBgIndex == true) {
+                      //                     //   SharedPrefrence().setPdfPrintWithBgStatus('true');
+                      //                     // } else {
+                      //                     //   SharedPrefrence()
+                      //                     //       .setPdfPrintWithBgStatus('false');
+                      //                     // }
+                      //                     //st_pdfTypeSelected ='type_1';
+                      //                     // createPdfNew(saleList.first,st_pdfTypeSelected);
+                      //                   },
+                      //                   child: const Text(
+                      //                     'PDF',
+                      //                     style: TextStyle(color: Colors.white),
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
               ),
             ),
             Visibility(
-              visible: true,
+              visible: false,
               child: Padding(
                 padding: const EdgeInsets.only(
                   left: 8.0,
