@@ -108,7 +108,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                   child: dateCard(
                     "From Date",
                     fromDate,
-                    () => pickDate(isFrom: true),
+                        () => pickDate(isFrom: true),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -116,7 +116,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                   child: dateCard(
                     "To Date",
                     toDate,
-                    () => pickDate(isFrom: false),
+                        () => pickDate(isFrom: false),
                   ),
                 ),
               ],
