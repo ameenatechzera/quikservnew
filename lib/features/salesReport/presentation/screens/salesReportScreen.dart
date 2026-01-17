@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/dashboard_content.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
@@ -7,6 +8,7 @@ import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_c
 
 import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportPreviewScreen.dart';
+import 'package:quikservnew/features/salesReport/presentation/widgets/deleteConfirmationDialogue.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class SalesReportPage extends StatefulWidget {
@@ -64,7 +66,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                 ),
                 const Text("Select All", style: TextStyle(color: Colors.black)),
                 const SizedBox(width: 8),
-                _deleteButton(),
+                _deleteButton(0),
                 const SizedBox(width: 12),
               ],
             ),
@@ -79,8 +81,38 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             const SizedBox(height: 16),
             BlocConsumer<SalesReportCubit, SlesReportState>(
               listener: (context, state) {
+                if(state is SalesDeleteSuccess){
+                    Fluttertoast.showToast(
+                      msg: "Sales details deleted successfully..!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.black87,
+                      textColor: Colors.white,
+                      fontSize: 14,
+                    );
+                  context.read<SalesReportCubit>().fetchSalesReport(
+                    FetchReportRequest(
+                      from_date: formatter.format(fromDate),
+                      to_date: formatter.format(toDate),
+                      user_id: '1',
+                      branchId: st_branchId,
+                    ),
+                  );
+
+                }
+                if(state is SalesDeleteFailure){
+                  Fluttertoast.showToast(
+                    msg: "Sales details deletion failed..!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.black87,
+                    textColor: Colors.white,
+                    fontSize: 14,
+                  );
+                }
                 if (state is SalesReportSuccess) {
                   //setState(() {
+                  salesList.clear();
                   salesList = state.response.salesMaster;
                   print('salesList ${salesList}');
                   _calculateTotals(salesList);
@@ -239,7 +271,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                     ),
                   ),
                 ),
-                Visibility(visible: true, child: _deleteButton()),
+                Visibility(visible: true, child: _deleteButton(sale.salesMasterId)),
               ],
             ),
 
@@ -283,11 +315,27 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     );
   }
 
-  Widget _deleteButton() {
-    return CircleAvatar(
-      radius: 16,
-      backgroundColor: const Color(0xffFFE08A),
-      child: const Icon(Icons.delete_outline, size: 18, color: Colors.black),
+  Widget _deleteButton(int salesMasterId) {
+    return InkWell(
+      onTap: () async {
+
+          final result = await showConfirmationDialog(
+            context,
+            heading: 'Delete Confirmation',
+            message: 'Are you sure you want to delete all selected items?', salesMasterId: salesMasterId,
+          );
+          if (result == true) {
+
+          } else {
+
+          }
+          
+      },
+      child: CircleAvatar(
+        radius: 16,
+        backgroundColor: const Color(0xffFFE08A),
+        child: const Icon(Icons.delete_outline, size: 18, color: Colors.black),
+      ),
     );
   }
 
