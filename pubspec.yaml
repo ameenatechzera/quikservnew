@@ -92,6 +92,7 @@ flutter:
     - assets/icons/QUIKSERV LOGO 02 1.png
     - assets/images/WhatsApp Image 2025-12-02 at 11.45.21_c494808e.jpg
     - assets/icons/forwardicon.png
+    - assets/icons/whatsapp_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

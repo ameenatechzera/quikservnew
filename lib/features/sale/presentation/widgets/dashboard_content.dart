@@ -5,7 +5,6 @@ import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportScreen.dart';
-import 'package:quikservnew/features/salesReport/presentation/screens/sales_report_screen.dart';
 
 // ✅ add this (same used in HomeScreen)
 import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
