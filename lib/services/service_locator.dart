@@ -24,6 +24,12 @@ import 'package:quikservnew/features/groups/domain/usecases/delete_productgroupf
 import 'package:quikservnew/features/groups/domain/usecases/fetch_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/update_productgroups_usecase.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
+import 'package:quikservnew/features/masters/data/datasources/userCreationRemoteDataSource.dart';
+import 'package:quikservnew/features/masters/data/repositories/user_creation_repository_impl.dart';
+import 'package:quikservnew/features/masters/domain/repositories/user_creation_repository.dart';
+import 'package:quikservnew/features/masters/domain/usecase/fetch_usertypes_usecase.dart';
+import 'package:quikservnew/features/masters/domain/usecase/save_usertypes_usecase.dart';
+import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cubit.dart';
 import 'package:quikservnew/features/products/data/datasources/product_remote_data_source.dart';
 import 'package:quikservnew/features/products/data/repositories/product_repositories_local_impl.dart';
 import 'package:quikservnew/features/products/data/repositories/products_repository_impl.dart';
@@ -288,5 +294,24 @@ class ServiceLocator {
     sl.registerLazySingleton<SalesRepository>(
       () => SalesRepositoryImpl(remoteDataSource: sl()),
     );
+
+
+    // ------------------- CreateUSer Cubit -------------------
+    sl.registerFactory(
+          () => UserCreationCubit(fetchUserTypesUseCase: sl(), saveUserTypesUseCase: sl()
+
+      ),
+    );
+    sl.registerLazySingleton(() => FetchUserTypesUseCase(sl()));
+    sl.registerLazySingleton(() => SaveUserUseCase(sl()));
+
+
+    sl.registerLazySingleton<UserCreationRemoteDataSource>(
+          () => UserCreationRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<UserCreationRepository>(
+          () => UserCreationRepositoryImpl(remoteDataSource: sl()),
+    );
+
   }
 }

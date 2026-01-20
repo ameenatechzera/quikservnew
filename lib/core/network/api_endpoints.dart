@@ -116,4 +116,14 @@ class ApiConstants {
   static String deleteSalesByMasterIdPath(String baseUrl, String masterId) {
     return '$baseUrl/salesmaster/delete-salesmaster/' + masterId;
   }
+
+  ///for userTypes fetching
+  static String getUserTypesPath(String baseUrl) {
+    return '$baseUrl/user/fetch-usertypes';
+  }
+
+  ///for user save
+  static String saveUserPath(String baseUrl) {
+    return '$baseUrl/user/save-user';
+  }
 }

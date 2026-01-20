@@ -21,7 +21,7 @@ class UsersListScreen extends StatelessWidget {
             onPressed: () {
               AppNavigator.pushSlide(
                 context: context,
-                page: const UserCreationScreen(),
+                page:  UserCreationScreen(),
               );
             },
           ),
