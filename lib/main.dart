@@ -17,6 +17,8 @@ import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
 import 'package:quikservnew/services/service_locator.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
+import 'features/masters/presentation/bloc/user_creation_cubit.dart';
+
 late final AppDatabase appDb;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +62,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<CategoriesCubit>(create: (_) => sl<CategoriesCubit>()),
         BlocProvider<SaleCubit>(create: (_) => sl<SaleCubit>()),
         BlocProvider<SalesReportCubit>(create: (_) => sl<SalesReportCubit>()),
+        BlocProvider<UserCreationCubit>(create: (_) => sl<UserCreationCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

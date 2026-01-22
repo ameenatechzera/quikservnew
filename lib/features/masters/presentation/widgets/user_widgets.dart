@@ -1,29 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:quikservnew/features/masters/domain/entities/user_types_result.dart';
 
-Widget usertextField({required String label, bool isPassword = false}) {
-  return TextField(
+Widget usertextField({
+  required String label,
+  required TextEditingController controller,
+  bool isPassword = false,
+  String? Function(String?)? validator,
+}) {
+  return TextFormField(
+    controller: controller,
     obscureText: isPassword,
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontSize: 13),
-      border: const UnderlineInputBorder(),
+      border: const OutlineInputBorder(),
     ),
+    validator: validator,
   );
 }
 
-Widget userdropdownField() {
+
+Widget userDropdownField(
+    List<UserTypes> userTypes,
+    String? selectedValue,
+    ValueChanged<String?> onChanged,
+    ) {
   return DropdownButtonFormField<String>(
+    value: selectedValue,
     decoration: const InputDecoration(
-      labelText: "Select usertype",
+      labelText: "Select user type",
       border: UnderlineInputBorder(),
     ),
-    items: const [
-      DropdownMenuItem(value: "supplier", child: Text("Supplier")),
-      DropdownMenuItem(value: "cashier", child: Text("Cashier")),
-    ],
-    onChanged: (value) {},
+    items: userTypes.map((type) {
+      return DropdownMenuItem<String>(
+        value: type.typeId.toString(),            // stored value
+        child: Text(type.userType),    // visible text
+      );
+    }).toList(),
+    onChanged: onChanged,
   );
 }
+
 
 Widget sectionTitle(String title) {
   return Text(

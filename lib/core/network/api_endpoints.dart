@@ -45,7 +45,7 @@ class ApiConstants {
 
   ///for saving sales
   static String getSaveSalePath(String baseUrl) {
-    return '$baseUrl/salesmaster/save-salesmaster';
+    return '$baseUrl/salesmaster/save-salesmasterNew';
   }
 
   ///for sales report
@@ -123,5 +123,15 @@ class ApiConstants {
 
   static String editCategoryPath(String baseUrl, int categoryId) {
     return "$baseUrl/category/update/$categoryId";
+  }
+
+  ///for userTypes fetching
+  static String getUserTypesPath(String baseUrl) {
+    return '$baseUrl/user/fetch-usertypes';
+  }
+
+  ///for user save
+  static String saveUserPath(String baseUrl) {
+    return '$baseUrl/user/save-user';
   }
 }

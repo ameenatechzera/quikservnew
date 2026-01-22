@@ -56,3 +56,4 @@ class SaleSettingsScreen extends StatelessWidget {
     );
   }
 }
+
