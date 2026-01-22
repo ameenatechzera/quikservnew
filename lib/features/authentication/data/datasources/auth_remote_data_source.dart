@@ -56,6 +56,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
 
       final url = ApiConstants.getLoginPath(baseUrl);
       print('🔹 Login URL: $url');
@@ -68,8 +69,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           contentType: "application/json",
           headers: {
             "Accept": "application/json",
-            "X-Database-Name":
-                "eyJpdiI6IkVNVmZidnI0dWlDaVk1bmJJZytxK3c9PSIsInZhbHVlIjoiMTBobEx1WlhxSjR2ZFhETTllOHFkb1pIY0NOaStjL3VsMkZlYXVaQVFKZz0iLCJtYWMiOiI1N2NlNTlkOTgwZGZjZDY3M2E1ZjBjZWU3ZDdlNWRkNzJlYTg4ZmJkMWY4NzJlZGU5ZjNjNWI5MzQ2NTg5ZTA4IiwidGFnIjoiIn0=",
+            "X-Database-Name": dbName,
+            // "eyJpdiI6IkVNVmZidnI0dWlDaVk1bmJJZytxK3c9PSIsInZhbHVlIjoiMTBobEx1WlhxSjR2ZFhETTllOHFkb1pIY0NOaStjL3VsMkZlYXVaQVFKZz0iLCJtYWMiOiI1N2NlNTlkOTgwZGZjZDY3M2E1ZjBjZWU3ZDdlNWRkNzJlYTg4ZmJkMWY4NzJlZGU5ZjNjNWI5MzQ2NTg5ZTA4IiwidGFnIjoiIn0=",
           },
         ),
       );

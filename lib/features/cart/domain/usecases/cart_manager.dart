@@ -92,4 +92,18 @@ class CartManager {
       cartItems.notifyListeners();
     }
   }
+
+  // In your CartManager class
+  void updateItemPrice(String productCode, double newPrice) {
+    final index = cartItems.value.indexWhere(
+      (item) => item.productCode == productCode,
+    );
+
+    if (index != -1) {
+      final updatedItem = cartItems.value[index].copyWith(salesRate: newPrice);
+      final newList = List<CartItem>.from(cartItems.value);
+      newList[index] = updatedItem;
+      cartItems.value = newList;
+    }
+  }
 }

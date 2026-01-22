@@ -1,4 +1,3 @@
-
 import 'package:get_it/get_it.dart';
 import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
@@ -8,28 +7,22 @@ import 'package:quikservnew/features/authentication/domain/usecases/login_usecas
 import 'package:quikservnew/features/authentication/domain/usecases/register_server_usecase.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
-
-
-
 import 'package:quikservnew/features/category/data/datasources/categories_remote_data_source.dart';
 import 'package:quikservnew/features/category/data/repositories/categories_repository_impl.dart';
 import 'package:quikservnew/features/category/data/repositories/category_local_repository_impl.dart';
 import 'package:quikservnew/features/category/domain/repositories/category_local_repository.dart';
 import 'package:quikservnew/features/category/domain/repositories/category_repository.dart';
-
+import 'package:quikservnew/features/category/domain/usecases/delete_category_usecase.dart';
+import 'package:quikservnew/features/category/domain/usecases/edit_category_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/local_fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/save_category_usecase.dart';
-
-
-
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/groups/data/datasources/group_remote_data_source.dart';
 import 'package:quikservnew/features/groups/data/repositories/group_repository_impl.dart';
 import 'package:quikservnew/features/groups/domain/repositories/group_repository.dart';
 import 'package:quikservnew/features/groups/domain/usecases/add_product_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/delete_productgroupfromserver_usecase.dart';
-
 import 'package:quikservnew/features/groups/domain/usecases/fetch_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/update_productgroups_usecase.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
@@ -270,11 +263,15 @@ class ServiceLocator {
 
         getLocalCategoriesUseCase: sl(),
         saveCategoryUseCase: sl(),
+        deleteCategoryUseCase: sl(),
+        editCategoryUseCase: sl(),
       ),
     );
     // UseCase
     sl.registerLazySingleton(() => FetchCategoriesUseCase(sl()));
     sl.registerLazySingleton(() => SaveCategoryUseCase(sl()));
+    sl.registerLazySingleton(() => DeleteCategoryUseCase(sl()));
+    sl.registerLazySingleton(() => EditCategoryUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<CategoriesRemoteDataSource>(

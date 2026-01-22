@@ -239,7 +239,11 @@ Widget subscriptionInfoCard() {
                   // ID Row
                   Row(
                     children: const [
-                      Icon(Icons.subscriptions, size: 20, color: Colors.black54),
+                      Icon(
+                        Icons.subscriptions,
+                        size: 20,
+                        color: Colors.black54,
+                      ),
                       SizedBox(width: 4),
                       Text(
                         '324',
@@ -260,11 +264,7 @@ Widget subscriptionInfoCard() {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Icon(
-                Icons.warning_amber_rounded,
-                color: Colors.red,
-                size: 20,
-              ),
+              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 20),
               SizedBox(width: 6),
               Expanded(
                 child: Text(

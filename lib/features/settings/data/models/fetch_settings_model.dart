@@ -13,14 +13,13 @@ class FetchSettingsResponseModel extends FetchSettingsResponse {
       status: json['status'],
       error: json['error'],
       message: json['message'],
-      settings:
-          json['settings'] != null
-              ? List<FetchSettingsDetailsModel>.from(
-                json['settings'].map(
-                  (x) => FetchSettingsDetailsModel.fromJson(x),
-                ),
-              )
-              : [],
+      settings: json['settings'] != null
+          ? List<FetchSettingsDetailsModel>.from(
+              json['settings'].map(
+                (x) => FetchSettingsDetailsModel.fromJson(x),
+              ),
+            )
+          : [],
     );
   }
 }

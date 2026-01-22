@@ -31,7 +31,7 @@ class FetchSettingsDetails {
   final String? bankLedgerName;
   final bool? vatStatus;
   final String? vatType;
-  final int? isSingleCounter;
+  final bool? isSingleCounter;
 
   FetchSettingsDetails({
     this.settingsId,
