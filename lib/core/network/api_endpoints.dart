@@ -114,6 +114,14 @@ class ApiConstants {
   }
 
   static String deleteSalesByMasterIdPath(String baseUrl, String masterId) {
-    return '$baseUrl/salesmaster/delete-salesmaster/' + masterId;
+    return '$baseUrl/salesmaster/delete-salesmaster/$masterId';
+  }
+
+  static String deleteCategoryPath(String baseUrl, int categoryId) {
+    return '$baseUrl/category/delete-category/$categoryId';
+  }
+
+  static String editCategoryPath(String baseUrl, int categoryId) {
+    return "$baseUrl/category/update/$categoryId";
   }
 }

@@ -28,9 +28,9 @@ class SaleCubit extends Cubit<SaleState> {
   SaleCubit({
     required SaveSaleUseCase saveSaleUseCase,
     required SalesRepository salesRepository,
-    required SalesDetailsByMasterIdUseCase salesDetailsByMasterIdUseCase
+    required SalesDetailsByMasterIdUseCase salesDetailsByMasterIdUseCase,
   }) : _saveSaleUseCase = saveSaleUseCase,
-        _salesDetailsByMasterIdUseCase = salesDetailsByMasterIdUseCase,
+       _salesDetailsByMasterIdUseCase = salesDetailsByMasterIdUseCase,
        // _salesRepository = salesRepository,
        super(SaleInitial());
 
@@ -126,18 +126,20 @@ class SaleCubit extends Cubit<SaleState> {
       emit(SaleError(error: e.toString()));
     }
   }
+
   // --------------------- API Fetch SalesDetails By MasterId ---------------------
   Future<void> fetchSalesDetailsByMasterId(
-      FetchSalesDetailsRequest request,
-      ) async {
+    FetchSalesDetailsRequest request,
+  ) async {
     print('FetchSalesDetailsRequest ${request.toJson()}');
     emit(SlesDetailsFetchInitial());
     try {
       final response = await _salesDetailsByMasterIdUseCase(request);
 
       response.fold(
-            (failure) => emit(SalesReportFetchError(error: failure.message)),
-            (saleResponse) => emit(SalesDetailsFetchSuccess(response: saleResponse)),
+        (failure) => emit(SalesReportFetchError(error: failure.message)),
+        (saleResponse) =>
+            emit(SalesDetailsFetchSuccess(response: saleResponse)),
       );
     } catch (e) {
       emit(SalesReportFetchError(error: e.toString()));

@@ -44,3 +44,32 @@ final class CategoryAddError extends CategoryState {
 
   const CategoryAddError({required this.error});
 }
+
+// Delete states
+class CategoryDeleteLoading extends CategoryState {}
+
+class CategoryDeleteSuccess extends CategoryState {
+  final MasterResponseModel response;
+
+  const CategoryDeleteSuccess({required this.response});
+}
+
+class CategoryDeleteError extends CategoryState {
+  final String error;
+
+  const CategoryDeleteError({required this.error});
+}
+
+class CategoryEditLoading extends CategoryState {}
+
+class CategoryEditSuccess extends CategoryState {
+  final MasterResponseModel response;
+
+  const CategoryEditSuccess({required this.response});
+}
+
+class CategoryEditError extends CategoryState {
+  final String error;
+
+  const CategoryEditError({required this.error});
+}

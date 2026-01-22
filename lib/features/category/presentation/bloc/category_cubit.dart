@@ -3,7 +3,10 @@ import 'package:equatable/equatable.dart';
 import 'package:quikservnew/features/category/data/models/fetch_category_model.dart';
 import 'package:quikservnew/features/category/domain/entities/fetch_categories_entity.dart';
 import 'package:quikservnew/features/category/domain/entities/save_category_entity.dart';
+import 'package:quikservnew/features/category/domain/parameters/edit_category_parameter.dart';
 import 'package:quikservnew/features/category/domain/repositories/category_local_repository.dart';
+import 'package:quikservnew/features/category/domain/usecases/delete_category_usecase.dart';
+import 'package:quikservnew/features/category/domain/usecases/edit_category_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/local_fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/save_category_usecase.dart';
@@ -16,15 +19,21 @@ class CategoriesCubit extends Cubit<CategoryState> {
   final CategoryLocalRepository _categoryLocalRepository;
   final GetLocalCategoriesUseCase _getLocalCategoriesUseCase;
   final SaveCategoryUseCase _saveCategoryUseCase;
+  final DeleteCategoryUseCase _deleteCategoryUseCase;
+  final EditCategoryUseCase _editCategoryUseCase;
   CategoriesCubit({
     required FetchCategoriesUseCase fetchCategoriesUseCase,
     required CategoryLocalRepository categoryLocalRepository,
     required GetLocalCategoriesUseCase getLocalCategoriesUseCase,
     required SaveCategoryUseCase saveCategoryUseCase,
+    required DeleteCategoryUseCase deleteCategoryUseCase,
+    required EditCategoryUseCase editCategoryUseCase,
   }) : _fetchCategoriesUseCase = fetchCategoriesUseCase,
        _categoryLocalRepository = categoryLocalRepository,
        _getLocalCategoriesUseCase = getLocalCategoriesUseCase,
        _saveCategoryUseCase = saveCategoryUseCase,
+       _deleteCategoryUseCase = deleteCategoryUseCase,
+       _editCategoryUseCase = editCategoryUseCase,
        super(CategoryInitial());
   // --------------------- API Fetch ---------------------
   Future<void> fetchCategories() async {
@@ -70,13 +79,48 @@ class CategoriesCubit extends Cubit<CategoryState> {
 
     final response = await _saveCategoryUseCase(request);
 
-    response.fold((failure) => emit(CategoryAddError(error: failure.message)), (
-      MasterResponseModel success,
-    ) async {
-      emit(CategoryAddSuccess(response: success));
+    response.fold(
+      (failure) => emit(CategoryAddError(error: failure.message)),
+      (response) => emit(CategoryAddSuccess(response: response)),
+    );
 
-      // refresh list after save
-      await fetchCategories();
-    });
+    // refresh list after save
+    await fetchCategories();
+  }
+
+  Future<void> deleteCategory(int categoryId) async {
+    emit(CategoryDeleteLoading());
+
+    final response = await _deleteCategoryUseCase(categoryId);
+
+    response.fold(
+      (failure) => emit(CategoryDeleteError(error: failure.message)),
+      (response) async {
+        emit(CategoryDeleteSuccess(response: response));
+
+        // ✅ refresh categories after delete
+        await fetchCategories();
+      },
+    );
+  }
+
+  // --------------------- EDIT CATEGORY ---------------------
+  Future<void> editCategory(
+    int categoryId,
+    EditCategoryRequestModel request,
+  ) async {
+    emit(CategoryEditLoading());
+
+    final response = await _editCategoryUseCase(categoryId, request);
+
+    response.fold(
+      (failure) => emit(CategoryEditError(error: failure.message)),
+      (response) async {
+        emit(CategoryEditSuccess(response: response));
+
+        // ✅ refresh list after edit
+        await fetchCategories();
+      },
+    );
   }
 }

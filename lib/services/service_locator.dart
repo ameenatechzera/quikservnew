@@ -12,6 +12,8 @@ import 'package:quikservnew/features/category/data/repositories/categories_repos
 import 'package:quikservnew/features/category/data/repositories/category_local_repository_impl.dart';
 import 'package:quikservnew/features/category/domain/repositories/category_local_repository.dart';
 import 'package:quikservnew/features/category/domain/repositories/category_repository.dart';
+import 'package:quikservnew/features/category/domain/usecases/delete_category_usecase.dart';
+import 'package:quikservnew/features/category/domain/usecases/edit_category_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/local_fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/save_category_usecase.dart';
@@ -255,11 +257,15 @@ class ServiceLocator {
 
         getLocalCategoriesUseCase: sl(),
         saveCategoryUseCase: sl(),
+        deleteCategoryUseCase: sl(),
+        editCategoryUseCase: sl(),
       ),
     );
     // UseCase
     sl.registerLazySingleton(() => FetchCategoriesUseCase(sl()));
     sl.registerLazySingleton(() => SaveCategoryUseCase(sl()));
+    sl.registerLazySingleton(() => DeleteCategoryUseCase(sl()));
+    sl.registerLazySingleton(() => EditCategoryUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<CategoriesRemoteDataSource>(

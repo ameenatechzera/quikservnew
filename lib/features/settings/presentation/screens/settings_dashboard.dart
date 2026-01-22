@@ -60,7 +60,6 @@ class SettingsScreen extends StatelessWidget {
                     icon: Icons.receipt_long_outlined,
                     title: "Sales Settings",
                     page: SaleSettingsScreen(),
-
                   ),
                   buildTile(
                     context: context,

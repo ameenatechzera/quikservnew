@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
-import 'package:quikservnew/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/cart_item_row.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/payment_option.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/summary_row.dart';
@@ -208,6 +208,9 @@ class CartScreen extends StatelessWidget {
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
+                                        // ✅ clear multi values when leaving Multi
+                                        multiCashAmount.value = 0;
+                                        multiCardAmount.value = 0;
                                         selectedPayment.value = 'Cash';
                                       },
                                       child: PaymentOption(
@@ -222,8 +225,13 @@ class CartScreen extends StatelessWidget {
                                   SizedBox(width: 8),
                                   Expanded(
                                     child: GestureDetector(
-                                      onTap: () =>
-                                          selectedPayment.value = 'Card',
+                                      onTap: () {
+                                        // ✅ clear multi values when leaving Multi
+                                        multiCashAmount.value = 0;
+                                        multiCardAmount.value = 0;
+
+                                        selectedPayment.value = 'Card';
+                                      },
                                       child: PaymentOption(
                                         title: 'Card',
                                         subtitle: '',
@@ -239,12 +247,25 @@ class CartScreen extends StatelessWidget {
                                       onTap: () {
                                         final prevPayment =
                                             selectedPayment.value;
-                                        selectedPayment.value = 'Multi';
                                         _showMultiPaymentModal(
                                           context,
                                           total: total,
                                           prevPayment: prevPayment,
+                                          onCancel: () {
+                                            // ✅ go back to previous selection
+                                            selectedPayment.value = prevPayment;
+                                          },
+                                          onOk: () {
+                                            // ✅ set Multi only when user confirms
+                                            selectedPayment.value = 'Multi';
+                                          },
                                         );
+                                        // selectedPayment.value = 'Multi';
+                                        // _showMultiPaymentModal(
+                                        //   context,
+                                        //   total: total,
+                                        //   prevPayment: prevPayment,
+                                        // );
                                       },
                                       child: ValueListenableBuilder(
                                         valueListenable: multiCashAmount,
@@ -451,9 +472,20 @@ class CartScreen extends StatelessWidget {
     BuildContext context, {
     required double total,
     required String prevPayment,
+    required VoidCallback onCancel,
+    required VoidCallback onOk,
   }) {
-    final double initialCash = prevPayment == 'Cash' ? total : 0;
-    final double initialCard = prevPayment == 'Card' ? total : 0;
+    // ✅ If user already set Multi before, preload saved values
+    final bool wasMulti = prevPayment == 'Multi';
+    // final double initialCash = prevPayment == 'Cash' ? total : 0;
+    // final double initialCard = prevPayment == 'Card' ? total : 0;
+    final double initialCash = wasMulti
+        ? multiCashAmount.value
+        : (prevPayment == 'Cash' ? total : 0);
+
+    final double initialCard = wasMulti
+        ? multiCardAmount.value
+        : (prevPayment == 'Card' ? total : 0);
 
     // ✅ TEMP values (only commit on OK)
     double tempCash = initialCash;
@@ -467,14 +499,14 @@ class CartScreen extends StatelessWidget {
     );
 
     bool isAutoUpdating = false;
-
+    bool closedByButton = false;
     double _parse(String v) => double.tryParse(v.trim()) ?? 0;
 
-    double _clampToTotal(double v) {
-      if (v < 0) return 0;
-      if (v > total) return total;
-      return v;
-    }
+    // double _clampToTotal(double v) {
+    //   if (v < 0) return 0;
+    //   if (v > total) return total;
+    //   return v;
+    // }
 
     void _setText(TextEditingController c, double value) {
       final t = value == 0 ? '' : value.toStringAsFixed(2);
@@ -484,6 +516,27 @@ class CartScreen extends StatelessWidget {
       );
     }
 
+    // ✅ INPUT FORMATTER: stop typing if value > total
+    TextInputFormatter _maxTotalFormatter(double total) {
+      return TextInputFormatter.withFunction((oldValue, newValue) {
+        final t = newValue.text.trim();
+
+        // allow empty
+        if (t.isEmpty) return newValue;
+
+        // allow just "." while typing
+        if (t == ".") return newValue;
+
+        final v = double.tryParse(t);
+        if (v == null) return oldValue;
+
+        // ❌ reject if exceeds total
+        if (v > total) return oldValue;
+
+        return newValue;
+      });
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -491,155 +544,179 @@ class CartScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Multi Payment',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Total: ${total.toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+        return WillPopScope(
+          onWillPop: () async {
+            // ✅ back button behaves like Cancel
+            if (!closedByButton) onCancel();
+            return true;
+          },
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Multi Payment',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              /// 🔹 Cash row
-              Row(
-                children: [
-                  const SizedBox(width: 160, child: Text('Cash')),
-                  Expanded(
-                    child: TextField(
-                      controller: cashCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Amount',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onChanged: (v) {
-                        if (isAutoUpdating) return;
-                        isAutoUpdating = true;
-
-                        final cash = _clampToTotal(_parse(v));
-                        final card = total - cash;
-
-                        // ✅ update TEMP only
-                        tempCash = cash;
-                        tempCard = card;
-
-                        if ((_parse(v) - cash).abs() > 0.001) {
-                          _setText(cashCtrl, cash);
-                        }
-                        _setText(cardCtrl, card);
-
-                        isAutoUpdating = false;
-                      },
-                    ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Total: ${total.toStringAsFixed(2)}',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
 
-              const SizedBox(height: 12),
-
-              /// 🔹 Card row
-              Row(
-                children: [
-                  const SizedBox(width: 160, child: Text('Card')),
-                  Expanded(
-                    child: TextField(
-                      controller: cardCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Amount',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                /// 🔹 Cash row
+                Row(
+                  children: [
+                    const SizedBox(width: 160, child: Text('Cash')),
+                    Expanded(
+                      child: TextField(
+                        controller: cashCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
                         ),
-                      ),
-                      onChanged: (v) {
-                        if (isAutoUpdating) return;
-                        isAutoUpdating = true;
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d{0,2}$'), // 2 decimals
+                          ),
+                          _maxTotalFormatter(total), // ✅ stop if > total
+                        ],
+                        decoration: InputDecoration(
+                          hintText: 'Amount',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onChanged: (v) {
+                          if (isAutoUpdating) return;
+                          isAutoUpdating = true;
 
-                        final card = _clampToTotal(_parse(v));
-                        final cash = total - card;
+                          final cash = _parse(v);
+                          final card = total - cash;
 
-                        // ✅ update TEMP only
-                        tempCard = card;
-                        tempCash = cash;
+                          // ✅ update TEMP only
+                          tempCash = cash;
+                          tempCard = card;
 
-                        if ((_parse(v) - card).abs() > 0.001) {
+                          // if ((_parse(v) - cash).abs() > 0.001) {
+                          //   _setText(cashCtrl, cash);
+                          // }
                           _setText(cardCtrl, card);
-                        }
-                        _setText(cashCtrl, cash);
 
-                        isAutoUpdating = false;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        // ✅ Cancel = do nothing, just close
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFEAB307),
-                        foregroundColor: Colors.black,
+                          isAutoUpdating = false;
+                        },
                       ),
-                      onPressed: () {
-                        // ✅ OK = commit values
-                        if ((tempCash + tempCard - total).abs() > 0.01) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Cash + Card must equal Total'),
-                            ),
-                          );
-                          return;
-                        }
-
-                        multiCashAmount.value = tempCash;
-                        multiCardAmount.value = tempCard;
-
-                        Navigator.pop(context);
-                      },
-                      child: const Text('OK'),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                /// 🔹 Card row
+                Row(
+                  children: [
+                    const SizedBox(width: 160, child: Text('Card')),
+                    Expanded(
+                      child: TextField(
+                        controller: cardCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d{0,2}$'),
+                          ),
+                          _maxTotalFormatter(total), // ✅ stop if > total
+                        ],
+                        decoration: InputDecoration(
+                          hintText: 'Amount',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onChanged: (v) {
+                          if (isAutoUpdating) return;
+                          isAutoUpdating = true;
+
+                          final card = _parse(v);
+                          final cash = total - card;
+
+                          // ✅ update TEMP only
+                          tempCard = card;
+                          tempCash = cash;
+
+                          // if ((_parse(v) - card).abs() > 0.001) {
+                          //   _setText(cardCtrl, card);
+                          // }
+                          _setText(cashCtrl, cash);
+
+                          isAutoUpdating = false;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          closedByButton = true;
+                          onCancel();
+                          // ✅ Cancel = do nothing, just close
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEAB307),
+                          foregroundColor: Colors.black,
+                        ),
+                        onPressed: () {
+                          // ✅ OK = commit values
+                          if ((tempCash + tempCard - total).abs() > 0.01) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Cash + Card must equal Total'),
+                              ),
+                            );
+                            return;
+                          }
+                          closedByButton = true;
+                          multiCashAmount.value = tempCash;
+                          multiCardAmount.value = tempCard;
+                          onOk();
+                          Navigator.pop(context);
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
-    );
+    ).whenComplete(() {
+      // ✅ swipe down / tap outside behaves like Cancel too
+      if (!closedByButton) onCancel();
+    });
   }
 }
