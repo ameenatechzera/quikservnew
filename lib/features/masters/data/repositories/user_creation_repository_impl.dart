@@ -4,6 +4,8 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/masters/data/datasources/userCreationRemoteDataSource.dart';
+import 'package:quikservnew/features/masters/data/models/cashierList_model.dart';
+import 'package:quikservnew/features/masters/data/models/supplierList_model.dart';
 import 'package:quikservnew/features/masters/data/models/user_types_model.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/masters/domain/parameters/save_user_parameters.dart';
@@ -32,6 +34,34 @@ class UserCreationRepositoryImpl implements UserCreationRepository{
   ResultFuture<MasterResponseModel> saveUserTypes(SaveUserParameters request) async {
     try {
       final result = await remoteDataSource.saveUserTypes(request);
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    } catch (e) {
+      return Left(ServerFailure("Unexpected error: $e"));
+    }
+  }
+
+  @override
+  ResultFuture<CashierListModel> fetchCashierList() async {
+    try {
+      final result = await remoteDataSource.fetchCashierList();
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    } catch (e) {
+      return Left(ServerFailure("Unexpected error: $e"));
+    }
+  }
+
+  @override
+  ResultFuture<SupplierListModel> fetchSupplierList() async {
+    try {
+      final result = await remoteDataSource.fetchSupplierList();
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(failure.errorMessageModel.statusMessage));

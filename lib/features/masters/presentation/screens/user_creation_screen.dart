@@ -21,7 +21,7 @@ class UserCreationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     String? selectedUserType;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UserCreationCubit>().fetchUserTypes();
+      context.read<UserCreationCubit>().fetchUserTypesFromUserCreation();
     });
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -46,7 +46,7 @@ class UserCreationScreen extends StatelessWidget {
               children: [
                 BlocConsumer<UserCreationCubit, UserCreationState>(
                   listener: (context, state) {
-                    if (state is FetchUserTypesLoaded) {
+                    if (state is FetchUserTypesFromCreationLoaded) {
                       selectedUserType = state.userTypes.first.typeId.toString();
                       userTypeController.text = selectedUserType.toString();
                     }
@@ -56,21 +56,40 @@ class UserCreationScreen extends StatelessWidget {
                     }
                   },
                   builder: (context, state) {
-                    if (state is FetchUserTypesLoaded) {
-                      List<UserTypes> list_userTypes = [];
-                      list_userTypes.addAll(state.userTypes);
-                      return userDropdownField(
-                        list_userTypes,
-                        selectedUserType,
-                        (value) {
-                          print('selectedValue $value');
-                          userTypeController.text = value!;
-                        },
+                    List<UserTypes> userTypes =[];
+                    if (state is FetchUserTypesFromCreationLoaded) {
+                      userTypes.clear();
+                      userTypes=state.userTypes;
+    }
+                    final bool isLoading =
+                        state is FetchUserTypesInitial ||
+                            state is FetchCashierListInitial;
+
+                    //if (state is FetchUserTypesFromCreationLoaded) {
+                      return Stack(
+                        children: [
+                          userDropdownField(
+                            userTypes,
+                            selectedUserType,
+                                (value) => userTypeController.text = value!,
+                          ),
+                          if (isLoading)
+                            const Positioned.fill(
+                              child: ColoredBox(
+                                color: Colors.black26,
+                                child: Center(
+                                  child: CircularProgressIndicator(strokeWidth: 3),
+                                ),
+                              ),
+                            ),
+
+                        ],
                       );
-                    } else {
-                      return Container();
-                    }
+                    //}
+
+                    //return const SizedBox.shrink();
                   },
+
                 ),
                 const SizedBox(height: 18),
                 usertextField(label: "Name", controller: nameController),

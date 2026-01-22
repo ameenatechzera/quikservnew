@@ -35,7 +35,7 @@ class SettingsScreen extends StatelessWidget {
           subscriptionInfoCard(), // 👈 top card
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 8,right: 8.0),
+              padding: const EdgeInsets.only(left: 8, right: 8.0),
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 80),
                 children: [
@@ -66,7 +66,6 @@ class SettingsScreen extends StatelessWidget {
                           icon: Icons.receipt_long_outlined,
                           title: "Sales Settings",
                           page: SaleSettingsScreen(),
-
                         ),
                         buildTile(
                           context: context,
@@ -142,12 +141,13 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                   buildTile(
-                    context: context,
-                    icon: Icons.contact_mail,
-                    title: "Contact Us",
-                    page: const AboutScreen(),
-                  ),
+                      context: context,
+                      icon: Icons.contact_mail,
+                      title: "Contact Us",
+                      page: const AboutScreen(),
+                    ),
                 ],
+
               ),
             ),
           ),
@@ -156,6 +156,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
+
 Widget subscriptionInfoCard() {
   return Container(
     margin: const EdgeInsets.all(12),
@@ -214,7 +215,6 @@ Widget subscriptionInfoCard() {
               ],
             ),
 
-
             const SizedBox(width: 12),
 
             // Text Content
@@ -243,15 +243,14 @@ Widget subscriptionInfoCard() {
                       SizedBox(width: 4),
                       Text(
                         '324',
-                        style: TextStyle(color: Colors.black54,fontSize: 15),
+                        style: TextStyle(color: Colors.black54, fontSize: 15),
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
+
                   // Warning Message
-
                 ],
-
               ),
             ),
           ],

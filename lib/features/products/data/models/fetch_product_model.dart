@@ -13,14 +13,13 @@ class FetchProductResponseModel extends FetchProductResponse {
       status: json['status'],
       error: json['error'],
       message: json['message'],
-      productDetails:
-          json['product_details'] != null
-              ? List<FetchProductDetailsModel>.from(
-                json['product_details'].map(
-                  (x) => FetchProductDetailsModel.fromJson(x),
-                ),
-              )
-              : [],
+      productDetails: json['product_details'] != null
+          ? List<FetchProductDetailsModel>.from(
+        json['product_details'].map(
+              (x) => FetchProductDetailsModel.fromJson(x),
+        ),
+      )
+          : [],
     );
   }
 }
