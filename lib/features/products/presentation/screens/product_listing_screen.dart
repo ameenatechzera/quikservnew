@@ -33,7 +33,6 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
       appBar: widget.showAppBar
           ? CommonAppBar(
               title: "Products",
-
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh, color: AppColors.black),
@@ -56,134 +55,136 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
               ],
             )
           : null,
-      body: Stack(
-        children: [
-          Container(
-            color: const Color(0xFFF2F2F2),
-            child: Column(
-              children: [
-                // -------- TOP FILTER CARDS ----------
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {},
-                          child: _filterCard(categoryName, "Being Displayed"),
-                        ),
-                      ),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {},
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 4.0),
-                            child: _filterCard(groupName, "Being Displayed"),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Container(
+              color: const Color(0xFFF2F2F2),
+              child: Column(
+                children: [
+                  // -------- TOP FILTER CARDS ----------
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {},
+                            child: _filterCard(categoryName, "Being Displayed"),
                           ),
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {},
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4.0),
+                              child: _filterCard(groupName, "Being Displayed"),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-
-                // -------- PRODUCT LIST ----------
-                Expanded(
-                  child: BlocBuilder<ProductCubit, ProductsState>(
-                    builder: (context, state) {
-                      if (state is ProductLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (state is ProductLoadedFromLocal) {
-                        final products = state.products;
-                        if (products.isEmpty) {
-                          return const Center(
-                            child: Text(
-                              "No products to list...",
-                              style: TextStyle(color: Colors.red, fontSize: 15),
+        
+                  // -------- PRODUCT LIST ----------
+                  Expanded(
+                    child: BlocBuilder<ProductCubit, ProductsState>(
+                      builder: (context, state) {
+                        if (state is ProductLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (state is ProductLoadedFromLocal) {
+                          final products = state.products;
+                          if (products.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "No products to list...",
+                                style: TextStyle(color: Colors.red, fontSize: 15),
+                              ),
+                            );
+                          }
+        
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              left: 8,
+                              right: 8,
+                              bottom: 60,
+                            ),
+                            child: ListView.builder(
+                              itemCount: products.length,
+                              itemBuilder: (context, index) {
+                                final item = products[index];
+                                return SizedBox(
+                                  height: 130,
+                                  child: Card(
+                                    elevation: 1,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: _productTile(item),
+                                  ),
+                                );
+                              },
                             ),
                           );
-                        }
-
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                            left: 8,
-                            right: 8,
-                            bottom: 60,
-                          ),
-                          child: ListView.builder(
-                            itemCount: products.length,
-                            itemBuilder: (context, index) {
-                              final item = products[index];
-                              return SizedBox(
-                                height: 130,
-                                child: Card(
-                                  elevation: 1,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: _productTile(item),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      } else if (state is ProductFailure) {
-                        return Center(
-                          child: Text(
-                            "Error: ${state.error}",
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // -------- BOTTOM ADD BUTTON ----------
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: () {},
-                child: SizedBox(
-                  height: 55,
-                  width: 200,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
-                    ),
-                    elevation: 10,
-                    color: AppColors.primary,
-                    child: const Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
+                        } else if (state is ProductFailure) {
+                          return Center(
                             child: Text(
-                              "Add New Product",
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: AppColors.black,
-                                fontWeight: FontWeight.bold,
+                              "Error: ${state.error}",
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        
+            // -------- BOTTOM ADD BUTTON ----------
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InkWell(
+                  onTap: () {},
+                  child: SizedBox(
+                    height: 55,
+                    width: 200,
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50.0),
+                      ),
+                      elevation: 10,
+                      color: AppColors.primary,
+                      child: const Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                "Add New Product",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: AppColors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          Icon(Icons.add, color: AppColors.black),
-                        ],
+                            Icon(Icons.add, color: AppColors.black),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

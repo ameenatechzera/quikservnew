@@ -1,3 +1,4 @@
+
 import 'package:get_it/get_it.dart';
 import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
@@ -7,6 +8,9 @@ import 'package:quikservnew/features/authentication/domain/usecases/login_usecas
 import 'package:quikservnew/features/authentication/domain/usecases/register_server_usecase.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
+
+
+
 import 'package:quikservnew/features/category/data/datasources/categories_remote_data_source.dart';
 import 'package:quikservnew/features/category/data/repositories/categories_repository_impl.dart';
 import 'package:quikservnew/features/category/data/repositories/category_local_repository_impl.dart';
@@ -14,21 +18,33 @@ import 'package:quikservnew/features/category/domain/repositories/category_local
 import 'package:quikservnew/features/category/domain/repositories/category_repository.dart';
 import 'package:quikservnew/features/category/domain/usecases/delete_category_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/edit_category_usecase.dart';
+
 import 'package:quikservnew/features/category/domain/usecases/fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/local_fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/save_category_usecase.dart';
+
+
+
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/groups/data/datasources/group_remote_data_source.dart';
 import 'package:quikservnew/features/groups/data/repositories/group_repository_impl.dart';
 import 'package:quikservnew/features/groups/domain/repositories/group_repository.dart';
 import 'package:quikservnew/features/groups/domain/usecases/add_product_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/delete_productgroupfromserver_usecase.dart';
+
 import 'package:quikservnew/features/groups/domain/usecases/fetch_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/update_productgroups_usecase.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
+import 'package:quikservnew/features/itemwiseReport/data/datasources/itemwiseReport_remote_datasource.dart';
+import 'package:quikservnew/features/itemwiseReport/data/repositories/itemwiseReport_repository_impl.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/repositories/ItemWiseReportRepository.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetchItemwiseReportUseCase.dart';
+import 'package:quikservnew/features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'package:quikservnew/features/masters/data/datasources/userCreationRemoteDataSource.dart';
 import 'package:quikservnew/features/masters/data/repositories/user_creation_repository_impl.dart';
 import 'package:quikservnew/features/masters/domain/repositories/user_creation_repository.dart';
+import 'package:quikservnew/features/masters/domain/usecase/fetch_cashierlist_usecase.dart';
+import 'package:quikservnew/features/masters/domain/usecase/fetch_supplierlist_usecase.dart';
 import 'package:quikservnew/features/masters/domain/usecase/fetch_usertypes_usecase.dart';
 import 'package:quikservnew/features/masters/domain/usecase/save_usertypes_usecase.dart';
 import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cubit.dart';
@@ -91,18 +107,18 @@ class ServiceLocator {
     sl.registerLazySingleton(() => LoginServerUseCase(sl()));
     // Data Source
     sl.registerLazySingleton<AuthRemoteDataSource>(
-      () => AuthRemoteDataSourceImpl(),
+          () => AuthRemoteDataSourceImpl(),
     );
 
     // repository
     sl.registerLazySingleton<AuthRepository>(
-      () => AuthRepositoryImpl(remoteDataSource: sl()),
+          () => AuthRepositoryImpl(remoteDataSource: sl()),
     );
 
     // ------------------- UNITS -------------------
     // Cubit
     sl.registerFactory(
-      () => UnitCubit(
+          () => UnitCubit(
         fetchUnitsUseCase: sl(),
         saveUnitUseCase: sl(),
         deleteUnitUseCase: sl(),
@@ -118,18 +134,18 @@ class ServiceLocator {
 
     // Data Source
     sl.registerLazySingleton<UnitsRemoteDataSource>(
-      () => UnitsRemoteDataSourceImpl(),
+          () => UnitsRemoteDataSourceImpl(),
     );
 
     // Repository
     sl.registerLazySingleton<UnitsRepository>(
-      () => UnitsRepositoryImpl(remoteDataSource: sl()),
+          () => UnitsRepositoryImpl(remoteDataSource: sl()),
     );
 
     // ------------------- VAT -------------------
     // Cubit
     sl.registerFactory(
-      () => VatCubit(
+          () => VatCubit(
         fetchVatUseCase: sl(),
         addVatUseCase: sl(),
         deleteVatUseCase: sl(),
@@ -144,17 +160,17 @@ class ServiceLocator {
 
     // Data Source
     sl.registerLazySingleton<VatRemoteDataSource>(
-      () => VatRemoteDataSourceImpl(),
+          () => VatRemoteDataSourceImpl(),
     );
     // Repository
     sl.registerLazySingleton<VatRepository>(
-      () => VatRepositoryImpl(remoteDataSource: sl()),
+          () => VatRepositoryImpl(remoteDataSource: sl()),
     );
 
     // ------------------- GROUPS -------------------
     // Cubit
     sl.registerFactory(
-      () => GroupsCubit(
+          () => GroupsCubit(
         fetchGroupsUseCase: sl(),
         addProductGroupUseCase: sl(),
         deleteProductGroupUseCase: sl(),
@@ -169,17 +185,17 @@ class ServiceLocator {
 
     // Data Source
     sl.registerLazySingleton<GroupsRemoteDataSource>(
-      () => GroupsRemoteDataSourceImpl(),
+          () => GroupsRemoteDataSourceImpl(),
     );
     // Repository
     sl.registerLazySingleton<GroupsRepository>(
-      () => GroupsRepositoryImpl(remoteDataSource: sl()),
+          () => GroupsRepositoryImpl(remoteDataSource: sl()),
     );
 
     // ------------------- PRODUCTS -------------------
     // Cubit
     sl.registerFactory(
-      () => ProductCubit(
+          () => ProductCubit(
         fetchProductsUseCase: sl(),
         productLocalRepository: sl(),
         getProductsByCategoryUseCase: sl(),
@@ -190,7 +206,7 @@ class ServiceLocator {
 
     // Cubit
     sl.registerFactory(
-      () => SalesReportCubit(
+          () => SalesReportCubit(
         salesReportFromServerUseCase: sl(),
         salesDetailsByMasterIdUseCase: sl(),
         salesReportMasterByDateUseCase: sl(),
@@ -205,11 +221,11 @@ class ServiceLocator {
 
     // Data Source
     sl.registerLazySingleton<SalesReportRemoteDataSource>(
-      () => SalesReportRemoteDataSourceImpl(),
+          () => SalesReportRemoteDataSourceImpl(),
     );
     // Repository
     sl.registerLazySingleton<SalesReportRepository>(
-      () => SalesReportRepositoryImpl(remoteDataSource: sl()),
+          () => SalesReportRepositoryImpl(remoteDataSource: sl()),
     );
 
     // UseCase
@@ -218,20 +234,20 @@ class ServiceLocator {
 
     // Data Source
     sl.registerLazySingleton<ProductsRemoteDataSource>(
-      () => ProductsRemoteDataSourceImpl(),
+          () => ProductsRemoteDataSourceImpl(),
     );
     sl.registerLazySingleton<ProductLocalRepository>(
-      () => ProductLocalRepositoryImpl(sl()), // <-- Inject Floor DAO here
+          () => ProductLocalRepositoryImpl(sl()), // <-- Inject Floor DAO here
     );
     // Repository
     sl.registerLazySingleton<ProductsRepository>(
-      () => ProductsRepositoryImpl(remoteDataSource: sl()),
+          () => ProductsRepositoryImpl(remoteDataSource: sl()),
     );
 
     // ------------------- SETTINGS -------------------
     // Cubit
     sl.registerFactory(
-      () => SettingsCubit(
+          () => SettingsCubit(
         fetchSettingsUseCase: sl(),
         fetchCurrentSalesTokenUseCase: sl(),
         updateSalesTokenUseCase: sl(),
@@ -244,11 +260,11 @@ class ServiceLocator {
 
     // Data Source
     sl.registerLazySingleton<SettingsRemoteDataSource>(
-      () => SettingsRemoteDataSourceImpl(),
+          () => SettingsRemoteDataSourceImpl(),
     );
     // Repository
     sl.registerLazySingleton<SettingsRepository>(
-      () => SettingsRepositoryImpl(remoteDataSource: sl()),
+          () => SettingsRepositoryImpl(remoteDataSource: sl()),
     );
 
     // ------------------- CATEGORIES -------------------
@@ -257,14 +273,12 @@ class ServiceLocator {
 
     // Cubit
     sl.registerFactory(
-      () => CategoriesCubit(
+          () => CategoriesCubit(
         fetchCategoriesUseCase: sl(),
         categoryLocalRepository: sl(),
 
         getLocalCategoriesUseCase: sl(),
-        saveCategoryUseCase: sl(),
-        deleteCategoryUseCase: sl(),
-        editCategoryUseCase: sl(),
+        saveCategoryUseCase: sl(), deleteCategoryUseCase: sl(), editCategoryUseCase: sl(),
       ),
     );
     // UseCase
@@ -273,21 +287,23 @@ class ServiceLocator {
     sl.registerLazySingleton(() => DeleteCategoryUseCase(sl()));
     sl.registerLazySingleton(() => EditCategoryUseCase(sl()));
 
+
+
     // Data Source
     sl.registerLazySingleton<CategoriesRemoteDataSource>(
-      () => CategoriesRemoteDataSourceImpl(),
+          () => CategoriesRemoteDataSourceImpl(),
     );
     // Repository
     sl.registerLazySingleton<CategoriesRepository>(
-      () => CategoriesRepositoryImpl(remoteDataSource: sl()),
+          () => CategoriesRepositoryImpl(remoteDataSource: sl()),
     );
     sl.registerLazySingleton<CategoryLocalRepository>(
-      () => CategoryLocalRepositoryImpl(sl()),
+          () => CategoryLocalRepositoryImpl(sl()),
     );
     sl.registerLazySingleton(() => GetLocalCategoriesUseCase(sl()));
     // ------------------- SALES -------------------
     sl.registerFactory(
-      () => SaleCubit(
+          () => SaleCubit(
         saveSaleUseCase: sl(),
         salesRepository: sl(),
         salesDetailsByMasterIdUseCase: sl(),
@@ -295,21 +311,26 @@ class ServiceLocator {
     );
     sl.registerLazySingleton(() => SaveSaleUseCase(sl()));
     sl.registerLazySingleton<SalesRemoteDataSource>(
-      () => SalesRemoteDataSourceImpl(),
+          () => SalesRemoteDataSourceImpl(),
     );
     sl.registerLazySingleton<SalesRepository>(
-      () => SalesRepositoryImpl(remoteDataSource: sl()),
+          () => SalesRepositoryImpl(remoteDataSource: sl()),
     );
 
 
     // ------------------- CreateUSer Cubit -------------------
     sl.registerFactory(
-          () => UserCreationCubit(fetchUserTypesUseCase: sl(), saveUserTypesUseCase: sl()
+          () => UserCreationCubit(fetchUserTypesUseCase: sl(), saveUserTypesUseCase: sl(), fetchSupplierListUseCase: sl(),
+          fetchCashierListUseCase: sl()
 
       ),
     );
     sl.registerLazySingleton(() => FetchUserTypesUseCase(sl()));
     sl.registerLazySingleton(() => SaveUserUseCase(sl()));
+    sl.registerLazySingleton(() => FetchSupplierListUseCase(sl()));
+    sl.registerLazySingleton(() => FetchCashierListUseCase(sl()));
+
+
 
 
     sl.registerLazySingleton<UserCreationRemoteDataSource>(
@@ -317,6 +338,21 @@ class ServiceLocator {
     );
     sl.registerLazySingleton<UserCreationRepository>(
           () => UserCreationRepositoryImpl(remoteDataSource: sl()),
+    );
+
+    // ------------------- Item Report Cubit -------------------
+    sl.registerFactory(
+          () => ItemWiseReportCubit(fetchItemWiseReportUseCase: sl()
+
+      ),
+    );
+    sl.registerLazySingleton(() => FetchItemWiseReportUseCase(sl()));
+
+    sl.registerLazySingleton<ItemWiseReportRemoteDataSource>(
+          () => ItemWiseReportRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<ItemWiseReportRepository>(
+          () => ItemWiseReportRepositoryImpl(remoteDataSource: sl()),
     );
 
   }

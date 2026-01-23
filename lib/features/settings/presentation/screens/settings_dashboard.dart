@@ -93,7 +93,7 @@ class SettingsScreen extends StatelessWidget {
                           context: context,
                           icon: Icons.group_add_outlined,
                           title: "User Creation",
-                          page: const UsersListScreen(),
+                          page:  UsersListScreen(),
                         ),
                         buildTile(
                           context: context,
@@ -140,12 +140,14 @@ class SettingsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  buildTile(
+                  Card(
+                    child: buildTile(
                       context: context,
                       icon: Icons.contact_mail,
                       title: "Contact Us",
                       page: const AboutScreen(),
                     ),
+                  ),
                 ],
 
               ),

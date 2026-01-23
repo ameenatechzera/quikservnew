@@ -10,8 +10,8 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 
 abstract class AuthRemoteDataSource {
   Future<RegisterResponseResult> registerServer(
-    RegisterServerRequest registerServerParams,
-  );
+      RegisterServerRequest registerServerParams,
+      );
   Future<LoginResponseResult> loginServer(LoginRequest loginRequest);
 }
 
@@ -20,8 +20,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<RegisterResponseResult> registerServer(
-    RegisterServerRequest registerServerParams,
-  ) async {
+      RegisterServerRequest registerServerParams,
+      ) async {
     // Load base URL safely
     final baseUrl = await SharedPreferenceHelper().getBaseUrl();
 
@@ -57,10 +57,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception("Base URL not set");
       }
       final dbName = await SharedPreferenceHelper().getDatabaseName();
-
       final url = ApiConstants.getLoginPath(baseUrl);
       print('🔹 Login URL: $url');
       print('🔹 Request Body: ${params.toJson()}');
+      print('🔹 dbName: $dbName');
 
       final response = await dio.post(
         url,
@@ -69,8 +69,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           contentType: "application/json",
           headers: {
             "Accept": "application/json",
-            "X-Database-Name": dbName,
-            // "eyJpdiI6IkVNVmZidnI0dWlDaVk1bmJJZytxK3c9PSIsInZhbHVlIjoiMTBobEx1WlhxSjR2ZFhETTllOHFkb1pIY0NOaStjL3VsMkZlYXVaQVFKZz0iLCJtYWMiOiI1N2NlNTlkOTgwZGZjZDY3M2E1ZjBjZWU3ZDdlNWRkNzJlYTg4ZmJkMWY4NzJlZGU5ZjNjNWI5MzQ2NTg5ZTA4IiwidGFnIjoiIn0=",
+            "X-Database-Name":
+            dbName,
           },
         ),
       );

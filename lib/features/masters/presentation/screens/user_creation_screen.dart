@@ -10,19 +10,39 @@ import 'package:quikservnew/features/masters/domain/parameters/save_user_paramet
 import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cubit.dart';
 import 'package:quikservnew/features/masters/presentation/widgets/user_widgets.dart';
 
-class UserCreationScreen extends StatelessWidget {
+class UserCreationScreen extends StatefulWidget {
    UserCreationScreen({super.key});
+
+  @override
+  State<UserCreationScreen> createState() => _UserCreationScreenState();
+}
+
+class _UserCreationScreenState extends State<UserCreationScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    context.read<UserCreationCubit>().fetchUserTypesFromUserCreation();
+    super.initState();
+  }
   final TextEditingController userTypeController = TextEditingController();
+
    final TextEditingController nameController = TextEditingController();
+
    final TextEditingController usernameController = TextEditingController();
+
    final TextEditingController passwordController = TextEditingController();
+
    final TextEditingController confirmPasswordController = TextEditingController();
+
+   List<UserTypes> userTypes =[];
+  String? selectedUserType;
+
   @override
   Widget build(BuildContext context) {
-    String? selectedUserType;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UserCreationCubit>().fetchUserTypesFromUserCreation();
-    });
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // context.read<UserCreationCubit>().fetchUserTypesFromUserCreation();
+    // });
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFFEFF2F6),
@@ -52,20 +72,21 @@ class UserCreationScreen extends StatelessWidget {
                     }
                     if(state is SaveUserCompleted){
                       showAppSnackBar(context, 'User Created Successfully..!');
+                      context.read<UserCreationCubit>().fetchUserTypes();
                       Navigator.pop(context);
                     }
+    if (state is FetchUserTypesFromCreationLoaded) {
+      userTypes.clear();
+      userTypes = state.userTypes;
+    }
+
                   },
                   builder: (context, state) {
-                    List<UserTypes> userTypes =[];
-                    if (state is FetchUserTypesFromCreationLoaded) {
-                      userTypes.clear();
-                      userTypes=state.userTypes;
-    }
+                    print('stateChanged');
+
                     final bool isLoading =
                         state is FetchUserTypesInitial ||
                             state is FetchCashierListInitial;
-
-                    //if (state is FetchUserTypesFromCreationLoaded) {
                       return Stack(
                         children: [
                           userDropdownField(
@@ -73,19 +94,49 @@ class UserCreationScreen extends StatelessWidget {
                             selectedUserType,
                                 (value) => userTypeController.text = value!,
                           ),
-                          if (isLoading)
-                            const Positioned.fill(
-                              child: ColoredBox(
-                                color: Colors.black26,
-                                child: Center(
-                                  child: CircularProgressIndicator(strokeWidth: 3),
-                                ),
-                              ),
-                            ),
 
+                                if (isLoading)
+                                  const Positioned.fill(
+                                    child: ColoredBox(
+                                      color: Colors.black26,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 3),
+                                      ),
+                                    ),
+                                  ),
                         ],
                       );
+
+                    // else {
+                    //   final bool isLoading =
+                    //       state is FetchUserTypesInitial ||
+                    //           state is FetchCashierListInitial;
+                    //
+                    //   //if (state is FetchUserTypesFromCreationLoaded) {
+                    //   return Stack(
+                    //     children: [
+                    //       userDropdownField(
+                    //         userTypes,
+                    //         selectedUserType,
+                    //             (value) => userTypeController.text = value!,
+                    //       ),
+                    //       if (isLoading)
+                    //         const Positioned.fill(
+                    //           child: ColoredBox(
+                    //             color: Colors.black26,
+                    //             child: Center(
+                    //               child: CircularProgressIndicator(
+                    //                   strokeWidth: 3),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //
+                    //     ],
+                    //   );
+                    // }
                     //}
+
 
                     //return const SizedBox.shrink();
                   },
@@ -116,12 +167,20 @@ class UserCreationScreen extends StatelessWidget {
                       print('nameController ${nameController.text.toString()}');
                       print('passwordController ${passwordController.text.toString()}');
                       bool saveStatus = saveValidation(context);
-                      int userTypeId = int.parse(userTypeController.text.toString());
-                      context.read<UserCreationCubit>().saveUser(SaveUserParameters(username: nameController.text.toString(),
-                          password: passwordController.text.toString(),
-                          user_type: userTypeId, isactive: 1, name: nameController.text.toString(),
+                      if(saveStatus) {
+                        int userTypeId = int.parse(userTypeController.text
+                            .toString());
+                        context.read<UserCreationCubit>().saveUser(
+                            SaveUserParameters(
+                                username: nameController.text.toString(),
+                                password: passwordController.text.toString(),
+                                user_type: userTypeId,
+                                isactive: 1,
+                                name: nameController.text.toString(),
 
-                          branchIds: [], CreatedUser: ''));
+                                branchIds: [],
+                                CreatedUser: ''));
+                      }
                     },
                     child: const Text(
                       "Save",

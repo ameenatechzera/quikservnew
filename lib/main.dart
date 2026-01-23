@@ -17,6 +17,7 @@ import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
 import 'package:quikservnew/services/service_locator.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
+import 'features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'features/masters/presentation/bloc/user_creation_cubit.dart';
 
 late final AppDatabase appDb;
@@ -63,6 +64,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<SaleCubit>(create: (_) => sl<SaleCubit>()),
         BlocProvider<SalesReportCubit>(create: (_) => sl<SalesReportCubit>()),
         BlocProvider<UserCreationCubit>(create: (_) => sl<UserCreationCubit>()),
+        BlocProvider<ItemWiseReportCubit>(create: (_) => sl<ItemWiseReportCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

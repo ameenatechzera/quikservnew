@@ -114,15 +114,7 @@ class ApiConstants {
   }
 
   static String deleteSalesByMasterIdPath(String baseUrl, String masterId) {
-    return '$baseUrl/salesmaster/delete-salesmaster/$masterId';
-  }
-
-  static String deleteCategoryPath(String baseUrl, int categoryId) {
-    return '$baseUrl/category/delete-category/$categoryId';
-  }
-
-  static String editCategoryPath(String baseUrl, int categoryId) {
-    return "$baseUrl/category/update/$categoryId";
+    return '$baseUrl/salesmaster/delete-salesmaster/' + masterId;
   }
 
   ///for userTypes fetching
@@ -133,5 +125,30 @@ class ApiConstants {
   ///for user save
   static String saveUserPath(String baseUrl) {
     return '$baseUrl/user/save-user';
+  }
+
+  ///for cashier fetch
+  static String fetchCashierListPath(String baseUrl) {
+    return '$baseUrl/user/fetch-cashiers';
+  }
+
+  ///for suppliers fetch
+  static String fetchSupplierListPath(String baseUrl) {
+    return '$baseUrl/user/fetch-suppliers';
+  }
+
+  ///for delete category
+  static String deleteCategoryPath(String baseUrl, int categoryId) {
+    return '$baseUrl/category/delete-category/$categoryId';
+  }
+
+  ///for edit category
+  static String editCategoryPath(String baseUrl, int categoryId) {
+    return "$baseUrl/category/update/$categoryId";
+  }
+
+  ///for itemwise report
+  static String getFetchItemWiseReportPath(String baseUrl) {
+    return '$baseUrl/salesmaster/item-wise-sales-summary';
   }
 }
