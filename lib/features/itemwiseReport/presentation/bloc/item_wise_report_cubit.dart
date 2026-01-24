@@ -12,6 +12,8 @@ class ItemWiseReportCubit extends Cubit<ItemWiseReportState> {
 
   // --------------------- API Fetch ---------------------
   Future<void> fetchItemWiseReport(ItemWiseReportRequest request) async {
+
+    print('ItemWiseReportRequestItem ${request.toJson()}');
     emit(ItemWiseReportInitial());
 
 

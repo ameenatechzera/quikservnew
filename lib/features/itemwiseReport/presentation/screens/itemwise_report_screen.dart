@@ -27,7 +27,6 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
   final DateFormat formatter = DateFormat('dd MMM yyyy');
 
 
-
   @override
   void initState() {
     super.initState();
