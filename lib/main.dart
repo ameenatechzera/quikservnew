@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/splash_screen.dart';
@@ -67,6 +68,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<UserCreationCubit>(create: (_) => sl<UserCreationCubit>()),
         BlocProvider<ItemWiseReportCubit>(create: (_) => sl<ItemWiseReportCubit>()),
         BlocProvider<DaycloseReportCubit>(create: (_) => sl<DaycloseReportCubit>()),
+        BlocProvider<AccountGroupCubit>(create: (_) => sl<AccountGroupCubit>()),
 
       ],
       child: MaterialApp(

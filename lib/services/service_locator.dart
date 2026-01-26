@@ -1,6 +1,12 @@
 
 import 'package:get_it/get_it.dart';
 import 'package:quikservnew/core/database/app_database.dart';
+import 'package:quikservnew/features/accountGroups/data/datasources/accountGroup_remote_datasources.dart';
+import 'package:quikservnew/features/accountGroups/data/repositories/account_group_repository_impl.dart';
+import 'package:quikservnew/features/accountGroups/domain/repositories/account_group_repository.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/fetchAccountGroupsUseCase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/saveAccountGroupUseCase.dart';
+import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
@@ -378,7 +384,20 @@ class ServiceLocator {
     );
 
 
+    // ------------------- Account group Cubit -------------------
+    sl.registerFactory(
+          () => AccountGroupCubit(fetchAccountGroupsUseCase: sl(), saveAccountGroupUseCase: sl()),
+    );
+    sl.registerLazySingleton(() => FetchAccountGroupsUseCase(sl()));
+    sl.registerLazySingleton(() => SaveAccountGroupUseCase(sl()));
 
+
+    sl.registerLazySingleton<AccountGroupsRemoteDataSource>(
+          () => AccountGroupsRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<AccountGroupRepository>(
+          () => AccountGroupRepositoryImpl(remoteDataSource: sl()),
+    );
 
   }
 }

@@ -156,4 +156,15 @@ class ApiConstants {
   static String getDayCloseReportPath(String baseUrl) {
     return '$baseUrl/salesmaster/summary-report-payment-mode';
   }
+
+  ///for Account Groups
+  static String getAccountGroupsPath(String baseUrl) {
+    return '$baseUrl/accountgroup/accountgroups';
+  }
+
+
+  ///for Save Account Groups
+  static String getSaveAccountGroupsPath(String baseUrl) {
+    return '$baseUrl/accountgroup/save-accountgroup';
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/accountGroups/presentation/screens/account_group_screen.dart';
 import 'package:quikservnew/features/masters/presentation/screens/account_group_listing_screen.dart';
 import 'package:quikservnew/features/masters/presentation/screens/account_ledger_listing_screen.dart';
 import 'package:quikservnew/features/category/presentation/screens/category_listing_screen.dart';
@@ -99,7 +100,7 @@ class SettingsScreen extends StatelessWidget {
                           context: context,
                           icon: Icons.account_box,
                           title: "Account Group",
-                          page: const AccountGroupsListingScreen(),
+                          page:  AccountGroupListingScreen(),
                         ),
                         buildTile(
                           context: context,
