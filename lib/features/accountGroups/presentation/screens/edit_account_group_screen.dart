@@ -6,6 +6,7 @@ import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/accountGroups/domain/entities/accountGroupResponse.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/save_accountgroup_request.dart';
+import 'package:quikservnew/features/accountGroups/domain/parameters/update_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
@@ -46,8 +47,11 @@ class _AccGroupEntryScreenState extends State<AccountGroupEntryScreen> {
     if (widget.groupId != null) {
       _groupIdController.text = widget.groupId!;
       _groupNameController.text = widget.groupName ?? '';
-      //_groupUnderController.text = widget.groupUnder ?? '';
-      //selectedGroupId = widget.groupUnder;
+      print('GroupId ${widget.groupId!}');
+      print('groupName ${widget.groupName!}');
+      _groupUnderController.text = widget.groupUnder ?? '';
+      selectedGroupId = widget.groupUnder;
+      print('groupUnder ${widget.groupUnder!}');
       _buttontextController.text =
       'Update'; // Set selectedGroupId from widget.groupUnder
       if (widget.groupUnder != null && widget.groupUnder!.isNotEmpty) {
@@ -159,7 +163,7 @@ class _AccGroupEntryScreenState extends State<AccountGroupEntryScreen> {
               /// 🔹 SAVE BUTTON
               BlocConsumer<AccountGroupCubit, AccountGroupState>(
                 listener: (context, state) {
-                  if (state is SaveAccountGroupCompleted) {
+                  if (state is SaveAccountGroupCompleted || state is UpdateAccountGroupCompleted) {
                     Navigator.pop(context);
                     context.read<AccountGroupCubit>().fetchAccountGroups(
                     );
@@ -188,13 +192,23 @@ class _AccGroupEntryScreenState extends State<AccountGroupEntryScreen> {
                             Fluttertoast.showToast(msg: "Please select account group");
                             return;
                           }
+                          if(st_title =='Edit Group'){
+                            context.read<AccountGroupCubit>().updateAccountGroups(
+                                UpdateAccountGroupRequest(AccountGroupCode: '', accountGroupName: _groupNameController.text.toString(),
+                                    groupUnder: selectedGroupId!, narration: '', LedgerNextNo: '', branchId: '', ModifiedUser: st_username.toString().trim(), acc_groupId: _groupIdController.text.toString()
+                                ),
+                            );
+                                    }
+                          else{
+                            context.read<AccountGroupCubit>().saveAccountGroups(
+                              SaveAccountGroupRequest(AccountGroupCode: '', accountGroupName: _groupNameController.text.toString(),
+                                  groupUnder: selectedGroupId!, narration: '', LedgerNextNo: '', branchId: '', CreatedUser: st_username.toString().trim()
 
-                          context.read<AccountGroupCubit>().saveAccountGroups(
-                            SaveAccountGroupRequest(AccountGroupCode: '', accountGroupName: _groupNameController.text.toString(),
-                                groupUnder: selectedGroupId!, narration: '', LedgerNextNo: '', branchId: '', CreatedUser: st_username.toString().trim()
+                              ),
+                            );
+                          }
 
-                            ),
-                          );
+
 
 
                         },

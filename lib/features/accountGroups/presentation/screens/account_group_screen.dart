@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/navigation/app_navigator.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/accountGroups/domain/entities/accountGroupResponse.dart';
+import 'package:quikservnew/features/accountGroups/domain/parameters/delete_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
 
 import 'edit_account_group_screen.dart';
@@ -43,17 +45,19 @@ class AccountGroupListingScreen extends StatelessWidget {
             list1.clear();
             list1.addAll(state.account_groups);
           } // 👇 Add this so list reloads after Add/Update/Delete
-          // if (state is AccountGroupsLoaded
-          //     // state is UpdateAccountGroupFromServerSuccess ||
-          //     // state is AccountGroupDeleteFromServerSuccess
-          // ) {
-          //   context.read<AccountGroupCubit>().fetchAllAccountGroupsFromServer(
-          //     CommonParameter(db_name: AppData.dbName!),
-          //   );
-          // }
+          if (state is DeleteAccountGroupCompleted
+              // state is UpdateAccountGroupFromServerSuccess ||
+              // state is AccountGroupDeleteFromServerSuccess
+          )
+          {
+            context.read<AccountGroupCubit>().fetchAccountGroups();
+          }
+          if (state is DeleteAccountGroupsError){
+            showAppSnackBar(context, "Deletion failed..!");
+          }
         },
         builder: (context, state) {
-          if (state is AccountGroupInitial) {
+          if (state is AccountGroupInitial || state is DeleteAccountGroupInitial) {
             return Center(
               child: Container(
                 width: double.infinity,
@@ -123,7 +127,7 @@ class AccountGroupListingScreen extends StatelessWidget {
                                           list1[index].groupId.toString(),
                                           groupName:
                                           list1[index].accountGroupName.toString(),
-                                          groupUnder: list1[index].groupUnderName,
+                                          groupUnder: list1[index].groupUnder.toString(),
                                         );
                                       }));
                                 },
@@ -137,14 +141,12 @@ class AccountGroupListingScreen extends StatelessWidget {
                                       context);
                                   print('confirmed $confirmed');
                                   if (confirmed == true) {
-                                    // context
-                                    //     .read<AccountGroupCubit>()
-                                    //     .deleteAccountGroupFromServer(
-                                    //     AccountGroupDeleteRequest(
-                                    //         dbName: AppData.dbName!,
-                                    //         groupId: int.parse(
-                                    //             _groupIdController
-                                    //                 .text)));
+                                    context
+                                        .read<AccountGroupCubit>()
+                                        .deleteAccountGroups(
+                                        DeleteAccountGroupRequest(
+                                           accGroupId:
+                                            _groupIdController.text.toString()));
                                   }
                                 },
                                 icon: Icon(

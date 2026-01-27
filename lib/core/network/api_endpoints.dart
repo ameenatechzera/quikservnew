@@ -167,4 +167,14 @@ class ApiConstants {
   static String getSaveAccountGroupsPath(String baseUrl) {
     return '$baseUrl/accountgroup/save-accountgroup';
   }
+
+  //for Delete Account Groups
+  static String getDeleteAccountGroupsPath(String baseUrl,String st_accountGroupId) {
+    return '$baseUrl/accountgroup/delete-accountgroup/'+st_accountGroupId;
+  }
+
+  ///for Update Account Groups
+  static String getUpdateAccountGroupsPath(String baseUrl , String st_accountGroupId) {
+    return '$baseUrl/accountgroup/update-accountgroup/'+st_accountGroupId;
+  }
 }
