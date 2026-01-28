@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quikservnew/core/navigation/app_navigator.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
+import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/products/domain/entities/fetch_product_entity.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
 import 'package:quikservnew/features/products/presentation/screens/product_entry_screen.dart';
+import 'package:quikservnew/features/products/presentation/widgets/category_bottomsheet.dart';
+import 'package:quikservnew/features/products/presentation/widgets/group_bottomsheet.dart';
 
 class ProductListingScreen extends StatefulWidget {
   final bool showAppBar;
@@ -18,12 +21,29 @@ class ProductListingScreen extends StatefulWidget {
 class _ProductListingScreenState extends State<ProductListingScreen> {
   String categoryName = "All Categories";
   String groupName = "All Groups";
+  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _groupController = TextEditingController();
 
+  int? selectedCategoryId;
+  int? selectedGroupId;
   @override
   void initState() {
     super.initState();
+    _categoryController.text = categoryName; // "All Categories"
+    _groupController.text = groupName;
     // 🔹 Load products from local DB
-    context.read<ProductCubit>().loadProductsFromLocal();
+
+    context
+        .read<ProductCubit>()
+        .fetchProducts(); // ✅ ensure categories are loaded for bottomsheet
+    context.read<CategoriesCubit>().loadCategoriesFromLocal();
+  }
+
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    _groupController.dispose();
+    super.dispose();
   }
 
   @override
@@ -38,19 +58,25 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                 IconButton(
                   icon: const Icon(Icons.refresh, color: AppColors.black),
                   onPressed: () {
-                    context.read<ProductCubit>().loadProductsFromLocal();
+                    context.read<ProductCubit>().fetchProducts();
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.add, color: AppColors.black),
-                  onPressed: () {
-                    AppNavigator.pushSlide(
-                      context: context,
-                      page: const ProductEntryUiOnlyScreen(
-                        pageFrom: '',
-                        productCode: '',
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductEntryUiOnlyScreen(
+                          pageFrom: "list",
+                          product: null,
+                        ),
                       ),
                     );
+
+                    if (result == true) {
+                      context.read<ProductCubit>().fetchProducts();
+                    }
                   },
                 ),
               ],
@@ -69,13 +95,56 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () async {
+                            await showCategoryBottomSheet(
+                              context: context,
+                              categoryController: _categoryController,
+                              onSelected: (id, name) {
+                                setState(() {
+                                  selectedCategoryId = id;
+                                  categoryName = name;
+                                });
+                                // ✅ if All Categories selected (id == 0), load all
+                                if (id == 0) {
+                                  context.read<ProductCubit>().fetchProducts();
+                                } else {
+                                  context
+                                      .read<ProductCubit>()
+                                      .loadProductsByCategory(id);
+                                }
+                              },
+                              includeAllCategory: true,
+                            );
+                          },
                           child: _filterCard(categoryName, "Being Displayed"),
                         ),
                       ),
                       Expanded(
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () async {
+                            await showGroupBottomSheet(
+                              context: context,
+                              groupController: _groupController,
+                              includeAllGroup: true,
+                              onSelected: (id, name) {
+                                setState(() {
+                                  selectedGroupId = id;
+                                  groupName = name;
+                                });
+
+                                // ✅ All Groups
+                                if (id == 0) {
+                                  context
+                                      .read<ProductCubit>()
+                                      .loadProductsFromLocal();
+                                } else {
+                                  context
+                                      .read<ProductCubit>()
+                                      .loadProductsByGroup(id);
+                                }
+                              },
+                            );
+                          },
                           child: Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: _filterCard(groupName, "Being Displayed"),
@@ -88,13 +157,36 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
 
                 // -------- PRODUCT LIST ----------
                 Expanded(
-                  child: BlocBuilder<ProductCubit, ProductsState>(
+                  child: BlocConsumer<ProductCubit, ProductsState>(
+                    listener: (context, state) {
+                      if (state is SaveProductSuccess) {
+                        // ✅ reload local DB after save
+                        context.read<ProductCubit>().fetchProducts();
+                      }
+                      if (state is ProductDeleted) {
+                        showAnimatedToast(
+                          context,
+                          message: "Product deleted successfully",
+                          isSuccess: true,
+                        );
+                      }
+
+                      if (state is ProductDeleteError) {
+                        showAnimatedToast(
+                          context,
+                          message: state.error,
+                          isSuccess: false,
+                        );
+                      }
+                    },
                     builder: (context, state) {
-                      if (state is ProductLoading) {
+                      if (state is ProductLoading ||
+                          state is ProductsByCategoryLoading ||
+                          state is ProductsByGroupLoading) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (state is ProductLoadedFromLocal) {
+                      } else if (state is ProductSuccess) {
                         final products = state.products;
-                        if (products.isEmpty) {
+                        if (products.productDetails!.isEmpty) {
                           return const Center(
                             child: Text(
                               "No products to list...",
@@ -110,9 +202,9 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                             bottom: 60,
                           ),
                           child: ListView.builder(
-                            itemCount: products.length,
+                            itemCount: products.productDetails!.length,
                             itemBuilder: (context, index) {
-                              final item = products[index];
+                              final item = products.productDetails![index];
                               return SizedBox(
                                 height: 130,
                                 child: Card(
@@ -124,6 +216,77 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                 ),
                               );
                             },
+                          ),
+                        );
+                      } //  category products
+                      if (state is ProductsByCategoryLoaded) {
+                        final list = state.products;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            right: 8,
+                            bottom: 60,
+                          ),
+                          child: ListView.builder(
+                            itemCount: list.length,
+                            itemBuilder: (context, index) {
+                              final item = list[index];
+                              return SizedBox(
+                                height: 130,
+                                child: Card(
+                                  elevation: 1,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: _productTile(item),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }
+
+                      //  Category empty
+                      if (state is ProductsByCategoryEmpty) {
+                        return const Center(
+                          child: Text(
+                            "No products in this category",
+                            style: TextStyle(color: Colors.red, fontSize: 15),
+                          ),
+                        );
+                      }
+                      // GROUP PRODUCTS
+                      if (state is ProductsByGroupLoaded) {
+                        final list = state.products;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            right: 8,
+                            bottom: 60,
+                          ),
+                          child: ListView.builder(
+                            itemCount: list.length,
+                            itemBuilder: (context, index) {
+                              final item = list[index];
+                              return SizedBox(
+                                height: 130,
+                                child: Card(
+                                  elevation: 1,
+                                  child: _productTile(item),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }
+
+                      if (state is ProductsByGroupEmpty) {
+                        return const Center(
+                          child: Text(
+                            "No products in this group",
+                            style: TextStyle(color: Colors.red, fontSize: 15),
                           ),
                         );
                       } else if (state is ProductFailure) {
@@ -149,7 +312,22 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
-                onTap: () {},
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProductEntryUiOnlyScreen(
+                        pageFrom: "list",
+                        //productCode: "",
+                        product: null,
+                      ),
+                    ),
+                  );
+
+                  if (result == true) {
+                    context.read<ProductCubit>().fetchProducts();
+                  }
+                },
                 child: SizedBox(
                   height: 55,
                   width: 200,
@@ -270,7 +448,28 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                   ),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert, size: 20),
-                    onSelected: (value) {},
+                    onSelected: (value) {
+                      if (value == "edit") {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProductEntryUiOnlyScreen(
+                              pageFrom: '',
+                              product: item,
+                              // 👈 pass selected product
+                            ),
+                          ),
+                        );
+                      }
+                      if (value == "delete") {
+                        _showDeleteConfirmDialog(
+                          context: context,
+                          productId: int.parse(
+                            item.productCode.toString(),
+                          ), // ✅ ensure not null
+                        );
+                      }
+                    },
                     itemBuilder: (context) => [
                       const PopupMenuItem(
                         value: "edit",
@@ -365,6 +564,33 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
         ),
       ],
+    );
+  }
+
+  void _showDeleteConfirmDialog({
+    required BuildContext context,
+    required int productId,
+  }) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Delete Product"),
+        content: const Text("Are you sure you want to delete this product?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<ProductCubit>().deleteProduct(productId);
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 }

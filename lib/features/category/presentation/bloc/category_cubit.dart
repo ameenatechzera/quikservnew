@@ -58,7 +58,7 @@ class CategoriesCubit extends Cubit<CategoryState> {
   // 🚀 Load categories from LOCAL DB (offline)
   // --------------------- LOCAL Fetch ---------------------
   Future<void> loadCategoriesFromLocal() async {
-    emit(CategoryLoading());
+    emit(CategoryLoadingFromLocal());
 
     try {
       final localCats = await _getLocalCategoriesUseCase();

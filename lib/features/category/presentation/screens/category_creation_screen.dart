@@ -4,6 +4,7 @@ import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/category/domain/entities/save_category_entity.dart';
+import 'package:quikservnew/features/category/domain/parameters/edit_category_parameter.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 
 class CategoryCreationScreen extends StatelessWidget {
@@ -16,13 +17,13 @@ class CategoryCreationScreen extends StatelessWidget {
   });
 
   final TextEditingController categoryController = TextEditingController();
-
+  bool get isEdit => categoryId != null;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      appBar: const CommonAppBar(title: "Add Category"),
+      appBar: CommonAppBar(title: isEdit ? "Edit Category" : "Add Category"),
 
       body: BlocConsumer<CategoriesCubit, CategoryState>(
         listener: (context, state) {
@@ -34,14 +35,25 @@ class CategoryCreationScreen extends StatelessWidget {
               isSuccess: true,
             );
           }
-
+          if (state is CategoryEditSuccess) {
+            showAnimatedToast(
+              context,
+              message: "Category updated successfully",
+              isSuccess: true,
+            );
+            Navigator.pop(context, true);
+          }
           // ❌ ERROR
           if (state is CategoryAddError) {
             showAnimatedToast(context, message: state.error, isSuccess: false);
           }
+          if (state is CategoryEditError) {
+            showAnimatedToast(context, message: state.error, isSuccess: false);
+          }
         },
         builder: (context, state) {
-          final bool isLoading = state is CategoryAddLoading;
+          final bool isLoading =
+              state is CategoryAddLoading || state is CategoryEditLoading;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -138,19 +150,30 @@ class CategoryCreationScreen extends StatelessWidget {
                               );
                               return;
                             }
-
-                            context.read<CategoriesCubit>().saveCategory(
-                              SaveCategoryRequestModel(
-                                categoryName: categoryName,
-                                categoryImage: "",
-                                branchId: 1,
-                                createdUser: 1,
-                              ),
-                            );
+                            if (isEdit) {
+                              context.read<CategoriesCubit>().editCategory(
+                                categoryId!,
+                                EditCategoryRequestModel(
+                                  categoryName: categoryName,
+                                  categoryImage: '',
+                                  branchId: 1,
+                                  modifiedUser: 1,
+                                ),
+                              );
+                            } else {
+                              context.read<CategoriesCubit>().saveCategory(
+                                SaveCategoryRequestModel(
+                                  categoryName: categoryName,
+                                  categoryImage: "",
+                                  branchId: 1,
+                                  createdUser: 1,
+                                ),
+                              );
+                            }
                           },
                     icon: const Icon(Icons.save),
-                    label: const Text(
-                      "Add",
+                    label: Text(
+                      isEdit ? "Update" : "Add",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,

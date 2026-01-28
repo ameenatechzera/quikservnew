@@ -328,6 +328,52 @@ class _$ProductDao extends ProductDao {
   }
 
   @override
+  Future<List<FetchProductDetails>> getProductsByGroup(int groupId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM tbl_products WHERE groupId = ?1',
+        mapper: (Map<String, Object?> row) => FetchProductDetails(
+            productCode: row['productCode'] as String?,
+            productName: row['productName'] as String?,
+            productNameFL: row['productNameFL'] as String?,
+            baseUnitId: row['baseUnitId'] as int?,
+            groupId: row['groupId'] as int?,
+            group_id: row['group_id'] as int,
+            groupName: row['groupName'] as String,
+            categoryId: row['categoryId'] as int?,
+            vatId: row['vatId'] as int?,
+            purchaseRate: row['purchaseRate'] as String?,
+            productImage: row['productImage'] as String?,
+            isActive: row['isActive'] as int?,
+            branchId: row['branchId'] as int?,
+            descriptionStatus: row['descriptionStatus'] as int?,
+            createdDate: row['createdDate'] as String?,
+            createdUser: row['createdUser'] as String?,
+            modifiedDate: row['modifiedDate'] as String?,
+            modifiedUser: row['modifiedUser'] as String?,
+            barcode: row['barcode'] as String?,
+            mrp: row['mrp'] as String?,
+            salesPrice: row['salesPrice'] as String?,
+            conversionRate: row['conversionRate'] as String?,
+            unitId: row['unitId'] as int?,
+            unitName: row['unitName'] as String?,
+            categoryId2: row['categoryId2'] as int?,
+            categoryName: row['categoryName'] as String?,
+            vatName: row['vatName'] as String?,
+            vatPercentage: row['vatPercentage'] as int?,
+            productImageByte: row['productImageByte'] as String?,
+            qty: row['qty'] as int?,
+            cartStatus: row['cartStatus'] == null
+                ? null
+                : (row['cartStatus'] as int) != 0,
+            cartQty: row['cartQty'] as int?,
+            vegStatus: row['vegStatus'] == null
+                ? null
+                : (row['vegStatus'] as int) != 0,
+            originalPrice: row['originalPrice'] as String?),
+        arguments: [groupId]);
+  }
+
+  @override
   Future<void> insertProducts(List<FetchProductDetails> products) async {
     await _fetchProductDetailsInsertionAdapter.insertList(
         products, OnConflictStrategy.replace);

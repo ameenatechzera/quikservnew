@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/masters/presentation/screens/account_group_listing_screen.dart';
-import 'package:quikservnew/features/masters/presentation/screens/account_ledger_listing_screen.dart';
+import 'package:quikservnew/features/accountledger/presentation/screens/account_ledger_listing_screen.dart';
 import 'package:quikservnew/features/category/presentation/screens/category_listing_screen.dart';
 import 'package:quikservnew/features/products/presentation/screens/product_listing_screen.dart';
 import 'package:quikservnew/features/groups/presentation/screens/productgroup_listing_screen.dart';

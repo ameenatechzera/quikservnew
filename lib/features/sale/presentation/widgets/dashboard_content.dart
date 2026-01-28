@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
@@ -80,6 +81,16 @@ class _DashboardContentState extends State<DashboardContent> {
 
   @override
   Widget build(BuildContext context) {
+    // ⭐⭐⭐ KEY FIX: Set status bar BEFORE anything else
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: AppColors.theme,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+      );
+    });
     return ScrollConfiguration(
       behavior: const AppScrollBehavior(), // ✅ no glow + consistent behavior
       child: Scaffold(

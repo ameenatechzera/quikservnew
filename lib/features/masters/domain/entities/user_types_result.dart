@@ -20,7 +20,6 @@ class UserTypesResult extends Equatable {
   final List<UserTypes> details;
   static const String detailsKey = "details";
 
-
   UserTypesResult copyWith({
     int? status,
     bool? error,
@@ -35,12 +34,16 @@ class UserTypesResult extends Equatable {
     );
   }
 
-  factory UserTypesResult.fromJson(Map<String, dynamic> json){
+  factory UserTypesResult.fromJson(Map<String, dynamic> json) {
     return UserTypesResult(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
       message: json["message"] ?? "",
-      details: json["details"] == null ? [] : List<UserTypes>.from(json["details"]!.map((x) => UserTypes.fromJson(x))),
+      details: json["details"] == null
+          ? []
+          : List<UserTypes>.from(
+              json["details"]!.map((x) => UserTypes.fromJson(x)),
+            ),
     );
   }
 
@@ -48,17 +51,16 @@ class UserTypesResult extends Equatable {
     "status": status,
     "error": error,
     "message": message,
-    "details": details.map((x) => x?.toJson()).toList(),
+    "details": details.map((x) => x.toJson()).toList(),
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$status, $error, $message, $details, ";
   }
 
   @override
-  List<Object?> get props => [
-    status, error, message, details, ];
+  List<Object?> get props => [status, error, message, details];
 }
 
 class UserTypes extends Equatable {
@@ -97,16 +99,15 @@ class UserTypes extends Equatable {
   final dynamic modifiedUser;
   static const String modifiedUserKey = "ModifiedUser";
 
-
   UserTypes copyWith({
     int? typeId,
     String? userType,
     int? activeStatus,
     int? branchId,
-    dynamic? createdDate,
-    dynamic? createdUser,
-    dynamic? modifiedDate,
-    dynamic? modifiedUser,
+    dynamic createdDate,
+    dynamic createdUser,
+    dynamic modifiedDate,
+    dynamic modifiedUser,
   }) {
     return UserTypes(
       typeId: typeId ?? this.typeId,
@@ -120,7 +121,7 @@ class UserTypes extends Equatable {
     );
   }
 
-  factory UserTypes.fromJson(Map<String, dynamic> json){
+  factory UserTypes.fromJson(Map<String, dynamic> json) {
     return UserTypes(
       typeId: json["typeId"] ?? 0,
       userType: json["userType"] ?? "",
@@ -145,11 +146,19 @@ class UserTypes extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$typeId, $userType, $activeStatus, $branchId, $createdDate, $createdUser, $modifiedDate, $modifiedUser, ";
   }
 
   @override
   List<Object?> get props => [
-    typeId, userType, activeStatus, branchId, createdDate, createdUser, modifiedDate, modifiedUser, ];
+    typeId,
+    userType,
+    activeStatus,
+    branchId,
+    createdDate,
+    createdUser,
+    modifiedDate,
+    modifiedUser,
+  ];
 }

@@ -42,3 +42,52 @@ class ProductLoadedFromLocal extends ProductsState {
 
   ProductLoadedFromLocal(this.products);
 }
+
+class SaveProductLoading extends ProductsState {}
+
+class SaveProductSuccess extends ProductsState {}
+
+class SaveProductFailure extends ProductsState {
+  final String message;
+
+  const SaveProductFailure(this.message);
+}
+/* ================= DELETE PRODUCT ================= */
+
+class ProductDeleteLoading extends ProductsState {}
+
+class ProductDeleted extends ProductsState {
+  final MasterResponseModel response;
+
+  const ProductDeleted({required this.response});
+}
+
+class ProductDeleteError extends ProductsState {
+  final String error;
+
+  const ProductDeleteError({required this.error});
+}
+
+class UpdateProductLoading extends ProductsState {}
+
+class UpdateProductSuccess extends ProductsState {
+  final MasterResponseModel response;
+  const UpdateProductSuccess({required this.response});
+}
+
+class UpdateProductFailure extends ProductsState {
+  final String message;
+  const UpdateProductFailure(this.message);
+}
+
+class ProductsByGroupLoading extends ProductsState {}
+
+class ProductsByGroupLoaded extends ProductsState {
+  final List<FetchProductDetails> products;
+  const ProductsByGroupLoaded({required this.products});
+
+  @override
+  List<Object> get props => [products];
+}
+
+class ProductsByGroupEmpty extends ProductsState {}

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
-import 'package:quikservnew/features/masters/presentation/widgets/accountledger_widgets.dart';
+import 'package:quikservnew/features/accountledger/presentation/widgets/accountledger_widgets.dart';
 
 class AccountLedgerCreationScreen extends StatelessWidget {
   const AccountLedgerCreationScreen({super.key});

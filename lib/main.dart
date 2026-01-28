@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/accountledger/presentation/bloc/accountledger_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/splash_screen.dart';
@@ -26,7 +27,7 @@ void main() async {
     const SystemUiOverlayStyle(
       statusBarColor: AppColors.theme,
       statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.dark,
+      //statusBarBrightness: Brightness.dark,
     ),
   );
   appDb = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
@@ -63,6 +64,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<SaleCubit>(create: (_) => sl<SaleCubit>()),
         BlocProvider<SalesReportCubit>(create: (_) => sl<SalesReportCubit>()),
         BlocProvider<UserCreationCubit>(create: (_) => sl<UserCreationCubit>()),
+        BlocProvider<AccountledgerCubit>(
+          create: (_) => sl<AccountledgerCubit>(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

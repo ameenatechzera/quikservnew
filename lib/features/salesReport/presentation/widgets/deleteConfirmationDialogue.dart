@@ -1,25 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/delete_salesparameter.dart';
-import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 
-Future<bool?> showConfirmationDialog(BuildContext context, {
+Future<bool?> showConfirmationDialog(
+  BuildContext context, {
   required String heading,
   required String message,
-  required int salesMasterId
+  required int salesMasterId,
 }) async {
   return showDialog<bool>(
     context: context,
     barrierDismissible: false,
     builder: (context) {
       return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
@@ -58,10 +54,7 @@ Future<bool?> showConfirmationDialog(BuildContext context, {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
               ),
 
               const SizedBox(height: 24),
@@ -88,18 +81,18 @@ Future<bool?> showConfirmationDialog(BuildContext context, {
                   const SizedBox(width: 16),
                   Expanded(
                     child: BlocConsumer<SalesReportCubit, SlesReportState>(
-                      listener: (context, state) {
-
-                      },
+                      listener: (context, state) {},
                       builder: (context, state) {
                         return ElevatedButton(
                           onPressed: () {
                             Navigator.pop(context, true);
-                            context.read<SalesReportCubit>()
+                            context
+                                .read<SalesReportCubit>()
                                 .deleteSalesFromServer(
-                              SalesDeleteByMasterIdRequest(
-                                  masterId: salesMasterId.toString()),
-                            );
+                                  SalesDeleteByMasterIdRequest(
+                                    masterId: salesMasterId.toString(),
+                                  ),
+                                );
                           },
                           style: ElevatedButton.styleFrom(
                             elevation: 0,

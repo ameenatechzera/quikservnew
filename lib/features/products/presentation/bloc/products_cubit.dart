@@ -1,10 +1,16 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/products/data/models/fetch_product_model.dart';
 import 'package:quikservnew/features/products/domain/entities/fetch_product_entity.dart';
+import 'package:quikservnew/features/products/domain/parameters/save_product_parameter.dart';
 import 'package:quikservnew/features/products/domain/repositories/product_local_repository.dart';
+import 'package:quikservnew/features/products/domain/usecases/delete_product_usecase.dart';
+import 'package:quikservnew/features/products/domain/usecases/edit_product_usecase.dart';
 import 'package:quikservnew/features/products/domain/usecases/fetch_product_usecase.dart';
 import 'package:quikservnew/features/products/domain/usecases/get_products_by_category_usecase.dart';
+import 'package:quikservnew/features/products/domain/usecases/getproducts_bygroup.dart';
+import 'package:quikservnew/features/products/domain/usecases/save_product_usecase.dart';
 
 part 'products_state.dart';
 
@@ -12,12 +18,26 @@ class ProductCubit extends Cubit<ProductsState> {
   final FetchProductsUseCase fetchProductsUseCase;
   final ProductLocalRepository _productLocalRepository;
   final GetProductsByCategoryUseCase _getProductsByCategoryUseCase;
+  final SaveProductUseCase _saveProductUseCase;
+  final DeleteProductUseCase _deleteProductUseCase;
+  final EditProductUseCase _editProductUseCase;
+  final GetProductsByGroupUseCase _getProductsByGroupUseCase;
+
   ProductCubit({
     required this.fetchProductsUseCase,
     required ProductLocalRepository productLocalRepository,
     required GetProductsByCategoryUseCase getProductsByCategoryUseCase,
+    required SaveProductUseCase saveProductUseCase,
+    required DeleteProductUseCase deleteProductUseCase,
+    required EditProductUseCase editProductUseCase,
+    required GetProductsByGroupUseCase getProductsByGroupUseCase,
   }) : _productLocalRepository = productLocalRepository,
        _getProductsByCategoryUseCase = getProductsByCategoryUseCase,
+       _saveProductUseCase = saveProductUseCase,
+       _deleteProductUseCase = deleteProductUseCase,
+       _editProductUseCase = editProductUseCase,
+       _getProductsByGroupUseCase = getProductsByGroupUseCase,
+
        super(ProductsInitial());
 
   // --------------------- API Fetch ---------------------
@@ -118,6 +138,72 @@ class ProductCubit extends Cubit<ProductsState> {
         emit(ProductsEmptyFromLocal());
       } else {
         emit(ProductLoadedFromLocal(products));
+      }
+    } catch (e) {
+      emit(ProductFailure(e.toString()));
+    }
+  } // --------------------- SAVE PRODUCT ---------------------
+
+  Future<void> saveProduct(ProductSaveRequest request) async {
+    emit(SaveProductLoading());
+
+    final response = await _saveProductUseCase(request);
+
+    response.fold(
+      (failure) {
+        emit(SaveProductFailure(failure.message));
+      },
+      (_) async {
+        emit(SaveProductSuccess());
+
+        // OPTIONAL: refresh product list after save
+        await fetchProducts();
+      },
+    );
+  }
+
+  // 🔹 Delete Product
+  Future<void> deleteProduct(int productId) async {
+    emit(ProductDeleteLoading());
+
+    final response = await _deleteProductUseCase(productId);
+
+    response.fold(
+      (failure) => emit(ProductDeleteError(error: failure.message)),
+      (response) => emit(ProductDeleted(response: response)),
+    );
+
+    await fetchProducts(); // refresh after deletion
+  }
+
+  Future<void> updateProduct(int productId, ProductSaveRequest request) async {
+    emit(UpdateProductLoading());
+
+    final response = await _editProductUseCase(productId, request);
+
+    response.fold(
+      (failure) {
+        emit(UpdateProductFailure(failure.message));
+      },
+      (response) async {
+        emit(UpdateProductSuccess(response: response));
+
+        // refresh product list after update
+        await fetchProducts();
+      },
+    );
+  }
+
+  Future<void> loadProductsByGroup(int groupId) async {
+    emit(ProductsByGroupLoading());
+
+    try {
+      final products = await _getProductsByGroupUseCase(groupId);
+
+      if (products.isEmpty) {
+        emit(ProductsByGroupEmpty());
+      } else {
+        emit(ProductsByGroupLoaded(products: products));
       }
     } catch (e) {
       emit(ProductFailure(e.toString()));

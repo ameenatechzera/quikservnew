@@ -14,4 +14,7 @@ abstract class ProductDao {
 
   @Query('SELECT * FROM tbl_products WHERE categoryId = :categoryId')
   Future<List<FetchProductDetails>> getProductsByCategory(int categoryId);
+  // 🔹 By Group
+  @Query('SELECT * FROM tbl_products WHERE groupId = :groupId')
+  Future<List<FetchProductDetails>> getProductsByGroup(int groupId);
 }

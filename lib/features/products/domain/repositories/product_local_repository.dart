@@ -5,4 +5,5 @@ abstract class ProductLocalRepository {
   Future<List<FetchProductDetails>> getProducts();
   Future<void> clearProducts();
   Future<List<FetchProductDetails>> getProductsByCategory(int categoryId);
+  Future<List<FetchProductDetails>> getProductsByGroup(int groupId);
 }

@@ -4,19 +4,19 @@ import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 
-
 import 'package:quikservnew/features/masters/domain/entities/user_types_result.dart';
 import 'package:quikservnew/features/masters/domain/parameters/save_user_parameters.dart';
 import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cubit.dart';
 import 'package:quikservnew/features/masters/presentation/widgets/user_widgets.dart';
 
 class UserCreationScreen extends StatelessWidget {
-   UserCreationScreen({super.key});
+  UserCreationScreen({super.key});
   final TextEditingController userTypeController = TextEditingController();
-   final TextEditingController nameController = TextEditingController();
-   final TextEditingController usernameController = TextEditingController();
-   final TextEditingController passwordController = TextEditingController();
-   final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   @override
   Widget build(BuildContext context) {
     String? selectedUserType;
@@ -47,10 +47,11 @@ class UserCreationScreen extends StatelessWidget {
                 BlocConsumer<UserCreationCubit, UserCreationState>(
                   listener: (context, state) {
                     if (state is FetchUserTypesLoaded) {
-                      selectedUserType = state.userTypes.first.typeId.toString();
+                      selectedUserType = state.userTypes.first.typeId
+                          .toString();
                       userTypeController.text = selectedUserType.toString();
                     }
-                    if(state is SaveUserCompleted){
+                    if (state is SaveUserCompleted) {
                       showAppSnackBar(context, 'User Created Successfully..!');
                       Navigator.pop(context);
                     }
@@ -75,11 +76,22 @@ class UserCreationScreen extends StatelessWidget {
                 const SizedBox(height: 18),
                 usertextField(label: "Name", controller: nameController),
                 const SizedBox(height: 18),
-                usertextField(label: "Username", controller: usernameController),
+                usertextField(
+                  label: "Username",
+                  controller: usernameController,
+                ),
                 const SizedBox(height: 18),
-                usertextField(label: "Password", isPassword: true, controller: passwordController),
+                usertextField(
+                  label: "Password",
+                  isPassword: true,
+                  controller: passwordController,
+                ),
                 const SizedBox(height: 18),
-                usertextField(label: "Re Enter Password", isPassword: true, controller: confirmPasswordController),
+                usertextField(
+                  label: "Re Enter Password",
+                  isPassword: true,
+                  controller: confirmPasswordController,
+                ),
                 const SizedBox(height: 26),
 
                 SizedBox(
@@ -95,14 +107,25 @@ class UserCreationScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       print('nameController ${nameController.text.toString()}');
-                      print('passwordController ${passwordController.text.toString()}');
-                      bool saveStatus = saveValidation(context);
-                      int userTypeId = int.parse(userTypeController.text.toString());
-                      context.read<UserCreationCubit>().saveUser(SaveUserParameters(username: nameController.text.toString(),
+                      print(
+                        'passwordController ${passwordController.text.toString()}',
+                      );
+                      // bool saveStatus = saveValidation(context);
+                      int userTypeId = int.parse(
+                        userTypeController.text.toString(),
+                      );
+                      context.read<UserCreationCubit>().saveUser(
+                        SaveUserParameters(
+                          username: nameController.text.toString(),
                           password: passwordController.text.toString(),
-                          user_type: userTypeId, isactive: 1, name: nameController.text.toString(),
+                          user_type: userTypeId,
+                          isactive: 1,
+                          name: nameController.text.toString(),
 
-                          branchIds: [], CreatedUser: ''));
+                          branchIds: [],
+                          CreatedUser: '',
+                        ),
+                      );
                     },
                     child: const Text(
                       "Save",
@@ -128,29 +151,24 @@ class UserCreationScreen extends StatelessWidget {
     print('passwordController ${passwordController.text.toString()}');
     String stPassword = passwordController.text.toString().trim();
     String stConfirmPassword = confirmPasswordController.text.toString().trim();
-    if(nameController.text.toString().isEmpty){
-      showAppSnackBar(context,'Name cant be empty');
+    if (nameController.text.toString().isEmpty) {
+      showAppSnackBar(context, 'Name cant be empty');
       saveStatus = false;
-    }
-    else if(userTypeController.text.toString().isEmpty){
-      showAppSnackBar(context,'Usertype cant be empty');
+    } else if (userTypeController.text.toString().isEmpty) {
+      showAppSnackBar(context, 'Usertype cant be empty');
       saveStatus = false;
-    }
-    else if(usernameController.text.toString().isEmpty){
-      showAppSnackBar(context,'Username cant be empty');
+    } else if (usernameController.text.toString().isEmpty) {
+      showAppSnackBar(context, 'Username cant be empty');
       saveStatus = false;
-    }
-    else if(passwordController.text.toString().isEmpty){
-      showAppSnackBar(context,'Password cant be empty');
+    } else if (passwordController.text.toString().isEmpty) {
+      showAppSnackBar(context, 'Password cant be empty');
       saveStatus = false;
-    }
-    else if(confirmPasswordController.text.toString().isEmpty){
-      showAppSnackBar(context,'Confirm password cant be empty');
+    } else if (confirmPasswordController.text.toString().isEmpty) {
+      showAppSnackBar(context, 'Confirm password cant be empty');
       saveStatus = false;
-    }
-    else{
-      if(stPassword!=stConfirmPassword){
-        showAppSnackBar(context,'Password and confirm password mismatch');
+    } else {
+      if (stPassword != stConfirmPassword) {
+        showAppSnackBar(context, 'Password and confirm password mismatch');
         saveStatus = false;
       }
     }

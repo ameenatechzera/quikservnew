@@ -33,4 +33,9 @@ class ProductLocalRepositoryImpl implements ProductLocalRepository {
   ) async {
     return await database.productDao.getProductsByCategory(categoryId);
   }
+
+  @override
+  Future<List<FetchProductDetails>> getProductsByGroup(int groupId) async {
+    return await database.productDao.getProductsByGroup(groupId);
+  }
 }

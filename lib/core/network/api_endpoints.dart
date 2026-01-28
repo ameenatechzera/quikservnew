@@ -122,7 +122,7 @@ class ApiConstants {
   }
 
   static String editCategoryPath(String baseUrl, int categoryId) {
-    return "$baseUrl/category/update/$categoryId";
+    return "$baseUrl/category/update-category/$categoryId";
   }
 
   ///for userTypes fetching
@@ -133,5 +133,24 @@ class ApiConstants {
   ///for user save
   static String saveUserPath(String baseUrl) {
     return '$baseUrl/user/save-user';
+  }
+
+  ///for Product save
+  static String saveProductPath(String baseUrl) {
+    return '$baseUrl/product/save-product';
+  }
+
+  ///for Product delete
+  static String deleteProductPath(String baseUrl, int productCode) {
+    return '$baseUrl/product/delete-product/$productCode';
+  }
+
+  static String updateProductPath(String baseUrl, int productCode) {
+    return "$baseUrl/product/update-product/$productCode";
+  }
+
+  ///for fethcingaccountledger
+  static String getAccountLedgerPath(String baseUrl) {
+    return '$baseUrl/accountledger/all-account-ledgers';
   }
 }

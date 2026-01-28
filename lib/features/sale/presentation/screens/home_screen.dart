@@ -112,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super
         .initState(); // ✅ Reset global status bar when entering Home (fix after login/splash)
+
     // Initialize menu animation controller
     _menuAnimationController = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -145,6 +146,12 @@ class _HomeScreenState extends State<HomeScreen>
     _searchController.addListener(() {
       context.read<SaleCubit>().updateSearchQuery(_searchController.text);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<ProductCubit>().loadProductsFromLocal(); // reload every time
   }
 
   @override
@@ -970,7 +977,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   0.0,
                                               unitId: product.unitId.toString(),
                                               purchaseCost:
-                                                  product.purchaseRate!,
+                                                  product.purchaseRate ?? '0',
                                               groupId: product.group_id,
                                               categoryId: product.categoryId!,
                                               productImage:
@@ -1185,7 +1192,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                     unitId: product.unitId
                                                         .toString(),
                                                     purchaseCost:
-                                                        product.purchaseRate!,
+                                                        product.purchaseRate ??
+                                                        '0',
                                                     groupId: product.group_id,
                                                     categoryId:
                                                         product.categoryId!,
@@ -1375,7 +1383,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                   unitId: product.unitId
                                                       .toString(),
                                                   purchaseCost:
-                                                      product.purchaseRate!,
+                                                      product.purchaseRate ??
+                                                      '0',
                                                   groupId: product.group_id,
                                                   categoryId:
                                                       product.categoryId!,
@@ -1390,7 +1399,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                   vatAmount: '0.0',
                                                   totalAmount: '0.00',
                                                   conversion_rate:
-                                                      product.conversionRate!,
+                                                      product.conversionRate ??
+                                                      '0',
                                                   category:
                                                       product.categoryName!,
                                                   groupName: product.groupName,
@@ -1615,12 +1625,14 @@ class _HomeScreenState extends State<HomeScreen>
                                                       '',
                                                   excludeRate: '',
                                                   subtotal: '0.0',
-                                                  vatId: product.vatId!
+                                                  vatId: product.vatId
                                                       .toString(),
+
                                                   vatAmount: '0.0',
                                                   totalAmount: '0.00',
                                                   conversion_rate:
-                                                      product.conversionRate!,
+                                                      product.conversionRate ??
+                                                      '0',
                                                   category:
                                                       product.categoryName!,
                                                   groupName: product.groupName,
@@ -1853,8 +1865,10 @@ class _HomeScreenState extends State<HomeScreen>
                                                               0.0,
                                                           unitId: product.unitId
                                                               .toString(),
-                                                          purchaseCost: product
-                                                              .purchaseRate!,
+                                                          purchaseCost:
+                                                              product
+                                                                  .purchaseRate ??
+                                                              "0",
                                                           groupId:
                                                               product.group_id,
                                                           categoryId: product
@@ -2106,116 +2120,113 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ScrollConfiguration(
-        behavior: const AppScrollBehavior(),
-        child: Scaffold(
-          //backgroundColor: AppColors.theme,
-          // appBar: AppBar(toolbarHeight: 20, backgroundColor: AppColors.theme),
-          resizeToAvoidBottomInset: false,
-          body: SafeArea(
-            bottom: false,
-            child: Stack(
-              children: [
-                // ADD THIS - App bar that stays during transition
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 40,
-                  // MediaQuery.of(context).padding.top + 40, // App bar height
-                  child: Container(
-                    color: AppColors.theme, // Same as your screen color
+    return ScrollConfiguration(
+      behavior: const AppScrollBehavior(),
+      child: Scaffold(
+        // backgroundColor: AppColors.theme,
+        // appBar: AppBar(toolbarHeight: 20, backgroundColor: AppColors.theme),
+        resizeToAvoidBottomInset: false,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // ADD THIS - App bar that stays during transition
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 40,
+                // MediaQuery.of(context).padding.top + 40, // App bar height
+                child: Container(
+                  color: AppColors.theme, // Same as your screen color
+                ),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 320),
+                reverseDuration: const Duration(milliseconds: 280),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final bool isForward = _currentTabIndex > _previousTabIndex;
+
+                  final beginOffset = isForward
+                      ? const Offset(0.12, 0)
+                      : const Offset(-0.12, 0);
+                  final endOffset = isForward
+                      ? const Offset(-0.12, 0)
+                      : const Offset(0.12, 0);
+
+                  final inSlide = Tween<Offset>(
+                    begin: beginOffset,
+                    end: Offset.zero,
+                  ).animate(animation);
+                  final outSlide = Tween<Offset>(
+                    begin: Offset.zero,
+                    end: endOffset,
+                  ).animate(animation);
+
+                  // AnimatedSwitcher uses the same animation for both incoming/outgoing.
+                  // We detect which child is incoming by checking its key.
+                  final bool isIncoming =
+                      (child.key == ValueKey(_currentTabIndex));
+
+                  final slideAnim = isIncoming ? inSlide : outSlide;
+
+                  final fade = CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut,
+                  );
+
+                  return FadeTransition(
+                    opacity: fade,
+                    child: SlideTransition(position: slideAnim, child: child),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey(
+                    _currentTabIndex,
+                  ), // ✅ IMPORTANT: key by tab index
+                  child: _currentTabIndex == 0
+                      ? _buildSalesContent()
+                      : _currentTabIndex == 1
+                      ? const DashboardContent()
+                      : const SettingsScreen(),
+                ),
+              ),
+
+              // ✅ BOTTOM BAR (unchanged)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MediaQuery.removeViewInsets(
+                  context: context,
+                  removeBottom: true,
+                  child: CommomBottomBar(
+                    currentTabIndex: _currentTabIndex,
+                    onTabChanged: _switchTab,
                   ),
                 ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 320),
-                  reverseDuration: const Duration(milliseconds: 280),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, animation) {
-                    final bool isForward = _currentTabIndex > _previousTabIndex;
+              ),
 
-                    final beginOffset = isForward
-                        ? const Offset(0.12, 0)
-                        : const Offset(-0.12, 0);
-                    final endOffset = isForward
-                        ? const Offset(-0.12, 0)
-                        : const Offset(0.12, 0);
-
-                    final inSlide = Tween<Offset>(
-                      begin: beginOffset,
-                      end: Offset.zero,
-                    ).animate(animation);
-                    final outSlide = Tween<Offset>(
-                      begin: Offset.zero,
-                      end: endOffset,
-                    ).animate(animation);
-
-                    // AnimatedSwitcher uses the same animation for both incoming/outgoing.
-                    // We detect which child is incoming by checking its key.
-                    final bool isIncoming =
-                        (child.key == ValueKey(_currentTabIndex));
-
-                    final slideAnim = isIncoming ? inSlide : outSlide;
-
-                    final fade = CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOut,
-                    );
-
-                    return FadeTransition(
-                      opacity: fade,
-                      child: SlideTransition(position: slideAnim, child: child),
+              // ✅ CART BAR ONLY FOR HOME
+              if (_currentTabIndex == 0)
+                ValueListenableBuilder<bool>(
+                  valueListenable: showCartBar,
+                  builder: (context, visible, _) {
+                    if (!visible) return const SizedBox();
+                    return Positioned(
+                      left: 20,
+                      right: 20,
+                      bottom: 80,
+                      child: MediaQuery.removeViewInsets(
+                        context: context,
+                        removeBottom: true,
+                        child: cartBottomBar(context),
+                      ),
                     );
                   },
-                  child: KeyedSubtree(
-                    key: ValueKey(
-                      _currentTabIndex,
-                    ), // ✅ IMPORTANT: key by tab index
-                    child: _currentTabIndex == 0
-                        ? _buildSalesContent()
-                        : _currentTabIndex == 1
-                        ? const DashboardContent()
-                        : const SettingsScreen(),
-                  ),
                 ),
-
-                // ✅ BOTTOM BAR (unchanged)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: MediaQuery.removeViewInsets(
-                    context: context,
-                    removeBottom: true,
-                    child: CommomBottomBar(
-                      currentTabIndex: _currentTabIndex,
-                      onTabChanged: _switchTab,
-                    ),
-                  ),
-                ),
-
-                // ✅ CART BAR ONLY FOR HOME
-                if (_currentTabIndex == 0)
-                  ValueListenableBuilder<bool>(
-                    valueListenable: showCartBar,
-                    builder: (context, visible, _) {
-                      if (!visible) return const SizedBox();
-                      return Positioned(
-                        left: 20,
-                        right: 20,
-                        bottom: 80,
-                        child: MediaQuery.removeViewInsets(
-                          context: context,
-                          removeBottom: true,
-                          child: cartBottomBar(context),
-                        ),
-                      );
-                    },
-                  ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

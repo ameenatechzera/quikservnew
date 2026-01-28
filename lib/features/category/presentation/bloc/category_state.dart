@@ -17,6 +17,8 @@ final class CategoryLoaded extends CategoryState {
   const CategoryLoaded({required this.categories});
 }
 
+final class CategoryLoadingFromLocal extends CategoryState {}
+
 class CategoryLoadedFromLocal extends CategoryState {
   final List<FetchCategoryDetailsEntity> categories;
   const CategoryLoadedFromLocal({required this.categories});

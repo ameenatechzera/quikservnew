@@ -3,8 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
+import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/products/data/datasources/product_remote_data_source.dart';
 import 'package:quikservnew/features/products/data/models/fetch_product_model.dart';
+import 'package:quikservnew/features/products/domain/parameters/save_product_parameter.dart';
 import 'package:quikservnew/features/products/domain/repositories/product_repository.dart';
 
 class ProductsRepositoryImpl implements ProductsRepository {
@@ -16,6 +18,57 @@ class ProductsRepositoryImpl implements ProductsRepository {
   ResultFuture<FetchProductResponseModel> fetchProducts() async {
     try {
       final result = await remoteDataSource.fetchProducts();
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioException catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    } catch (e) {
+      return Left(ServerFailure("Unexpected error: $e"));
+    }
+  }
+
+  @override
+  ResultFuture<MasterResponseModel> saveProduct(
+    ProductSaveRequest request,
+  ) async {
+    try {
+      final result = await remoteDataSource.saveProduct(request);
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioException catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    } catch (e) {
+      return Left(ServerFailure("Unexpected error: $e"));
+    }
+  }
+
+  @override
+  ResultFuture<MasterResponseModel> deleteProductFromServer(
+    int productCode,
+  ) async {
+    try {
+      final result = await remoteDataSource.deleteProductFromServer(
+        productCode,
+      );
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioException catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    } catch (e) {
+      return Left(ServerFailure("Unexpected error: $e"));
+    }
+  }
+
+  @override
+  ResultFuture<MasterResponseModel> updateProduct(
+    int productCode,
+    ProductSaveRequest request,
+  ) async {
+    try {
+      final result = await remoteDataSource.updateProduct(productCode, request);
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(failure.errorMessageModel.statusMessage));

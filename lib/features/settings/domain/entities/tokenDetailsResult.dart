@@ -20,7 +20,6 @@ class TokenDetailsResult extends Equatable {
   final List<SalesBillToken> salesBillToken;
   static const String salesBillTokenKey = "SalesBillToken";
 
-
   TokenDetailsResult copyWith({
     int? status,
     bool? error,
@@ -35,12 +34,16 @@ class TokenDetailsResult extends Equatable {
     );
   }
 
-  factory TokenDetailsResult.fromJson(Map<String, dynamic> json){
+  factory TokenDetailsResult.fromJson(Map<String, dynamic> json) {
     return TokenDetailsResult(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
       message: json["message"] ?? "",
-      salesBillToken: json["SalesBillToken"] == null ? [] : List<SalesBillToken>.from(json["SalesBillToken"]!.map((x) => SalesBillToken.fromJson(x))),
+      salesBillToken: json["SalesBillToken"] == null
+          ? []
+          : List<SalesBillToken>.from(
+              json["SalesBillToken"]!.map((x) => SalesBillToken.fromJson(x)),
+            ),
     );
   }
 
@@ -48,17 +51,16 @@ class TokenDetailsResult extends Equatable {
     "status": status,
     "error": error,
     "message": message,
-    "SalesBillToken": salesBillToken.map((x) => x?.toJson()).toList(),
+    "SalesBillToken": salesBillToken.map((x) => x.toJson()).toList(),
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$status, $error, $message, $salesBillToken, ";
   }
 
   @override
-  List<Object?> get props => [
-    status, error, message, salesBillToken, ];
+  List<Object?> get props => [status, error, message, salesBillToken];
 }
 
 class SalesBillToken extends Equatable {
@@ -85,7 +87,6 @@ class SalesBillToken extends Equatable {
   final int branchId;
   static const String branchIdKey = "branchId";
 
-
   SalesBillToken copyWith({
     int? billTokenId,
     String? billDate,
@@ -102,7 +103,7 @@ class SalesBillToken extends Equatable {
     );
   }
 
-  factory SalesBillToken.fromJson(Map<String, dynamic> json){
+  factory SalesBillToken.fromJson(Map<String, dynamic> json) {
     return SalesBillToken(
       billTokenId: json["billTokenId"] ?? "",
       billDate: json["billDate"] ?? "",
@@ -121,11 +122,16 @@ class SalesBillToken extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$billTokenId, $billDate, $billTokenNo, $userId, $branchId, ";
   }
 
   @override
   List<Object?> get props => [
-    billTokenId, billDate, billTokenNo, userId, branchId, ];
+    billTokenId,
+    billDate,
+    billTokenNo,
+    userId,
+    branchId,
+  ];
 }

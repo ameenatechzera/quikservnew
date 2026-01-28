@@ -1,5 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:quikservnew/core/database/app_database.dart';
+import 'package:quikservnew/features/accountledger/data/datasources/account_ledger_remote_datasource.dart';
+import 'package:quikservnew/features/accountledger/data/repositories/account_ledger_impl.dart';
+import 'package:quikservnew/features/accountledger/domain/repositories/account_ledger_repository.dart';
+import 'package:quikservnew/features/accountledger/domain/usecases/fetch_account_ledger_usecase.dart';
+import 'package:quikservnew/features/accountledger/presentation/bloc/accountledger_cubit.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
@@ -37,8 +42,12 @@ import 'package:quikservnew/features/products/data/repositories/product_reposito
 import 'package:quikservnew/features/products/data/repositories/products_repository_impl.dart';
 import 'package:quikservnew/features/products/domain/repositories/product_local_repository.dart';
 import 'package:quikservnew/features/products/domain/repositories/product_repository.dart';
+import 'package:quikservnew/features/products/domain/usecases/delete_product_usecase.dart';
+import 'package:quikservnew/features/products/domain/usecases/edit_product_usecase.dart';
 import 'package:quikservnew/features/products/domain/usecases/fetch_product_usecase.dart';
 import 'package:quikservnew/features/products/domain/usecases/get_products_by_category_usecase.dart';
+import 'package:quikservnew/features/products/domain/usecases/getproducts_bygroup.dart';
+import 'package:quikservnew/features/products/domain/usecases/save_product_usecase.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
 import 'package:quikservnew/features/sale/data/datasources/sales_remote_datasource.dart';
 import 'package:quikservnew/features/sale/data/repositories/sale_repository_impl.dart';
@@ -183,8 +192,16 @@ class ServiceLocator {
         fetchProductsUseCase: sl(),
         productLocalRepository: sl(),
         getProductsByCategoryUseCase: sl(),
+        saveProductUseCase: sl(),
+        deleteProductUseCase: sl(),
+        editProductUseCase: sl(),
+        getProductsByGroupUseCase: sl(),
       ),
     );
+    sl.registerLazySingleton(() => SaveProductUseCase(sl()));
+    sl.registerLazySingleton(() => DeleteProductUseCase(sl()));
+    sl.registerLazySingleton(() => EditProductUseCase(sl()));
+    sl.registerLazySingleton(() => GetProductsByGroupUseCase(sl()));
 
     // ------------------- Sales Report -------------------
 
@@ -301,23 +318,40 @@ class ServiceLocator {
       () => SalesRepositoryImpl(remoteDataSource: sl()),
     );
 
-
     // ------------------- CreateUSer Cubit -------------------
     sl.registerFactory(
-          () => UserCreationCubit(fetchUserTypesUseCase: sl(), saveUserTypesUseCase: sl()
-
+      () => UserCreationCubit(
+        fetchUserTypesUseCase: sl(),
+        saveUserTypesUseCase: sl(),
       ),
     );
     sl.registerLazySingleton(() => FetchUserTypesUseCase(sl()));
     sl.registerLazySingleton(() => SaveUserUseCase(sl()));
 
-
     sl.registerLazySingleton<UserCreationRemoteDataSource>(
-          () => UserCreationRemoteDataSourceImpl(),
+      () => UserCreationRemoteDataSourceImpl(),
     );
     sl.registerLazySingleton<UserCreationRepository>(
-          () => UserCreationRepositoryImpl(remoteDataSource: sl()),
+      () => UserCreationRepositoryImpl(remoteDataSource: sl()),
+    );
+    // ------------------- ACCOUNT LEDGER -------------------
+
+    // Cubit
+    sl.registerFactory(
+      () => AccountledgerCubit(fetchAccountLedgerUseCase: sl()),
     );
 
+    // UseCase
+    sl.registerLazySingleton(() => FetchAccountLedgerUseCase(sl()));
+
+    // Data Source
+    sl.registerLazySingleton<AccountLedgerRemoteDataSource>(
+      () => AccountLedgerRemoteDataSourceImpl(),
+    );
+
+    // Repository
+    sl.registerLazySingleton<AccountLedgerRepository>(
+      () => AccountLedgerRepositoryImpl(remoteDataSource: sl()),
+    );
   }
 }
