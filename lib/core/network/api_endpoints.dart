@@ -153,4 +153,63 @@ class ApiConstants {
   static String getAccountLedgerPath(String baseUrl) {
     return '$baseUrl/accountledger/all-account-ledgers';
   }
+
+  static String deleteAccountLedgerPath(String baseUrl, int ledgerId) {
+    return "$baseUrl/accountledger/delete-account-ledger/$ledgerId";
+  }
+
+  ///for cashier fetch
+  static String fetchCashierListPath(String baseUrl) {
+    return '$baseUrl/user/fetch-cashiers';
+  }
+
+  ///for suppliers fetch
+  static String fetchSupplierListPath(String baseUrl) {
+    return '$baseUrl/user/fetch-suppliers';
+  }
+
+  ///for itemwise report
+  static String getFetchItemWiseReportPath(String baseUrl) {
+    return '$baseUrl/salesmaster/item-wise-sales-summary';
+  }
+
+  ///for Day close report
+  static String getDayCloseReportPath(String baseUrl) {
+    return '$baseUrl/salesmaster/summary-report-payment-mode';
+  }
+
+  ///for Account Groups
+  static String getAccountGroupsPath(String baseUrl) {
+    return '$baseUrl/accountgroup/accountgroups';
+  }
+
+  ///for Save Account Groups
+  static String getSaveAccountGroupsPath(String baseUrl) {
+    return '$baseUrl/accountgroup/save-accountgroup';
+  }
+
+  //for Delete Account Groups
+  static String getDeleteAccountGroupsPath(
+    String baseUrl,
+    String st_accountGroupId,
+  ) {
+    return '$baseUrl/accountgroup/delete-accountgroup/' + st_accountGroupId;
+  }
+
+  ///for Update Account Groups
+  static String getUpdateAccountGroupsPath(
+    String baseUrl,
+    String st_accountGroupId,
+  ) {
+    return '$baseUrl/accountgroup/update-accountgroup/' + st_accountGroupId;
+  }
+
+  ///for Save Account Groups
+  static String saveAccountLedgerPath(String baseUrl) {
+    return '$baseUrl/accountledger/save-account-ledger';
+  }
+
+  static String updateAccountLedgerPath(String baseUrl, int ledgerId) {
+    return "$baseUrl/accountledger/update-account-ledger/$ledgerId";
+  }
 }

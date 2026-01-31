@@ -189,6 +189,7 @@ class LoginScreen extends StatelessWidget {
                     CustomInputField(
                       hint: 'User Name',
                       controller: usernameCtrl,
+
                       prefixIcon: Icons.person,
                     ),
                     const SizedBox(height: 16),
@@ -206,6 +207,7 @@ class LoginScreen extends StatelessWidget {
                       hint: 'Restaurant Code',
                       controller: codeCtrl,
                       prefixIcon: Icons.code,
+                      textInputAction: TextInputAction.done,
                     ),
 
                     const SizedBox(height: 50),

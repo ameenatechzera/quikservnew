@@ -12,7 +12,7 @@ final class AccountledgerInitial extends AccountledgerState {}
 class AccountledgerLoading extends AccountledgerState {}
 
 class AccountledgerLoaded extends AccountledgerState {
-  final FetchLedgerResponseModel accountLedger;
+  final FetchAccountLedgerResponseModel accountLedger;
 
   const AccountledgerLoaded({required this.accountLedger});
 }

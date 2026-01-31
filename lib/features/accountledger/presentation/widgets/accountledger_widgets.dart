@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 Widget textField({
   required String label,
   TextInputType keyboardType = TextInputType.text,
+  TextEditingController? controller,
 }) {
   return TextField(
+    controller: controller,
     keyboardType: keyboardType,
     decoration: InputDecoration(
       labelText: label,
@@ -16,27 +18,17 @@ Widget textField({
   );
 }
 
-Widget dropdownField() {
-  return DropdownButtonFormField<String>(
-    decoration: const InputDecoration(
-      labelText: "Select an Account Group",
-      border: UnderlineInputBorder(),
-    ),
-    items: const [
-      DropdownMenuItem(value: "assets", child: Text("Assets")),
-      DropdownMenuItem(value: "income", child: Text("Income")),
-      DropdownMenuItem(value: "expense", child: Text("Expense")),
-      DropdownMenuItem(value: "liability", child: Text("Liability")),
-    ],
-    onChanged: (value) {},
-  );
-}
-
 /// ---------- LEDGER LIST TILE ----------
 class AccountLedgerTile extends StatelessWidget {
   final String title;
-
-  const AccountLedgerTile({super.key, required this.title});
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
+  const AccountLedgerTile({
+    super.key,
+    required this.title,
+    this.onDelete,
+    this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,16 +47,20 @@ class AccountLedgerTile extends StatelessWidget {
           /// Edit
           IconButton(
             icon: const Icon(Icons.edit, size: 20, color: Colors.black54),
-            onPressed: () {
-              // TODO: Edit Ledger
-            },
+            onPressed: onEdit,
           ),
 
           /// Delete
           IconButton(
             icon: const Icon(Icons.delete, size: 20, color: Colors.red),
             onPressed: () {
-              // TODO: Delete Ledger
+              debugPrint("🟠 Delete icon pressed inside tile");
+
+              if (onDelete != null) {
+                onDelete!();
+              } else {
+                debugPrint("❌ onDelete is NULL");
+              }
             },
           ),
         ],

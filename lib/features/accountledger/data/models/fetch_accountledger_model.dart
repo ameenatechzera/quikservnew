@@ -1,82 +1,149 @@
 import 'package:quikservnew/features/accountledger/domain/entities/fetch_accountledger_entity.dart';
 
-class FetchLedgerResponseModel extends FetchLedgerResponseEntity {
-  FetchLedgerResponseModel({
+class FetchAccountLedgerResponseModel extends FetchAccountLedgerResponseEntity {
+  FetchAccountLedgerResponseModel({
     super.status,
     super.error,
     super.message,
-    List<FetchLedgerDetailsModel>? super.ledgers,
+    List<FetchAccountLedgerDetailsModel>? super.ledgers,
   });
 
-  factory FetchLedgerResponseModel.fromJson(Map<String, dynamic> json) {
-    return FetchLedgerResponseModel(
+  factory FetchAccountLedgerResponseModel.fromJson(Map<String, dynamic> json) {
+    return FetchAccountLedgerResponseModel(
       status: json['status'],
       error: json['error'],
       message: json['message'],
       ledgers: json['data'] != null
-          ? List<FetchLedgerDetailsModel>.from(
-              json['data'].map((x) => FetchLedgerDetailsModel.fromJson(x)),
+          ? List<FetchAccountLedgerDetailsModel>.from(
+              json['data'].map(
+                (x) => FetchAccountLedgerDetailsModel.fromJson(x),
+              ),
             )
           : [],
     );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "status": status,
-      "error": error,
-      "message": message,
-      "data": ledgers
-          ?.map((x) => (x as FetchLedgerDetailsModel).toJson())
-          .toList(),
-    };
-  }
 }
 
-class FetchLedgerDetailsModel extends FetchLedgerDetailsEntity {
-  FetchLedgerDetailsModel({
+// ------------------------------------------------------------------
+
+class FetchAccountLedgerDetailsModel extends FetchAccountLedgerDetailsEntity {
+  FetchAccountLedgerDetailsModel({
     super.ledgerId,
     super.ledgerName,
     super.groupId,
+    super.billByBill,
     super.openingBalance,
     super.crOrDr,
+    super.narration,
+    super.nameArb,
     super.accountNo,
-    super.bankName,
+    super.address,
+    super.phoneNo,
+    super.faxNo,
+    super.email,
+    super.creditPeriod,
+    super.creditLimit,
+    super.pricingLevelId,
+    super.currencyId,
+    super.interestOrNot,
     super.branchId,
+    super.marketId,
+    super.defaultValue,
+    super.tinNumber,
+    super.cstNumber,
+    super.panNumber,
+    super.extraDate,
+    super.extra1,
+    super.extra2,
+    super.areaId,
     super.ledgerCode,
+    super.buildingNo,
+    super.additionalNo,
+    super.streetName,
+    super.postboxNo,
+    super.cityName,
+    super.country,
+    super.creditLimitStatus,
+    super.bankAccName,
+    super.bankName,
+    super.ibanNo,
+    super.district,
+    super.streetNameArb,
+    super.buildingNoArb,
+    super.cityNameArb,
+    super.districtArb,
+    super.countryArb,
+    super.additionalNoArb,
+    super.postboxNoArb,
+    super.bankBranchName,
+    super.bankSwiftCode,
+    super.addressArabic,
+    super.ledgerType,
+    super.routeId,
     super.createdDate,
     super.createdUser,
+    super.modifiedDate,
+    super.modifiedUser,
   });
 
-  factory FetchLedgerDetailsModel.fromJson(Map<String, dynamic> json) {
-    return FetchLedgerDetailsModel(
+  factory FetchAccountLedgerDetailsModel.fromJson(Map<String, dynamic> json) {
+    return FetchAccountLedgerDetailsModel(
       ledgerId: json['ledgerId'],
       ledgerName: json['ledgerName'],
       groupId: json['groupId'],
+      billByBill: json['billBybill'],
       openingBalance: json['openingBalance'],
       crOrDr: json['crOrDr'],
+      narration: json['narration'],
+      nameArb: json['nameArb'],
       accountNo: json['accountNo'],
-      bankName: json['bankname'],
+      address: json['address'],
+      phoneNo: json['phoneNo'],
+      faxNo: json['faxNo'],
+      email: json['email'],
+      creditPeriod: json['creditPeriod'],
+      creditLimit: json['creditLimit'],
+      pricingLevelId: json['pricingLevelId'],
+      currencyId: json['currencyId'],
+      interestOrNot: json['interestOrNot'],
       branchId: json['branchId'],
+      marketId: json['marketId'],
+      defaultValue: json['default'],
+      tinNumber: json['tinNumber'],
+      cstNumber: json['cstNumber'],
+      panNumber: json['panNumber'],
+      extraDate: json['extraDate'],
+      extra1: json['extra1'],
+      extra2: json['extra2'],
+      areaId: json['areaId'],
       ledgerCode: json['ledgerCode'],
+      buildingNo: json['BuildingNo'],
+      additionalNo: json['AdditionalNo'],
+      streetName: json['StreetName'],
+      postboxNo: json['PostboxNo'],
+      cityName: json['CityName'],
+      country: json['Country'],
+      creditLimitStatus: json['creditLimitStatus'],
+      bankAccName: json['bankaccname'],
+      bankName: json['bankname'],
+      ibanNo: json['ibanno'],
+      district: json['District'],
+      streetNameArb: json['StreetNameArb'],
+      buildingNoArb: json['BuildingNoArb'],
+      cityNameArb: json['CityNameArb'],
+      districtArb: json['DistrictArb'],
+      countryArb: json['CountryArb'],
+      additionalNoArb: json['AdditionalNoArb'],
+      postboxNoArb: json['PostboxNoArb'],
+      bankBranchName: json['bankBranchName'],
+      bankSwiftCode: json['bankSwiftCode'],
+      addressArabic: json['AddressArabic'],
+      ledgerType: json['ledgerType'],
+      routeId: json['routeId'],
       createdDate: json['CreatedDate'],
       createdUser: json['CreatedUser'],
+      modifiedDate: json['ModifiedDate'],
+      modifiedUser: json['ModifiedUser'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "ledgerId": ledgerId,
-      "ledgerName": ledgerName,
-      "groupId": groupId,
-      "openingBalance": openingBalance,
-      "crOrDr": crOrDr,
-      "accountNo": accountNo,
-      "bankname": bankName,
-      "branchId": branchId,
-      "ledgerCode": ledgerCode,
-      "CreatedDate": createdDate,
-      "CreatedUser": createdUser,
-    };
   }
 }

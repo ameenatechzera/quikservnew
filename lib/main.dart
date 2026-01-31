@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/accountledger/presentation/bloc/accountledger_cubit.dart';
+import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/splash_screen.dart';
@@ -18,6 +19,8 @@ import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
 import 'package:quikservnew/services/service_locator.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
+import 'features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
+import 'features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'features/masters/presentation/bloc/user_creation_cubit.dart';
 
 late final AppDatabase appDb;
@@ -67,6 +70,13 @@ class MyApp extends StatelessWidget {
         BlocProvider<AccountledgerCubit>(
           create: (_) => sl<AccountledgerCubit>(),
         ),
+        BlocProvider<ItemWiseReportCubit>(
+          create: (_) => sl<ItemWiseReportCubit>(),
+        ),
+        BlocProvider<DaycloseReportCubit>(
+          create: (_) => sl<DaycloseReportCubit>(),
+        ),
+        BlocProvider<AccountGroupCubit>(create: (_) => sl<AccountGroupCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

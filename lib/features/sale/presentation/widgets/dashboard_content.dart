@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
+import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemwise_report_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportScreen.dart';
@@ -275,7 +277,14 @@ class _DashboardContentState extends State<DashboardContent> {
                         child: _ActionTile(
                           icon: Icons.flag_outlined,
                           label: 'Item Report',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ItemWiseReportScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -288,7 +297,14 @@ class _DashboardContentState extends State<DashboardContent> {
                         child: _ActionTile(
                           icon: Icons.calendar_month_outlined,
                           label: 'Daily Closing\nReport',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DailyClosingReportScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(width: 12),

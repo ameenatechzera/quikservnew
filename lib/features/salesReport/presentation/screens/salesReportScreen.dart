@@ -81,15 +81,15 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             const SizedBox(height: 16),
             BlocConsumer<SalesReportCubit, SlesReportState>(
               listener: (context, state) {
-                if(state is SalesDeleteSuccess){
-                    Fluttertoast.showToast(
-                      msg: "Sales details deleted successfully..!",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      backgroundColor: Colors.black87,
-                      textColor: Colors.white,
-                      fontSize: 14,
-                    );
+                if (state is SalesDeleteSuccess) {
+                  Fluttertoast.showToast(
+                    msg: "Sales details deleted successfully..!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.black87,
+                    textColor: Colors.white,
+                    fontSize: 14,
+                  );
                   context.read<SalesReportCubit>().fetchSalesReport(
                     FetchReportRequest(
                       from_date: formatter.format(fromDate),
@@ -98,9 +98,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                       branchId: st_branchId,
                     ),
                   );
-
                 }
-                if(state is SalesDeleteFailure){
+                if (state is SalesDeleteFailure) {
                   Fluttertoast.showToast(
                     msg: "Sales details deletion failed..!",
                     toastLength: Toast.LENGTH_SHORT,
@@ -207,7 +206,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
-    final DateFormat formatter = DateFormat('dd MMM yyyy');
+    // final DateFormat formatter = DateFormat('dd MMM yyyy');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -271,7 +270,10 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                     ),
                   ),
                 ),
-                Visibility(visible: true, child: _deleteButton(sale.salesMasterId)),
+                Visibility(
+                  visible: true,
+                  child: _deleteButton(sale.salesMasterId),
+                ),
               ],
             ),
 
@@ -318,18 +320,14 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   Widget _deleteButton(int salesMasterId) {
     return InkWell(
       onTap: () async {
-
-          final result = await showConfirmationDialog(
-            context,
-            heading: 'Delete Confirmation',
-            message: 'Are you sure you want to delete all selected items?', salesMasterId: salesMasterId,
-          );
-          if (result == true) {
-
-          } else {
-
-          }
-          
+        final result = await showConfirmationDialog(
+          context,
+          heading: 'Delete Confirmation',
+          message: 'Are you sure you want to delete all selected items?',
+          salesMasterId: salesMasterId,
+        );
+        if (result == true) {
+        } else {}
       },
       child: CircleAvatar(
         radius: 16,

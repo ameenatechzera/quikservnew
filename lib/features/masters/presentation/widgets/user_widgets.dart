@@ -66,12 +66,7 @@ Widget userTile({required String name}) {
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
-          InkWell(
-            onTap: () {
-              // delete action
-            },
-            child: const Icon(Icons.delete, color: Colors.red, size: 22),
-          ),
+
         ],
       ),
     ),

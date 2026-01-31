@@ -1,10 +1,21 @@
 import 'package:get_it/get_it.dart';
 import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/features/accountledger/data/datasources/account_ledger_remote_datasource.dart';
-import 'package:quikservnew/features/accountledger/data/repositories/account_ledger_impl.dart';
+import 'package:quikservnew/features/accountledger/data/repositories/account_ledger_repositoryImpl.dart';
 import 'package:quikservnew/features/accountledger/domain/repositories/account_ledger_repository.dart';
-import 'package:quikservnew/features/accountledger/domain/usecases/fetch_account_ledger_usecase.dart';
+import 'package:quikservnew/features/accountledger/domain/usecases/delete_accountledger_usecase.dart';
+import 'package:quikservnew/features/accountledger/domain/usecases/fetchAccountLedgersUseCase.dart';
+import 'package:quikservnew/features/accountledger/domain/usecases/save_account_ledger_usecase.dart';
+import 'package:quikservnew/features/accountledger/domain/usecases/update_ledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/presentation/bloc/accountledger_cubit.dart';
+import 'package:quikservnew/features/accountGroups/data/datasources/accountGroup_remote_datasources.dart';
+import 'package:quikservnew/features/accountGroups/data/repositories/account_group_repository_impl.dart';
+import 'package:quikservnew/features/accountGroups/domain/repositories/account_group_repository.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/deleteAccountGroupUseCase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/fetchAccountGroupsUseCase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/saveAccountGroupUseCase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/updateAccountGroupUseCase.dart';
+import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
@@ -12,6 +23,7 @@ import 'package:quikservnew/features/authentication/domain/usecases/login_usecas
 import 'package:quikservnew/features/authentication/domain/usecases/register_server_usecase.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
+
 import 'package:quikservnew/features/category/data/datasources/categories_remote_data_source.dart';
 import 'package:quikservnew/features/category/data/repositories/categories_repository_impl.dart';
 import 'package:quikservnew/features/category/data/repositories/category_local_repository_impl.dart';
@@ -19,21 +31,37 @@ import 'package:quikservnew/features/category/domain/repositories/category_local
 import 'package:quikservnew/features/category/domain/repositories/category_repository.dart';
 import 'package:quikservnew/features/category/domain/usecases/delete_category_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/edit_category_usecase.dart';
+
 import 'package:quikservnew/features/category/domain/usecases/fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/local_fetch_categories_usecase.dart';
 import 'package:quikservnew/features/category/domain/usecases/save_category_usecase.dart';
+
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
+import 'package:quikservnew/features/dailyclosingReport/data/datasources/dailyCloseReport_remote_datasource.dart';
+import 'package:quikservnew/features/dailyclosingReport/data/repositories/dailyCloseReport_repository_impl.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/repositories/dailyClosingReportRepository.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetchDailyClosingReportUseCase.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetchItemWiseDetailsUseCase.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
 import 'package:quikservnew/features/groups/data/datasources/group_remote_data_source.dart';
 import 'package:quikservnew/features/groups/data/repositories/group_repository_impl.dart';
 import 'package:quikservnew/features/groups/domain/repositories/group_repository.dart';
 import 'package:quikservnew/features/groups/domain/usecases/add_product_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/delete_productgroupfromserver_usecase.dart';
+
 import 'package:quikservnew/features/groups/domain/usecases/fetch_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/update_productgroups_usecase.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
+import 'package:quikservnew/features/itemwiseReport/data/datasources/itemwiseReport_remote_datasource.dart';
+import 'package:quikservnew/features/itemwiseReport/data/repositories/itemwiseReport_repository_impl.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/repositories/ItemWiseReportRepository.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetchItemwiseReportUseCase.dart';
+import 'package:quikservnew/features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'package:quikservnew/features/masters/data/datasources/userCreationRemoteDataSource.dart';
 import 'package:quikservnew/features/masters/data/repositories/user_creation_repository_impl.dart';
 import 'package:quikservnew/features/masters/domain/repositories/user_creation_repository.dart';
+import 'package:quikservnew/features/masters/domain/usecase/fetch_cashierlist_usecase.dart';
+import 'package:quikservnew/features/masters/domain/usecase/fetch_supplierlist_usecase.dart';
 import 'package:quikservnew/features/masters/domain/usecase/fetch_usertypes_usecase.dart';
 import 'package:quikservnew/features/masters/domain/usecase/save_usertypes_usecase.dart';
 import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cubit.dart';
@@ -323,10 +351,14 @@ class ServiceLocator {
       () => UserCreationCubit(
         fetchUserTypesUseCase: sl(),
         saveUserTypesUseCase: sl(),
+        fetchSupplierListUseCase: sl(),
+        fetchCashierListUseCase: sl(),
       ),
     );
     sl.registerLazySingleton(() => FetchUserTypesUseCase(sl()));
     sl.registerLazySingleton(() => SaveUserUseCase(sl()));
+    sl.registerLazySingleton(() => FetchSupplierListUseCase(sl()));
+    sl.registerLazySingleton(() => FetchCashierListUseCase(sl()));
 
     sl.registerLazySingleton<UserCreationRemoteDataSource>(
       () => UserCreationRemoteDataSourceImpl(),
@@ -338,20 +370,77 @@ class ServiceLocator {
 
     // Cubit
     sl.registerFactory(
-      () => AccountledgerCubit(fetchAccountLedgerUseCase: sl()),
+      () => AccountledgerCubit(
+        fetchAccountLedgerUseCase: sl(),
+        deleteAccountLedgerUseCase: sl(),
+        saveAccountLedgerUseCase: sl(),
+        updateAccountLedgerUseCase: sl(),
+      ),
     );
 
     // UseCase
     sl.registerLazySingleton(() => FetchAccountLedgerUseCase(sl()));
+    sl.registerLazySingleton(() => DeleteAccountLedgerUseCase(sl()));
+    sl.registerLazySingleton(() => SaveAccountLedgerUseCase(sl()));
+    sl.registerLazySingleton(() => UpdateAccountLedgerUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<AccountLedgerRemoteDataSource>(
       () => AccountLedgerRemoteDataSourceImpl(),
     );
-
-    // Repository
     sl.registerLazySingleton<AccountLedgerRepository>(
       () => AccountLedgerRepositoryImpl(remoteDataSource: sl()),
+    );
+
+    // ------------------- Item Report Cubit -------------------
+    sl.registerFactory(
+      () => ItemWiseReportCubit(fetchItemWiseReportUseCase: sl()),
+    );
+    sl.registerLazySingleton(() => FetchItemWiseReportUseCase(sl()));
+
+    sl.registerLazySingleton<ItemWiseReportRemoteDataSource>(
+      () => ItemWiseReportRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<ItemWiseReportRepository>(
+      () => ItemWiseReportRepositoryImpl(remoteDataSource: sl()),
+    );
+
+    // ------------------- Daily close Report Cubit -------------------
+    sl.registerFactory(
+      () => DaycloseReportCubit(
+        fetchDailyClosingReportUseCase: sl(),
+        fetchItemWiseDetailsUseCase: sl(),
+      ),
+    );
+    sl.registerLazySingleton(() => FetchDailyClosingReportUseCase(sl()));
+    sl.registerLazySingleton(() => FetchItemWiseDetailsUseCase(sl()));
+
+    sl.registerLazySingleton<DailyClosingReportRemoteDataSource>(
+      () => DailyClosingReportRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<DailyClosingReportRepository>(
+      () => DailyclosereportRepositoryImpl(remoteDataSource: sl()),
+    );
+
+    // ------------------- Account group Cubit -------------------
+    sl.registerFactory(
+      () => AccountGroupCubit(
+        fetchAccountGroupsUseCase: sl(),
+        saveAccountGroupUseCase: sl(),
+        deleteAccountGroupUseCase: sl(),
+        updateAccountGroupUseCase: sl(),
+      ),
+    );
+    sl.registerLazySingleton(() => FetchAccountGroupsUseCase(sl()));
+    sl.registerLazySingleton(() => SaveAccountGroupUseCase(sl()));
+    sl.registerLazySingleton(() => DeleteAccountGroupUseCase(sl()));
+    sl.registerLazySingleton(() => UpdateAccountGroupUseCase(sl()));
+
+    sl.registerLazySingleton<AccountGroupsRemoteDataSource>(
+      () => AccountGroupsRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<AccountGroupRepository>(
+      () => AccountGroupRepositoryImpl(remoteDataSource: sl()),
     );
   }
 }

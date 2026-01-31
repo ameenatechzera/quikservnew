@@ -4,13 +4,13 @@ import 'package:quikservnew/features/accountledger/data/models/fetch_accountledg
 import 'package:quikservnew/features/accountledger/domain/repositories/account_ledger_repository.dart';
 
 class FetchAccountLedgerUseCase
-    implements UseCaseWithoutParams<FetchLedgerResponseModel> {
+    implements UseCaseWithoutParams<FetchAccountLedgerResponseModel> {
   final AccountLedgerRepository _accountLedgerRepository;
 
   FetchAccountLedgerUseCase(this._accountLedgerRepository);
 
   @override
-  ResultFuture<FetchLedgerResponseModel> call() async {
-    return _accountLedgerRepository.fetchAccountLedger();
+  ResultFuture<FetchAccountLedgerResponseModel> call() async {
+    return _accountLedgerRepository.fetchAccountLedgers();
   }
 }

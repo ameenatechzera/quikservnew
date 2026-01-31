@@ -63,7 +63,7 @@ class AboutScreen extends StatelessWidget {
                      padding: const EdgeInsets.all(8.0),
                      child: _infoTile(
                       assetIcon: 'assets/icons/whatsapp_icon.png',
-                      title: "973383883893",
+                      title: "+91-7592909990",
                                        ),
                    ),
                 ),
@@ -83,7 +83,7 @@ class AboutScreen extends StatelessWidget {
                      padding: const EdgeInsets.all(8.0),
                      child: _infoTile(
                       icon: Icons.language,
-                      title: "www.techzera.in",
+                      title: "www.quikserv.app",
                                        ),
                    ),
                 ),
@@ -114,14 +114,14 @@ class AboutScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 26.0),
 
                         child: const Text(
-                          "Teczera Is A Technology-Driven Company Focused On Building "
-                              "Simple, Smart, And Reliable Digital Solutions. We Specialize "
-                              "In Creating User-Friendly Products That Help Businesses "
-                              "Streamline Operations, Improve Efficiency, And Grow With "
-                              "Confidence.\n\n"
-                              "At Teczera, We Believe In Clean Design, Powerful Technology, "
-                              "And Practical Innovation. Our Solutions Are Designed To Be "
-                              "Easy To Use, Scalable, And Tailored To Real Business Needs.",
+                          "QuikSERV is a smart and easy-to-use billing application designed for Hospitality businesses."
+                          "It helps businesses manage billing, sales, and inventory smoothly, even during busy hours."
+
+                        "Our focus is to provide a fast, reliable, and user-friendly solution that simplifies daily operations and improves efficiency at the billing counter."
+
+                        "QuikSERV is built keeping real business needs in mind — accuracy, speed, and simplicity."
+
+                        "Our Vision is to become a trusted digital partner for food businesses by delivering simple, stable, and scalable billing solutions that support growth and operational excellence.",
                           style: TextStyle(height: 1.5, fontSize: 14),
                         ),
                       ),

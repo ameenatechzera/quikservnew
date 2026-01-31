@@ -26,7 +26,7 @@ class AccountLedgerListingScreen extends StatelessWidget {
             onPressed: () {
               AppNavigator.pushSlide(
                 context: context,
-                page: const AccountLedgerCreationScreen(),
+                page: AccountLedgerCreationScreen(),
               );
             },
           ),
@@ -40,9 +40,10 @@ class AccountLedgerListingScreen extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is AccountledgerLoading) {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           } else if (state is AccountledgerLoaded) {
             final ledgers = state.accountLedger;
+            debugPrint("📦 TOTAL LEDGERS FROM API: ${ledgers.ledgers!.length}");
 
             if (ledgers.ledgers!.isEmpty) {
               return const Center(child: Text("No Ledgers Available"));
@@ -52,7 +53,60 @@ class AccountLedgerListingScreen extends StatelessWidget {
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final ledger = ledgers.ledgers![index];
-                return AccountLedgerTile(title: ledger.ledgerName!);
+                return AccountLedgerTile(
+                  title: ledger.ledgerName!,
+                  onEdit: () {
+                    debugPrint(
+                      "✏️ Edit tapped for ledgerId = ${ledger.ledgerId}",
+                    );
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AccountLedgerCreationScreen(
+                          ledgerId: ledger.ledgerId,
+                          existingLedger: ledger,
+                        ),
+                      ),
+                    );
+                  },
+                  onDelete: () async {
+                    debugPrint(
+                      "🟥 Delete tapped for ledgerId = ${ledger.ledgerId}",
+                    );
+                    final shouldDelete = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text("Delete Ledger"),
+                          content: const Text(
+                            "Are you sure you want to delete this account ledger?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red,
+                              ),
+                              child: const Text("Delete"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (shouldDelete == true) {
+                      debugPrint("✅ User confirmed delete");
+                      context.read<AccountledgerCubit>().deleteAccountLedger(
+                        ledger.ledgerId!,
+                      );
+                    }
+                  },
+                );
               },
             );
           }
