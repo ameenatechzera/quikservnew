@@ -22,3 +22,9 @@ class AccountledgerError extends AccountledgerState {
 
   const AccountledgerError({required this.error});
 }
+
+/// 🔹 Separate loaded state for bank account ledger
+class BankAccountLedgerLoaded extends AccountledgerState {
+  final FetchBankAccountLedgerResponseModel bankAccountLedger;
+  const BankAccountLedgerLoaded({required this.bankAccountLedger});
+}

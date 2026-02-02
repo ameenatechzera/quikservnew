@@ -212,4 +212,15 @@ class ApiConstants {
   static String updateAccountLedgerPath(String baseUrl, int ledgerId) {
     return "$baseUrl/accountledger/update-account-ledger/$ledgerId";
   }
+
+  ///for Save Account settings
+
+  static String saveAccountSettingsPath(String baseUrl, int id) {
+    return '$baseUrl/settings/update-ledger_settings/$id';
+  }
+
+  ///for fethcing bank accountledger
+  static String getBankAccountLedgerPath(String baseUrl) {
+    return '$baseUrl/accountledger/bank-account-ledgers';
+  }
 }

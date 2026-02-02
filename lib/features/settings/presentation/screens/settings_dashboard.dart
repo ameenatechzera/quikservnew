@@ -53,7 +53,7 @@ class SettingsScreen extends StatelessWidget {
                           context: context,
                           icon: Icons.person_outline,
                           title: "Account Settings",
-                          page: const AccountSettingsScreen(),
+                          page: AccountSettingsScreen(),
                         ),
                         buildTile(
                           context: context,

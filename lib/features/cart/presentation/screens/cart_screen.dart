@@ -16,12 +16,38 @@ import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
-class CartScreen extends StatelessWidget {
-  CartScreen({super.key});
+class CartScreen extends StatefulWidget {
+  const CartScreen({super.key});
 
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
   final ValueNotifier<String> selectedPayment = ValueNotifier<String>('Cash');
+
   final ValueNotifier<double> multiCashAmount = ValueNotifier<double>(0);
+
   final ValueNotifier<double> multiCardAmount = ValueNotifier<double>(0);
+  final SharedPreferenceHelper helper = SharedPreferenceHelper();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDefaultPayment();
+  }
+
+  /// 🔹 Load default payment from SharedPreferences
+  Future<void> _loadDefaultPayment() async {
+    final int savedPayment = await helper
+        .getPaymentOption(); // 0 = Cash, 1 = Card
+
+    if (savedPayment == 0) {
+      selectedPayment.value = 'Cash';
+    } else if (savedPayment == 1) {
+      selectedPayment.value = 'Card';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -312,7 +338,7 @@ class CartScreen extends StatelessWidget {
                                       ),
                                       elevation: 0,
                                     ),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       final payment = selectedPayment.value;
 
                                       double cashAmt = 0;
@@ -342,7 +368,16 @@ class CartScreen extends StatelessWidget {
                                           );
                                           return;
                                         }
-                                      }
+                                      } // 🔹 LOAD LEDGERS FROM SHARED PREF
+                                      final ledgerData =
+                                          await SharedPreferenceHelper()
+                                              .getLedgers();
+
+                                      final int cashLedgerId =
+                                          ledgerData['cashLedgerId'] ?? 0;
+                                      final int cardLedgerId =
+                                          ledgerData['cardLedgerId'] ?? 0;
+
                                       final items =
                                           CartManager().cartItems.value;
                                       // Build SaveSaleRequest from cart
@@ -357,14 +392,14 @@ class CartScreen extends StatelessWidget {
                                             .last
                                             .split('.')
                                             .first,
-                                        ledgerId: 1,
+                                        ledgerId: 0,
                                         subTotal: subTotal,
                                         discountAmount: discount,
                                         vatAmount: tax,
                                         grandTotal: total,
-                                        cashLedgerId: 1,
+                                        cashLedgerId: cashLedgerId,
                                         cashAmount: cashAmt,
-                                        cardLedgerId: 0,
+                                        cardLedgerId: cardLedgerId,
                                         cardAmount: cardAmt,
                                         creditAmount: 0,
                                         tableId: 1,

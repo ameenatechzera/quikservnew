@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+final ValueNotifier<int> itemTapBehaviorNotifier = ValueNotifier<int>(1);
 
 class SharedPreferenceHelper {
   static const String _baseUrlKey = 'base_url';
@@ -6,6 +9,9 @@ class SharedPreferenceHelper {
   static const String _databaseNameKey = 'database_name';
   static const String _vatStatusKey = 'vat_status';
   static const String _vatTypeKey = 'vat_type';
+  static const _itemTapBehaviorKey = 'itemTapBehavior';
+  static const _paymentOptionKey = 'payment_option';
+  // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
 
   /// ------------------ BASE URL ------------------
   Future<void> setBaseUrl(String url) async {
@@ -104,5 +110,59 @@ class SharedPreferenceHelper {
   Future<String> getVatType() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_vatTypeKey) ?? '';
+  }
+
+  /// ------------------ LEDGERS ------------------
+  Future<void> saveLedgers({
+    required int cashLedgerId,
+    required String cashLedgerName,
+    required int cardLedgerId,
+    required String cardLedgerName,
+    required int bankLedgerId,
+    required String bankLedgerName,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('cashLedgerId', cashLedgerId);
+    await prefs.setString('cashLedgerName', cashLedgerName);
+    await prefs.setInt('cardLedgerId', cardLedgerId);
+    await prefs.setString('cardLedgerName', cardLedgerName);
+    await prefs.setInt('bankLedgerId', bankLedgerId);
+    await prefs.setString('bankLedgerName', bankLedgerName);
+  }
+
+  Future<Map<String, dynamic>> getLedgers() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'cashLedgerId': prefs.getInt('cashLedgerId'),
+      'cashLedgerName': prefs.getString('cashLedgerName'),
+      'cardLedgerId': prefs.getInt('cardLedgerId'),
+      'cardLedgerName': prefs.getString('cardLedgerName'),
+      'bankLedgerId': prefs.getInt('bankLedgerId'),
+      'bankLedgerName': prefs.getString('bankLedgerName'),
+    };
+  }
+
+  Future<void> saveItemTapBehavior(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_itemTapBehaviorKey, value);
+    // ✅ update instantly for live screens
+    itemTapBehaviorNotifier.value = value;
+  }
+
+  Future<int> getItemTapBehavior() async {
+    final prefs = await SharedPreferences.getInstance();
+    final v = prefs.getInt(_itemTapBehaviorKey) ?? 1;
+    itemTapBehaviorNotifier.value = v;
+    return v;
+  }
+
+  Future<void> savePaymentOption(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_paymentOptionKey, value);
+  }
+
+  Future<int> getPaymentOption() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_paymentOptionKey) ?? 0; // CASH default
   }
 }

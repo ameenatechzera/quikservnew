@@ -33,53 +33,81 @@ Widget cursorFocusSection() {
   );
 }
 
-Widget itemTapBehaviorSection() {
-  return ValueListenableBuilder<int>(
-    valueListenable: itemTapBehavior,
-    builder: (_, value, __) {
-      return settingsCard(
-        title: "Item Tap Behavior",
-        children: [
-          radioTile(
-            label: "OPEN DIALOG",
-            value: 0,
-            groupValue: value,
-            onChanged: (v) => itemTapBehavior.value = v,
-          ),
-          radioTile(
-            label: "INCREASE QUANTITY",
-            value: 1,
-            groupValue: value,
-            onChanged: (v) => itemTapBehavior.value = v,
-          ),
-        ],
-      );
-    },
+Widget itemTapBehaviorSection({
+  required int selectedValue,
+  required ValueChanged<int> onChanged,
+}) {
+  return settingsCard(
+    title: "Item Tap Behavior",
+    children: [
+      radioTile(
+        label: "Increase Quantity",
+        value: 1,
+        groupValue: selectedValue,
+        onChanged: (v) {
+          onChanged(v);
+        },
+      ),
+      radioTile(
+        label: "Open Dialog",
+        value: 2,
+        groupValue: selectedValue,
+        onChanged: (v) {
+          onChanged(v);
+        },
+      ),
+    ],
   );
 }
 
-Widget paymentOptionsSection() {
-  return ValueListenableBuilder<int>(
-    valueListenable: paymentOption,
-    builder: (_, value, __) {
-      return settingsCard(
-        title: "Payment Options",
-        children: [
-          radioTile(
-            label: "CASH",
-            value: 0,
-            groupValue: value,
-            onChanged: (v) => paymentOption.value = v,
-          ),
-          radioTile(
-            label: "CARD",
-            value: 1,
-            groupValue: value,
-            onChanged: (v) => paymentOption.value = v,
-          ),
-        ],
-      );
-    },
+// Widget paymentOptionsSection() {
+//   return ValueListenableBuilder<int>(
+//     valueListenable: paymentOption,
+//     builder: (_, value, __) {
+//       return settingsCard(
+//         title: "Payment Options",
+//         children: [
+//           radioTile(
+//             label: "CASH",
+//             value: 0,
+//             groupValue: value,
+//             onChanged: (v) => paymentOption.value = v,
+//           ),
+//           radioTile(
+//             label: "CARD",
+//             value: 1,
+//             groupValue: value,
+//             onChanged: (v) => paymentOption.value = v,
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+Widget paymentOptionsSection({
+  required int selectedValue,
+  required ValueChanged<int> onChanged,
+}) {
+  return settingsCard(
+    title: "Payment Options",
+    children: [
+      radioTile(
+        label: "CASH",
+        value: 0,
+        groupValue: selectedValue,
+        onChanged: (v) {
+          onChanged(v);
+        },
+      ),
+      radioTile(
+        label: "CARD",
+        value: 1,
+        groupValue: selectedValue,
+        onChanged: (v) {
+          onChanged(v);
+        },
+      ),
+    ],
   );
 }
 

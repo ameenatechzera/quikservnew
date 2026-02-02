@@ -2,9 +2,12 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:quikservnew/features/accountledger/data/models/fetch_accountledger_model.dart';
+import 'package:quikservnew/features/accountledger/data/models/fetch_bankaccountledger_model.dart';
+import 'package:quikservnew/features/accountledger/domain/parameters/fetch_backaccountledger_parameter.dart';
 import 'package:quikservnew/features/accountledger/domain/parameters/save_account_ledger_parameter.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/delete_accountledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/fetchAccountLedgersUseCase.dart';
+import 'package:quikservnew/features/accountledger/domain/usecases/fetch_bankaccountledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/save_account_ledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/update_ledger_usecase.dart';
 
@@ -15,15 +18,18 @@ class AccountledgerCubit extends Cubit<AccountledgerState> {
   final DeleteAccountLedgerUseCase _deleteAccountLedgerUseCase;
   final SaveAccountLedgerUseCase _saveAccountLedgerUseCase;
   final UpdateAccountLedgerUseCase _updateAccountLedgerUseCase;
+  final FetchBankAccountLedgerUseCase _fetchBankAccountLedgerUseCase;
   AccountledgerCubit({
     required FetchAccountLedgerUseCase fetchAccountLedgerUseCase,
     required DeleteAccountLedgerUseCase deleteAccountLedgerUseCase,
     required SaveAccountLedgerUseCase saveAccountLedgerUseCase,
     required UpdateAccountLedgerUseCase updateAccountLedgerUseCase,
+    required FetchBankAccountLedgerUseCase fetchBankAccountLedgerUseCase,
   }) : _fetchAccountLedgerUseCase = fetchAccountLedgerUseCase,
        _deleteAccountLedgerUseCase = deleteAccountLedgerUseCase,
        _saveAccountLedgerUseCase = saveAccountLedgerUseCase,
        _updateAccountLedgerUseCase = updateAccountLedgerUseCase,
+       _fetchBankAccountLedgerUseCase = fetchBankAccountLedgerUseCase,
        super(AccountledgerInitial()) {
     debugPrint("🔥 update usecase = $_updateAccountLedgerUseCase");
     debugPrint("🔥 save usecase = $_saveAccountLedgerUseCase");
@@ -84,6 +90,24 @@ class AccountledgerCubit extends Cubit<AccountledgerState> {
       (failure) => emit(AccountledgerError(error: failure.message)),
       (_) async {
         await fetchAccountLedger();
+      },
+    );
+  }
+
+  /// 🔹 Fetch bank account ledger list
+  void fetchBankAccountLedger({required List<int> groupIds}) async {
+    emit(AccountledgerLoading());
+
+    final params = FetchBankAccountLedgerParams(groupIds: groupIds);
+
+    final eitherResult = await _fetchBankAccountLedgerUseCase(params);
+
+    eitherResult.fold(
+      (failure) {
+        emit(AccountledgerError(error: failure.message));
+      },
+      (ledgerResponse) {
+        emit(BankAccountLedgerLoaded(bankAccountLedger: ledgerResponse));
       },
     );
   }

@@ -5,6 +5,7 @@ import 'package:quikservnew/features/accountledger/data/repositories/account_led
 import 'package:quikservnew/features/accountledger/domain/repositories/account_ledger_repository.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/delete_accountledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/fetchAccountLedgersUseCase.dart';
+import 'package:quikservnew/features/accountledger/domain/usecases/fetch_bankaccountledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/save_account_ledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/update_ledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/presentation/bloc/accountledger_cubit.dart';
@@ -95,6 +96,7 @@ import 'package:quikservnew/features/settings/data/repositories/settings_reposit
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchCurrenSalesTokenUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/updatesalesTokenUseCase.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/features/units/data/datasources/units_remote_datasource.dart';
@@ -280,12 +282,14 @@ class ServiceLocator {
         fetchSettingsUseCase: sl(),
         fetchCurrentSalesTokenUseCase: sl(),
         updateSalesTokenUseCase: sl(),
+        saveAccountSettingsUseCase: sl(),
       ),
     );
     // UseCase
     sl.registerLazySingleton(() => FetchSettingsUseCase(sl()));
     sl.registerLazySingleton(() => FetchCurrentSalesTokenUseCase(sl()));
     sl.registerLazySingleton(() => UpdateSalesTokenUseCase(sl()));
+    sl.registerLazySingleton(() => SaveAccountSettingsUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<SettingsRemoteDataSource>(
@@ -375,6 +379,7 @@ class ServiceLocator {
         deleteAccountLedgerUseCase: sl(),
         saveAccountLedgerUseCase: sl(),
         updateAccountLedgerUseCase: sl(),
+        fetchBankAccountLedgerUseCase: sl(),
       ),
     );
 
@@ -383,6 +388,7 @@ class ServiceLocator {
     sl.registerLazySingleton(() => DeleteAccountLedgerUseCase(sl()));
     sl.registerLazySingleton(() => SaveAccountLedgerUseCase(sl()));
     sl.registerLazySingleton(() => UpdateAccountLedgerUseCase(sl()));
+    sl.registerLazySingleton(() => FetchBankAccountLedgerUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<AccountLedgerRemoteDataSource>(

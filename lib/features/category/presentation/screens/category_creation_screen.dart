@@ -20,6 +20,9 @@ class CategoryCreationScreen extends StatelessWidget {
   bool get isEdit => categoryId != null;
   @override
   Widget build(BuildContext context) {
+    if (isEdit && categoryController.text.isEmpty) {
+      categoryController.text = initialCategoryName ?? '';
+    }
     return Scaffold(
       backgroundColor: Colors.white,
 
