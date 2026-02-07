@@ -145,6 +145,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       print('🔹 Fetch Sales Report by Date URL: $url');
       print('🔹 DB Name: $dbName');
       print('🔹 Token exists: ${token.isNotEmpty}');
+      print('🔹 Token : ${token}');
 
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
 

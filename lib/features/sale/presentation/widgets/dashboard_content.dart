@@ -5,8 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemwise_report_screen.dart';
+import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
+import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
+import 'package:quikservnew/features/salesReport/presentation/screens/home_screencristal.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportScreen.dart';
 
 // ✅ add this (same used in HomeScreen)
@@ -232,7 +235,13 @@ class _DashboardContentState extends State<DashboardContent> {
                     children: [
                       Expanded(
                         child: _ActionTile(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                builder: (_) => const HomeScreen(),
+                            ));
+                          },
                           icon: Icons.receipt_long_outlined,
                           label: 'Sales Invoice',
                         ),
@@ -242,7 +251,14 @@ class _DashboardContentState extends State<DashboardContent> {
                         child: _ActionTile(
                           icon: Icons.camera_alt_outlined,
                           label: 'Payment',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>  PaymentScreen(pagefrom: '',),
+                                ));
+
+                          },
                         ),
                       ),
                     ],
@@ -268,7 +284,13 @@ class _DashboardContentState extends State<DashboardContent> {
                               MaterialPageRoute(
                                 builder: (_) => const SalesReportPage(),
                               ),
-                            );
+                             );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (_) => const Home_cristal(),
+                            //   ),
+                            // );
                           },
                         ),
                       ),
