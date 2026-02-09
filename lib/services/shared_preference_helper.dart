@@ -51,6 +51,19 @@ class SharedPreferenceHelper {
     return prefs.getString("branchId") ?? '';
   }
 
+
+  /// ------------------ Subscription Code ------------------
+  Future<bool> setSubscriptionCode(String subCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("subCode", subCode);
+  }
+
+  Future<String> getSubscriptionCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("subCode") ?? '';
+  }
+
+
   /// ------------------ setStaffName ------------------
   Future<bool> setStaffName(String staffName) async {
     final prefs = await SharedPreferences.getInstance();
@@ -115,6 +128,17 @@ class SharedPreferenceHelper {
   Future<String> getVatType() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_vatTypeKey) ?? '';
+  }
+
+  /// ------------------ Expiry Date ------------------
+  Future<void> setExpiryDate(String expiryDate) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('expiryDate', expiryDate);
+  }
+
+  Future<String> getExpiryDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('expiryDate') ?? '';
   }
 
   /// ------------------ LEDGERS ------------------

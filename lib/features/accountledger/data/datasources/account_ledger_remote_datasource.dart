@@ -5,6 +5,7 @@ import 'package:quikservnew/core/errors/error_message_model.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/accountledger/data/models/fetch_accountledger_model.dart';
 import 'package:quikservnew/features/accountledger/data/models/fetch_bankaccountledger_model.dart';
+import 'package:quikservnew/features/accountledger/domain/entities/accLedgerResponse.dart';
 import 'package:quikservnew/features/accountledger/domain/parameters/fetch_backaccountledger_parameter.dart';
 import 'package:quikservnew/features/accountledger/domain/parameters/save_account_ledger_parameter.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
@@ -13,7 +14,7 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 abstract class AccountLedgerRemoteDataSource {
   Future<FetchAccountLedgerResponseModel> fetchAccountLedgers();
   Future<MasterResponseModel> deleteAccountLedger(int ledgerId);
-  Future<MasterResponseModel> saveAccountLedger(AccountLedgerParams params);
+  Future<AccLedgerResponseModel> saveAccountLedger(AccountLedgerParams params);
   Future<MasterResponseModel> updateAccountLedger(
     int ledgerId,
     AccountLedgerParams params,
@@ -121,7 +122,7 @@ class AccountLedgerRemoteDataSourceImpl
   }
 
   @override
-  Future<MasterResponseModel> saveAccountLedger(
+  Future<AccLedgerResponseModel> saveAccountLedger(
     AccountLedgerParams params,
   ) async {
     try {
@@ -160,8 +161,8 @@ class AccountLedgerRemoteDataSourceImpl
       print('🔹 Response status: ${response.statusCode}');
       print('🔹 Response data: ${response.data}');
 
-      if (response.statusCode == 200) {
-        return MasterResponseModel.fromJson(response.data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return AccLedgerResponseModel.fromJson(response.data);
       } else {
         throw ServerException(
           errorMessageModel: ErrorMessageModel.fromJson(response.data),

@@ -47,7 +47,7 @@ class LoginScreen extends StatelessWidget {
               await SharedPreferenceHelper().setDatabaseName(
                 state.result.companyDetails.first.databaseName!,
               );
-
+              await SharedPreferenceHelper().setExpiryDate(state.result.companyDetails.first.expiryDate!);
               /// After register -> trigger login
               context.read<LoginCubit>().loginUser(
                 LoginRequest(
@@ -56,6 +56,7 @@ class LoginScreen extends StatelessWidget {
                 ),
               );
             } else if (state is RegisterFailure) {
+
               isProcessing.value = false; // re-enable button
               print(state.error);
               showAppSnackBar(context, state.error);
@@ -82,6 +83,10 @@ class LoginScreen extends StatelessWidget {
                 await SharedPreferenceHelper().setBranchId(
                   state.loginResponse.data.first.branchIds.first.toString(),
                 );
+                await SharedPreferenceHelper().setSubscriptionCode(
+                  codeCtrl.text.toString(),
+                );
+
                 print('reached_2');
                 await SharedPreferenceHelper().setStaffName(
                   state.loginResponse.data.first.name,
@@ -130,6 +135,7 @@ class LoginScreen extends StatelessWidget {
               /// ✅ STORE VAT STATUS & TYPE FROM SETTINGS API
               await SharedPreferenceHelper().setVatStatus(settings.vatStatus!);
               await SharedPreferenceHelper().setVatType(settings.vatType!);
+
               // ✅ STORE LEDGER IDS + APP VERSION
               await SharedPreferenceHelper().setCashLedgerId(
                 (settings.cashLedgerId ?? '').toString(),

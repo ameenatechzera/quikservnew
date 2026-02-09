@@ -16,7 +16,7 @@ class VatsListingScreen extends StatelessWidget {
       backgroundColor: Colors.white,
 
       appBar: CommonAppBar(
-        title: "Vat",
+        title: "Tax",
 
         actions: [
           IconButton(
@@ -37,7 +37,7 @@ class VatsListingScreen extends StatelessWidget {
           if (state is VatDeleted) {
             showAnimatedToast(
               context,
-              message: "VAT deleted successfully",
+              message: "Tax deleted successfully",
               isSuccess: true,
             );
             // ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +67,7 @@ class VatsListingScreen extends StatelessWidget {
 
           if (state is VatLoaded) {
             if (state.vat.vatDetails!.isEmpty) {
-              return const Center(child: Text('No VAT found'));
+              return const Center(child: Text('No Tax found'));
             }
 
             return ListView.separated(
@@ -154,7 +154,7 @@ class VatsListingScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete VAT'),
+        title: const Text('Delete Tax'),
         content: const Text('Are you sure you want to delete this VAT?'),
         actions: [
           TextButton(
