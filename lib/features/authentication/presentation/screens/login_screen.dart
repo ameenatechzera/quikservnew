@@ -60,6 +60,9 @@ class LoginScreen extends StatelessWidget {
               print(state.error);
               showAppSnackBar(context, state.error);
             }
+            else if(state is LoginFailure){
+              isProcessing.value = false; // re-enable button
+            }
           },
         ),
 
@@ -70,16 +73,20 @@ class LoginScreen extends StatelessWidget {
               // Disable button during post-login API calls
               isProcessing.value = true;
               try {
+                print('reached_0');
                 /// Save token globally
                 await SharedPreferenceHelper().setToken(
                   state.loginResponse.token,
                 );
+                print('reached_1');
                 await SharedPreferenceHelper().setBranchId(
                   state.loginResponse.data.first.branchIds.first.toString(),
                 );
+                print('reached_2');
                 await SharedPreferenceHelper().setStaffName(
                   state.loginResponse.data.first.name,
                 );
+                print('reached_3');
 
                 /// Trigger fetching units
                 await context.read<UnitCubit>().fetchUnits();
