@@ -40,6 +40,7 @@ class FetchSettingsDetailsModel extends FetchSettingsDetails {
     super.isTableSetup,
     super.isSalesrateEditable,
     super.branchId,
+    super.appVersion,
     super.createdDate,
     super.createdUser,
     super.modifiedDate,

@@ -121,6 +121,21 @@ class LoginScreen extends StatelessWidget {
               debugPrint('VAT TYPE    : ${settings.vatType}');
 
               /// ✅ STORE VAT STATUS & TYPE FROM SETTINGS API
+              await SharedPreferenceHelper().setVatStatus(settings.vatStatus!);
+              await SharedPreferenceHelper().setVatType(settings.vatType!);
+              // ✅ STORE LEDGER IDS + APP VERSION
+              await SharedPreferenceHelper().setCashLedgerId(
+                (settings.cashLedgerId ?? '').toString(),
+              );
+              await SharedPreferenceHelper().setCardLedgerId(
+                (settings.cardLedgerId ?? '').toString(),
+              );
+              await SharedPreferenceHelper().setBankLedgerId(
+                (settings.bankLedgerId ?? '').toString(),
+              );
+              await SharedPreferenceHelper().setAppVersion(
+                (settings.appVersion ?? '').toString(),
+              );
               final storedVatStatus = await SharedPreferenceHelper()
                   .getVatStatus();
               final storedVatType = await SharedPreferenceHelper().getVatType();

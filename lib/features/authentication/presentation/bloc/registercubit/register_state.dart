@@ -28,3 +28,18 @@ final class RegisterFailure extends RegisterState {
   @override
   List<Object?> get props => [error];
 }
+
+class ChangePassworsLoading extends RegisterState {}
+
+class ChangePasswordSuccess extends RegisterState {
+  const ChangePasswordSuccess();
+}
+
+class ChangePasswordFailure extends RegisterState {
+  final String message;
+
+  const ChangePasswordFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

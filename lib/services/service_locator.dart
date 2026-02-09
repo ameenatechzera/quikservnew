@@ -20,6 +20,7 @@ import 'package:quikservnew/features/accountGroups/presentation/bloc/account_gro
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:quikservnew/features/authentication/domain/usecases/change_password_usecase.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/login_usecase.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/register_server_usecase.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
@@ -123,11 +124,18 @@ class ServiceLocator {
   static Future<void> init() async {
     // ------------------- AUTH -------------------
     //  Cubit
-    sl.registerFactory(() => RegisterCubit(registerServerUseCase: sl()));
+    sl.registerFactory(
+      () => RegisterCubit(
+        registerServerUseCase: sl(),
+        changePasswordUseCase: sl(),
+      ),
+    );
     sl.registerFactory(() => LoginCubit(loginServerUseCase: sl()));
     // usecase
     sl.registerLazySingleton(() => RegisterServerUseCase(sl()));
     sl.registerLazySingleton(() => LoginServerUseCase(sl()));
+    sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
+
     // Data Source
     sl.registerLazySingleton<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(),

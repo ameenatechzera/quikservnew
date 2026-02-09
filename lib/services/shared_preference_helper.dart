@@ -11,6 +11,11 @@ class SharedPreferenceHelper {
   static const String _vatTypeKey = 'vat_type';
   static const _itemTapBehaviorKey = 'itemTapBehavior';
   static const _paymentOptionKey = 'payment_option';
+  static const _kCashLedgerId = 'cash_ledger_id';
+  static const _kCardLedgerId = 'card_ledger_id';
+  static const _kBankLedgerId = 'bank_ledger_id';
+
+  static const _kAppVersion = 'app_version';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
 
   /// ------------------ BASE URL ------------------
@@ -164,5 +169,46 @@ class SharedPreferenceHelper {
   Future<int> getPaymentOption() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_paymentOptionKey) ?? 0; // CASH default
+  }
+
+  Future<void> setCashLedgerId(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kCashLedgerId, value);
+  }
+
+  Future<void> setCardLedgerId(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kCardLedgerId, value);
+  }
+
+  Future<void> setBankLedgerId(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kBankLedgerId, value);
+  }
+
+  Future<void> setAppVersion(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kAppVersion, value);
+  }
+
+  // Optional getters
+  Future<String> getCashLedgerId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kCashLedgerId) ?? '';
+  }
+
+  Future<String> getCardLedgerId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kCardLedgerId) ?? '';
+  }
+
+  Future<String> getBankLedgerId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kBankLedgerId) ?? '';
+  }
+
+  Future<String> getAppVersion() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kAppVersion) ?? '';
   }
 }

@@ -112,7 +112,7 @@ class _DashboardContentState extends State<DashboardContent> {
               parent: AlwaysScrollableScrollPhysics(),
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 5, 16, 20),
+              padding: const EdgeInsets.fromLTRB(16, 5, 16, 100),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -137,47 +137,74 @@ class _DashboardContentState extends State<DashboardContent> {
                   /// SALES STATS
                   BlocBuilder<SalesReportCubit, SlesReportState>(
                     builder: (context, state) {
+                      bool isLoading = true;
+                      String totalCountText = '--';
+                      String totalAmountText = '--';
+                      // if (state is SalesReportMasterByDateSuccess) {
+                      //   final list = state.response.salesMaster;
+
+                      //   final totalCount = list.length;
+                      //   final totalAmount = list.fold<double>(
+                      //     0.0,
+                      //     (sum, item) => sum + _toDouble(item.grandTotal),
+                      //   );
                       if (state is SalesReportMasterByDateSuccess) {
                         final list = state.response.salesMaster;
+                        totalCountText = list.length.toString();
 
-                        final totalCount = list.length;
                         final totalAmount = list.fold<double>(
                           0.0,
                           (sum, item) => sum + _toDouble(item.grandTotal),
                         );
+                        totalAmountText = totalAmount.toStringAsFixed(2);
 
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: _StatCard(
-                                title: 'Total Sales Count',
-                                value: totalCount.toString(),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _StatCard(
-                                title: 'Total Sales Amount',
-                                value: totalAmount.toStringAsFixed(2),
-                              ),
-                            ),
-                          ],
-                        );
+                        isLoading = false;
+                      } else if (state is SalesReportMasterByDateError) {
+                        isLoading = false;
                       }
-
-                      if (state is SalesReportMasterByDateError) {
-                        return const Text('Failed to load sales data');
-                      }
-
-                      return const Center(child: CircularProgressIndicator());
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _StatCard(
+                              title: 'Total Sales Count',
+                              value: totalCountText,
+                              isLoading: isLoading,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _StatCard(
+                              title: 'Total Sales Amount',
+                              value: totalAmountText,
+                              isLoading: isLoading,
+                            ),
+                          ),
+                        ],
+                      );
                     },
                   ),
 
+                  //     if (state is SalesReportMasterByDateError) {
+                  //       return const Text('Failed to load sales data');
+                  //     }
+
+                  //     return const Center(child: CircularProgressIndicator());
+                  //   },
+                  // ),
                   const SizedBox(height: 14),
 
                   /// CASH BALANCE
                   BlocBuilder<SalesReportCubit, SlesReportState>(
                     builder: (context, state) {
+                      bool isLoading = true;
+                      String cashText = '--';
+                      // if (state is SalesReportMasterByDateSuccess) {
+                      //   final list = state.response.salesMaster;
+
+                      //   final cashBalance = list.fold<double>(
+                      //     0.0,
+                      //     (sum, item) => sum + _toDouble(item.cashAmount),
+                      //   );
                       if (state is SalesReportMasterByDateSuccess) {
                         final list = state.response.salesMaster;
 
@@ -185,42 +212,53 @@ class _DashboardContentState extends State<DashboardContent> {
                           0.0,
                           (sum, item) => sum + _toDouble(item.cashAmount),
                         );
+                        cashText = cashBalance.toStringAsFixed(2);
 
-                        return Container(
-                          height: 100,
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF6E0),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Column(
-                            children: [
-                              const Text(
-                                'Cash Balance',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        isLoading = false;
+                      } else if (state is SalesReportMasterByDateError) {
+                        isLoading = false;
+                      }
+                      return Container(
+                        height: 100,
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF6E0),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Cash Balance',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
-                              const SizedBox(height: 8),
+                            ),
+                            const SizedBox(height: 8),
+                            // ✅ ONLY VALUE LOADING
+                            if (isLoading)
+                              const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            else
                               Text(
-                                cashBalance.toStringAsFixed(2),
+                                cashText,
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      }
-
-                      return const SizedBox(height: 100);
+                          ],
+                        ),
+                      );
                     },
                   ),
-
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 20),
 
                   // TRANSACTION
                   const Text(
@@ -326,7 +364,12 @@ class _DashboardContentState extends State<DashboardContent> {
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
-  const _StatCard({required this.title, required this.value});
+  final bool isLoading;
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.isLoading,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -346,10 +389,18 @@ class _StatCard extends StatelessWidget {
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-          ),
+          // ✅ ONLY VALUE LOADING
+          if (isLoading)
+            const SizedBox(
+              height: 22,
+              width: 22,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          else
+            Text(
+              value,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
         ],
       ),
     );

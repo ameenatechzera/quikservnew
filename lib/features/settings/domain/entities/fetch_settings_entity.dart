@@ -22,6 +22,7 @@ class FetchSettingsDetails {
   final int? isTableSetup;
   final int? isSalesrateEditable;
   final int? branchId;
+  final bool? appVersion;
   final String? createdDate;
   final String? createdUser;
   final String? modifiedDate;
@@ -48,6 +49,7 @@ class FetchSettingsDetails {
     this.isTableSetup,
     this.isSalesrateEditable,
     this.branchId,
+    this.appVersion,
     this.createdDate,
     this.createdUser,
     this.modifiedDate,

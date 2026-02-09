@@ -7,8 +7,14 @@ import 'package:quikservnew/features/sale/presentation/widgets/scroll_supporting
 
 class CategoryListWidget extends StatelessWidget {
   final List<FetchCategoryDetailsEntity> categories;
-
-  const CategoryListWidget({super.key, required this.categories});
+  final double bottomPadding;
+  final ScrollController controller;
+  const CategoryListWidget({
+    super.key,
+    required this.categories,
+    required this.controller,
+    this.bottomPadding = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +37,12 @@ class CategoryListWidget extends StatelessWidget {
         final selectedId = context.read<SaleCubit>().selectedCategoryId;
 
         return ListView.builder(
+          controller: controller,
           physics: const SoftBounceScrollPhysics(
             parent: AlwaysScrollableScrollPhysics(),
           ),
+          padding: EdgeInsets.only(bottom: bottomPadding),
+
           itemCount: displayCategories.length,
           itemBuilder: (context, index) {
             final category = displayCategories[index];

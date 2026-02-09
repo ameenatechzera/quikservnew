@@ -223,4 +223,9 @@ class ApiConstants {
   static String getBankAccountLedgerPath(String baseUrl) {
     return '$baseUrl/accountledger/bank-account-ledgers';
   }
+
+  ///for changepassword
+  static String getChangePasswordPath(String baseUrl) {
+    return '$baseUrl/change-password';
+  }
 }

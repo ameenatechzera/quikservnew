@@ -6,9 +6,11 @@ import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:quikservnew/features/authentication/domain/entities/login_entity.dart';
 import 'package:quikservnew/features/authentication/domain/entities/register_server_response_entity.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/changepassword_parameter.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/login_params.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -38,6 +40,21 @@ class AuthRepositoryImpl implements AuthRepository {
   ) async {
     try {
       final result = await remoteDataSource.loginServer(loginRequest);
+
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioException catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<MasterResponseModel> changePassword(
+    ChangePasswordRequest request,
+  ) async {
+    try {
+      final result = await remoteDataSource.changePassword(request);
 
       return Right(result);
     } on ServerException catch (failure) {

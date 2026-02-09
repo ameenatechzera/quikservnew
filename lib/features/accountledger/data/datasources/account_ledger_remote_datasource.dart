@@ -39,11 +39,6 @@ class AccountLedgerRemoteDataSourceImpl
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
 
-      // debug prints
-      print('🔹 Fetch Account Ledger URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: $token');
-
       if (token.isEmpty) {
         throw Exception("Token missing! Please login again.");
       }
@@ -59,9 +54,6 @@ class AccountLedgerRemoteDataSourceImpl
           },
         ),
       );
-
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
 
       if (response.statusCode == 200) {
         return FetchAccountLedgerResponseModel.fromJson(response.data);
