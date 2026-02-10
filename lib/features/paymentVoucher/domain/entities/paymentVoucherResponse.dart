@@ -20,7 +20,6 @@ class PaymentVoucherResponse extends Equatable {
   final Data? data;
   static const String dataKey = "data";
 
-
   PaymentVoucherResponse copyWith({
     int? status,
     bool? error,
@@ -35,7 +34,7 @@ class PaymentVoucherResponse extends Equatable {
     );
   }
 
-  factory PaymentVoucherResponse.fromJson(Map<String, dynamic> json){
+  factory PaymentVoucherResponse.fromJson(Map<String, dynamic> json) {
     return PaymentVoucherResponse(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
@@ -52,13 +51,12 @@ class PaymentVoucherResponse extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$status, $error, $message, $data, ";
   }
 
   @override
-  List<Object?> get props => [
-    status, error, message, data, ];
+  List<Object?> get props => [status, error, message, data];
 }
 
 class Data extends Equatable {
@@ -149,7 +147,6 @@ class Data extends Equatable {
   final List<PaymentDetail> paymentDetails;
   static const String paymentDetailsKey = "paymentDetails";
 
-
   Data copyWith({
     int? paymentMasterId,
     String? voucherNo,
@@ -160,7 +157,7 @@ class Data extends Equatable {
     String? ledgerName,
     String? narration,
     String? totalAmount,
-    dynamic? costCentreId,
+    dynamic costCentreId,
     String? referenceNo,
     DateTime? referenceDate,
     String? postedStatus,
@@ -169,8 +166,8 @@ class Data extends Equatable {
     int? branchId,
     DateTime? createdDate,
     String? createdUser,
-    dynamic? modifiedDate,
-    dynamic? modifiedUser,
+    dynamic modifiedDate,
+    dynamic modifiedUser,
     List<PaymentDetail>? paymentDetails,
   }) {
     return Data(
@@ -198,7 +195,7 @@ class Data extends Equatable {
     );
   }
 
-  factory Data.fromJson(Map<String, dynamic> json){
+  factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
       paymentMasterId: json["paymentMasterId"] ?? 0,
       voucherNo: json["voucherNo"] ?? "",
@@ -220,7 +217,11 @@ class Data extends Equatable {
       createdUser: json["CreatedUser"] ?? "",
       modifiedDate: json["ModifiedDate"],
       modifiedUser: json["ModifiedUser"],
-      paymentDetails: json["paymentDetails"] == null ? [] : List<PaymentDetail>.from(json["paymentDetails"]!.map((x) => PaymentDetail.fromJson(x))),
+      paymentDetails: json["paymentDetails"] == null
+          ? []
+          : List<PaymentDetail>.from(
+              json["paymentDetails"]!.map((x) => PaymentDetail.fromJson(x)),
+            ),
     );
   }
 
@@ -245,17 +246,38 @@ class Data extends Equatable {
     "CreatedUser": createdUser,
     "ModifiedDate": modifiedDate,
     "ModifiedUser": modifiedUser,
-    "paymentDetails": paymentDetails.map((x) => x?.toJson()).toList(),
+    "paymentDetails": paymentDetails.map((x) => x.toJson()).toList(),
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$paymentMasterId, $voucherNo, $suffixPrefixId, $paymentNo, $date, $ledgerId, $ledgerName, $narration, $totalAmount, $costCentreId, $referenceNo, $referenceDate, $postedStatus, $postedBy, $postedDate, $branchId, $createdDate, $createdUser, $modifiedDate, $modifiedUser, $paymentDetails, ";
   }
 
   @override
   List<Object?> get props => [
-    paymentMasterId, voucherNo, suffixPrefixId, paymentNo, date, ledgerId, ledgerName, narration, totalAmount, costCentreId, referenceNo, referenceDate, postedStatus, postedBy, postedDate, branchId, createdDate, createdUser, modifiedDate, modifiedUser, paymentDetails, ];
+    paymentMasterId,
+    voucherNo,
+    suffixPrefixId,
+    paymentNo,
+    date,
+    ledgerId,
+    ledgerName,
+    narration,
+    totalAmount,
+    costCentreId,
+    referenceNo,
+    referenceDate,
+    postedStatus,
+    postedBy,
+    postedDate,
+    branchId,
+    createdDate,
+    createdUser,
+    modifiedDate,
+    modifiedUser,
+    paymentDetails,
+  ];
 }
 
 class PaymentDetail extends Equatable {
@@ -330,7 +352,6 @@ class PaymentDetail extends Equatable {
   final dynamic modifiedUser;
   static const String modifiedUserKey = "ModifiedUser";
 
-
   PaymentDetail copyWith({
     int? paymentDetailsId,
     int? paymentMasterId,
@@ -347,8 +368,8 @@ class PaymentDetail extends Equatable {
     int? branchId,
     DateTime? createdDate,
     String? createdUser,
-    dynamic? modifiedDate,
-    dynamic? modifiedUser,
+    dynamic modifiedDate,
+    dynamic modifiedUser,
   }) {
     return PaymentDetail(
       paymentDetailsId: paymentDetailsId ?? this.paymentDetailsId,
@@ -371,7 +392,7 @@ class PaymentDetail extends Equatable {
     );
   }
 
-  factory PaymentDetail.fromJson(Map<String, dynamic> json){
+  factory PaymentDetail.fromJson(Map<String, dynamic> json) {
     return PaymentDetail(
       paymentDetailsId: json["paymentDetailsId"] ?? 0,
       paymentMasterId: json["paymentMasterId"] ?? 0,
@@ -414,11 +435,28 @@ class PaymentDetail extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$paymentDetailsId, $paymentMasterId, $ledgerId, $ledgerName, $amount, $currencyConversionId, $exchangeRate, $exchangeDate, $chequeNo, $chequeDate, $lineIndex, $narration, $branchId, $createdDate, $createdUser, $modifiedDate, $modifiedUser, ";
   }
 
   @override
   List<Object?> get props => [
-    paymentDetailsId, paymentMasterId, ledgerId, ledgerName, amount, currencyConversionId, exchangeRate, exchangeDate, chequeNo, chequeDate, lineIndex, narration, branchId, createdDate, createdUser, modifiedDate, modifiedUser, ];
+    paymentDetailsId,
+    paymentMasterId,
+    ledgerId,
+    ledgerName,
+    amount,
+    currencyConversionId,
+    exchangeRate,
+    exchangeDate,
+    chequeNo,
+    chequeDate,
+    lineIndex,
+    narration,
+    branchId,
+    createdDate,
+    createdUser,
+    modifiedDate,
+    modifiedUser,
+  ];
 }

@@ -5,12 +5,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/core/theme/colors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:quikservnew/features/paymentVoucher/domain/parameters/save_paymentvoucher_parameter.dart';
+import 'package:quikservnew/features/paymentVoucher/presentation/bloc/payment_cubit.dart';
+import 'package:quikservnew/features/settings/presentation/widgets/accountsettings_widget.dart';
 
 class PaymentScreen extends StatefulWidget {
   final String pagefrom;
   //final Customer? customer;
-  PaymentScreen({super.key, required this.pagefrom });
+  PaymentScreen({super.key, required this.pagefrom});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -35,7 +37,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       st_receiptNo = '',
       st_bankLedgerId = '',
       st_CashLedgerId = '',
-      st_currencyConversionId ='',
+      st_currencyConversionId = '',
       st_userId = '',
       st_LedgerId = '';
 
@@ -43,13 +45,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
   final _paymentModeController = TextEditingController();
-  final _receiptNoController = TextEditingController();
+
   final _dateController = TextEditingController();
 
   // List of options
   final List<String> _options = ['Cash', 'Bank'];
 
- // final List<Bank> _bankList = [];
+  // final List<Bank> _bankList = [];
 
   // Variable to keep track of the selected option
   String? _selectedOption = 'Cash';
@@ -64,7 +66,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     pagefromValue = widget.pagefrom;
     _customerController.text = 'Expense Head';
 
-
     // context.read<ReceiptCubit>().fetchBankLedgers();
 
     _dateController.text = formatDate(getDateTime());
@@ -73,6 +74,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     //getReceiptNoAndSeries();
     super.initState();
   }
+
   String getDateTime() {
     String formattedDate = "";
     try {
@@ -84,13 +86,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
     return formattedDate;
   }
+
   String formatDate(String dateStr) {
-    DateTime dateTime =
-    DateTime.parse(dateStr); // Parse the string into a DateTime object
-    String formattedDate =
-    DateFormat('dd-MMM-yyyy').format(dateTime); // Format the DateTime object
+    DateTime dateTime = DateTime.parse(
+      dateStr,
+    ); // Parse the string into a DateTime object
+    String formattedDate = DateFormat(
+      'dd-MMM-yyyy',
+    ).format(dateTime); // Format the DateTime object
     return formattedDate;
   }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -105,165 +111,282 @@ class _PaymentScreenState extends State<PaymentScreen> {
       });
   }
 
+  void _onSavePressed(BuildContext context, {required bool isSaving}) {
+    if (isSaving) return;
+
+    final saveStatus = validation_for_save();
+    if (!saveStatus) return;
+
+    if (_selectedOption == 'Cash') st_LedgerId = st_CashLedgerId;
+    if (_selectedOption == 'Bank') st_LedgerId = st_bankLedgerId;
+
+    final receiptDate = _dateController.text.toString();
+
+    if (_amountController.text.isEmpty ||
+        _selectedOption == null ||
+        _selectedOption!.isEmpty ||
+        _selectedledgerId.isEmpty ||
+        receiptDate.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Enter All Fields",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.grey,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    }
+
+    final request = SavePaymentVoucherParameter(
+      branchId: 1,
+      voucherType: 'Payment Voucher',
+      yearId: 0,
+      date: '2026-02-09',
+      ledgerId: int.parse(_selectedledgerId),
+      narration: 'fff',
+      totalAmount: double.parse(_amountController.text),
+      costCentreId: 0,
+      referenceNo: '',
+      referenceDate: '',
+      postedStatus: 0,
+      postedBy: '',
+      postedDate: '',
+      exchangeRate: 0,
+      exchangeDate: '',
+      createdUser: '',
+      paymentDetails: [
+        SavePaymentDetail(
+          ledgerId: int.parse(_selectedledgerId),
+          amount: double.parse(_amountController.text),
+          currencyConversionId: 0,
+          chequeNo: '',
+          chequeDate: '',
+          lineIndex: 0,
+          narration: '',
+        ),
+      ],
+      partyDetails: [
+        SavePartyDetail(
+          date: '2026-02-09',
+          againstVoucherType: '',
+          againstVoucherNo: '',
+          referenceType: '',
+          amount: double.parse(_amountController.text),
+          creditPeriod: 0,
+          currencyConversionId: 0,
+          referenceNo: '',
+          billAmount: double.parse(_amountController.text),
+        ),
+      ],
+    );
+
+    context.read<PaymentCubit>().savePaymentVoucher(request);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true, //When false, blocks the current route from being popped.
-      onPopInvoked: (didPop) {
-        //do your logic here:
-        print('pagefrom' + pagefromValue);
+    return BlocConsumer<PaymentCubit, PaymentState>(
+      listener: (context, state) {
+        if (state is SavePaymentFailure) {
+          Fluttertoast.showToast(
+            msg: state.message,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.grey,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        } else if (state is SavePaymentSuccess) {
+          Fluttertoast.showToast(
+            msg: "Payment saved successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.grey,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
 
+          _amountController.clear();
+          _notesController.clear();
+        }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 40,
-          backgroundColor: AppColors.theme,
-          title: const Text(
-            'Payment',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Container(
-            color: appThemegrayColors,
-            height: MediaQuery.of(context).size.height,
-            child: Column(
-              children: [
-                Padding(
-                  padding:
-                  const EdgeInsets.only(top: 6.0, left: 4.0, right: 4.0),
-                  child: Container(
-                    width: double.infinity,
-                    child: Card(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(1),
+      builder: (context, state) {
+        final bool isSaving = false;
+        return PopScope(
+          canPop:
+              !isSaving, //When false, blocks the current route from being popped.
+          onPopInvoked: (didPop) {
+            //do your logic here:
+            print('pagefrom' + pagefromValue);
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              toolbarHeight: 40,
+              backgroundColor: AppColors.theme,
+              title: const Text(
+                'Payment',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            body: SingleChildScrollView(
+              child: Container(
+                color: appThemegrayColors,
+                height: MediaQuery.of(context).size.height,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 6.0,
+                        left: 4.0,
+                        right: 4.0,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(1)),
+                          ),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8.0,
+                                  right: 8.0,
+                                  bottom: 8.0,
+                                  top: 8.0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        width: 100,
+                                        child: Text(
+                                          'Payment Date',
+                                          style: TextStyle(fontSize: 11),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        style: TextStyle(fontSize: 14),
+                                        _dateController.text.toString(),
+                                        // selectedDate == null
+                                        //     ? st_currentDate
+                                        //     : '${_formatDate(selectedDate!)}',
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: InkWell(
+                                        onTap: () {
+                                          _selectDate(context);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 8.0,
+                                          ),
+                                          child: Text(
+                                            'Edit',
+                                            style: TextStyle(fontSize: 11),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8.0,
+                                  right: 8.0,
+                                ),
+                                child: Divider(thickness: 1),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8.0,
+                                  right: 8.0,
+                                  bottom: 24.0,
+                                  top: 8.0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        width: 100,
+                                        child: Text(
+                                          'Payment Mode',
+                                          style: TextStyle(fontSize: 11),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: TextFormField(
+                                        controller: _paymentModeController,
+                                        enabled: false,
+                                        style: TextStyle(color: Colors.black),
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: InkWell(
+                                        onTap: () async {
+                                          // final selectedItem =
+                                          //     await showPaymentCheckBox(context, [
+                                          //   'Route A',
+                                          //   'Route B',
+                                          //   'Route C',
+                                          //   'Route D'
+                                          // ]);
+                                          // final selectedItem =
+                                          // await PaymentcashBottomSheet();
+                                          _showBottomSheet(context);
+                                          // print(selectedItem);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 8.0,
+                                          ),
+                                          child: Text(
+                                            'Edit',
+                                            style: TextStyle(fontSize: 11),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      child: Column(
-                        children: [
-
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 8.0, right: 8.0, bottom: 8.0, top: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                      width: 100,
-                                      child: Text(
-                                        'Receipt Date',
-                                        style: TextStyle(fontSize: 11),
-                                      )),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    style: TextStyle(fontSize: 14),
-                                    _dateController.text.toString(),
-                                    // selectedDate == null
-                                    //     ? st_currentDate
-                                    //     : '${_formatDate(selectedDate!)}',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: InkWell(
-                                    onTap: () {
-                                      _selectDate(context);
-                                    },
-                                    child: Padding(
-                                      padding:
-                                      const EdgeInsets.only(right: 8.0),
-                                      child: Text(
-                                        'Edit',
-                                        style: TextStyle(fontSize: 11),
-                                        textAlign: TextAlign.right,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding:
-                            const EdgeInsets.only(left: 8.0, right: 8.0),
-                            child: Divider(
-                              thickness: 1,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 8.0, right: 8.0, bottom: 24.0, top: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                      width: 100,
-                                      child: Text(
-                                        'Receipt Mode',
-                                        style: TextStyle(fontSize: 11),
-                                      )),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: TextFormField(
-                                    controller: _paymentModeController,
-                                    enabled: false,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                    ),
-                                    decoration: InputDecoration(
-                                        border: InputBorder.none),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: InkWell(
-                                    onTap: () async {
-                                      // final selectedItem =
-                                      //     await showPaymentCheckBox(context, [
-                                      //   'Route A',
-                                      //   'Route B',
-                                      //   'Route C',
-                                      //   'Route D'
-                                      // ]);
-                                      // final selectedItem =
-                                      // await PaymentcashBottomSheet();
-                                      _showBottomSheet(context);
-                                      // print(selectedItem);
-                                    },
-                                    child: Padding(
-                                      padding:
-                                      const EdgeInsets.only(right: 8.0),
-                                      child: Text(
-                                        'Edit',
-                                        style: TextStyle(fontSize: 11),
-                                        textAlign: TextAlign.right,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
-                  ),
-                ),
 
-                     Column(
+                    Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(
-                              left: 4.0, right: 4.0, top: 2.0, bottom: 2.0),
+                            left: 4.0,
+                            right: 4.0,
+                            top: 2.0,
+                            bottom: 2.0,
+                          ),
                           child: Container(
                             height: 80,
                             width: double.infinity,
@@ -278,10 +401,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      _customerController.text.toString(),
+                                      _selectedLedger.isNotEmpty
+                                          ? _selectedLedger
+                                          : _customerController.text,
                                       style: TextStyle(
                                         fontSize: 18,
                                         color: Colors.black,
@@ -293,24 +418,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                           padding: const EdgeInsets.all(8.0),
                                           child: InkWell(
                                             onTap: () async {
-                                              // context
-                                              //     .read<AppbarBlolcBloc>()
-                                              //     .add(
-                                              //     GetSelectCustomerEvent());
-                                              // Customer? cust =
-                                              // await showListforSelection(
-                                              //     context,
-                                              //     customers,
-                                              //     'Receipt',st_routeId,'');
-                                              // _selectedLedger =
-                                              //     cust!.ledgerName.toString();
-                                              // _selectedledgerId = cust.ledgerId;
-                                              // setState(() {
-                                              //   _customerController.text =
-                                              //       _selectedLedger.toString();
-                                              // });
+                                              final selectedLedger =
+                                                  await showBankLedgerBottomSheet(
+                                                    context,
+                                                  );
 
-                                              print('reached $_selectedLedger');
+                                              if (selectedLedger != null) {
+                                                setState(() {
+                                                  _selectedLedger =
+                                                      selectedLedger
+                                                          .bankAccName ??
+                                                      selectedLedger
+                                                          .ledgerName ??
+                                                      '';
+
+                                                  _selectedledgerId =
+                                                      selectedLedger.ledgerId
+                                                          ?.toString() ??
+                                                      '';
+                                                });
+
+                                                print(
+                                                  'Selected Ledger: $_selectedLedger',
+                                                );
+                                                print(
+                                                  'Selected Ledger ID: $_selectedledgerId',
+                                                );
+                                              }
                                             },
                                             child: Icon(
                                               Icons.add,
@@ -339,102 +473,116 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ],
                     ),
 
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 4.0, right: 4.0, top: 2.0, bottom: 2.0),
-                      child: Container(
-                        height: 80,
-                        width: double.infinity,
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(1),
-                            ),
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 4.0,
+                            right: 4.0,
+                            top: 2.0,
+                            bottom: 2.0,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    height: 50,
-                                    width: 200,
-                                    child: TextFormField(
-                                      controller: _amountController,
-                                      focusNode: _amountFocusNode,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyle(fontSize: 14),
-                                      decoration: const InputDecoration(
-                                        // Removes the bottom line
-                                          labelText: 'Amount',
-                                          labelStyle: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
+                          child: SizedBox(
+                            height: 80,
+                            width: double.infinity,
+                            child: Card(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(1),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 4.0, right: 4.0, top: 2.0, bottom: 2.0),
-                      child: Container(
-                        height: 80,
-                        width: double.infinity,
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(1),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    height: 80,
-                                    child: TextFormField(
-                                      controller: _notesController,
-                                      keyboardType: TextInputType.text,
-                                      style: TextStyle(fontSize: 18),
-                                      decoration: const InputDecoration(
-                                        // Removes the bottom line
-                                        labelText: 'Notes(Optional)',
-                                        labelStyle: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                        contentPadding:
-                                        EdgeInsets.only(bottom: 0),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 50,
+                                        width: 200,
+                                        child: TextFormField(
+                                          controller: _amountController,
+                                          focusNode: _amountFocusNode,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyle(fontSize: 14),
+                                          decoration: const InputDecoration(
+                                            // Removes the bottom line
+                                            labelText: 'Amount',
+                                            labelStyle: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-               Padding(
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 4.0,
+                            right: 4.0,
+                            top: 2.0,
+                            bottom: 2.0,
+                          ),
+                          child: SizedBox(
+                            height: 80,
+                            width: double.infinity,
+                            child: Card(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(1),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 80,
+                                        child: TextFormField(
+                                          controller: _notesController,
+                                          keyboardType: TextInputType.text,
+                                          style: TextStyle(fontSize: 18),
+                                          decoration: const InputDecoration(
+                                            // Removes the bottom line
+                                            labelText: 'Notes(Optional)',
+                                            labelStyle: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            contentPadding: EdgeInsets.only(
+                                              bottom: 0,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
+                      child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -448,139 +596,35 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             elevation: 0,
                             // Elevation
                             padding: EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
+                              horizontal: 30,
+                              vertical: 15,
+                            ),
                             // Padding
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(10), // Rounded corners
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ), // Rounded corners
                             ),
                           ),
-                          onPressed: () {
-                            bool save_status = validation_for_save();
-                            if (save_status) {
-                              // Payments paymnt = Payments(
-                              //     receiptNo: _receiptNoController.text.toString(),
-                              //     receiptNoSeries: st_receiptNo,
-                              //     paymentDate: _formatDate(selectedDate!),
-                              //     paymentMode: _paymentModeController.text.toString(),
-                              //     ledgerName: _customerController.text.toString(),
-                              //     amt: _amountController.text.toString(),
-                              //     remarks: _notesController.text.toString(),
-                              //     ledgerId: _selectedledgerId);
-                              // context.read<PaymentCubit>().savePayments(paymnt);
+                          onPressed: () =>
+                              _onSavePressed(context, isSaving: isSaving),
 
-                              if (_selectedOption == 'Cash') {
-                                st_LedgerId = st_CashLedgerId;
-                              }
-                              if (_selectedOption == 'Bank') {
-                                st_LedgerId = st_bankLedgerId;
-                              }
-                              if (_amountController.text.isNotEmpty &&
-                                  _selectedOption!.isNotEmpty &&
-                                  _selectedledgerId.isNotEmpty &&
-                                  selectedDate.toString().isNotEmpty) {
-                                // context.read<ReceiptCubit>().saveReceiptDetails(
-                                //     ReceiptSaveParameter(
-                                //         ReceiptDate:
-                                //         _dateController.text.toString(),
-                                //         BankOrCashledgerId: st_LedgerId,
-                                //         CustomerLedgerId: _selectedledgerId,
-                                //         Narration:
-                                //         _notesController.text.toString(),
-                                //         userId: st_userId,
-                                //         branchId: st_branchId,
-                                //         Total:
-                                //         _amountController.text.toString()));
-                              } else {
-                                Fluttertoast.showToast(
-                                  msg: "Enter All Fields",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.BOTTOM,
-                                  backgroundColor: Colors.grey,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0,
-                                );
-                              }
-                            }
-                          },
-                          child: const Text(
+                          child: Text(
                             'Save',
-                            style: TextStyle(
-                              fontFamily: 'ArealRoundedFont',
-                            ),
+                            style: TextStyle(fontFamily: 'ArealRoundedFont'),
                           ),
                         ),
                       ),
-                    )
-
-              ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
-
-  // Future<void> getReceiptNoAndSeries() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //
-  //   st_branchId = prefs.getString('branchId') ?? '';
-  //   executiveId = prefs.getString('executiveId') ?? '';
-  //   executivename = prefs.getString('executiveName') ?? '';
-  //   receiptNoPrefix = prefs.getString('receiptPrefix') ?? '';
-  //   receiptNoSereies = prefs.getString('lastReceiptBillNo') ?? '';
-  //   print('receiptNoSereies $receiptNoSereies');
-  //   print('executivename $executivename');
-  //   st_receiptNo = await generateNewNumber(receiptNoSereies);
-  //   _receiptNoController.text = receiptNoPrefix + st_receiptNo;
-  //   await SharedPrefrence().getSelectedRoute().then((value) async {
-  //     print('st_routeId $st_routeId');
-  //     st_routeId = value.toString();
-  //   });
-  //   await SharedPrefrence().getExeBankAccountLedgerId().then((value) async {
-  //     print('st_bankLedgerId $value');
-  //     st_bankLedgerId = value.toString();
-  //   });
-  //   await SharedPrefrence().getExeCashAccountLedgerId().then((value) async {
-  //     print('st_CashLedgerId $value');
-  //     st_CashLedgerId = value.toString();
-  //   });
-  //   await SharedPrefrence().getCurrencyConversionId().then((value) async {
-  //     st_currencyConversionId = value.toString();
-  //   });
-  //   SharedPrefrence().getUserId().then((value) async {
-  //     print('st_userIdInit $value');
-  //     st_userId = value.toString();
-  //   });
-  //   await SharedPrefrence().getSelectedRoute().then((value) async {
-  //     print('st_routeId $value');
-  //     st_routeId = value.toString();
-  //   });
-  //   if(pagefromValue=='CustomerView'){
-  //     _selectedLedger =
-  //         widget.customer!.ledgerName.toString();
-  //     _selectedledgerId =  widget.customer!.ledgerId;
-  //     _amountFocusNode.requestFocus();
-  //     setState(() {
-  //       _customerController.text =
-  //           _selectedLedger.toString();
-  //     });
-  //   }
-  //   else{
-  //     if (st_routeId == '0') {
-  //       print('ifCase $st_routeId');
-  //       context.read<PartiesCubit>().fetchPartiesLocal();
-  //     } else {
-  //       context.read<PartiesCubit>().fetchPartiesLocalByRoute(st_routeId);
-  //     }
-  //
-  //   }
-  //
-  //
-  //
-  // }
-
-
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -604,8 +648,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           setState(() {
                             _selectedOption = option;
                             print(_selectedOption);
-                            _paymentModeController.text =
-                                _selectedOption.toString();
+                            _paymentModeController.text = _selectedOption
+                                .toString();
                           });
                           Navigator.pop(context); // Close the bottom sheet
                         }
@@ -628,17 +672,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     String? st_date_selected = _dateController.text.toString();
     print('st_date_selected $st_date_selected');
 
-    if (_receiptNoController.text.toString().isEmpty) {
-      valid_status = false;
-      Fluttertoast.showToast(
-        msg: "Receipt No Not Generated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.grey,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-    } else if (st_date_selected.toString().isEmpty) {
+    if (st_date_selected.toString().isEmpty) {
       valid_status = false;
       Fluttertoast.showToast(
         msg: "Pls Select Date..!",

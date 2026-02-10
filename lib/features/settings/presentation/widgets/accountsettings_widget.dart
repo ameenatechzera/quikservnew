@@ -149,6 +149,7 @@ Future<FetchBankAccountLedgerDetailsEntity?> showBankLedgerBottomSheet(
     builder: (_) {
       context.read<AccountledgerCubit>().fetchBankAccountLedger(
         groupIds: [5, 6],
+        branchId: 1,
       );
 
       return SizedBox(

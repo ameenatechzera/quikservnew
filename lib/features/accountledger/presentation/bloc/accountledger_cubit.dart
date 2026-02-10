@@ -95,10 +95,16 @@ class AccountledgerCubit extends Cubit<AccountledgerState> {
   }
 
   /// 🔹 Fetch bank account ledger list
-  void fetchBankAccountLedger({required List<int> groupIds}) async {
+  void fetchBankAccountLedger({
+    required List<int> groupIds,
+    required int branchId,
+  }) async {
     emit(AccountledgerLoading());
 
-    final params = FetchBankAccountLedgerParams(groupIds: groupIds);
+    final params = FetchBankAccountLedgerParams(
+      groupIds: groupIds,
+      branchId: branchId,
+    );
 
     final eitherResult = await _fetchBankAccountLedgerUseCase(params);
 

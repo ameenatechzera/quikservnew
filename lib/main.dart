@@ -10,6 +10,7 @@ import 'package:quikservnew/features/authentication/presentation/bloc/registercu
 import 'package:quikservnew/features/authentication/presentation/screens/splash_screen.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
+import 'package:quikservnew/features/paymentVoucher/presentation/bloc/payment_cubit.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
@@ -77,6 +78,7 @@ class MyApp extends StatelessWidget {
           create: (_) => sl<DaycloseReportCubit>(),
         ),
         BlocProvider<AccountGroupCubit>(create: (_) => sl<AccountGroupCubit>()),
+        BlocProvider<PaymentCubit>(create: (_) => sl<PaymentCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

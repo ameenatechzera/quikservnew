@@ -67,6 +67,11 @@ import 'package:quikservnew/features/masters/domain/usecase/fetch_supplierlist_u
 import 'package:quikservnew/features/masters/domain/usecase/fetch_usertypes_usecase.dart';
 import 'package:quikservnew/features/masters/domain/usecase/save_usertypes_usecase.dart';
 import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cubit.dart';
+import 'package:quikservnew/features/paymentVoucher/data/datasources/payment_remote_data_source.dart';
+import 'package:quikservnew/features/paymentVoucher/data/repositories/paymentRepositories_impl.dart';
+import 'package:quikservnew/features/paymentVoucher/domain/repositories/payment_repository.dart';
+import 'package:quikservnew/features/paymentVoucher/domain/usecases/savePaymentVoucherUseCase.dart';
+import 'package:quikservnew/features/paymentVoucher/presentation/bloc/payment_cubit.dart';
 import 'package:quikservnew/features/products/data/datasources/product_remote_data_source.dart';
 import 'package:quikservnew/features/products/data/repositories/product_repositories_local_impl.dart';
 import 'package:quikservnew/features/products/data/repositories/products_repository_impl.dart';
@@ -455,6 +460,23 @@ class ServiceLocator {
     );
     sl.registerLazySingleton<AccountGroupRepository>(
       () => AccountGroupRepositoryImpl(remoteDataSource: sl()),
+    );
+    // ------------------- PAYMENT VOUCHER -------------------
+
+    // Cubit
+    sl.registerFactory(() => PaymentCubit(savePaymentVoucherUseCase: sl()));
+
+    // UseCase
+    sl.registerLazySingleton(() => SavePaymentVoucherUseCase(sl()));
+
+    // Data Source
+    sl.registerLazySingleton<PaymentRemoteDataSource>(
+      () => PaymentRemoteDataSourceImpl(),
+    );
+
+    // Repository
+    sl.registerLazySingleton<PaymentRepository>(
+      () => PaymentRepositoryImpl(remoteDataSource: sl()),
     );
   }
 }

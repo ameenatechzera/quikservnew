@@ -228,4 +228,9 @@ class ApiConstants {
   static String getChangePasswordPath(String baseUrl) {
     return '$baseUrl/change-password';
   }
+
+  //forsavepaymentvoucher
+  static String savePaymentVoucherPath(String baseUrl) {
+    return '$baseUrl/payment-voucher/save-payment-voucher';
+  }
 }
