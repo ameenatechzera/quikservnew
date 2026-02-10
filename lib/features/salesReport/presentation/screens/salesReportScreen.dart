@@ -352,6 +352,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   Future<void> fetchSalesReport() async {
     final sharedPrefHelper = SharedPreferenceHelper();
     st_branchId = await sharedPrefHelper.getBranchId();
+    final expiryDate = await SharedPreferenceHelper().getExpiryDate();
+    print('expiryDate $expiryDate');
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
         from_date: formatter.format(fromDate),

@@ -30,7 +30,7 @@ class VatCreationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      appBar: CommonAppBar(title: isEdit ? "Edit VAT" : "Add VAT"),
+      appBar: CommonAppBar(title: isEdit ? "Edit TAX" : "Add TAX"),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
@@ -40,7 +40,7 @@ class VatCreationScreen extends StatelessWidget {
             TextField(
               controller: vatNameController,
               decoration: const InputDecoration(
-                labelText: "VAT Type",
+                labelText: "TAX Type",
                 labelStyle: TextStyle(color: Colors.black54),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.black45, width: 1),
@@ -58,7 +58,7 @@ class VatCreationScreen extends StatelessWidget {
               controller: vatPercentageController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: "VAT Percentage",
+                labelText: "TAX Percentage",
                 labelStyle: TextStyle(color: Colors.black54),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.black45, width: 1),
@@ -78,8 +78,8 @@ class VatCreationScreen extends StatelessWidget {
                   showAnimatedToast(
                     context,
                     message: isEdit
-                        ? "VAT updated successfully!"
-                        : "VAT added successfully!",
+                        ? "TAX updated successfully!"
+                        : "TAX added successfully!",
                     isSuccess: true,
                   );
 
@@ -151,7 +151,7 @@ class VatCreationScreen extends StatelessWidget {
                             if (vatPercentage == null) {
                               showAnimatedToast(
                                 context,
-                                message: "Enter valid VAT percentage",
+                                message: "Enter valid TAX percentage",
                                 isSuccess: false,
                               );
                               // ScaffoldMessenger.of(context).showSnackBar(

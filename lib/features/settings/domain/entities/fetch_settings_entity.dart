@@ -33,6 +33,7 @@ class FetchSettingsDetails {
   final bool? vatStatus;
   final String? vatType;
   final bool? isSingleCounter;
+  final String? appexpiry;
 
   FetchSettingsDetails({
     this.settingsId,
@@ -60,5 +61,6 @@ class FetchSettingsDetails {
     this.vatStatus,
     this.vatType,
     this.isSingleCounter,
+    this.appexpiry
   });
 }

@@ -33,7 +33,7 @@ class AccountLedgerCreationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<AccountGroupCubit>().fetchAccountGroups();
+    //context.read<AccountGroupCubit>().fetchAccountGroups();
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6FA),
@@ -75,7 +75,7 @@ class AccountLedgerCreationScreen extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 /// 👇 ACCOUNT GROUP DROPDOWN FROM API
-                accountGroupDropdown(),
+               // accountGroupDropdown(),
                 // dropdownField(),
                 // const SizedBox(height: 20),
                 textField(
@@ -122,8 +122,7 @@ class AccountLedgerCreationScreen extends StatelessWidget {
   void _onSavePressed(BuildContext context) {
     if (ledgerNameController.text.isEmpty ||
         ledgerCodeController.text.isEmpty ||
-        openingBalanceController.text.isEmpty ||
-        selectedGroupId.value == null) {
+        openingBalanceController.text.isEmpty) {
       showAnimatedToast(
         context,
         message: "Please fill all required fields",
@@ -137,7 +136,8 @@ class AccountLedgerCreationScreen extends StatelessWidget {
       currencyConversionId: 0,
       activeFinancialYearFromDate: '',
       ledgerName: ledgerNameController.text,
-      groupId: selectedGroupId.value!,
+      // groupId: selectedGroupId.value!,
+      groupId: 12,
       billBybill: false,
       openingBalance: double.parse(openingBalanceController.text),
       crOrDr: '',
@@ -196,54 +196,54 @@ class AccountLedgerCreationScreen extends StatelessWidget {
     }
   }
 
-  Widget accountGroupDropdown() {
-    return BlocBuilder<AccountGroupCubit, AccountGroupState>(
-      builder: (context, state) {
-        if (state is AccountGroupInitial) {
-          return const SizedBox.shrink();
-        }
-
-        // if (state is Account) {
-        //   return const Padding(
-        //     padding: EdgeInsets.symmetric(vertical: 12),
-        //     child: LinearProgressIndicator(),
-        //   );
-        // }
-
-        if (state is AccountGroupsError) {
-          return Text(state.error, style: const TextStyle(color: Colors.red));
-        }
-
-        if (state is AccountGroupsLoaded) {
-          final groups = state.account_groups;
-
-          return ValueListenableBuilder<int?>(
-            valueListenable: selectedGroupId,
-            builder: (context, value, _) {
-              return DropdownButtonFormField<int>(
-                decoration: const InputDecoration(
-                  labelText: "Select Account Group",
-                  border: UnderlineInputBorder(),
-                ),
-                value: value,
-                items: groups.map((group) {
-                  return DropdownMenuItem<int>(
-                    value: group.groupId,
-                    child: Text(group.accountGroupName),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  selectedGroupId.value = value;
-                  // store selected groupId
-                  print("Selected groupId: $value");
-                },
-              );
-            },
-          );
-        }
-
-        return const SizedBox.shrink();
-      },
-    );
-  }
+  // Widget accountGroupDropdown() {
+  //   return BlocBuilder<AccountGroupCubit, AccountGroupState>(
+  //     builder: (context, state) {
+  //       if (state is AccountGroupInitial) {
+  //         return const SizedBox.shrink();
+  //       }
+  //
+  //       // if (state is Account) {
+  //       //   return const Padding(
+  //       //     padding: EdgeInsets.symmetric(vertical: 12),
+  //       //     child: LinearProgressIndicator(),
+  //       //   );
+  //       // }
+  //
+  //       if (state is AccountGroupsError) {
+  //         return Text(state.error, style: const TextStyle(color: Colors.red));
+  //       }
+  //
+  //       // if (state is AccountGroupsLoaded) {
+  //       //   final groups = state.account_groups;
+  //       //
+  //       //   return ValueListenableBuilder<int?>(
+  //       //     valueListenable: selectedGroupId,
+  //       //     builder: (context, value, _) {
+  //       //       return DropdownButtonFormField<int>(
+  //       //         decoration: const InputDecoration(
+  //       //           labelText: "Select Account Group",
+  //       //           border: UnderlineInputBorder(),
+  //       //         ),
+  //       //         value: value,
+  //       //         items: groups.map((group) {
+  //       //           return DropdownMenuItem<int>(
+  //       //             value: group.groupId,
+  //       //             child: Text(group.accountGroupName),
+  //       //           );
+  //       //         }).toList(),
+  //       //         onChanged: (value) {
+  //       //           selectedGroupId.value = value;
+  //       //           // store selected groupId
+  //       //           print("Selected groupId: $value");
+  //       //         },
+  //       //       );
+  //       //     },
+  //       //   );
+  //       // }
+  //
+  //       return const SizedBox.shrink();
+  //     },
+  //   );
+  // }
 }

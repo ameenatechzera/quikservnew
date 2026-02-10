@@ -139,7 +139,7 @@ class SettingsScreen extends StatelessWidget {
                             buildTile(
                               context: context,
                               icon: Icons.money,
-                              title: "Vat",
+                              title: "Tax",
                               page: VatsListingScreen(),
                             ),
                             buildTile(

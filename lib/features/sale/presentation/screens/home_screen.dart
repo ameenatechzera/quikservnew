@@ -2289,7 +2289,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ? _buildSalesContent()
                       : _currentTabIndex == 1
                       ? const DashboardContent()
-                      : const SettingsScreen(),
+                      :  SettingsScreen(),
                 ),
               ),
 

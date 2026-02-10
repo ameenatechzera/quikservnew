@@ -61,7 +61,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
 
       // Logging
       print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
+      print('🔹 ResponseSettings Data: ${response.data}');
 
       // Parse response
       if (response.statusCode == 200) {
