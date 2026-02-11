@@ -51,7 +51,6 @@ class SharedPreferenceHelper {
     return prefs.getString("branchId") ?? '';
   }
 
-
   /// ------------------ Subscription Code ------------------
   Future<bool> setSubscriptionCode(String subCode) async {
     final prefs = await SharedPreferences.getInstance();
@@ -63,6 +62,16 @@ class SharedPreferenceHelper {
     return prefs.getString("subCode") ?? '';
   }
 
+  ///companyname
+  Future<void> setCompanyName(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('company_name', value);
+  }
+
+  Future<String?> getCompanyName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('company_name');
+  }
 
   /// ------------------ setStaffName ------------------
   Future<bool> setStaffName(String staffName) async {

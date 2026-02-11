@@ -67,18 +67,28 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _navigateNext() async {
     final sharedPrefHelper = SharedPreferenceHelper();
     final token = await sharedPrefHelper.getToken();
+    final expiryDateStr = await sharedPrefHelper.getExpiryDate();
 
     // Optional: keep splash for 3 seconds
     await Future.delayed(const Duration(milliseconds: 1200));
 
     if (!mounted) return;
+    bool isExpired = false;
+    if (expiryDateStr.isNotEmpty) {
+      final expiryDate = DateTime.tryParse(expiryDateStr);
+      if (expiryDate != null) {
+        isExpired = DateTime.now().isAfter(expiryDate);
+      }
+    }
+
+    final shouldGoHome = token != null && token.isNotEmpty && !isExpired;
 
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 400),
         pageBuilder: (_, __, ___) =>
-            token != null && token.isNotEmpty ? HomeScreen() : LoginScreen(),
+            shouldGoHome ? HomeScreen() : LoginScreen(),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(opacity: animation, child: child);
         },

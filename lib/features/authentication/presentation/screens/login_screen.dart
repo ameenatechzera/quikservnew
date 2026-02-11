@@ -8,6 +8,7 @@ import 'package:quikservnew/features/authentication/domain/parameters/register_s
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/widgets/custom_textfield.dart';
+import 'package:quikservnew/features/authentication/presentation/widgets/expiry_dialog.dart';
 import 'package:quikservnew/features/authentication/presentation/widgets/login_locks.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
@@ -47,7 +48,15 @@ class LoginScreen extends StatelessWidget {
               await SharedPreferenceHelper().setDatabaseName(
                 state.result.companyDetails.first.databaseName!,
               );
-              await SharedPreferenceHelper().setExpiryDate(state.result.companyDetails.first.expiryDate!);
+              await SharedPreferenceHelper().setExpiryDate(
+                state.result.companyDetails.first.expiryDate!,
+              );
+
+              /// ✅ STORE COMPANY NAME
+              await SharedPreferenceHelper().setCompanyName(
+                state.result.companyDetails.first.companyName,
+              );
+
               /// After register -> trigger login
               context.read<LoginCubit>().loginUser(
                 LoginRequest(
@@ -56,12 +65,10 @@ class LoginScreen extends StatelessWidget {
                 ),
               );
             } else if (state is RegisterFailure) {
-
               isProcessing.value = false; // re-enable button
               print(state.error);
               showAppSnackBar(context, state.error);
-            }
-            else if(state is LoginFailure){
+            } else if (state is LoginFailure) {
               isProcessing.value = false; // re-enable button
             }
           },
@@ -75,6 +82,7 @@ class LoginScreen extends StatelessWidget {
               isProcessing.value = true;
               try {
                 print('reached_0');
+
                 /// Save token globally
                 await SharedPreferenceHelper().setToken(
                   state.loginResponse.token,
@@ -116,6 +124,7 @@ class LoginScreen extends StatelessWidget {
                 isProcessing.value = false; // Enable button if needed
               }
             } else if (state is LoginFailure) {
+              isProcessing.value = false;
               showAppSnackBar(context, state.error);
             }
           },
@@ -250,7 +259,22 @@ class LoginScreen extends StatelessWidget {
                           child: ElevatedButton(
                             onPressed: processing
                                 ? null
-                                : () {
+                                : () async {
+                                    if (usernameCtrl.text.isEmpty ||
+                                        passwordCtrl.text.isEmpty ||
+                                        codeCtrl.text.isEmpty) {
+                                      showAppSnackBar(
+                                        context,
+                                        'Please fill all fields',
+                                      );
+                                      return;
+                                    }
+                                    //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
+                                    final expired = await isLicenseExpired();
+                                    if (expired) {
+                                      showExpiryDialog(context);
+                                      return; //  STOP EVERYTHING
+                                    }
                                     final slno = codeCtrl.text;
 
                                     // Start processing

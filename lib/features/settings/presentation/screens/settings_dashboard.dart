@@ -45,7 +45,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           body: Column(
             children: [
-              subscriptionInfoCard(), // 👈 top card
+              SubscriptionInfoCard(), // 👈 top card
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8, right: 8.0),
@@ -183,129 +183,164 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-Widget subscriptionInfoCard() {
-  return Container(
-    margin: const EdgeInsets.all(12),
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: const Color(0xFFFFF1C1), // light yellow background
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Image
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // Main circular logo
-                Container(
-                  width: 78,
-                  height: 78,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFF0B3D3B),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.restaurant_menu,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
-                ),
+class SubscriptionInfoCard extends StatelessWidget {
+  const SubscriptionInfoCard({super.key});
 
-                // Edit icon (bottom-right)
-                Positioned(
-                  bottom: -2,
-                  right: -2,
-                  child: Container(
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade400),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.edit,
-                        size: 13,
-                        color: Color(0xFF0B3D3B),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+  Future<Map<String, String>> _loadData() async {
+    final prefs = SharedPreferenceHelper();
+    return {
+      'companyName': await prefs.getCompanyName() ?? '',
+      'subCode': await prefs.getSubscriptionCode(),
+      'expiryDate': await prefs.getExpiryDate(),
+    };
+  }
 
-            const SizedBox(width: 12),
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<String, String>>(
+      future: _loadData(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox();
+        }
 
-            // Text Content
-            Expanded(
-              child: Column(
+        final data = snapshot.data!;
+        final companyName = data['companyName']!;
+        final subCode = data['subCode']!;
+        final expiryDate = data['expiryDate']!;
+        return Container(
+          margin: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF1C1), // light yellow background
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: const Text(
-                      'Grin Table',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  // Profile Image
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Main circular logo
+                      Container(
+                        width: 78,
+                        height: 78,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFF0B3D3B),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.restaurant_menu,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 20),
-
-                  // ID Row
-                  Row(
-                    children: const [
-                      Icon(
-                        Icons.subscriptions,
-                        size: 20,
-                        color: Colors.black54,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        '324',
-                        style: TextStyle(color: Colors.black54, fontSize: 15),
+                      // Edit icon (bottom-right)
+                      Positioned(
+                        bottom: -2,
+                        right: -2,
+                        child: Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.shade400),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.edit,
+                              size: 13,
+                              color: Color(0xFF0B3D3B),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
 
-                  // Warning Message
+                  const SizedBox(width: 12),
+
+                  // Text Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            companyName.isEmpty ? '—' : companyName,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // ID Row
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.subscriptions,
+                              size: 20,
+                              color: Colors.black54,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              subCode,
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Warning Message
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 20),
-              SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Your Subscription Will End On 21 September 2026.',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
+              if (expiryDate.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Your Subscription Will End On $expiryDate..',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
             ],
           ),
-        ),
-      ],
-    ),
-  );
+        );
+      },
+    );
+  }
 }

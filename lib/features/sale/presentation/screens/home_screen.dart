@@ -22,6 +22,7 @@ import 'package:quikservnew/features/sale/presentation/widgets/tabs.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/top_price_container_widget.dart';
 import 'package:quikservnew/features/settings/presentation/screens/settings_dashboard.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -117,6 +118,10 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super
         .initState(); // ✅ Reset global status bar when entering Home (fix after login/splash)
+    // ✅ Show expiry warning once per day when <= 7 days remaining
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowExpiryWarningOnceDaily();
+    });
     // ✅ LIVE LISTENER: updates instantly after SAVE
     _itemTapListener = () {
       if (!mounted) return;
@@ -181,6 +186,73 @@ class _HomeScreenState extends State<HomeScreen>
     _menuAnimationController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkAndShowExpiryWarningOnceDaily() async {
+    try {
+      // ✅ Get expiry from your SharedPreferenceHelper
+      final expiryString = await SharedPreferenceHelper().getExpiryDate();
+
+      // If no expiry stored, do nothing (or you can treat as expired)
+      if (expiryString.isEmpty || expiryString.trim().isEmpty) return;
+
+      final expiry = DateTime.parse(expiryString);
+
+      // Compare date-only (ignore time)
+      final nowDT = DateTime.now();
+      final today = DateTime(nowDT.year, nowDT.month, nowDT.day);
+      final exp = DateTime(expiry.year, expiry.month, expiry.day);
+
+      final daysLeft = exp.difference(today).inDays;
+
+      // ✅ Show only when within 7 days before expiry (1..7)
+      if (daysLeft < 1 || daysLeft > 7) return;
+
+      // ✅ "Once per day" guard using SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final lastShown = prefs.getString(
+        'expiry_warning_last_shown',
+      ); // yyyy-mm-dd
+
+      final todayKey =
+          "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+      if (lastShown == todayKey) return; // already shown today
+
+      await prefs.setString('expiry_warning_last_shown', todayKey);
+
+      if (!mounted) return;
+      _showExpirySoonDialog(daysLeft: daysLeft, expiryDate: exp);
+    } catch (_) {
+      // If parsing fails, silently ignore (or log)
+    }
+  }
+
+  void _showExpirySoonDialog({
+    required int daysLeft,
+    required DateTime expiryDate,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Color(0xFFFFC107)),
+            Text("Subscription Expiring "),
+          ],
+        ),
+        content: Text(
+          "Your subscription will expire in $daysLeft day(s).\n\nPlease renew to avoid interruption.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   // Method to filter products based on search query - PRODUCT NAME ONLY
@@ -2289,7 +2361,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ? _buildSalesContent()
                       : _currentTabIndex == 1
                       ? const DashboardContent()
-                      :  SettingsScreen(),
+                      : SettingsScreen(),
                 ),
               ),
 
