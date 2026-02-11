@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
           child: Image.asset(
-            "assets/icons/QUIKSERV LOGO 02 1.png",
+            "assets/icons/quikservlogo.png",
             fit: BoxFit.contain,
           ),
         ),
@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
         //   mainAxisSize: MainAxisSize.min,
         //   children: [
         //     Image.asset(
-        //       "assets/icons/QUIKSERV LOGO 02 1.png",
+        //       "assets/icons/quikservlogo.png",
 
         //       fit: BoxFit.contain,
         //     ),

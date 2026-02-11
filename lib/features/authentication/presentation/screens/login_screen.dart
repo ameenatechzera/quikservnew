@@ -10,6 +10,7 @@ import 'package:quikservnew/features/authentication/presentation/bloc/registercu
 import 'package:quikservnew/features/authentication/presentation/widgets/custom_textfield.dart';
 import 'package:quikservnew/features/authentication/presentation/widgets/expiry_dialog.dart';
 import 'package:quikservnew/features/authentication/presentation/widgets/login_locks.dart';
+import 'package:quikservnew/features/authentication/presentation/widgets/three_dot_loader.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
@@ -56,7 +57,8 @@ class LoginScreen extends StatelessWidget {
               await SharedPreferenceHelper().setCompanyName(
                 state.result.companyDetails.first.companyName,
               );
-
+              final logoutStatus = await SharedPreferenceHelper().getLogoutStatus();
+              //if(logoutStatus=='true')
               /// After register -> trigger login
               context.read<LoginCubit>().loginUser(
                 LoginRequest(
@@ -125,7 +127,7 @@ class LoginScreen extends StatelessWidget {
               }
             } else if (state is LoginFailure) {
               isProcessing.value = false;
-              showAppSnackBar(context, state.error);
+              showAppSnackBar(context, 'Invalid Credentials');
             }
           },
         ),
@@ -176,142 +178,163 @@ class LoginScreen extends StatelessWidget {
       ],
 
       /// ------------------- UI STARTS HERE ------------------------
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        resizeToAvoidBottomInset: true,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            /// Background Image
-            Image.asset(
-              'assets/images/WhatsApp Image 2025-12-02 at 11.45.21_c494808e.jpg',
-              fit: BoxFit.cover,
-            ),
-
-            /// Content
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 150,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    /// Logo
-                    Image.asset(
-                      'assets/icons/quikserv_icon.png',
-                      width: 80,
-                      height: 80,
-                    ),
-                    const SizedBox(height: 16),
-
-                    /// Title
-                    const Text(
-                      'Login',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black,
+      child: PopScope(
+        canPop: false, // 🚫 disables system back
+        child: Scaffold(
+          backgroundColor: AppColors.white,
+          resizeToAvoidBottomInset: true,
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              /// Background Image
+              Image.asset(
+                'assets/images/WhatsApp Image 2025-12-02 at 11.45.21_c494808e.jpg',
+                fit: BoxFit.cover,
+              ),
+        
+              /// Content
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 100,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      /// Logo
+                      Image.asset(
+                        'assets/icons/quikservlogo.png',
+                        width: 100,
+                        height: 100,
                       ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    /// Lock Icons
-                    Loginlocks(),
-                    const SizedBox(height: 32),
-
-                    /// Input Fields
-                    CustomInputField(
-                      hint: 'User Name',
-                      controller: usernameCtrl,
-
-                      prefixIcon: Icons.person,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CustomInputField(
-                      hint: 'Password',
-                      controller: passwordCtrl,
-                      prefixIcon: Icons.lock,
-                      obscure: true,
-                      suffixIcon: Icons.visibility,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CustomInputField(
-                      hint: 'Restaurant Code',
-                      controller: codeCtrl,
-                      prefixIcon: Icons.code,
-                      textInputAction: TextInputAction.done,
-                    ),
-
-                    const SizedBox(height: 50),
-
-                    // Login button
-                    ValueListenableBuilder<bool>(
-                      valueListenable: isProcessing,
-                      builder: (context, processing, child) {
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: processing
-                                ? null
-                                : () async {
-                                    if (usernameCtrl.text.isEmpty ||
-                                        passwordCtrl.text.isEmpty ||
-                                        codeCtrl.text.isEmpty) {
-                                      showAppSnackBar(
-                                        context,
-                                        'Please fill all fields',
-                                      );
-                                      return;
-                                    }
-                                    //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
-                                    final expired = await isLicenseExpired();
-                                    if (expired) {
-                                      showExpiryDialog(context);
-                                      return; //  STOP EVERYTHING
-                                    }
-                                    final slno = codeCtrl.text;
-
-                                    // Start processing
-                                    isProcessing.value = true;
-
-                                    // Trigger register first
-                                    context
-                                        .read<RegisterCubit>()
-                                        .registerServer(
-                                          RegisterServerRequest(slno: slno),
+                      const SizedBox(height: 16),
+        
+                      /// Title
+                      // const Text(
+                      //   'Login',
+                      //   style: TextStyle(
+                      //     fontSize: 24,
+                      //     fontWeight: FontWeight.bold,
+                      //     color: AppColors.black,
+                      //   ),
+                      // ),
+                      //
+                      // const SizedBox(height: 32),
+        
+                      /// Lock Icons
+                      Loginlocks(),
+                      const SizedBox(height: 16),
+        
+                      /// Input Fields
+                      CustomInputField(
+                        hint: 'User Name',
+                        controller: usernameCtrl,
+        
+                        prefixIcon: Icons.person,
+                      ),
+                      const SizedBox(height: 10),
+        
+                      CustomInputField(
+                        hint: 'Password',
+                        controller: passwordCtrl,
+                        prefixIcon: Icons.lock,
+                        obscure: true,
+                        suffixIcon: Icons.visibility,
+                      ),
+                      const SizedBox(height: 10),
+        
+                      CustomInputField(
+                        hint: 'Restaurant Code',
+                        controller: codeCtrl,
+                        prefixIcon: Icons.code,
+                        textInputAction: TextInputAction.done,
+                      ),
+        
+                      const SizedBox(height: 20),
+        
+                      // Login button
+                      ValueListenableBuilder<bool>(
+                        valueListenable: isProcessing,
+                        builder: (context, processing, child) {
+                          return
+                            SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: processing
+                                  ? null
+                                  : () async {
+                                      if (usernameCtrl.text.isEmpty ||
+                                          passwordCtrl.text.isEmpty ||
+                                          codeCtrl.text.isEmpty) {
+                                        showAppSnackBar(
+                                          context,
+                                          'Please fill all fields',
                                         );
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                        return;
+                                      }
+                                      //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
+                                      final expired = await isLicenseExpired();
+                                      if (expired) {
+                                        showExpiryDialog(context);
+                                        return; //  STOP EVERYTHING
+                                      }
+                                      final slno = codeCtrl.text;
+        
+                                      // Start processing
+                                      isProcessing.value = true;
+        
+                                      // Trigger register first
+                                      context
+                                          .read<RegisterCubit>()
+                                          .registerServer(
+                                            RegisterServerRequest(slno: slno),
+                                          );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
+                              child: processing
+                                  ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  ThreeDotLoader(color: Colors.blue),
+                                  SizedBox(height: 5),
+                                  Text("Loading, please wait...",style: TextStyle(color: Colors.black),)
+                                ],
+                              )
+        
+                                  : const Text(
+                                'Login',
+                                style: TextStyle(
+                                  color: AppColors.black,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              // child: processing
+                              //     ? Text('processing.......')
+                              //     : const Text(
+                              //         'Login',
+                              //         style: TextStyle(
+                              //           color: AppColors.black,
+                              //           fontSize: 18,
+                              //         ),
+                              //       ),
                             ),
-                            child: processing
-                                ? Text('processing.......')
-                                : const Text(
-                                    'Login',
-                                    style: TextStyle(
-                                      color: AppColors.black,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

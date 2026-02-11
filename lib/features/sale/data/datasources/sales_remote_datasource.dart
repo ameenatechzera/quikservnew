@@ -36,7 +36,7 @@ class SalesRemoteDataSourceImpl implements SalesRemoteDataSource {
 
       /// 🔹 PRINT REQUEST BODY
       final requestBody = request.toJson();
-      print('📤 Save Sale Request Body:');
+      print('📤 Save Sale Request Body: ${requestBody}');
       print(const JsonEncoder.withIndent('  ').convert(requestBody));
 
       if (token.isEmpty) throw Exception("Token missing! Please login again.");

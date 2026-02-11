@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart';
+import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/accountGroups/presentation/screens/account_group_screen.dart';
 import 'package:quikservnew/features/accountledger/presentation/screens/account_ledger_listing_screen.dart';
+import 'package:quikservnew/features/authentication/presentation/screens/login_screen.dart';
 import 'package:quikservnew/features/category/presentation/screens/category_listing_screen.dart';
 import 'package:quikservnew/features/masters/presentation/screens/user_listing_screen.dart';
+import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
 import 'package:quikservnew/features/products/presentation/screens/product_listing_screen.dart';
 import 'package:quikservnew/features/groups/presentation/screens/productgroup_listing_screen.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/passwordchange_screen.dart';
@@ -72,7 +77,7 @@ class SettingsScreen extends StatelessWidget {
                             buildTile(
                               context: context,
                               icon: Icons.print_outlined,
-                              title: "Printer Settings",
+                              title: "Print Settings",
                               page: const PrinterSettingsContent(),
                             ),
                             buildTile(
@@ -164,12 +169,44 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                       Card(
-                        child: buildTile(
-                          context: context,
-                          icon: Icons.contact_mail,
-                          title: "Contact Us",
-                          page: const AboutScreen(),
+                        child: Column(
+                          children: [
+                            buildTile(
+                              context: context,
+                              icon: Icons.contact_mail,
+                              title: "Contact Us",
+                              page: const AboutScreen(),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                showLogoutDialog(context, () {
+                                  // Your logout logic
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                 // mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(Icons.logout, color: Colors.red),
+                                    SizedBox(width: 15),
+                                    Text(
+                                      "Logout",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+
                       ),
                     ],
                   ),
@@ -182,6 +219,75 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
+Future<void> showLogoutDialog(
+    BuildContext parentContext,
+    VoidCallback onConfirm,
+    ) {
+  return showDialog(
+    context: parentContext,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(2),
+        ),
+        title: const Text("Confirm Logout"),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: appThemeRemoveColors,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            onPressed: () async {
+              // 👇 Capture cubit BEFORE UI changes
+              //final productCubit = parentContext.read<ProductCubit>();
+
+              Navigator.pop(dialogContext); // close dialog
+
+              onConfirm(); // optional external logic
+
+              // Clear local storage
+              await SharedPreferenceHelper().setToken('');
+              await SharedPreferenceHelper().setBranchId('');
+              await SharedPreferenceHelper().setSubscriptionCode('');
+
+              // Clear cubit safely (no more context usage)
+            //  await productCubit.clearProducts();
+
+              if (!parentContext.mounted) return;
+              await SharedPreferenceHelper().setLogoutStatus(
+                'true',
+              );
+              Navigator.of(parentContext).push(
+                MaterialPageRoute(builder: (_) =>  LoginScreen()),
+
+              );
+            },
+            child: const Text(
+              "Logout",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
 
 class SubscriptionInfoCard extends StatelessWidget {
   const SubscriptionInfoCard({super.key});

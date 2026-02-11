@@ -84,6 +84,17 @@ class SharedPreferenceHelper {
     return prefs.getString("staffName") ?? '';
   }
 
+  /// ------------------ setLogoutStatus ------------------
+  Future<bool> setLogoutStatus(String logoutStatus) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("logoutStatus", logoutStatus);
+  }
+
+  Future<String> getLogoutStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("logoutStatus") ?? '';
+  }
+
   /// ------------------ DATABASE NAME ------------------
   Future<void> setDatabaseName(String dbName) async {
     final prefs = await SharedPreferences.getInstance();

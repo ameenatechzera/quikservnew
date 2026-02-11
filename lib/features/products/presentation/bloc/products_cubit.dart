@@ -110,6 +110,14 @@ class ProductCubit extends Cubit<ProductsState> {
     );
   }
 
+  Future<void> clearProducts() async {
+    print("🔥 fetchProducts() CALLED");
+
+    await _productLocalRepository.clearProducts();
+
+
+  }
+
   // --------------------- Fetch by Category (LOCAL DB) ---------------------
   Future<void> loadProductsByCategory(int categoryId) async {
     emit(ProductsByCategoryLoading());
