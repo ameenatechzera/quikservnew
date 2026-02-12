@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/config/colors.dart';
+import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
@@ -91,7 +92,7 @@ class _ResetTokenScreenState extends State<ResetTokenScreen> {
                   icon: const Icon(Icons.refresh),
                   label: const Text('Reset',style: TextStyle(color: Colors.white),),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: appThemeOrange,
+                    backgroundColor: AppColors.primary,
                     // Background color
                     foregroundColor: Colors.white,
                     // Text color
@@ -123,7 +124,7 @@ class _ResetTokenScreenState extends State<ResetTokenScreen> {
                 icon: const Icon(Icons.save),
                 label: const Text('Save'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: appBarColor,
+                  backgroundColor: AppColors.primary,
                   // Background color
                   foregroundColor: Colors.white,
                   // Text color

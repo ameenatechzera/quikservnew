@@ -23,9 +23,10 @@ import 'package:quikservnew/features/settings/presentation/widgets/dashboard_lis
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 import 'aboutUs_screen.dart';
-
+String st_companyName ='';
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+   SettingsScreen({super.key});
+
   Future<String?> _getAppVersion() async {
     return await SharedPreferenceHelper().getAppVersion();
   }
@@ -36,8 +37,10 @@ class SettingsScreen extends StatelessWidget {
       future: _getAppVersion(),
       builder: (context, snapshot) {
         final appVersion = snapshot.data ?? "";
+        print('appVersion $appVersion');
 
         final bool isBasic = appVersion.toLowerCase() == "basic";
+
 
         return Scaffold(
           appBar: AppBar(
@@ -78,7 +81,7 @@ class SettingsScreen extends StatelessWidget {
                               context: context,
                               icon: Icons.print_outlined,
                               title: "Print Settings",
-                              page: const PrinterSettingsContent(),
+                              page: PrinterSettingsContent(companyName: st_companyName,),
                             ),
                             buildTile(
                               context: context,
@@ -294,6 +297,7 @@ class SubscriptionInfoCard extends StatelessWidget {
 
   Future<Map<String, String>> _loadData() async {
     final prefs = SharedPreferenceHelper();
+    st_companyName = await prefs.getCompanyName() ?? '';
     return {
       'companyName': await prefs.getCompanyName() ?? '',
       'subCode': await prefs.getSubscriptionCode(),

@@ -77,6 +77,7 @@ class FetchSettingsDetailsModel extends FetchSettingsDetails {
       cardLedgerName: json['card_ledger_name'],
       bankLedgerName: json['bank_ledger_name'],
       vatStatus: json['vatstatus'],
+      appVersion: json['appVersion'],
       vatType: json['vattype'],
       isSingleCounter: json['issinglecounter'],
     );

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -128,6 +130,60 @@ class SharedPreferenceHelper {
     return prefs.getString("printerSize");
   }
 
+  //Company Font
+  Future<bool> saveCompanyNameFontSize(String companyFontSize) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("companyFontSize", companyFontSize);
+  }
+
+  Future<String?> fetchCompanyNameFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("companyFontSize");
+  }
+
+  //Company Address Font
+  Future<bool> saveCompanyAddressInPrintStatus(bool addressStatus) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setBool("addressStatus", addressStatus);
+  }
+
+  Future<bool?> fetchCompanyAddressInPrintStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("addressStatus");
+  }
+
+  //Company PhoneNo Font
+  Future<bool> saveCompanyPhoneInPrintStatus(bool phoneNoStatus) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setBool("phoneNoStatus", phoneNoStatus);
+  }
+
+  Future<bool?> fetchCompanyPhoneInPrintStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("phoneNoStatus");
+  }
+
+  //Company Logo width
+  Future<bool> saveLogoWidth(double logoWidth) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setDouble("logoWidth", logoWidth);
+  }
+
+  Future<double?> fetchLogoWidth() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble("logoWidth");
+  }
+
+  //Company Logo height
+  Future<bool> saveLogoHeight(double logoHeight) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setDouble("logoHeight", logoHeight);
+  }
+
+  Future<double?> fetchLogoHeight() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble("logoHeight");
+  }
   /// ------------------ VAT STATUS ------------------
   Future<void> setVatStatus(bool status) async {
     final prefs = await SharedPreferences.getInstance();

@@ -22,7 +22,7 @@ class FetchSettingsDetails {
   final int? isTableSetup;
   final int? isSalesrateEditable;
   final int? branchId;
-  final bool? appVersion;
+  final String? appVersion;
   final String? createdDate;
   final String? createdUser;
   final String? modifiedDate;

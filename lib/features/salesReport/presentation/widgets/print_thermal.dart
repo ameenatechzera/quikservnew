@@ -31,6 +31,7 @@ class PrintPage extends StatefulWidget {
   final String? itemWiseSalesTotal;
   final String? dailyCloseReportDate;
 
+
   final String pageFrom;
   bool oneLineProductFlag = false;
   bool doubleLineProductFlag = false;
@@ -73,6 +74,12 @@ class _PrintPageState extends State<PrintPage> {
   String selectedPrinter = '';
   double dbl_bluetoothList = 0;
   double dbl_paymentSuccess = 0;
+  String companyNameFontSize = '';
+  bool st_companyAdressStatus = false;
+  bool st_companyPhoneStatus =false;
+  double logoWidth = 0;
+  double logoHeight = 0;
+
 
   @override
   void initState() {
@@ -374,32 +381,110 @@ class _PrintPageState extends State<PrintPage> {
         .trim();
   }
 
+  // Future<List<int>> _generateTicket() async {
+  //   print('reachedTicketGeneration');
+  //   final profile = await CapabilityProfile.load();
+  //   var generator = Generator(PaperSize.mm58, profile);
+  //   String line = '-----------------------------------------------';
+  //   print('selectedPrinter $selectedPrinter');
+  //   //selectedPrinter = '3 inch';
+  //   if (selectedPrinter == '2 inch') {
+  //     print('if $selectedPrinter');
+  //     generator = Generator(PaperSize.mm58, profile);
+  //     line = '-------------------------------';
+  //   }
+  //   if (selectedPrinter == '3 inch') {
+  //     print('secondIf $selectedPrinter');
+  //     line = '-----------------------------------------------';
+  //     generator = Generator(PaperSize.mm80, profile);
+  //   }
+  //
+  //   // List<int> bytes = [];
+  //
+  //   String? st_invNo = widget.sales!.salesMaster?.invoiceNo.toString();
+  //   String? st_dateAndTime = widget.sales!.salesMaster?.invoiceDate.toString();
+  //   String? st_Time = widget.sales!.salesMaster?.invoiceTime.toString();
+  //   List<int> bytes = [];
+  //   String? st_paycash = widget.sales!.salesMaster?.cashAmount.toString();
+  //   String? st_paycard = widget.sales!.salesMaster?.cardAmount.toString();
+  //   bytes = await header_section(
+  //     generator,
+  //     st_invNo,
+  //     st_dateAndTime,
+  //     st_Time,
+  //     st_paycash,
+  //     st_paycard,
+  //   );
+  //   // String st_QRData = await createQRCode();
+  //
+  //   bytes += await printHeading(generator);
+  //   bytes.addAll(
+  //     generator.text(
+  //       line,
+  //       styles: PosStyles(align: PosAlign.center),
+  //       linesAfter: 0,
+  //     ),
+  //   );
+  //
+  //   bytes += await printItemDetails(generator);
+  //
+  //   bytes.addAll(
+  //     generator.text(
+  //       line,
+  //       styles: PosStyles(align: PosAlign.center),
+  //       linesAfter: 0,
+  //     ),
+  //   );
+  //
+  //   bytes += await printFooter(generator);
+  //
+  //   bytes += generator.cut();
+  //
+  //   return bytes;
+  // }
   Future<List<int>> _generateTicket() async {
     final profile = await CapabilityProfile.load();
-    var generator = Generator(PaperSize.mm58, profile);
+    Generator generator;
+
     String line = '-----------------------------------------------';
-    print('selectedPrinter $selectedPrinter');
-    //selectedPrinter = '3 inch';
+
     if (selectedPrinter == '2 inch') {
-      print('if $selectedPrinter');
       generator = Generator(PaperSize.mm58, profile);
       line = '-------------------------------';
-    }
-    if (selectedPrinter == '3 inch') {
-      print('secondIf $selectedPrinter');
-      line = '-----------------------------------------------';
+    } else {
       generator = Generator(PaperSize.mm80, profile);
     }
 
-    // List<int> bytes = [];
+    List<int> bytes = [];
+
+    /// =======================
+    /// 🔹 TOP LOGO (CENTER)
+    /// =======================
+
+    // final ByteData data = await rootBundle.load('assets/icons/quikserv_icon.png');
+    // final Uint8List logoBytes = data.buffer.asUint8List();
+    // final image = img.decodeImage(logoBytes);
+    //
+    // if (image != null) {
+    //   bytes += generator.image(image, align: PosAlign.center);
+    // }
+
+    bytes += generator.feed(1);
+
+
+
+    /// =======================
+    /// 🔹 YOUR EXISTING HEADER
+    /// =======================
 
     String? st_invNo = widget.sales!.salesMaster?.invoiceNo.toString();
     String? st_dateAndTime = widget.sales!.salesMaster?.invoiceDate.toString();
     String? st_Time = widget.sales!.salesMaster?.invoiceTime.toString();
-    List<int> bytes = [];
     String? st_paycash = widget.sales!.salesMaster?.cashAmount.toString();
     String? st_paycard = widget.sales!.salesMaster?.cardAmount.toString();
-    bytes = await header_section(
+
+
+    bytes += await header_section(
       generator,
       st_invNo,
       st_dateAndTime,
@@ -407,33 +492,38 @@ class _PrintPageState extends State<PrintPage> {
       st_paycash,
       st_paycard,
     );
-    // String st_QRData = await createQRCode();
 
     bytes += await printHeading(generator);
-    bytes.addAll(
-      generator.text(
-        line,
-        styles: PosStyles(align: PosAlign.center),
-        linesAfter: 0,
-      ),
+
+    bytes += generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
     );
 
     bytes += await printItemDetails(generator);
 
-    bytes.addAll(
-      generator.text(
-        line,
-        styles: PosStyles(align: PosAlign.center),
-        linesAfter: 0,
-      ),
+    bytes += generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
     );
 
     bytes += await printFooter(generator);
+
+    /// =======================
+    /// 🔹 COMPANY DETAILS (BOTTOM)
+    /// =======================
+
+    bytes += generator.feed(1);
+
+
+
+    bytes += generator.feed(2);
 
     bytes += generator.cut();
 
     return bytes;
   }
+
 
   Future<pw.Font> loadArabicFont() async {
     final fontData = await rootBundle.load('fonts/Amiri-Regular.ttf');
@@ -660,8 +750,21 @@ class _PrintPageState extends State<PrintPage> {
         .loadSelectedPrinter())!;
     selectedPrinter = (await SharedPreferenceHelper()
         .loadSelectedPrinterSize())!;
+    companyNameFontSize = (await (SharedPreferenceHelper().fetchCompanyNameFontSize()))!;
+    st_companyAdressStatus =
+    (await SharedPreferenceHelper().fetchCompanyAddressInPrintStatus())!;
+    st_companyPhoneStatus =
+    (await SharedPreferenceHelper().fetchCompanyPhoneInPrintStatus())!;
+
+    logoHeight = (await SharedPreferenceHelper()
+        .fetchLogoHeight())!;
+    logoWidth = (await SharedPreferenceHelper()
+        .fetchLogoWidth())!;
     print('st_connectedDevicePref $st_connectedDevicePref');
     print('selectedPrinter $selectedPrinter');
+    print('logoHeight $logoHeight');
+    print('logoWidth $logoWidth');
+    print('companyNameFontSize $companyNameFontSize');
     // await SharedPrefrence().getBluetoothMacAddress().then((value) async {
     //   print('st_connectedDevicePref $value');
     //   st_connectedDevicePref = value.toString();
@@ -729,6 +832,7 @@ class _PrintPageState extends State<PrintPage> {
     }
   }
 
+  //Print Header while thermal print Haris
   Future<List<int>> header_section(
     Generator generator,
     String? st_invNo,
@@ -737,8 +841,8 @@ class _PrintPageState extends State<PrintPage> {
     String? st_paycash,
     String? st_paycard,
   ) async {
-    //final ByteData data = await rootBundle.load('assets/icons/faizee_logo.png');
-    //final Uint8List imageBytes = data.buffer.asUint8List();
+    final ByteData data = await rootBundle.load('assets/icons/quikservlogo.png');
+    final Uint8List imageBytes = data.buffer.asUint8List();
     List<int> bytes = [];
     ///////////////////////////////////////
     double dblPayCard = 0, dblPayCash = 0;
@@ -751,76 +855,140 @@ class _PrintPageState extends State<PrintPage> {
     ////////////////////////////////////////
     String line = '-----------------------------------------------';
     print('selectedPrinterHARIS $selectedPrinter');
+    int logoWidthInt =0;
+    int logoHeightInt = 0;
+
     if (selectedPrinter == '2 inch') {
       print('if $selectedPrinter');
+      if(logoHeight>100){
+
+      }
+      if(logoWidth>100){
+
+      }
 
       line = '-------------------------------';
     }
     if (selectedPrinter == '3 inch') {
       print('secondIf $selectedPrinter');
+      // Case 1
+      if(logoHeight>100 && logoHeight<150){
+        logoWidthInt = 540;//550
+      }
+      if(logoWidth>100 && logoWidth<150){
+        logoHeightInt = 250;//250
+      }
+      // Case 2
+      if(logoHeight>150){
+        logoWidthInt = 570;
+      }
+      if(logoWidth>150){
+        logoHeightInt = 300;
+      }
+      //Case 3
+      if(logoHeight<100 && logoHeight>50){
+        logoWidthInt = 400;
+      }
+      if(logoWidth<100 && logoWidth>50){
+        logoHeightInt = 200;
+      }
+
+      //Case 3
+      if(logoHeight<50){
+        logoWidthInt = 200;
+      }
+      if(logoWidth<50){
+        logoHeightInt = 100;
+      }
       line = '-----------------------------------------------';
     }
 
     // Decode image using `image` package
-    // final img.Image? image = img.decodeImage(imageBytes);
+     final img.Image? image = img.decodeImage(imageBytes);
     if (selectedPrinter == '2 inch') {
-      // if (image != null) {
-      //   //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
-      //   //final img.Image resized = img.copyResize(image, width: 150,height: 150);
-      //   final resized = img.copyResize(image, width: 400, height: 150);
-      //
-      //   bytes += generator.image(
-      //     resized, // The data to encode
-      //     // QRSize from 1 (smallest) to 8 (largest)
-      //     align: PosAlign.center,
-      //   );
-      // }
+      if (image != null) {
+        //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
+        //final img.Image resized = img.copyResize(image, width: 150,height: 150);
+        final resized = img.copyResize(image, width: 400, height: 150);
+
+        bytes += generator.image(
+          resized, // The data to encode
+          // QRSize from 1 (smallest) to 8 (largest)
+          align: PosAlign.center,
+        );
+      }
     }
     if (selectedPrinter == '3 inch') {
-      // if (image != null) {
-      //   //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
-      //   //final img.Image resized = img.copyResize(image, width: 150,height: 150);
-      //   final resized = img.copyResize(image, width: 550, height: 250);
-      //   bytes += generator.image(
-      //     resized, // The data to encode
-      //     // QRSize from 1 (smallest) to 8 (largest)
-      //     align: PosAlign.center,
-      //   );
-      // }
+      if (image != null) {
+        //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
+        //final img.Image resized = img.copyResize(image, width: 150,height: 150);
+        final resized = img.copyResize(image, width: logoWidthInt, height: logoHeightInt);
+        bytes += generator.image(
+          resized, // The data to encode
+          // QRSize from 1 (smallest) to 8 (largest)
+          align: PosAlign.center,
+        );
+      }
     }
+    st_company ='TEST COMPANY';
+    st_companyAddress = 'address company';
+    st_companyPhone ='8089001136';
+    int compnyFontSize =0;
+    try {
+      compnyFontSize = int.parse(companyNameFontSize);
+    }catch(_){
+      compnyFontSize =0;
+    }
+
+    final textSize = _getTextSize(compnyFontSize);
 
     bytes += generator.text(
       st_company,
       styles: PosStyles(
         align: PosAlign.center,
         bold: true,
-        height: PosTextSize.size1,
-        width: PosTextSize.size1,
+        height: textSize,
+        width: textSize,
       ),
       linesAfter: 0,
     );
 
+    // bytes += generator.text(
+    //   st_company,
+    //   styles: PosStyles(
+    //     align: PosAlign.center,
+    //     bold: true,
+    //     height: PosTextSize.size1,
+    //     width: PosTextSize.size1,
+    //   ),
+    //   linesAfter: 0,
+    // );
+
     if (st_companyAddress.length > 1) {
-      bytes += generator.text(
-        '' + st_companyAddress,
-        styles: PosStyles(
-          align: PosAlign.center, // ✅ Centered
-          bold: false,
-        ),
-        linesAfter: 0,
-      );
+      if(st_companyAdressStatus) {
+        bytes += generator.text(
+          '' + st_companyAddress,
+          styles: PosStyles(
+            align: PosAlign.center, // ✅ Centered
+            bold: false,
+          ),
+          linesAfter: 0,
+        );
+      }
     }
     if (st_companyPhone.length > 1) {
-      bytes += generator.text(
-        'Phone No: ' + st_companyPhone,
-        styles: const PosStyles(
-          align: PosAlign.center, // ✅ Centered
-          bold: false,
-          height: PosTextSize.size1,
-          width: PosTextSize.size1,
-        ),
-        linesAfter: 0,
-      );
+      if(st_companyPhoneStatus) {
+        bytes += generator.text(
+          'Phone No: ' + st_companyPhone,
+          styles: const PosStyles(
+            align: PosAlign.center, // ✅ Centered
+            bold: false,
+            height: PosTextSize.size1,
+            width: PosTextSize.size1,
+          ),
+          linesAfter: 0,
+        );
+      }
     }
     if (vatStatus) {
       bytes += generator.text(
@@ -1806,4 +1974,8 @@ class _PrintPageState extends State<PrintPage> {
 int get_decimalpoints() {
   final int decimal_points = 2;
   return decimal_points;
+}
+PosTextSize _getTextSize(int size) {
+  if (size >= 25) return PosTextSize.size2; // Large
+  return PosTextSize.size1; // Normal
 }

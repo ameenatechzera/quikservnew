@@ -7,7 +7,8 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrinterSettingsContent extends StatefulWidget {
-  const PrinterSettingsContent({super.key});
+  final String companyName;
+  const PrinterSettingsContent({super.key, required this.companyName});
 
   @override
   State<PrinterSettingsContent> createState() => _PrinterSettingsContentState();
@@ -17,6 +18,9 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   String printerType = 'Wifi';
   String? paperSize = '2 inch';
 
+  String companyNameFontSize = '';
+  bool st_companyAdressStatus = false;
+  bool st_companyPhoneStatus =false;
   bool deviceListStatus = false;
 
   final TextEditingController ipController = TextEditingController(
@@ -29,6 +33,20 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   final List<String> printerTypesList = ['Wifi', 'Bluetooth'];
   final List<String> blPrinterTypes = ['2 inch', '3 inch', 'No print'];
+
+  //print settings
+
+  final _companyNameController =
+  TextEditingController();
+  final _addressController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _companyFontSizeController =
+  TextEditingController(text: "18");
+  bool isPhoneEnabled = false;
+  bool isAddressEnabled = false;
+
+  double logoWidth = 80;
+  double logoHeight = 80;
 
   List<BluetoothInfo> bluetoothDevices = [];
   String connectedMac = '';
@@ -53,6 +71,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     super.initState();
     selectedMainPrinter = printersList.first;
     selectedKitchenPrinter = printersKitchenList.first;
+    _companyNameController.text= widget.companyName;
 
     fetchPrinterSettings();
 
@@ -133,16 +152,19 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: const CommonAppBar(title: "Printer Settings"),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _printerTypeCard(),
-            printerType == 'Bluetooth' ? _bluetoothUi() : _wifiUi(),
-            _saveButton(),
-          ],
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: const CommonAppBar(title: "Print Settings"),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _printSettingsCard(),
+              _printerTypeCard(),
+              printerType == 'Bluetooth' ? _bluetoothUi() : _wifiUi(),
+              _saveButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -185,6 +207,152 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
       ),
     );
   }
+
+  Widget _printSettingsCard() {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+
+            /// 🔹 Row 1 — Company Name + Font Size
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _companyNameController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      labelText: "Company Name",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 90,
+                  child: TextField(
+                    controller: _companyFontSizeController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: "Font Size",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            /// 🔹 Row 2 — Company Address + Checkbox
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Company Address')
+                ),
+                const SizedBox(width: 10),
+
+                Checkbox(
+                  value: isAddressEnabled,
+                  onChanged: (value) {
+                    setState(() {
+                      isAddressEnabled = value ?? false;
+                    });
+                  },
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            /// 🔹 Row 3 — Company Phone + Checkbox
+            Row(
+              children: [
+                Expanded(
+                  child:Text('Company Phone No')
+                ),
+                const SizedBox(width: 10),
+                Checkbox(
+                  value: isPhoneEnabled,
+                  onChanged: (value) {
+                    setState(() {
+                      isPhoneEnabled = value ?? false;
+                    });
+                  },
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            /// 🔹 Row 4 — Logo Preview + Size Controls
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: logoWidth,
+                  height: logoHeight,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "LOGO",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Text("Width"),
+                          Expanded(
+                            child: Slider(
+                              value: logoWidth,
+                              min: 40,
+                              max: 200,
+                              onChanged: (value) {
+                                setState(() => logoWidth = value);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Text("Height"),
+                          Expanded(
+                            child: Slider(
+                              value: logoHeight,
+                              min: 40,
+                              max: 200,
+                              onChanged: (value) {
+                                setState(() => logoHeight = value);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   /// --------- BLUETOOTH SECTION ----------
   Widget _bluetoothUi() {
@@ -417,13 +585,18 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           minimumSize: const Size.fromHeight(48),
         ),
         onPressed: () async {
-          // await SharedPreferenceHelper().saveSelectedPrinter(
-          //     mac
-          // );
+         print('logoWidth $logoWidth');
+         print('logoHeight $logoHeight');
           Navigator.pop(context);
 
           print('paperSize $paperSize');
           await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
+         await SharedPreferenceHelper().saveCompanyNameFontSize(_companyFontSizeController.text.toString());
+         await SharedPreferenceHelper().saveCompanyAddressInPrintStatus(isAddressEnabled);
+         await SharedPreferenceHelper().saveCompanyPhoneInPrintStatus(isPhoneEnabled);
+         await SharedPreferenceHelper().saveCompanyNameFontSize(_companyFontSizeController.text.toString());
+         await SharedPreferenceHelper().saveLogoHeight(logoHeight);
+         await SharedPreferenceHelper().saveLogoWidth(logoWidth);
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));
@@ -435,6 +608,25 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   Future<void> fetchPrinterSettings() async {
     paperSize = await (SharedPreferenceHelper().loadSelectedPrinterSize());
+    companyNameFontSize = (await (SharedPreferenceHelper().fetchCompanyNameFontSize()))!;
+    st_companyAdressStatus =
+    (await SharedPreferenceHelper().fetchCompanyAddressInPrintStatus())!;
+    st_companyPhoneStatus =
+    (await SharedPreferenceHelper().fetchCompanyPhoneInPrintStatus())!;
+    if(st_companyPhoneStatus){
+      isPhoneEnabled =true;
+    }
+    if(st_companyAdressStatus){
+      isAddressEnabled =true;
+    }
+    if(companyNameFontSize.isNotEmpty){
+      _companyFontSizeController.text = companyNameFontSize;
+    }
+    logoHeight = (await SharedPreferenceHelper()
+        .fetchLogoHeight())!;
+    logoWidth = (await SharedPreferenceHelper()
+        .fetchLogoWidth())!;
+
   }
 }
 

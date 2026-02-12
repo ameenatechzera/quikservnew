@@ -142,6 +142,7 @@ class LoginScreen extends StatelessWidget {
               debugPrint('🧾 SETTINGS API RESPONSE');
               debugPrint('VAT STATUS  : ${settings.vatStatus}');
               debugPrint('VAT TYPE    : ${settings.vatType}');
+              debugPrint('APP VERSION    : ${settings.appVersion}');
 
               /// ✅ STORE VAT STATUS & TYPE FROM SETTINGS API
               await SharedPreferenceHelper().setVatStatus(settings.vatStatus!);
