@@ -52,7 +52,7 @@ class CartManager {
 
   /// 💰 Total items
   // int get totalItems =>
-  //     cartItems.value.fold(0, (sum, item) => sum + item.quantity);
+  //     cartItems.value.fold(0, (sum, item_bloc) => sum + item_bloc.quantity);
   int get totalItems =>
       cartItems.value.fold(0, (sum, item) => sum + item.qty.toInt());
 
@@ -85,7 +85,7 @@ class CartManager {
       if (cartItems.value[index].qty > 1) {
         cartItems.value[index].qty--;
       } else {
-        // Remove item completely
+        // Remove item_bloc completely
         cartItems.value.removeAt(index);
         if (cartItems.value.isEmpty) showCartBar.value = false;
       }

@@ -141,6 +141,18 @@ class SharedPreferenceHelper {
     return prefs.getString("companyFontSize");
   }
 
+
+  //Description
+  Future<bool> saveDescriptionPrint(String description) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("description", description);
+  }
+
+  Future<String?> fetchDescriptionPrint() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("description");
+  }
+
   //Company Address Font
   Future<bool> saveCompanyAddressInPrintStatus(bool addressStatus) async {
     final prefs = await SharedPreferences.getInstance();

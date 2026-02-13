@@ -12,9 +12,10 @@ part 'dayclose_report_state.dart';
 class DaycloseReportCubit extends Cubit<DaycloseReportState> {
 
   final FetchDailyClosingReportUseCase _fetchDailyClosingReportUseCase;
-  final FetchItemWiseDetailsUseCase _fetchItemWiseDetailsUseCase;
-  DaycloseReportCubit({required FetchDailyClosingReportUseCase fetchDailyClosingReportUseCase ,required FetchItemWiseDetailsUseCase fetchItemWiseDetailsUseCase}) :
-        _fetchDailyClosingReportUseCase = fetchDailyClosingReportUseCase, _fetchItemWiseDetailsUseCase = fetchItemWiseDetailsUseCase,super(DaycloseReportInitial());
+ // final FetchItemWiseDetailsUseCase _fetchItemWiseDetailsUseCase;
+  DaycloseReportCubit({required FetchDailyClosingReportUseCase fetchDailyClosingReportUseCase }) :
+        _fetchDailyClosingReportUseCase = fetchDailyClosingReportUseCase,
+       super(DaycloseReportInitial());
 
   // --------------------- API Fetch ---------------------
   Future<void> fetchDayCloseReport(DailyCloseReportRequest request) async {
@@ -42,27 +43,28 @@ class DaycloseReportCubit extends Cubit<DaycloseReportState> {
   }
 
   // --------------------- API Fetch ---------------------
-  Future<void> fetchItemWiseReport(ItemWiseReportRequest request) async {
-    print('ItemWiseReportRequest ${request.toJson()}');
-    emit(ItemWiseDetailsInitial());
-
-
-    try {
-      final result = await _fetchItemWiseDetailsUseCase(request);
-
-      result.fold(
-            (failure) {
-          emit(ItemDetailsFailure(failure.message));
-        },
-            (reportResponse) {
-          emit(ItemDetailsLoaded(itemWisReport: reportResponse.summaryReport));
-        },
-      );
-    } catch (e, stacktrace) {
-      // Handle unexpected exceptions
-      print('❌ Exception during Summary Report: $e');
-      print('Stacktrace: $stacktrace');
-      emit(ItemDetailsFailure('An unexpected error occurred'));
-    }
-  }
+  // Future<void> fetchItemWiseReport(ItemWiseReportRequest request) async {
+  //   print('ItemWiseReportRequest ${request.toJson()}');
+  //   emit(ItemWiseDetailsInitial());
+  //
+  //
+  //   try {
+  //     final result = await _fetchItemWiseDetailsUseCase(request);
+  //
+  //     result.fold(
+  //           (failure) {
+  //         emit(ItemDetailsFailure(failure.message));
+  //       },
+  //           (reportResponse) {
+  //             print('reportResponse ${reportResponse.toJson()}');
+  //         emit(ItemDetailsLoaded(itemWisReport: reportResponse.summaryReport));
+  //       },
+  //     );
+  //   } catch (e, stacktrace) {
+  //     // Handle unexpected exceptions
+  //     print('❌ Exception during Summary Report: $e');
+  //     print('Stacktrace: $stacktrace');
+  //     emit(ItemDetailsFailure('An unexpected error occurred'));
+  //   }
+  // }
 }

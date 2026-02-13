@@ -45,6 +45,7 @@ import 'package:quikservnew/features/dailyclosingReport/domain/repositories/dail
 import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetchDailyClosingReportUseCase.dart';
 import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetchItemWiseDetailsUseCase.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/item_bloc/item_cubit.dart';
 import 'package:quikservnew/features/groups/data/datasources/group_remote_data_source.dart';
 import 'package:quikservnew/features/groups/data/repositories/group_repository_impl.dart';
 import 'package:quikservnew/features/groups/domain/repositories/group_repository.dart';
@@ -363,6 +364,15 @@ class ServiceLocator {
       () => SalesRepositoryImpl(remoteDataSource: sl()),
     );
 
+    // -------------- Item Cubit in day close report -----------------
+
+    sl.registerFactory(
+          () => ItemCubit(
+              fetchItemWiseDetailsUseCase:sl()
+      ),
+    );
+
+
     // ------------------- CreateUSer Cubit -------------------
     sl.registerFactory(
       () => UserCreationCubit(
@@ -428,7 +438,7 @@ class ServiceLocator {
     sl.registerFactory(
       () => DaycloseReportCubit(
         fetchDailyClosingReportUseCase: sl(),
-        fetchItemWiseDetailsUseCase: sl(),
+       // fetchItemWiseDetailsUseCase: sl(),
       ),
     );
     sl.registerLazySingleton(() => FetchDailyClosingReportUseCase(sl()));

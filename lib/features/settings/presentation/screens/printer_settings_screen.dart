@@ -38,7 +38,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   final _companyNameController =
   TextEditingController();
-  final _addressController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _phoneController = TextEditingController();
   final _companyFontSizeController =
   TextEditingController(text: "18");
@@ -248,7 +248,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             /// 🔹 Row 2 — Company Address + Checkbox
             Row(
@@ -269,7 +269,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
               ],
             ),
 
-            const SizedBox(height: 16),
+           // const SizedBox(height: 8),
 
             /// 🔹 Row 3 — Company Phone + Checkbox
             Row(
@@ -289,64 +289,85 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             /// 🔹 Row 4 — Logo Preview + Size Controls
-            Row(
+            /// 🔹 Row 4 — Logo Preview + Size Controls (Column Layout)
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: logoWidth,
-                  height: logoHeight,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    "LOGO",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                Center(
+                  child: Container(
+                    width: logoWidth,
+                    height: logoHeight,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "LOGO",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          const Text("Width"),
-                          Expanded(
-                            child: Slider(
-                              value: logoWidth,
-                              min: 40,
-                              max: 200,
-                              onChanged: (value) {
-                                setState(() => logoWidth = value);
-                              },
-                            ),
-                          ),
-                        ],
+
+                const SizedBox(height: 20),
+
+                /// Width Slider
+                Row(
+                  children: [
+                    const Text("Width"),
+                    Expanded(
+                      child: Slider(
+                        value: logoWidth,
+                        min: 40,
+                        max: 200,
+                        onChanged: (value) {
+                          setState(() => logoWidth = value);
+                        },
                       ),
-                      Row(
-                        children: [
-                          const Text("Height"),
-                          Expanded(
-                            child: Slider(
-                              value: logoHeight,
-                              min: 40,
-                              max: 200,
-                              onChanged: (value) {
-                                setState(() => logoHeight = value);
-                              },
-                            ),
-                          ),
-                        ],
+                    ),
+                  ],
+                ),
+
+                /// Height Slider
+                Row(
+                  children: [
+                    const Text("Height"),
+                    Expanded(
+                      child: Slider(
+                        value: logoHeight,
+                        min: 40,
+                        max: 200,
+                        onChanged: (value) {
+                          setState(() => logoHeight = value);
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+
+
+                Row(
+                  children: [
+                    const Text("Description"),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: TextField(
+                        controller: _descriptionController,
+                       // readOnly: true,
+                        decoration: const InputDecoration(
+                         // labelText: "Company Name",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
+
           ],
         ),
       ),
@@ -594,9 +615,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
          await SharedPreferenceHelper().saveCompanyNameFontSize(_companyFontSizeController.text.toString());
          await SharedPreferenceHelper().saveCompanyAddressInPrintStatus(isAddressEnabled);
          await SharedPreferenceHelper().saveCompanyPhoneInPrintStatus(isPhoneEnabled);
-         await SharedPreferenceHelper().saveCompanyNameFontSize(_companyFontSizeController.text.toString());
+
          await SharedPreferenceHelper().saveLogoHeight(logoHeight);
          await SharedPreferenceHelper().saveLogoWidth(logoWidth);
+         await SharedPreferenceHelper().saveDescriptionPrint(_descriptionController.text.toString());
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));

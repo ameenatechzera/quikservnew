@@ -173,6 +173,7 @@ class ApiConstants {
     return '$baseUrl/salesmaster/item-wise-sales-summary';
   }
 
+
   ///for Day close report
   static String getDayCloseReportPath(String baseUrl) {
     return '$baseUrl/salesmaster/summary-report-payment-mode';
