@@ -57,6 +57,20 @@ class LoginScreen extends StatelessWidget {
               await SharedPreferenceHelper().setCompanyName(
                 state.result.companyDetails.first.companyName,
               );
+              /// ✅ STORE COMPANY Address1
+              await SharedPreferenceHelper().setCompanyAddress1(
+                state.result.companyDetails.first.address1,
+              );
+
+              /// ✅ STORE COMPANY Address2
+              await SharedPreferenceHelper().setCompanyAddress2(
+                state.result.companyDetails.first.address2,
+              );
+
+              /// ✅ STORE COMPANY PhoneNo
+              await SharedPreferenceHelper().setCompanyPhoneNo(
+                state.result.companyDetails.first.phone,
+              );
               final logoutStatus = await SharedPreferenceHelper().getLogoutStatus();
               //if(logoutStatus=='true')
               /// After register -> trigger login

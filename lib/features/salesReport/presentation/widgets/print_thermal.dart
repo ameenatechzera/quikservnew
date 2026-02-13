@@ -857,6 +857,9 @@ class _PrintPageState extends State<PrintPage> {
     (await SharedPreferenceHelper().fetchCompanyPhoneInPrintStatus())!;
     description =
     (await SharedPreferenceHelper().fetchDescriptionPrint())!;
+    st_company =     (await SharedPreferenceHelper().getCompanyName())!;
+    st_companyAddress =     (await SharedPreferenceHelper().getCompanyAddress1())!;
+    st_companyPhone = (await SharedPreferenceHelper().getCompanyPhoneNo())!;
 
     logoHeight = (await SharedPreferenceHelper()
         .fetchLogoHeight())!;
@@ -1032,9 +1035,8 @@ class _PrintPageState extends State<PrintPage> {
         );
       }
     }
-    st_company ='TEST COMPANY';
-    st_companyAddress = 'address company';
-    st_companyPhone ='8089001136';
+   // st_company ='TEST COMPANY';
+
     int compnyFontSize =0;
     try {
       compnyFontSize = int.parse(companyNameFontSize);
