@@ -18,7 +18,7 @@ Widget cartBottomBar(BuildContext context) {
           return const SizedBox();
         }
         // Calculate total items and total price
-        // final totalItems = items.fold<int>(0, (sum, item) => sum + item.qty);
+        // final totalItems = items.fold<int>(0, (sum, item_bloc) => sum + item_bloc.qty);
         final totalItems = items.fold<int>(
           0,
           (sum, item) => sum + item.qty.toInt(),

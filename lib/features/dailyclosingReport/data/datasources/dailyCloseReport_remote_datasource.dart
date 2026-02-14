@@ -20,6 +20,7 @@ abstract class DailyClosingReportRemoteDataSource {
   Future<fetchDailyClosingReportModel> fetchDailyClosingReport(DailyCloseReportRequest request)
 
 async {
+    print('request ${request.toJson()}');
       try {
         final baseUrl = await SharedPreferenceHelper().getBaseUrl();
         if (baseUrl == null || baseUrl.isEmpty) {
@@ -86,6 +87,7 @@ async {
       print('🔹 Save Sale URL: $url');
       print('🔹 DB Name: $dbName');
       print('🔹 Token exists: ${token.isNotEmpty}');
+      print('ItemWiseReportRequest ${request.toJson()}');
 
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
 

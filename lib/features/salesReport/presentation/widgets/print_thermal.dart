@@ -11,6 +11,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyClosingReportResult.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
@@ -21,9 +24,9 @@ final _statusTextController = TextEditingController();
 
 class PrintPage extends StatefulWidget {
   final SalesDetailsByMasterIdResult? sales;
-  // final List<SummaryReport>? summaryList;
-  // final List<ExpenseDetail>? expenseList;
-  // final List<ItemDetails>? itemsList;
+  final List<SummaryReports>? summaryList;
+  final List<ExpenseDetail>? expenseList;
+  final List<SummaryReport>? itemsList;
   final String? cashBalance;
   final String? bankBalance;
   final String? expenseTotal;
@@ -41,6 +44,7 @@ class PrintPage extends StatefulWidget {
     super.key,
     this.sales,
     required this.pageFrom,
+    this.summaryList , this.expenseList,this.itemsList,
     this.cashBalance,
     this.bankBalance,
     this.expenseTotal,
@@ -79,6 +83,7 @@ class _PrintPageState extends State<PrintPage> {
   bool st_companyPhoneStatus =false;
   double logoWidth = 0;
   double logoHeight = 0;
+  String description = '';
 
 
   @override
@@ -229,7 +234,7 @@ class _PrintPageState extends State<PrintPage> {
       String prodName = sanitizeForPrint(rawName);
       String prodCode = sanitizeForPrint(rawCode);
 
-      // --- debug: print runes for the 10th item (index 9) so we can inspect weird bytes ---
+      // --- debug: print runes for the 10th item_bloc (index 9) so we can inspect weird bytes ---
       if (idx == 9) {
         // index 9 -> 10th line
         print('DEBUG ITEM[9] rawName="$rawName" rawCode="$rawCode"');
@@ -442,6 +447,76 @@ class _PrintPageState extends State<PrintPage> {
   //
   //   return bytes;
   // }
+  Future<List<int>> _generateDailyClosingReport() async {
+    final profile = await CapabilityProfile.load();
+    var generator = Generator(PaperSize.mm58, profile);
+    String line ='-----------------------------------------------';
+    // print('selectedPrinter $selectedPrinter');
+    if(selectedPrinter=='2 inch') {
+      print('if $selectedPrinter');
+      generator = Generator(PaperSize.mm58, profile);
+      line ='-------------------------------';
+    }
+    if(selectedPrinter=='3 inch') {
+      print('secondIf $selectedPrinter');
+      line ='-----------------------------------------------';
+      generator = Generator(PaperSize.mm80, profile);
+    }
+
+    List<int> bytes = [];
+    bytes.addAll(generator.text(
+      'Daily Closing Report',
+      styles: PosStyles(align: PosAlign.center,bold: true),
+      linesAfter: 0,
+    ));
+    bytes.addAll(generator.text(
+      ''+widget.dailyCloseReportDate.toString(),
+      styles: PosStyles(align: PosAlign.center,bold: true),
+      linesAfter: 0,
+    ));
+
+    bytes.addAll(generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
+      linesAfter: 0,
+    ));
+
+    bytes += await printSalesSummary(generator);
+    bytes += await printBalance(generator);
+    bytes.addAll(generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
+      linesAfter: 0,
+    ));
+    bytes += generator.row([
+      PosColumn(text: 'Product Wise',
+          styles: PosStyles(align: PosAlign.left,bold: true),
+          width: 6),
+      PosColumn(text: widget.itemWiseSalesTotal!,
+          styles: PosStyles(align: PosAlign.right,bold: true),
+          width: 6),
+
+    ]);
+
+    bytes.addAll(generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
+      linesAfter: 0,
+    ));
+    bytes += await printItemSummary(generator);
+
+    bytes.addAll(generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
+      linesAfter: 0,
+    ));
+
+    // bytes += await printFooter(generator);
+
+    bytes += generator.cut();
+
+    return bytes;
+  }
   Future<List<int>> _generateTicket() async {
     final profile = await CapabilityProfile.load();
     Generator generator;
@@ -585,16 +660,41 @@ class _PrintPageState extends State<PrintPage> {
     // if (connected) {
 
     print('enteredPrint');
+    if (dailyClosingReportStatus) {
+      print('dailyClosingReportStatus $dailyClosingReportStatus');
+      if (widget.summaryList!.isNotEmpty || widget.expenseList!.isNotEmpty || widget.itemsList!.isNotEmpty) {
+        final ticket = await _generateDailyClosingReport();
+        await sendBytesInChunks(ticket);
+        await PrintBluetoothThermal.disconnect;
+        // context.read<SalesReportCubit>().saleSaveFinished(1);
+       Navigator.pop(context);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+            builder: (context) => DailyClosingReportScreen(
+        )));
+      } else {
+        Fluttertoast.showToast(
+          msg: "Generate Report And Print..!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    }
+    else {
+      final ticket = await _generateTicket();
 
-    final ticket = await _generateTicket();
-
-    final result = await PrintBluetoothThermal.writeBytes(ticket);
-    await Future.delayed(const Duration(seconds: 2));
-    final kitchenTicket = await _generateKitchenPrintFromSales();
-    await sendBytesInChunks(kitchenTicket);
-    //PrintBluetoothThermal.disconnect;
-    print('resultPrint $result');
-    context.read<SalesReportCubit>().saleSaveFinished(1);
+      final result = await PrintBluetoothThermal.writeBytes(ticket);
+      await Future.delayed(const Duration(seconds: 2));
+      final kitchenTicket = await _generateKitchenPrintFromSales();
+      await sendBytesInChunks(kitchenTicket);
+      //PrintBluetoothThermal.disconnect;
+      print('resultPrint $result');
+      context.read<SalesReportCubit>().saleSaveFinished(1);
+    }
   }
 
   @override
@@ -755,6 +855,11 @@ class _PrintPageState extends State<PrintPage> {
     (await SharedPreferenceHelper().fetchCompanyAddressInPrintStatus())!;
     st_companyPhoneStatus =
     (await SharedPreferenceHelper().fetchCompanyPhoneInPrintStatus())!;
+    description =
+    (await SharedPreferenceHelper().fetchDescriptionPrint())!;
+    st_company =     (await SharedPreferenceHelper().getCompanyName())!;
+    st_companyAddress =     (await SharedPreferenceHelper().getCompanyAddress1())!;
+    st_companyPhone = (await SharedPreferenceHelper().getCompanyPhoneNo())!;
 
     logoHeight = (await SharedPreferenceHelper()
         .fetchLogoHeight())!;
@@ -930,9 +1035,8 @@ class _PrintPageState extends State<PrintPage> {
         );
       }
     }
-    st_company ='TEST COMPANY';
-    st_companyAddress = 'address company';
-    st_companyPhone ='8089001136';
+   // st_company ='TEST COMPANY';
+
     int compnyFontSize =0;
     try {
       compnyFontSize = int.parse(companyNameFontSize);
@@ -1362,7 +1466,222 @@ class _PrintPageState extends State<PrintPage> {
 
     return bytes;
   }
+  Future<List<int>> printItemSummary(Generator generator) async {
+    String line ='-------------------------------';
+    List<int> bytes = [];
+    for(int i=0;i<widget.itemsList!.length;i++){
+      print('CashAmount ${widget.itemsList?[i].productName.toString()}');
+      int srlNo = i+1;
+      String? st_prodName =
+      widget.itemsList?[i].productName.toString();
+      String? st_qty =
+      widget.itemsList?[i].qty.toString();
+      String? st_SubTotal =
+      widget.itemsList?[i].subTotal.toString();
+      String? st_tax =
+      widget.itemsList?[i].taxAmount.toString();
 
+      //if(selectedPrinter=='3 inch') {
+        try {
+          bytes += generator.row([
+
+            PosColumn(text: st_prodName!,
+                width: 12,
+                styles: const PosStyles(align: PosAlign.left, bold: true)),
+          ]);
+        }catch(_){
+
+          Uint8List imageBytesText = await _textToImage(
+              st_prodName!, fontSize: 25);
+          final decoded = img.decodeImage(imageBytesText)!;
+          bytes += generator.image(decoded, align: PosAlign.left,);
+        }
+        bytes += generator.row([
+          PosColumn(text: 'Qty',
+              styles: PosStyles(align: PosAlign.left),
+              width: 4),
+          PosColumn(text: 'Sub',
+              styles: PosStyles(align: PosAlign.left),
+              width: 4),
+          PosColumn(text: 'Tax',
+              styles: PosStyles(align: PosAlign.right),
+              width: 4),
+
+
+        ]);
+        bytes += generator.row([
+          PosColumn(text: st_qty!,
+              styles: PosStyles(align: PosAlign.left),
+              width: 4),
+          PosColumn(text: st_SubTotal!,
+              styles: PosStyles(align: PosAlign.left),
+              width: 4),
+          PosColumn(text: st_tax!,
+              styles: PosStyles(align: PosAlign.right),
+              width: 4),
+
+        ]);
+
+     // }
+      // bytes += escSetLineSpacing(1);
+      // bytes.addAll(generator.feed(0)); // instead of feed(1) or feed(2)
+
+    }
+    return bytes;
+  }
+  Future<List<int>> printSalesSummary(Generator generator) async {
+    String line ='-------------------------------';
+    List<int> bytes = [];
+    for(int i=0;i<widget.summaryList!.length;i++){
+      print('CashAmount ${widget.summaryList?[i].cashAmount.toString()}');
+      int srlNo = i+1;
+      String? st_cashAmt =
+      widget.summaryList?[i].cashAmount.toString();
+      String? st_cardAmt =
+      widget.summaryList?[i].cardAmount.toString();
+      String? st_creditAmt =
+      widget.summaryList?[i].creditAmount.toString();
+
+      double dbl_cashAmt =0;
+      try {
+        dbl_cashAmt = double.parse(st_cashAmt!);
+      }catch(_){
+
+      }
+      String st_cashAmtDisplay = dbl_cashAmt.toStringAsFixed(get_decimalpoints());
+
+
+      if(selectedPrinter=='3 inch') {
+        bytes += generator.row([
+          PosColumn(text: srlNo.toString(),
+              styles: PosStyles(align: PosAlign.left),
+              width: 1),
+          PosColumn(text: st_cashAmt!,
+              width: 5,
+              styles: const PosStyles(align: PosAlign.left)),
+          PosColumn(text: st_cardAmt.toString(),
+              width: 3,
+              styles: PosStyles(align: PosAlign.right)),
+          PosColumn(text: st_creditAmt!,
+              width: 3,
+              styles: PosStyles(align: PosAlign.right)),
+
+        ]);
+      }
+      if(selectedPrinter=='2 inch') {
+        bytes += generator.row([
+          PosColumn(text: 'Sales Total',
+              styles: PosStyles(align: PosAlign.left,bold: true),
+              width: 6),
+          PosColumn(text: widget.salesTotal!,
+              width: 6,
+              styles: const PosStyles(align: PosAlign.right,bold: true)),
+
+
+        ]);
+        bytes.addAll(generator.text(
+          line,
+          styles: PosStyles(align: PosAlign.center),
+          linesAfter: 0,
+        ));
+
+        bytes += generator.row([
+          PosColumn(text: 'Cash',
+              styles: PosStyles(align: PosAlign.left),
+              width: 6),
+          PosColumn(text: st_cashAmtDisplay,
+              width: 6,
+              styles: const PosStyles(align: PosAlign.right)),
+
+        ]);
+        bytes += generator.row([
+          PosColumn(text: 'Card',
+              styles: PosStyles(align: PosAlign.left),
+              width: 6),
+          PosColumn(text: st_cardAmt!,
+              width: 6,
+              styles: const PosStyles(align: PosAlign.right)),
+
+
+        ]);
+        bytes += generator.row([
+          PosColumn(text: 'Credit',
+              styles: PosStyles(align: PosAlign.left),
+              width: 6),
+          PosColumn(text: st_creditAmt!,
+              width: 6,
+              styles: const PosStyles(align: PosAlign.right)),
+
+
+        ]);
+      }
+      //bytes += escSetLineSpacing(0);
+      //bytes.addAll(generator.feed(0)); // instead of feed(1) or feed(2)
+
+    }
+    bytes.addAll(generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
+      linesAfter: 0,
+    ));
+
+    bytes += generator.row([
+
+      PosColumn(text: 'Expense Total',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.left,bold: true)),
+      PosColumn(text: '0.00'.toString(),
+          width: 6,
+          styles: PosStyles(align: PosAlign.right,bold: true)),
+
+
+    ]);
+    bytes.addAll(generator.text(
+      line,
+      styles: PosStyles(align: PosAlign.center),
+      linesAfter: 0,
+    ));
+
+    for(int i=0;i<widget.expenseList!.length;i++){
+      print('CashAmount ${widget.expenseList?[i].ledgerName.toString()}');
+      int srlNo = i+1;
+      String? st_ledgerName =
+      widget.expenseList?[i].ledgerName.toString();
+      String? st_amount =
+      widget.expenseList?[i].amount.toString();
+
+      if(selectedPrinter=='3 inch') {
+        bytes += generator.row([
+
+          PosColumn(text: st_ledgerName!,
+              width: 6,
+              styles: const PosStyles(align: PosAlign.left)),
+          PosColumn(text: st_amount.toString(),
+              width: 6,
+              styles: PosStyles(align: PosAlign.right)),
+
+
+        ]);
+      }
+      if(selectedPrinter=='2 inch') {
+        bytes += generator.row([
+
+          PosColumn(text: st_ledgerName!,
+              width: 6,
+              styles: const PosStyles(align: PosAlign.left)),
+          PosColumn(text: st_amount.toString(),
+              width: 6,
+              styles: PosStyles(align: PosAlign.right)),
+
+
+        ]);
+      }
+      //bytes += escSetLineSpacing(5);
+      //bytes.addAll(generator.feed(0)); // instead of feed(1) or feed(2)
+
+    }
+    return bytes;
+  }
   Future<List<int>> printBalance(Generator generator) async {
     String line = '-------------------------------';
     List<int> bytes = [];
@@ -1890,6 +2209,16 @@ class _PrintPageState extends State<PrintPage> {
     );
     bytes += generator.text(
       'THANK YOU..!',
+      styles: PosStyles(
+        align: PosAlign.center, // ✅ Centered
+        bold: false,
+        height: PosTextSize.size2,
+        width: PosTextSize.size1,
+      ),
+      linesAfter: 0,
+    );
+    bytes += generator.text(
+      description,
       styles: PosStyles(
         align: PosAlign.center, // ✅ Centered
         bold: false,

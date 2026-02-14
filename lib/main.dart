@@ -21,6 +21,7 @@ import 'package:quikservnew/services/service_locator.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 import 'features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
+import 'features/dailyclosingReport/presentation/bloc/item_bloc/item_cubit.dart';
 import 'features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'features/masters/presentation/bloc/user_creation_cubit.dart';
 
@@ -79,6 +80,8 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<AccountGroupCubit>(create: (_) => sl<AccountGroupCubit>()),
         BlocProvider<PaymentCubit>(create: (_) => sl<PaymentCubit>()),
+        BlocProvider<ItemCubit>(create: (_) => sl<ItemCubit>()),
+
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

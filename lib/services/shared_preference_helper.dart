@@ -73,6 +73,41 @@ class SharedPreferenceHelper {
     return prefs.getString('company_name');
   }
 
+  ///company Address 1
+  Future<void> setCompanyAddress1(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('company_address_1', value);
+  }
+
+  Future<String?> getCompanyAddress1() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('company_address_1');
+  }
+
+
+  ///company Address 2
+  Future<void> setCompanyAddress2(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('company_address_2', value);
+  }
+
+  Future<String?> getCompanyAddress2() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('company_address_2');
+  }
+
+  ///company Phone
+  Future<void> setCompanyPhoneNo(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('company_phone', value);
+  }
+
+  Future<String?> getCompanyPhoneNo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('company_phone');
+  }
+
+
   /// ------------------ setStaffName ------------------
   Future<bool> setStaffName(String staffName) async {
     final prefs = await SharedPreferences.getInstance();
@@ -137,6 +172,18 @@ class SharedPreferenceHelper {
   Future<String?> fetchCompanyNameFontSize() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("companyFontSize");
+  }
+
+
+  //Description
+  Future<bool> saveDescriptionPrint(String description) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("description", description);
+  }
+
+  Future<String?> fetchDescriptionPrint() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("description");
   }
 
   //Company Address Font
