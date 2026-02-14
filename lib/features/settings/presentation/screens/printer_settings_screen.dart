@@ -20,7 +20,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   String companyNameFontSize = '';
   bool st_companyAdressStatus = false;
-  bool st_companyPhoneStatus =false;
+  bool st_companyPhoneStatus = false;
   bool deviceListStatus = false;
 
   final TextEditingController ipController = TextEditingController(
@@ -36,12 +36,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   //print settings
 
-  final _companyNameController =
-  TextEditingController();
-  final _addressController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _companyFontSizeController =
-  TextEditingController(text: "18");
+  final _companyNameController = TextEditingController();
+  // final _addressController = TextEditingController();
+  // final _phoneController = TextEditingController();
+  final _companyFontSizeController = TextEditingController(text: "18");
   bool isPhoneEnabled = false;
   bool isAddressEnabled = false;
 
@@ -71,7 +69,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     super.initState();
     selectedMainPrinter = printersList.first;
     selectedKitchenPrinter = printersKitchenList.first;
-    _companyNameController.text= widget.companyName;
+    _companyNameController.text = widget.companyName;
 
     fetchPrinterSettings();
 
@@ -211,15 +209,12 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   Widget _printSettingsCard() {
     return Card(
       elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-
             /// 🔹 Row 1 — Company Name + Font Size
             Row(
               children: [
@@ -253,9 +248,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
             /// 🔹 Row 2 — Company Address + Checkbox
             Row(
               children: [
-                Expanded(
-                  child: Text('Company Address')
-                ),
+                Expanded(child: Text('Company Address')),
                 const SizedBox(width: 10),
 
                 Checkbox(
@@ -274,9 +267,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
             /// 🔹 Row 3 — Company Phone + Checkbox
             Row(
               children: [
-                Expanded(
-                  child:Text('Company Phone No')
-                ),
+                Expanded(child: Text('Company Phone No')),
                 const SizedBox(width: 10),
                 Checkbox(
                   value: isPhoneEnabled,
@@ -352,7 +343,6 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
       ),
     );
   }
-
 
   /// --------- BLUETOOTH SECTION ----------
   Widget _bluetoothUi() {
@@ -585,18 +575,26 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           minimumSize: const Size.fromHeight(48),
         ),
         onPressed: () async {
-         print('logoWidth $logoWidth');
-         print('logoHeight $logoHeight');
+          print('logoWidth $logoWidth');
+          print('logoHeight $logoHeight');
           Navigator.pop(context);
 
           print('paperSize $paperSize');
           await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
-         await SharedPreferenceHelper().saveCompanyNameFontSize(_companyFontSizeController.text.toString());
-         await SharedPreferenceHelper().saveCompanyAddressInPrintStatus(isAddressEnabled);
-         await SharedPreferenceHelper().saveCompanyPhoneInPrintStatus(isPhoneEnabled);
-         await SharedPreferenceHelper().saveCompanyNameFontSize(_companyFontSizeController.text.toString());
-         await SharedPreferenceHelper().saveLogoHeight(logoHeight);
-         await SharedPreferenceHelper().saveLogoWidth(logoWidth);
+          await SharedPreferenceHelper().saveCompanyNameFontSize(
+            _companyFontSizeController.text.toString(),
+          );
+          await SharedPreferenceHelper().saveCompanyAddressInPrintStatus(
+            isAddressEnabled,
+          );
+          await SharedPreferenceHelper().saveCompanyPhoneInPrintStatus(
+            isPhoneEnabled,
+          );
+          await SharedPreferenceHelper().saveCompanyNameFontSize(
+            _companyFontSizeController.text.toString(),
+          );
+          await SharedPreferenceHelper().saveLogoHeight(logoHeight);
+          await SharedPreferenceHelper().saveLogoWidth(logoWidth);
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));
@@ -608,25 +606,23 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   Future<void> fetchPrinterSettings() async {
     paperSize = await (SharedPreferenceHelper().loadSelectedPrinterSize());
-    companyNameFontSize = (await (SharedPreferenceHelper().fetchCompanyNameFontSize()))!;
-    st_companyAdressStatus =
-    (await SharedPreferenceHelper().fetchCompanyAddressInPrintStatus())!;
-    st_companyPhoneStatus =
-    (await SharedPreferenceHelper().fetchCompanyPhoneInPrintStatus())!;
-    if(st_companyPhoneStatus){
-      isPhoneEnabled =true;
+    companyNameFontSize = (await (SharedPreferenceHelper()
+        .fetchCompanyNameFontSize()))!;
+    st_companyAdressStatus = (await SharedPreferenceHelper()
+        .fetchCompanyAddressInPrintStatus())!;
+    st_companyPhoneStatus = (await SharedPreferenceHelper()
+        .fetchCompanyPhoneInPrintStatus())!;
+    if (st_companyPhoneStatus) {
+      isPhoneEnabled = true;
     }
-    if(st_companyAdressStatus){
-      isAddressEnabled =true;
+    if (st_companyAdressStatus) {
+      isAddressEnabled = true;
     }
-    if(companyNameFontSize.isNotEmpty){
+    if (companyNameFontSize.isNotEmpty) {
       _companyFontSizeController.text = companyNameFontSize;
     }
-    logoHeight = (await SharedPreferenceHelper()
-        .fetchLogoHeight())!;
-    logoWidth = (await SharedPreferenceHelper()
-        .fetchLogoWidth())!;
-
+    logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
+    logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
   }
 }
 

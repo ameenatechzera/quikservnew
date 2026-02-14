@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -184,6 +182,7 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getDouble("logoHeight");
   }
+
   /// ------------------ VAT STATUS ------------------
   Future<void> setVatStatus(bool status) async {
     final prefs = await SharedPreferences.getInstance();

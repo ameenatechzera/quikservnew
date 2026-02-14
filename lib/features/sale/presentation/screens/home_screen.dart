@@ -984,7 +984,6 @@ class _HomeScreenState extends State<HomeScreen>
           if (allProducts.isEmpty) {
             return const Center(child: Text("No products available"));
           }
-
           return BlocBuilder<SaleCubit, SaleState>(
             builder: (context, state) {
               // ✅ Get query from cubit
@@ -2299,106 +2298,113 @@ class _HomeScreenState extends State<HomeScreen>
         // appBar: AppBar(toolbarHeight: 20, backgroundColor: AppColors.theme),
         resizeToAvoidBottomInset: false,
         body: SafeArea(
-          child: Stack(
-            children: [
-              // ADD THIS - App bar that stays during transition
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 40,
-                // MediaQuery.of(context).padding.top + 40, // App bar height
-                child: Container(
-                  color: AppColors.theme, // Same as your screen color
-                ),
-              ),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 320),
-                reverseDuration: const Duration(milliseconds: 280),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) {
-                  final bool isForward = _currentTabIndex > _previousTabIndex;
-
-                  final beginOffset = isForward
-                      ? const Offset(0.12, 0)
-                      : const Offset(-0.12, 0);
-                  final endOffset = isForward
-                      ? const Offset(-0.12, 0)
-                      : const Offset(0.12, 0);
-
-                  final inSlide = Tween<Offset>(
-                    begin: beginOffset,
-                    end: Offset.zero,
-                  ).animate(animation);
-                  final outSlide = Tween<Offset>(
-                    begin: Offset.zero,
-                    end: endOffset,
-                  ).animate(animation);
-
-                  // AnimatedSwitcher uses the same animation for both incoming/outgoing.
-                  // We detect which child is incoming by checking its key.
-                  final bool isIncoming =
-                      (child.key == ValueKey(_currentTabIndex));
-
-                  final slideAnim = isIncoming ? inSlide : outSlide;
-
-                  final fade = CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  );
-
-                  return FadeTransition(
-                    opacity: fade,
-                    child: SlideTransition(position: slideAnim, child: child),
-                  );
-                },
-                child: KeyedSubtree(
-                  key: ValueKey(
-                    _currentTabIndex,
-                  ), // ✅ IMPORTANT: key by tab index
-                  child: _currentTabIndex == 0
-                      ? _buildSalesContent()
-                      : _currentTabIndex == 1
-                      ? const DashboardContent()
-                      : SettingsScreen(),
-                ),
-              ),
-
-              // ✅ BOTTOM BAR (unchanged)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: MediaQuery.removeViewInsets(
-                  context: context,
-                  removeBottom: true,
-                  child: CommomBottomBar(
-                    currentTabIndex: _currentTabIndex,
-                    onTabChanged: _switchTab,
+          child: BlocListener<ProductCubit, ProductsState>(
+            listener: (context, state) {
+              if (state is SaveProductSuccess || state is ProductSuccess) {
+                context.read<ProductCubit>().loadProductsFromLocal();
+              }
+            },
+            child: Stack(
+              children: [
+                // ADD THIS - App bar that stays during transition
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 40,
+                  // MediaQuery.of(context).padding.top + 40, // App bar height
+                  child: Container(
+                    color: AppColors.theme, // Same as your screen color
                   ),
                 ),
-              ),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 320),
+                  reverseDuration: const Duration(milliseconds: 280),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, animation) {
+                    final bool isForward = _currentTabIndex > _previousTabIndex;
 
-              // ✅ CART BAR ONLY FOR HOME
-              if (_currentTabIndex == 0)
-                ValueListenableBuilder<bool>(
-                  valueListenable: showCartBar,
-                  builder: (context, visible, _) {
-                    if (!visible) return const SizedBox();
-                    return Positioned(
-                      left: 20,
-                      right: 20,
-                      bottom: 80,
-                      child: MediaQuery.removeViewInsets(
-                        context: context,
-                        removeBottom: true,
-                        child: cartBottomBar(context),
-                      ),
+                    final beginOffset = isForward
+                        ? const Offset(0.12, 0)
+                        : const Offset(-0.12, 0);
+                    final endOffset = isForward
+                        ? const Offset(-0.12, 0)
+                        : const Offset(0.12, 0);
+
+                    final inSlide = Tween<Offset>(
+                      begin: beginOffset,
+                      end: Offset.zero,
+                    ).animate(animation);
+                    final outSlide = Tween<Offset>(
+                      begin: Offset.zero,
+                      end: endOffset,
+                    ).animate(animation);
+
+                    // AnimatedSwitcher uses the same animation for both incoming/outgoing.
+                    // We detect which child is incoming by checking its key.
+                    final bool isIncoming =
+                        (child.key == ValueKey(_currentTabIndex));
+
+                    final slideAnim = isIncoming ? inSlide : outSlide;
+
+                    final fade = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    );
+
+                    return FadeTransition(
+                      opacity: fade,
+                      child: SlideTransition(position: slideAnim, child: child),
                     );
                   },
+                  child: KeyedSubtree(
+                    key: ValueKey(
+                      _currentTabIndex,
+                    ), // ✅ IMPORTANT: key by tab index
+                    child: _currentTabIndex == 0
+                        ? _buildSalesContent()
+                        : _currentTabIndex == 1
+                        ? const DashboardContent()
+                        : SettingsScreen(),
+                  ),
                 ),
-            ],
+
+                // ✅ BOTTOM BAR (unchanged)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: MediaQuery.removeViewInsets(
+                    context: context,
+                    removeBottom: true,
+                    child: CommomBottomBar(
+                      currentTabIndex: _currentTabIndex,
+                      onTabChanged: _switchTab,
+                    ),
+                  ),
+                ),
+
+                // ✅ CART BAR ONLY FOR HOME
+                if (_currentTabIndex == 0)
+                  ValueListenableBuilder<bool>(
+                    valueListenable: showCartBar,
+                    builder: (context, visible, _) {
+                      if (!visible) return const SizedBox();
+                      return Positioned(
+                        left: 20,
+                        right: 20,
+                        bottom: 80,
+                        child: MediaQuery.removeViewInsets(
+                          context: context,
+                          removeBottom: true,
+                          child: cartBottomBar(context),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
           ),
         ),
       ),

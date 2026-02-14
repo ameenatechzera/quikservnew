@@ -100,6 +100,7 @@ class ProductCubit extends Cubit<ProductsState> {
           await _productLocalRepository.saveProducts(productsList);
 
           print("✅ saveProducts completed without throwing");
+          // ✅ IMPORTANT: emit local state so Sale/Home always shows
         } catch (e, st) {
           print("❌ saveProducts FAILED: $e");
           print(st);
@@ -114,8 +115,6 @@ class ProductCubit extends Cubit<ProductsState> {
     print("🔥 fetchProducts() CALLED");
 
     await _productLocalRepository.clearProducts();
-
-
   }
 
   // --------------------- Fetch by Category (LOCAL DB) ---------------------

@@ -51,6 +51,7 @@ class FetchSettingsDetailsModel extends FetchSettingsDetails {
     super.vatStatus,
     super.vatType,
     super.isSingleCounter,
+    super.appexpiry,
   });
 
   factory FetchSettingsDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -80,6 +81,7 @@ class FetchSettingsDetailsModel extends FetchSettingsDetails {
       appVersion: json['appVersion'],
       vatType: json['vattype'],
       isSingleCounter: json['issinglecounter'],
+      appexpiry: json['appexpiry'],
     );
   }
 }

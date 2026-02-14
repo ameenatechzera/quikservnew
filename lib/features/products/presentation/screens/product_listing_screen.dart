@@ -32,10 +32,10 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     _categoryController.text = categoryName; // "All Categories"
     _groupController.text = groupName;
     // 🔹 Load products from local DB
-
-    context
-        .read<ProductCubit>()
-        .fetchProducts(); // ✅ ensure categories are loaded for bottomsheet
+    context.read<ProductCubit>().loadProductsFromLocal();
+    // context
+    //     .read<ProductCubit>()
+    //     .fetchProducts(); // ✅ ensure categories are loaded for bottomsheet
     context.read<CategoriesCubit>().loadCategoriesFromLocal();
   }
 
@@ -106,7 +106,10 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                 });
                                 // ✅ if All Categories selected (id == 0), load all
                                 if (id == 0) {
-                                  context.read<ProductCubit>().fetchProducts();
+                                  context
+                                      .read<ProductCubit>()
+                                      .loadProductsFromLocal();
+                                  //context.read<ProductCubit>().fetchProducts();
                                 } else {
                                   context
                                       .read<ProductCubit>()
@@ -162,6 +165,9 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                       if (state is SaveProductSuccess) {
                         // ✅ reload local DB after save
                         context.read<ProductCubit>().fetchProducts();
+                        // context
+                        //     .read<ProductCubit>()
+                        //     .loadProductsFromLocal(); // reload every time
                       }
                       if (state is ProductDeleted) {
                         showAnimatedToast(
@@ -184,9 +190,9 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                           state is ProductsByCategoryLoading ||
                           state is ProductsByGroupLoading) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (state is ProductSuccess) {
+                      } else if (state is ProductLoadedFromLocal) {
                         final products = state.products;
-                        if (products.productDetails!.isEmpty) {
+                        if (products.isEmpty) {
                           return const Center(
                             child: Text(
                               "No products to list...",
@@ -202,9 +208,9 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                             bottom: 60,
                           ),
                           child: ListView.builder(
-                            itemCount: products.productDetails!.length,
+                            itemCount: products.length,
                             itemBuilder: (context, index) {
-                              final item = products.productDetails![index];
+                              final item = products[index];
                               return SizedBox(
                                 height: 130,
                                 child: Card(
@@ -287,6 +293,42 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                           child: Text(
                             "No products in this group",
                             style: TextStyle(color: Colors.red, fontSize: 15),
+                          ),
+                        );
+                      } // 🔥 SERVER SUCCESS STATE
+                      else if (state is ProductSuccess) {
+                        final products = state.products;
+
+                        if (products.productDetails!.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              "No products to list...",
+                              style: TextStyle(color: Colors.red, fontSize: 15),
+                            ),
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            right: 8,
+                            bottom: 60,
+                          ),
+                          child: ListView.builder(
+                            itemCount: products.productDetails!.length,
+                            itemBuilder: (context, index) {
+                              final item = products.productDetails![index];
+                              return SizedBox(
+                                height: 130,
+                                child: Card(
+                                  elevation: 1,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: _productTile(item),
+                                ),
+                              );
+                            },
                           ),
                         );
                       } else if (state is ProductFailure) {

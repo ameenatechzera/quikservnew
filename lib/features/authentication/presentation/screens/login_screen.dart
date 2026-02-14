@@ -57,7 +57,7 @@ class LoginScreen extends StatelessWidget {
               await SharedPreferenceHelper().setCompanyName(
                 state.result.companyDetails.first.companyName,
               );
-              final logoutStatus = await SharedPreferenceHelper().getLogoutStatus();
+              // final logoutStatus = await SharedPreferenceHelper().getLogoutStatus();
               //if(logoutStatus=='true')
               /// After register -> trigger login
               context.read<LoginCubit>().loginUser(
@@ -192,7 +192,7 @@ class LoginScreen extends StatelessWidget {
                 'assets/images/WhatsApp Image 2025-12-02 at 11.45.21_c494808e.jpg',
                 fit: BoxFit.cover,
               ),
-        
+
               /// Content
               SingleChildScrollView(
                 child: Padding(
@@ -210,7 +210,7 @@ class LoginScreen extends StatelessWidget {
                         height: 100,
                       ),
                       const SizedBox(height: 16),
-        
+
                       /// Title
                       // const Text(
                       //   'Login',
@@ -222,20 +222,20 @@ class LoginScreen extends StatelessWidget {
                       // ),
                       //
                       // const SizedBox(height: 32),
-        
+
                       /// Lock Icons
                       Loginlocks(),
                       const SizedBox(height: 16),
-        
+
                       /// Input Fields
                       CustomInputField(
                         hint: 'User Name',
                         controller: usernameCtrl,
-        
+
                         prefixIcon: Icons.person,
                       ),
                       const SizedBox(height: 10),
-        
+
                       CustomInputField(
                         hint: 'Password',
                         controller: passwordCtrl,
@@ -244,22 +244,21 @@ class LoginScreen extends StatelessWidget {
                         suffixIcon: Icons.visibility,
                       ),
                       const SizedBox(height: 10),
-        
+
                       CustomInputField(
                         hint: 'Restaurant Code',
                         controller: codeCtrl,
                         prefixIcon: Icons.code,
                         textInputAction: TextInputAction.done,
                       ),
-        
+
                       const SizedBox(height: 20),
-        
+
                       // Login button
                       ValueListenableBuilder<bool>(
                         valueListenable: isProcessing,
                         builder: (context, processing, child) {
-                          return
-                            SizedBox(
+                          return SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
@@ -282,10 +281,10 @@ class LoginScreen extends StatelessWidget {
                                         return; //  STOP EVERYTHING
                                       }
                                       final slno = codeCtrl.text;
-        
+
                                       // Start processing
                                       isProcessing.value = true;
-        
+
                                       // Trigger register first
                                       context
                                           .read<RegisterCubit>()
@@ -301,21 +300,23 @@ class LoginScreen extends StatelessWidget {
                               ),
                               child: processing
                                   ? Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  ThreeDotLoader(color: Colors.blue),
-                                  SizedBox(height: 5),
-                                  Text("Loading, please wait...",style: TextStyle(color: Colors.black),)
-                                ],
-                              )
-        
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        ThreeDotLoader(color: Colors.blue),
+                                        SizedBox(height: 5),
+                                        Text(
+                                          "Loading, please wait...",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      ],
+                                    )
                                   : const Text(
-                                'Login',
-                                style: TextStyle(
-                                  color: AppColors.black,
-                                  fontSize: 18,
-                                ),
-                              ),
+                                      'Login',
+                                      style: TextStyle(
+                                        color: AppColors.black,
+                                        fontSize: 18,
+                                      ),
+                                    ),
                               // child: processing
                               //     ? Text('processing.......')
                               //     : const Text(
