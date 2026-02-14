@@ -84,6 +84,18 @@ class SharedPreferenceHelper {
     return prefs.getString('company_address_1');
   }
 
+  ///company Logo
+  Future<void> setCompanyLogo(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('company_logo', value!);
+  }
+
+  Future<String?> getCompanyLogo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('company_logo');
+  }
+
+
 
   ///company Address 2
   Future<void> setCompanyAddress2(String value) async {

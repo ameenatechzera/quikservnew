@@ -72,6 +72,11 @@ class LoginScreen extends StatelessWidget {
               await SharedPreferenceHelper().setCompanyPhoneNo(
                 state.result.companyDetails.first.phone,
               );
+              /// ✅ STORE COMPANY Logo
+              await SharedPreferenceHelper().setCompanyLogo(
+                state.result.companyDetails.first.companyLogo,
+              );
+
               final logoutStatus = await SharedPreferenceHelper()
                   .getLogoutStatus();
               //if(logoutStatus=='true')
