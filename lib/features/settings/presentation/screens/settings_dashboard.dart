@@ -334,12 +334,11 @@ class SubscriptionInfoCard extends StatelessWidget {
         //  Expiry message
         String expiryMessage = '';
         if (rawExpiryDate.isNotEmpty) {
-          if (daysRemaining < 0) {
-            expiryMessage = 'Your Subscription Has Expired.';
-          } else {
-            expiryMessage =
-                'Your Subscription Will End On $formattedExpiryDate.';
-          }
+          // if (daysRemaining < 0) {
+          //   expiryMessage = 'Your Subscription Has Expired.';
+          // } else {
+          expiryMessage = 'Your Subscription Will End On $formattedExpiryDate.';
+          // }
         }
 
         return Container(

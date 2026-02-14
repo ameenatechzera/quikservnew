@@ -75,6 +75,15 @@ class LoginScreen extends StatelessWidget {
               final logoutStatus = await SharedPreferenceHelper()
                   .getLogoutStatus();
               //if(logoutStatus=='true')
+              // ✅ NOW expiryDate exists -> check here (BEFORE LOGIN)
+              // //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
+              final expired = await isLicenseExpired();
+              if (expired) {
+                showExpiryDialog(context);
+                isProcessing.value = false;
+                return; //  STOP EVERYTHING
+              }
+
               /// After register -> trigger login
               context.read<LoginCubit>().loginUser(
                 LoginRequest(
@@ -290,12 +299,7 @@ class LoginScreen extends StatelessWidget {
                                         );
                                         return;
                                       }
-                                      //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
-                                      final expired = await isLicenseExpired();
-                                      if (expired) {
-                                        showExpiryDialog(context);
-                                        return; //  STOP EVERYTHING
-                                      }
+
                                       final slno = codeCtrl.text;
 
                                       // Start processing

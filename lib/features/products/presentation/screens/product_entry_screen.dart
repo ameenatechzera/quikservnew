@@ -1126,10 +1126,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
               radius: 24,
               backgroundColor: AppColors.primary,
               child: IconButton(
-                onPressed: () async {
-                  // UI only: fake pick (no image_picker)
-                  // you can connect real image picker later
-                },
+                onPressed: () async {},
                 icon: const Icon(Icons.add, color: Colors.white),
               ),
             ),

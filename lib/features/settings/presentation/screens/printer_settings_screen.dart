@@ -38,7 +38,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
 
   final _companyNameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _phoneController = TextEditingController();
+  //final _phoneController = TextEditingController();
   final _companyFontSizeController = TextEditingController(text: "18");
   bool isPhoneEnabled = false;
   bool isAddressEnabled = false;
