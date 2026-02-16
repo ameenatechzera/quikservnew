@@ -292,208 +292,227 @@ class SubscriptionInfoCard extends StatelessWidget {
 
   Future<Map<String, String>> _loadData() async {
     final prefs = SharedPreferenceHelper();
-    st_companyName = await prefs.getCompanyName() ?? '';
+
+    String companyName = await prefs.getCompanyName() ?? '';
+    String subCode = await prefs.getSubscriptionCode();
+    String expiryDate = await prefs.getExpiryDate();
+
+    // Print values
+    print("Company Name: $companyName");
+    print("Subscription Code: $subCode");
+    print("Expiry Date: $expiryDate");
+
+    st_companyName = companyName;
+
     return {
-      'companyName': await prefs.getCompanyName() ?? '',
-      'subCode': await prefs.getSubscriptionCode(),
-      'expiryDate': await prefs.getExpiryDate(),
+      'companyName': companyName,
+      'subCode': subCode,
+      'expiryDate': expiryDate,
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, String>>(
-      future: _loadData(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const SizedBox();
-        }
+    return BlocBuilder<RegisterCubit, RegisterState>(
+      builder: (context, state) {
+        return FutureBuilder<Map<String, String>>(
+          future: _loadData(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SizedBox();
+            }
 
-        final data = snapshot.data!;
-        final companyName = data['companyName'] ?? '';
-        final subCode = data['subCode'] ?? '';
-        final rawExpiryDate = data['expiryDate'] ?? '';
+            final data = snapshot.data!;
+            final companyName = data['companyName'] ?? '';
+            final subCode = data['subCode'] ?? '';
+            final rawExpiryDate = data['expiryDate'] ?? '';
 
-        // Remove time part
-        final formattedExpiryDate = rawExpiryDate.isNotEmpty
-            ? rawExpiryDate.split(' ').first
-            : '';
+            // Remove time part
+            final formattedExpiryDate = rawExpiryDate.isNotEmpty
+                ? rawExpiryDate.split(' ').first
+                : '';
 
-        //  Calculate remaining days
-        DateTime? expiryDateTime;
-        int daysRemaining = 0;
+            //  Calculate remaining days
+            DateTime? expiryDateTime;
+            int daysRemaining = 0;
 
-        if (rawExpiryDate.isNotEmpty) {
-          expiryDateTime = DateTime.parse(rawExpiryDate);
-          daysRemaining = expiryDateTime.difference(DateTime.now()).inDays;
-        }
+            if (rawExpiryDate.isNotEmpty) {
+              expiryDateTime = DateTime.parse(rawExpiryDate);
+              daysRemaining = expiryDateTime.difference(DateTime.now()).inDays;
+            }
 
-        //  Decide color
-        final expiryColor = daysRemaining <= 30 ? Colors.red : Colors.green;
+            //  Decide color
+            final expiryColor = daysRemaining <= 30 ? Colors.red : Colors.green;
 
-        //  Expiry message
-        String expiryMessage = '';
-        if (rawExpiryDate.isNotEmpty) {
-          // if (daysRemaining < 0) {
-          //   expiryMessage = 'Your Subscription Has Expired.';
-          // } else {
-          expiryMessage = 'Your Subscription Will End On $formattedExpiryDate.';
-          // }
-        }
+            //  Expiry message
+            String expiryMessage = '';
+            if (rawExpiryDate.isNotEmpty) {
+              // if (daysRemaining < 0) {
+              //   expiryMessage = 'Your Subscription Has Expired.';
+              // } else {
+              expiryMessage =
+                  'Your Subscription Will End On $formattedExpiryDate.';
+              // }
+            }
 
-        return Container(
-          margin: const EdgeInsets.all(12),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF1C1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Stack(
-            children: [
-              /// 🔹 MAIN CONTENT
-              Column(
+            return Container(
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF1C1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Stack(
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  /// 🔹 MAIN CONTENT
+                  Column(
                     children: [
-                      Stack(
-                        clipBehavior: Clip.none,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 78,
-                            height: 78,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFF0B3D3B),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.restaurant_menu,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: -2,
-                            right: -2,
-                            child: Container(
-                              width: 22,
-                              height: 22,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.edit,
-                                  size: 13,
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                width: 78,
+                                height: 78,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
                                   color: Color(0xFF0B3D3B),
                                 ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      // Text Content
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                companyName.isEmpty ? '—' : companyName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.subscriptions,
-                                  size: 20,
-                                  color: Colors.black54,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  subCode,
-                                  style: const TextStyle(
-                                    color: Colors.black54,
-                                    fontSize: 15,
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.restaurant_menu,
+                                    color: Colors.white,
+                                    size: 22,
                                   ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: -2,
+                                right: -2,
+                                child: Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.edit,
+                                      size: 13,
+                                      color: Color(0xFF0B3D3B),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // Text Content
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    companyName.isEmpty ? '—' : companyName,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.subscriptions,
+                                      size: 20,
+                                      color: Colors.black54,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      subCode,
+                                      style: const TextStyle(
+                                        color: Colors.black54,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // 🔹 Expiry Message
-                  if (expiryMessage.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.warning_amber_rounded,
-                            color: expiryColor,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              expiryMessage,
-                              style: TextStyle(
-                                color: expiryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
                           ),
                         ],
                       ),
+
+                      // 🔹 Expiry Message
+                      if (expiryMessage.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: expiryColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  expiryMessage,
+                                  style: TextStyle(
+                                    color: expiryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  // CHECK FOR UPDATE BUTTON (Top Right)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: TextButton(
+                      onPressed: () async {
+                        print("Check for update clicked");
+
+                        final subscriptionCode = await SharedPreferenceHelper()
+                            .getSubscriptionCode();
+
+                        context.read<RegisterCubit>().registerServer(
+                          RegisterServerRequest(slno: subscriptionCode),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF0B3D3B),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Text(
+                        "Check for Update",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
+                  ),
                 ],
               ),
-
-              // CHECK FOR UPDATE BUTTON (Top Right)
-              Positioned(
-                top: 0,
-                right: 0,
-                child: TextButton(
-                  onPressed: () async {
-                    print("Check for update clicked");
-
-                    final subscriptionCode = await SharedPreferenceHelper()
-                        .getSubscriptionCode();
-
-                    context.read<RegisterCubit>().registerServer(
-                      RegisterServerRequest(slno: subscriptionCode),
-                    );
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF0B3D3B),
-                    padding: EdgeInsets.zero,
-                  ),
-                  child: const Text(
-                    "Check for Update",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

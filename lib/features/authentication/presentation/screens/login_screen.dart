@@ -74,8 +74,7 @@ class LoginScreen extends StatelessWidget {
               );
               final logoutStatus = await SharedPreferenceHelper()
                   .getLogoutStatus();
-              //if(logoutStatus=='true')
-              // ✅ NOW expiryDate exists -> check here (BEFORE LOGIN)
+
               // //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
               final expired = await isLicenseExpired();
               if (expired) {
