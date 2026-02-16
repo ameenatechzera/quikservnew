@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -66,7 +67,9 @@ class _PrintPageState extends State<PrintPage> {
       st_vatType = '',
       st_vatEnabled = '',
       st_companyAddress = '',
-      st_userName = '';
+      st_companyLogo ='',
+      st_userName = '',
+      st_baseUrl ='';
   bool deviceListStatus = false;
   bool arabicTextStatus = false;
   bool vatStatus = false;
@@ -205,7 +208,7 @@ class _PrintPageState extends State<PrintPage> {
       generator.text(
         line,
         styles: PosStyles(align: PosAlign.center),
-        linesAfter: 0,
+        linesAfter: 8,
       ),
     );
 
@@ -857,9 +860,12 @@ class _PrintPageState extends State<PrintPage> {
     (await SharedPreferenceHelper().fetchCompanyPhoneInPrintStatus())!;
     description =
     (await SharedPreferenceHelper().fetchDescriptionPrint())!;
-    st_company =     (await SharedPreferenceHelper().getCompanyName())!;
-    st_companyAddress =     (await SharedPreferenceHelper().getCompanyAddress1())!;
-    st_companyPhone = (await SharedPreferenceHelper().getCompanyPhoneNo())!;
+    st_company = await SharedPreferenceHelper().getCompanyName() ?? "";
+    st_companyAddress = await SharedPreferenceHelper().getCompanyAddress1() ?? "";
+    st_companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? "";
+    st_companyPhone = await SharedPreferenceHelper().getCompanyPhoneNo() ?? "";
+    st_baseUrl = await SharedPreferenceHelper().getBaseUrl() ?? "";
+
 
     logoHeight = (await SharedPreferenceHelper()
         .fetchLogoHeight())!;
@@ -870,6 +876,7 @@ class _PrintPageState extends State<PrintPage> {
     print('logoHeight $logoHeight');
     print('logoWidth $logoWidth');
     print('companyNameFontSize $companyNameFontSize');
+    print('st_baseUrl $st_baseUrl');
     // await SharedPrefrence().getBluetoothMacAddress().then((value) async {
     //   print('st_connectedDevicePref $value');
     //   st_connectedDevicePref = value.toString();
@@ -1007,31 +1014,106 @@ class _PrintPageState extends State<PrintPage> {
       }
       line = '-----------------------------------------------';
     }
-
+    final imageURL = st_companyLogo;
     // Decode image using `image` package
      final img.Image? image = img.decodeImage(imageBytes);
     if (selectedPrinter == '2 inch') {
-      if (image != null) {
-        //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
-        //final img.Image resized = img.copyResize(image, width: 150,height: 150);
-        final resized = img.copyResize(image, width: 400, height: 150);
+      // if (image != null) {
+      //   //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
+      //   //final img.Image resized = img.copyResize(image, width: 150,height: 150);
+      //   final resized = img.copyResize(image, width: 400, height: 150);
+      //
+      //   bytes += generator.image(
+      //     resized, // The data to encode
+      //     // QRSize from 1 (smallest) to 8 (largest)
+      //     align: PosAlign.center,
+      //   );
+      // }
+      final paperWidth = 384; // 80mm printer
+      final logoBytes = await loadLogoFromUrl(
+          imageURL,
+      );
+
+      if (logoBytes != null) {
+        final resized = img.copyResize(
+          logoBytes,
+          width: logoWidthInt,
+          height: logoHeightInt,
+        );
+        final canvas = img.Image(
+          width: paperWidth,
+          height: resized.height,
+        );
+
+        img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+
+        // Calculate center position
+        final offsetX = (paperWidth - resized.width) ~/ 2;
+
+        // Draw resized logo at center
+        // img.copyInto(canvas, resized, dstX: offsetX);
+        img.compositeImage(
+          canvas,
+          resized,
+          dstX: offsetX,
+          dstY: 0,
+        );
+
+        final grayscale = img.grayscale(canvas);
 
         bytes += generator.image(
-          resized, // The data to encode
-          // QRSize from 1 (smallest) to 8 (largest)
-          align: PosAlign.center,
+          grayscale,
         );
       }
     }
+    // if (selectedPrinter == '3 inch') {
+    //   if (image != null) {
+    //     //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
+    //     //final img.Image resized = img.copyResize(image, width: 150,height: 150);
+    //     final resized = img.copyResize(image, width: logoWidthInt, height: logoHeightInt);
+    //     bytes += generator.image(
+    //       resized, // The data to encode
+    //       // QRSize from 1 (smallest) to 8 (largest)
+    //       align: PosAlign.center,
+    //     );
+    //   }
+    // }
     if (selectedPrinter == '3 inch') {
-      if (image != null) {
-        //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
-        //final img.Image resized = img.copyResize(image, width: 150,height: 150);
-        final resized = img.copyResize(image, width: logoWidthInt, height: logoHeightInt);
+      // 🔥 Load logo from network
+      final paperWidth = 576; // 80mm printer
+      final logoBytes = await loadLogoFromUrl(
+          imageURL,
+      );
+
+      if (logoBytes != null) {
+        final resized = img.copyResize(
+          logoBytes,
+          width: logoWidthInt,
+          height: logoHeightInt,
+        );
+        final canvas = img.Image(
+          width: paperWidth,
+          height: resized.height,
+        );
+
+        img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+
+        // Calculate center position
+        final offsetX = (paperWidth - resized.width) ~/ 2;
+
+        // Draw resized logo at center
+       // img.copyInto(canvas, resized, dstX: offsetX);
+        img.compositeImage(
+          canvas,
+          resized,
+          dstX: offsetX,
+          dstY: 0,
+        );
+
+        final grayscale = img.grayscale(canvas);
+
         bytes += generator.image(
-          resized, // The data to encode
-          // QRSize from 1 (smallest) to 8 (largest)
-          align: PosAlign.center,
+          grayscale,
         );
       }
     }
@@ -1552,6 +1634,7 @@ class _PrintPageState extends State<PrintPage> {
 
 
       if(selectedPrinter=='3 inch') {
+         line ='------------------------------------------';
         bytes += generator.row([
           PosColumn(text: srlNo.toString(),
               styles: PosStyles(align: PosAlign.left),
@@ -1601,7 +1684,6 @@ class _PrintPageState extends State<PrintPage> {
           PosColumn(text: st_cardAmt!,
               width: 6,
               styles: const PosStyles(align: PosAlign.right)),
-
 
         ]);
         bytes += generator.row([
@@ -1684,6 +1766,10 @@ class _PrintPageState extends State<PrintPage> {
   }
   Future<List<int>> printBalance(Generator generator) async {
     String line = '-------------------------------';
+    if(selectedPrinter=='3 inch') {
+      print('secondIf $selectedPrinter');
+      line ='-----------------------------------------------';
+    }
     List<int> bytes = [];
 
     // bytes.addAll(generator.text(
@@ -2299,10 +2385,41 @@ class _PrintPageState extends State<PrintPage> {
     return malayalamRegExp.hasMatch(text);
   }
 }
+  Future<img.Image?> loadLogoFromUrl(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        Uint8List bytes = response.bodyBytes;
+
+        // Decode image to image package format
+        img.Image? image = img.decodeImage(bytes);
+
+        return image;
+      } else {
+        print("Failed to load image: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error loading logo: $e");
+    }
+
+    return null;
+  }
+
 
 int get_decimalpoints() {
   final int decimal_points = 2;
   return decimal_points;
+}
+Future<Uint8List?> loadNetworkImage(String imageUrl) async {
+  final response = await http.get(Uri.parse(imageUrl));
+
+  if (response.statusCode == 200) {
+    return response.bodyBytes;
+  } else {
+    print("Failed to load image");
+    return null;
+  }
 }
 PosTextSize _getTextSize(int size) {
   if (size >= 25) return PosTextSize.size2; // Large
