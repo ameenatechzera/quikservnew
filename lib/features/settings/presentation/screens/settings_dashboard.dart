@@ -485,7 +485,7 @@ class SubscriptionInfoCard extends StatelessWidget {
                   Positioned(
                     top: 0,
                     right: 0,
-                    child: TextButton(
+                    child: IconButton(
                       onPressed: () async {
                         print("Check for update clicked");
 
@@ -500,13 +500,7 @@ class SubscriptionInfoCard extends StatelessWidget {
                         foregroundColor: const Color(0xFF0B3D3B),
                         padding: EdgeInsets.zero,
                       ),
-                      child: const Text(
-                        "Check for Update",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      icon: const Icon(Icons.update),
                     ),
                   ),
                 ],

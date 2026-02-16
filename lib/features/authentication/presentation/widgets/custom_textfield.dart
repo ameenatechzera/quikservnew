@@ -8,7 +8,7 @@ class CustomInputField extends StatelessWidget {
   final IconData? suffixIcon;
   final TextEditingController? controller;
   final TextInputAction textInputAction;
-
+  final bool enabled;
   const CustomInputField({
     super.key,
     required this.hint,
@@ -16,7 +16,8 @@ class CustomInputField extends StatelessWidget {
     this.obscure = false,
     this.suffixIcon,
     this.controller,
-    this.textInputAction = TextInputAction.next, // default
+    this.textInputAction = TextInputAction.next,
+    this.enabled = true,
   });
 
   @override
@@ -25,6 +26,7 @@ class CustomInputField extends StatelessWidget {
       controller: controller,
       obscureText: obscure,
       textInputAction: textInputAction,
+      enabled: enabled,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(prefixIcon),
@@ -40,4 +42,3 @@ class CustomInputField extends StatelessWidget {
     );
   }
 }
-

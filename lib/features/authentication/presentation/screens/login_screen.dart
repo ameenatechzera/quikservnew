@@ -29,6 +29,10 @@ class LoginScreen extends StatelessWidget {
   // Track processing (register/login/post-login APIs)
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
 
+  /// ✅ Dynamic message shown in the SAME button (under your ThreeDotLoader)
+  final ValueNotifier<String> loadingMsg = ValueNotifier<String>(
+    "Loading, please wait...",
+  );
   @override
   Widget build(BuildContext context) {
     // ✅ Override global status bar ONLY for login
@@ -44,6 +48,10 @@ class LoginScreen extends StatelessWidget {
         /// ------------------- REGISTER LISTENER -------------------
         BlocListener<RegisterCubit, RegisterState>(
           listener: (context, state) async {
+            if (state is RegisterLoading) {
+              loadingMsg.value = "Logging in...";
+              return;
+            }
             if (state is RegisterSuccess) {
               /// Save database name globally
               await SharedPreferenceHelper().setDatabaseName(
@@ -72,23 +80,27 @@ class LoginScreen extends StatelessWidget {
               await SharedPreferenceHelper().setCompanyPhoneNo(
                 state.result.companyDetails.first.phone,
               );
+
               /// ✅ STORE COMPANY Logo
               await SharedPreferenceHelper().setCompanyLogo(
                 state.result.companyDetails.first.companyLogo,
               );
 
-              final logoutStatus = await SharedPreferenceHelper()
-                  .getLogoutStatus();
+              // final logoutStatus = await SharedPreferenceHelper()
+              //     .getLogoutStatus();
 
               // //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
+              loadingMsg.value = "Checking expirydate...";
               final expired = await isLicenseExpired();
               if (expired) {
+                loadingMsg.value = "Loading, please wait...";
                 showExpiryDialog(context);
                 isProcessing.value = false;
                 return; //  STOP EVERYTHING
               }
 
               /// After register -> trigger login
+              loadingMsg.value = "Logging in...";
               context.read<LoginCubit>().loginUser(
                 LoginRequest(
                   username: usernameCtrl.text,
@@ -97,6 +109,7 @@ class LoginScreen extends StatelessWidget {
               );
             } else if (state is RegisterFailure) {
               isProcessing.value = false; // re-enable button
+              loadingMsg.value = "Loading, please wait...";
               print(state.error);
               showAppSnackBar(context, state.error);
             } else if (state is LoginFailure) {
@@ -133,29 +146,36 @@ class LoginScreen extends StatelessWidget {
                 print('reached_3');
 
                 /// Trigger fetching units
+                loadingMsg.value = "Fetching Units...";
                 await context.read<UnitCubit>().fetchUnits();
 
                 /// 🔹 Fetch VAT
+                loadingMsg.value = "Fetching VAT...";
                 await context.read<VatCubit>().fetchVat();
 
                 /// Fetch Groups
+                loadingMsg.value = "Fetching Groups...";
                 await context.read<GroupsCubit>().fetchGroups();
 
                 /// Trigger fetching Products
+                loadingMsg.value = "Fetching Products...";
                 await context.read<ProductCubit>().fetchProducts();
+                loadingMsg.value = "Fetching Settings...";
                 await context.read<SettingsCubit>().fetchSettings();
+                loadingMsg.value = "Fetching Categories...";
                 await context.read<CategoriesCubit>().fetchCategories();
-
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (_) => HomeScreen()),
                 );
+                return;
               } catch (e) {
+                isProcessing.value = false;
+                loadingMsg.value = "Loading, please wait...";
                 showAppSnackBar(context, "Error fetching data: $e");
-              } finally {
-                isProcessing.value = false; // Enable button if needed
               }
             } else if (state is LoginFailure) {
               isProcessing.value = false;
+              loadingMsg.value = "Loading, please wait...";
               showAppSnackBar(context, 'Invalid Credentials');
             }
           },
@@ -229,65 +249,68 @@ class LoginScreen extends StatelessWidget {
                     horizontal: 24,
                     vertical: 100,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      /// Logo
-                      Image.asset(
-                        'assets/icons/quikservlogo.png',
-                        width: 100,
-                        height: 100,
-                      ),
-                      const SizedBox(height: 16),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: isProcessing,
+                    builder: (context, processing, child) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          /// Logo
+                          Image.asset(
+                            'assets/icons/quikservlogo.png',
+                            width: 100,
+                            height: 100,
+                          ),
+                          const SizedBox(height: 16),
 
-                      /// Title
-                      // const Text(
-                      //   'Login',
-                      //   style: TextStyle(
-                      //     fontSize: 24,
-                      //     fontWeight: FontWeight.bold,
-                      //     color: AppColors.black,
-                      //   ),
-                      // ),
-                      //
-                      // const SizedBox(height: 32),
+                          /// Title
+                          // const Text(
+                          //   'Login',
+                          //   style: TextStyle(
+                          //     fontSize: 24,
+                          //     fontWeight: FontWeight.bold,
+                          //     color: AppColors.black,
+                          //   ),
+                          // ),
+                          //
+                          // const SizedBox(height: 32),
 
-                      /// Lock Icons
-                      Loginlocks(),
-                      const SizedBox(height: 16),
+                          /// Lock Icons
+                          Loginlocks(),
+                          const SizedBox(height: 16),
 
-                      /// Input Fields
-                      CustomInputField(
-                        hint: 'User Name',
-                        controller: usernameCtrl,
+                          /// Input Fields
+                          CustomInputField(
+                            hint: 'User Name',
+                            controller: usernameCtrl,
 
-                        prefixIcon: Icons.person,
-                      ),
-                      const SizedBox(height: 10),
+                            prefixIcon: Icons.person,
+                            enabled: !processing,
+                          ),
+                          const SizedBox(height: 10),
 
-                      CustomInputField(
-                        hint: 'Password',
-                        controller: passwordCtrl,
-                        prefixIcon: Icons.lock,
-                        obscure: true,
-                        suffixIcon: Icons.visibility,
-                      ),
-                      const SizedBox(height: 10),
+                          CustomInputField(
+                            hint: 'Password',
+                            controller: passwordCtrl,
+                            prefixIcon: Icons.lock,
+                            obscure: true,
+                            suffixIcon: Icons.visibility,
+                            enabled: !processing,
+                          ),
+                          const SizedBox(height: 10),
 
-                      CustomInputField(
-                        hint: 'Restaurant Code',
-                        controller: codeCtrl,
-                        prefixIcon: Icons.code,
-                        textInputAction: TextInputAction.done,
-                      ),
+                          CustomInputField(
+                            hint: 'Restaurant Code',
+                            controller: codeCtrl,
+                            prefixIcon: Icons.code,
+                            textInputAction: TextInputAction.done,
+                            enabled: !processing,
+                          ),
 
-                      const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                      // Login button
-                      ValueListenableBuilder<bool>(
-                        valueListenable: isProcessing,
-                        builder: (context, processing, child) {
-                          return SizedBox(
+                          // Login button
+                          SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
@@ -308,7 +331,9 @@ class LoginScreen extends StatelessWidget {
 
                                       // Start processing
                                       isProcessing.value = true;
-
+                                      // ✅ first message must stay same
+                                      loadingMsg.value =
+                                          "Loading, please wait...";
                                       // Trigger register first
                                       context
                                           .read<RegisterCubit>()
@@ -325,12 +350,21 @@ class LoginScreen extends StatelessWidget {
                               child: processing
                                   ? Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: const [
+                                      children: [
                                         ThreeDotLoader(color: Colors.blue),
                                         SizedBox(height: 5),
-                                        Text(
-                                          "Loading, please wait...",
-                                          style: TextStyle(color: Colors.black),
+                                        ValueListenableBuilder<String>(
+                                          valueListenable: loadingMsg,
+                                          builder: (context, msg, _) {
+                                            return Text(
+                                              msg,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ],
                                     )
@@ -351,11 +385,12 @@ class LoginScreen extends StatelessWidget {
                               //         ),
                               //       ),
                             ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                    ],
+
+                            // const SizedBox(height: 16),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
