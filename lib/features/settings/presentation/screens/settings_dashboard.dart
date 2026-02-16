@@ -7,11 +7,14 @@ import 'package:quikservnew/features/accountledger/presentation/screens/account_
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/login_screen.dart';
+import 'package:quikservnew/features/authentication/presentation/widgets/expiry_dialog.dart';
+import 'package:quikservnew/features/authentication/presentation/widgets/subscriptionService.dart';
 import 'package:quikservnew/features/category/presentation/screens/category_listing_screen.dart';
 import 'package:quikservnew/features/masters/presentation/screens/user_listing_screen.dart';
 import 'package:quikservnew/features/products/presentation/screens/product_listing_screen.dart';
 import 'package:quikservnew/features/groups/presentation/screens/productgroup_listing_screen.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/passwordchange_screen.dart';
+import 'package:quikservnew/features/settings/presentation/widgets/dailyTaskSetings.dart';
 import 'package:quikservnew/features/units/presentation/screens/unit_listing_screen.dart';
 // import 'package:quikservnew/features/masters/presentation/screens/user_listing_screen.dart';
 import 'package:quikservnew/features/vat/presentation/screens/vat_listing_screen.dart';
@@ -35,6 +38,17 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    DailyTaskHelper.runOncePerDay(
+      taskKey: "subscription_check",
+      task: () async {
+
+        context.read<RegisterCubit>().registerServer(
+          RegisterServerRequest(slno: 'KZ123456'),
+        );
+
+      },
+    );
     return FutureBuilder<String?>(
       future: _getAppVersion(),
       builder: (context, snapshot) {
@@ -219,6 +233,25 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+              ),
+              BlocConsumer<RegisterCubit, RegisterState>(
+                listener: (context, state) async {
+                  if (state is RegisterSuccess) {
+
+                    SubscriptionService.validateSubscription(context);
+                    // //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
+                    // final expired = await isLicenseExpired();
+                    // if (expired) {
+                    //   showExpiryDialog(context);
+                    //   // isProcessing.value = false;
+                    //   return; //  STOP EVERYTHING
+                    // }
+                  }
+                },
+
+                builder: (context, state) {
+                  return Container();
+                },
               ),
             ],
           ),

@@ -275,6 +275,17 @@ class SharedPreferenceHelper {
     return prefs.getString('expiryDate') ?? '';
   }
 
+  // /// ------------------ Expiry Date ------------------
+  // Future<void> setExpiryDateCheckStatus(String expiryDate) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString('expiryDate', expiryDate);
+  // }
+  //
+  // Future<String> getExpiryDate() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString('expiryDate') ?? '';
+  // }
+
   /// ------------------ LEDGERS ------------------
   Future<void> saveLedgers({
     required int cashLedgerId,
