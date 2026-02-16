@@ -24,6 +24,7 @@ class RegisterCubit extends Cubit<RegisterState> {
   Future<void> registerServer(
     RegisterServerRequest registerServerRequest,
   ) async {
+    print('request $registerServerRequest');
     emit(RegisterLoading());
 
     final response = await _registerServerUseCase(registerServerRequest);

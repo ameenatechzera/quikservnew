@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/authentication/presentation/widgets/subscriptionService.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemwise_report_screen.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
@@ -34,8 +35,14 @@ class _DashboardContentState extends State<DashboardContent> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // SubscriptionService.validateSubscription(context);
       _fetchReport();
     });
+
+    // WidgetsBinding.instance.addObserver(this);
+
+
+
 
     fromDateNotifier.addListener(_fetchReport);
     toDateNotifier.addListener(_fetchReport);
