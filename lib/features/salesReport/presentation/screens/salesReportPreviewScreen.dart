@@ -497,7 +497,7 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
 Widget topBillInfoCard({required String billDate, required String billTime}) {
   return BlocConsumer<SalesReportCubit, SlesReportState>(
     listener: (context, state) {
-      if(state is SlesDetailsInitial){
+      if (state is SlesDetailsInitial) {
         //showLoadingDialog(context);
       }
       if (state is SalesDetailsSuccess) {
@@ -598,7 +598,7 @@ Widget itemsCard() {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: state.response.salesDetails.length,
                   itemBuilder: (context, index) {
-                    int slno = index + 1;
+                    // int slno = index + 1;
 
                     SalesDetail data = state.response.salesDetails[index];
                     String st_qty = '', st_rate = '', st_total = '';

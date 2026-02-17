@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
+import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
@@ -190,6 +192,28 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _checkAndShowExpiryWarningOnceDaily() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+
+      ///  CALL REGISTER API ONCE PER DAY
+
+      final today = DateTime.now();
+      final todayKey =
+          "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+      final lastApiCall = prefs.getString('subscription_api_last_called');
+
+      if (lastApiCall != todayKey) {
+        final code = await SharedPreferenceHelper().getSubscriptionCode();
+
+        if (code.isNotEmpty) {
+          await context.read<RegisterCubit>().registerServer(
+            RegisterServerRequest(slno: code),
+          );
+        }
+
+        await prefs.setString('subscription_api_last_called', todayKey);
+      }
+
       // ✅ Get expiry from your SharedPreferenceHelper
       final expiryString = await SharedPreferenceHelper().getExpiryDate();
 
@@ -199,32 +223,28 @@ class _HomeScreenState extends State<HomeScreen>
       final expiry = DateTime.parse(expiryString);
 
       // Compare date-only (ignore time)
-      final nowDT = DateTime.now();
-      final today = DateTime(nowDT.year, nowDT.month, nowDT.day);
-      final exp = DateTime(expiry.year, expiry.month, expiry.day);
+      final todayDate = DateTime(today.year, today.month, today.day);
 
-      final daysLeft = exp.difference(today).inDays;
+      final expDate = DateTime(expiry.year, expiry.month, expiry.day);
+
+      final daysLeft = expDate.difference(todayDate).inDays;
 
       // ✅ Show only when within 7 days before expiry (1..7)
       if (daysLeft < 1 || daysLeft > 7) return;
 
       // ✅ "Once per day" guard using SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
       final lastShown = prefs.getString(
         'expiry_warning_last_shown',
       ); // yyyy-mm-dd
-
-      final todayKey =
-          "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
       if (lastShown == todayKey) return; // already shown today
 
       await prefs.setString('expiry_warning_last_shown', todayKey);
 
       if (!mounted) return;
-      _showExpirySoonDialog(daysLeft: daysLeft, expiryDate: exp);
-    } catch (_) {
-      // If parsing fails, silently ignore (or log)
+      _showExpirySoonDialog(daysLeft: daysLeft, expiryDate: expDate);
+    } catch (e) {
+      debugPrint("Expiry check error: $e");
     }
   }
 
