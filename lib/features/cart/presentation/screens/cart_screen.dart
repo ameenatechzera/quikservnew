@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
+import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/cart_item_row.dart';
@@ -15,6 +20,7 @@ import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -30,9 +36,14 @@ class _CartScreenState extends State<CartScreen> {
 
   final ValueNotifier<double> multiCardAmount = ValueNotifier<double>(0);
   final SharedPreferenceHelper helper = SharedPreferenceHelper();
+  TextEditingController expiredStatusController = TextEditingController();
 
   @override
   void initState() {
+    expiredStatusController.text = 'false';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowExpiryWarningOnceDaily();
+    });
     super.initState();
     _loadDefaultPayment();
   }
@@ -56,95 +67,107 @@ class _CartScreenState extends State<CartScreen> {
         backgroundColor: AppColors.white,
         appBar: const CommonAppBar(title: "Cart"),
         body: SafeArea(
-          child: BlocConsumer<SaleCubit, SaleState>(
+          child: BlocListener<RegisterCubit, RegisterState>(
             listener: (context, state) async {
-              if (state is SalesDetailsFetchSuccess) {
-                print('responseFromSales ${state.response}');
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PrintPage(
-                      pageFrom: 'SalesReport',
-                      // sales: saleList.first,
-                      sales: state.response,
-                    ),
-                  ),
-                );
-                // Navigator.pop(context);
-              }
-              if (state is SaleSuccess) {
-                showAnimatedToast(
-                  context,
-                  message:
-                      'Sale Saved! Invoice: ${state.response.details?.invoiceNo}',
-                  isSuccess: true,
-                );
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text(
-                //       'Sale Saved! Invoice: ${state.response.details?.invoiceNo}',
-                //     ),
-                //     backgroundColor: AppColors.green,
-                //   ),
-                // );
-                CartManager().clearCart();
-                final branchId = await SharedPreferenceHelper().getBranchId();
-                print('reachedHHHHHHHHHHHHHHHH');
-                context.read<SaleCubit>().fetchSalesDetailsByMasterId(
-                  FetchSalesDetailsRequest(
-                    branchId: branchId,
-                    SalesMasterId: state.response.details!.salesMasterId
-                        .toString(),
-                  ),
-                );
-              } else if (state is SaleError) {
-                showAnimatedToast(
-                  context,
-                  message: 'Error: ${state.error}',
-                  isSuccess: false,
-                );
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(content: Text('Error: ${state.error}')),
-                // );
+              if (state is RegisterSuccess) {
+                print('reached');
+                // showAppSnackBar(context, "Reached");
+                await _handleExpiryWarning();
               }
             },
-            builder: (context, state) {
-              final items = CartManager().cartItems.value;
+            child: BlocConsumer<SaleCubit, SaleState>(
+              listener: (context, state) async {
+                if (state is SalesDetailsFetchSuccess) {
+                  print('responseFromSales ${state.response}');
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PrintPage(
+                        pageFrom: 'SalesReport',
+                        // sales: saleList.first,
+                        sales: state.response,
+                      ),
+                    ),
+                  );
+                  // Navigator.pop(context);
+                }
+                if (state is SaleSuccess) {
+                  showAnimatedToast(
+                    context,
+                    message:
+                        'Sale Saved! Invoice: ${state.response.details?.invoiceNo}',
+                    isSuccess: true,
+                  );
+                  await SharedPreferenceHelper().setCurrentDate(
+                    state.response.details?.currentDate,
+                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(
+                  //     content: Text(
+                  //       'Sale Saved! Invoice: ${state.response.details?.invoiceNo}',
+                  //     ),
+                  //     backgroundColor: AppColors.green,
+                  //   ),
+                  // );
+                  CartManager().clearCart();
+                  final branchId = await SharedPreferenceHelper().getBranchId();
+                  print('reachedHHHHHHHHHHHHHHHH');
+                  context.read<SaleCubit>().fetchSalesDetailsByMasterId(
+                    FetchSalesDetailsRequest(
+                      branchId: branchId,
+                      SalesMasterId: state.response.details!.salesMasterId
+                          .toString(),
+                    ),
+                  );
+                } else if (state is SaleError) {
+                  showAnimatedToast(
+                    context,
+                    message: 'Error: ${state.error}',
+                    isSuccess: false,
+                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(content: Text('Error: ${state.error}')),
+                  // );
+                }
+              },
+              builder: (context, state) {
+                final items = CartManager().cartItems.value;
 
-              if (items.isEmpty) {
-                return const Center(child: Text("Your cart is empty"));
-              }
+                if (items.isEmpty) {
+                  return const Center(child: Text("Your cart is empty"));
+                }
 
-              return Column(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<List<CartItem>>(
-                      valueListenable: CartManager().cartItems,
-                      builder: (context, items, _) {
-                        if (items.isEmpty) {
-                          return const Center(
-                            child: Text("Your cart is empty"),
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ValueListenableBuilder<List<CartItem>>(
+                        valueListenable: CartManager().cartItems,
+                        builder: (context, items, _) {
+                          if (items.isEmpty) {
+                            return const Center(
+                              child: Text("Your cart is empty"),
+                            );
+                          }
+
+                          return ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            itemCount: items.length,
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              return CartItemRow(item: item, index: index + 1);
+                            },
                           );
-                        }
-
-                        return ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final item = items[index];
-                            return CartItemRow(item: item, index: index + 1);
-                          },
-                        );
-                      },
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
+                  ],
+                );
+              },
+            ),
           ),
         ),
         bottomNavigationBar: ValueListenableBuilder<List<CartItem>>(
@@ -205,9 +228,8 @@ class _CartScreenState extends State<CartScreen> {
                                   'Discount :',
                                   discount.toStringAsFixed(2),
                                 ),
-                                const SizedBox(
-                                  height: 4,
-                                ), // Will Show tax label based on vatType
+                                const SizedBox(height: 4),
+                                // Will Show tax label based on vatType
                                 if (tax > 0)
                                   summaryRow(
                                     '${_getTaxLabel(vatType)} :',
@@ -339,6 +361,10 @@ class _CartScreenState extends State<CartScreen> {
                                       elevation: 0,
                                     ),
                                     onPressed: () async {
+                                      print(
+                                        'expiredStatus ${expiredStatusController.text}',
+                                      );
+
                                       final payment = selectedPayment.value;
 
                                       double cashAmt = 0;
@@ -417,8 +443,8 @@ class _CartScreenState extends State<CartScreen> {
                                               (e) => SaleDetail(
                                                 productCode: e.productCode,
                                                 productName: e.productName,
-                                                qty: (e.qty as num)
-                                                    .toInt(), // safer
+                                                qty: (e.qty as num).toInt(),
+                                                // safer
                                                 unitId: double.parse(
                                                   e.unitId,
                                                 ).toInt(),
@@ -438,11 +464,16 @@ class _CartScreenState extends State<CartScreen> {
                                             )
                                             .toList(),
                                       );
-
-                                      // Trigger cubit
-                                      context.read<SaleCubit>().saveSale(
-                                        request,
-                                      );
+                                      if (expiredStatusController.text
+                                              .toString() ==
+                                          'true') {
+                                        // Trigger cubit
+                                        context.read<SaleCubit>().saveSale(
+                                          request,
+                                        );
+                                      } else {
+                                        print('expiredCheckFalse');
+                                      }
                                     },
                                     child: const Text(
                                       'Confirm Sale',
@@ -753,5 +784,157 @@ class _CartScreenState extends State<CartScreen> {
       // ✅ swipe down / tap outside behaves like Cancel too
       if (!closedByButton) onCancel();
     });
+  }
+
+  Future<void> _handleExpiryWarning() async {
+    print('reachedHaris');
+    expiredStatusController.text = 'true';
+    final prefs = await SharedPreferences.getInstance();
+
+    final today = DateTime.now();
+    final todayKey =
+        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+    final expiryString = await SharedPreferenceHelper().getExpiryDate();
+
+    if (expiryString.isEmpty || expiryString.trim().isEmpty) return;
+
+    final expiry = DateTime.parse(expiryString);
+    String? st_CurrentDate = await SharedPreferenceHelper().getCurrentDate();
+
+    // final todayDate = DateTime(today.year, today.month, today.day);
+    // final todayDate = await SharedPreferenceHelper().getCurrentDate();
+    DateTime todayDate;
+    try {
+      todayDate = DateTime.parse(st_CurrentDate!);
+      print('todayDate $todayDate');
+    } catch (_) {
+      todayDate = DateTime(today.year, today.month, today.day);
+      print('todayDateCatch $todayDate');
+    }
+
+    final expDate = DateTime(expiry.year, expiry.month, expiry.day);
+
+    final daysLeft = expDate.difference(todayDate).inDays;
+    print('daysLeft $daysLeft');
+
+    // if (daysLeft < 1 || daysLeft > 7) return;
+    if (daysLeft > 7) return;
+
+    final lastShown = prefs.getString('expiry_warning_last_shown');
+
+    //if (lastShown == todayKey) return; //check once in a day
+
+    await prefs.setString('expiry_warning_last_shown', todayKey);
+
+    if (!mounted) return;
+
+    _showExpirySoonDialog(daysLeft: daysLeft, expiryDate: expDate);
+  }
+
+  Future<void> _checkAndShowExpiryWarningOnceDaily() async {
+    print('reached__checkAndShowExpiryWarningOnceDaily');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      ///  CALL REGISTER API ONCE PER DAY
+
+      final today = DateTime.now();
+      final todayKey =
+          "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+      final lastApiCall = prefs.getString('subscription_api_last_called');
+
+      if (lastApiCall != todayKey) {
+        print('reachedHere');
+        final code = await SharedPreferenceHelper().getSubscriptionCode();
+
+        if (code.isNotEmpty) {
+          await context.read<RegisterCubit>().registerServer(
+            RegisterServerRequest(slno: code),
+          );
+        }
+
+        await prefs.setString('subscription_api_last_called', todayKey);
+      } else {
+        print('elseCaseExpirewd');
+        expiredStatusController.text = 'true';
+      }
+
+      // ✅ Get expiry from your SharedPreferenceHelper
+      // final expiryString = await SharedPreferenceHelper().getExpiryDate();
+      //
+      // // If no expiry stored, do nothing (or you can treat as expired)
+      // if (expiryString.isEmpty || expiryString.trim().isEmpty) return;
+      //
+      // final expiry = DateTime.parse(expiryString);
+      //
+      // // Compare date-only (ignore time)
+      // final todayDate = DateTime(today.year, today.month, today.day);
+      //
+      // final expDate = DateTime(expiry.year, expiry.month, expiry.day);
+      //
+      // final daysLeft = expDate.difference(todayDate).inDays;
+      //
+      // // ✅ Show only when within 7 days before expiry (1..7)
+      // if (daysLeft < 1 || daysLeft > 7) return;
+      //
+      // // ✅ "Once per day" guard using SharedPreferences
+      // final lastShown = prefs.getString(
+      //   'expiry_warning_last_shown',
+      // ); // yyyy-mm-dd
+      //
+      // if (lastShown == todayKey) return; // already shown today
+      //
+      // await prefs.setString('expiry_warning_last_shown', todayKey);
+      //
+      // if (!mounted) return;
+      // _showExpirySoonDialog(daysLeft: daysLeft, expiryDate: expDate);
+    } catch (e) {
+      debugPrint("Expiry check error: $e");
+    }
+  }
+
+  void _showExpirySoonDialog({
+    required int daysLeft,
+    required DateTime expiryDate,
+  }) {
+    String st_head = 'Subscription Expiring';
+    String st_text =
+        'Your subscription will expire in $daysLeft day(s).\n\nPlease renew to avoid interruption.';
+    if (daysLeft == 0) {
+      st_text = 'Your subscription expired.';
+      st_head = 'Subscription Expired';
+      expiredStatusController.text = 'false';
+    } else {
+      expiredStatusController.text = 'true';
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Color(0xFFFFC107)),
+            Text(st_head),
+          ],
+        ),
+        content: Text(st_text),
+        actions: [
+          TextButton(
+            //onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              if (daysLeft <= 0) {
+                exit(0);
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 }

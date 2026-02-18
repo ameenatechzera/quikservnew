@@ -121,9 +121,9 @@ class _HomeScreenState extends State<HomeScreen>
     super
         .initState(); // ✅ Reset global status bar when entering Home (fix after login/splash)
     // ✅ Show expiry warning once per day when <= 7 days remaining
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAndShowExpiryWarningOnceDaily();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _checkAndShowExpiryWarningOnceDaily();
+    // });
     // ✅ LIVE LISTENER: updates instantly after SAVE
     _itemTapListener = () {
       if (!mounted) return;
@@ -202,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen>
 
       final lastApiCall = prefs.getString('subscription_api_last_called');
 
-      if (lastApiCall != todayKey) {
+      //if (lastApiCall != todayKey) {
         final code = await SharedPreferenceHelper().getSubscriptionCode();
 
         if (code.isNotEmpty) {
@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen>
         }
 
         await prefs.setString('subscription_api_last_called', todayKey);
-      }
+      //}
 
       // ✅ Get expiry from your SharedPreferenceHelper
       final expiryString = await SharedPreferenceHelper().getExpiryDate();

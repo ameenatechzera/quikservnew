@@ -10,6 +10,7 @@ class SalesResponseEntity {
 class SalesDetailsEntity {
   final int? salesMasterId;
   final String? invoiceNo;
+  final String? currentDate;
 
-  SalesDetailsEntity({this.salesMasterId, this.invoiceNo});
+  SalesDetailsEntity({this.salesMasterId, this.invoiceNo, this.currentDate});
 }

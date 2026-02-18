@@ -51,27 +51,30 @@ class SalesResponseModel extends Equatable {
 class SalesDetailsModel extends Equatable {
   final int? salesMasterId;
   final String? invoiceNo;
+  final String? currentDate;
 
-  const SalesDetailsModel({this.salesMasterId, this.invoiceNo});
+  const SalesDetailsModel({this.salesMasterId, this.invoiceNo , this.currentDate});
 
   factory SalesDetailsModel.fromJson(Map<String, dynamic> json) {
     return SalesDetailsModel(
       salesMasterId: json['SalesMasterId'] as int?,
       invoiceNo: json['InvoiceNo'] as String?,
+      currentDate: json['currentDate'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'SalesMasterId': salesMasterId, 'InvoiceNo': invoiceNo};
+    return {'SalesMasterId': salesMasterId, 'InvoiceNo': invoiceNo , 'currentDate': currentDate};
   }
 
   SalesDetailsEntity toEntity() {
     return SalesDetailsEntity(
       salesMasterId: salesMasterId,
       invoiceNo: invoiceNo,
+        currentDate: currentDate
     );
   }
 
   @override
-  List<Object?> get props => [salesMasterId, invoiceNo];
+  List<Object?> get props => [salesMasterId, invoiceNo,currentDate];
 }

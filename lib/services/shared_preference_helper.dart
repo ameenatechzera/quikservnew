@@ -95,7 +95,16 @@ class SharedPreferenceHelper {
     return prefs.getString('company_logo');
   }
 
+  ///current Date
+  Future<void> setCurrentDate(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('current_date', value!);
+  }
 
+  Future<String?> getCurrentDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('current_date');
+  }
 
   ///company Address 2
   Future<void> setCompanyAddress2(String value) async {
