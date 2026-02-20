@@ -40,6 +40,17 @@ class SharedPreferenceHelper {
     return prefs.getString(_tokenKey);
   }
 
+  /// ------------------ DeviceID ------------------
+  Future<void> setDeviceID(String deviceId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('deviceId', deviceId);
+  }
+
+  Future<String?> getDeviceID() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('deviceId');
+  }
+
   /// ------------------ BranchID ------------------
   Future<bool> setBranchId(String branchId) async {
     final prefs = await SharedPreferences.getInstance();

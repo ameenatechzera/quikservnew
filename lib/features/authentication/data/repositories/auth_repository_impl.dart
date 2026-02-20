@@ -4,9 +4,11 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
+import 'package:quikservnew/features/authentication/domain/entities/deviceRegisterResult.dart';
 import 'package:quikservnew/features/authentication/domain/entities/login_entity.dart';
 import 'package:quikservnew/features/authentication/domain/entities/register_server_response_entity.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/changepassword_parameter.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/login_params.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
@@ -55,6 +57,21 @@ class AuthRepositoryImpl implements AuthRepository {
   ) async {
     try {
       final result = await remoteDataSource.changePassword(request);
+
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioException catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<DeviceRegisterResult> deviceRegister(DeviceRegisterRequest request) async {
+    try {
+      final result = await remoteDataSource.checkDeviceRegisterStatus(
+        request,
+      );
 
       return Right(result);
     } on ServerException catch (failure) {

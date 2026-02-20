@@ -21,6 +21,7 @@ import 'package:quikservnew/features/authentication/data/datasources/auth_remote
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/change_password_usecase.dart';
+import 'package:quikservnew/features/authentication/domain/usecases/deviceRegisterUseCase.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/login_usecase.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/register_server_usecase.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
@@ -133,14 +134,16 @@ class ServiceLocator {
     sl.registerFactory(
       () => RegisterCubit(
         registerServerUseCase: sl(),
-        changePasswordUseCase: sl(),
+        changePasswordUseCase: sl(), checkDeviceRegisterStatusUseCase: sl(),
       ),
     );
-    sl.registerFactory(() => LoginCubit(loginServerUseCase: sl()));
+    sl.registerFactory(() => LoginCubit(loginServerUseCase: sl(), checkDeviceRegisterStatusUseCase: sl()));
     // usecase
     sl.registerLazySingleton(() => RegisterServerUseCase(sl()));
     sl.registerLazySingleton(() => LoginServerUseCase(sl()));
     sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
+    sl.registerLazySingleton(() => CheckDeviceRegisterStatusUseCase(sl()));
+
 
     // Data Source
     sl.registerLazySingleton<AuthRemoteDataSource>(

@@ -234,4 +234,9 @@ class ApiConstants {
   static String savePaymentVoucherPath(String baseUrl) {
     return '$baseUrl/payment-voucher/save-payment-voucher';
   }
+
+  /// Returns the full URL for Device Register
+  static String getDeviceRegisterStatusPath(String baseUrl) {
+    return '$baseUrl/check-registration-status';
+  }
 }

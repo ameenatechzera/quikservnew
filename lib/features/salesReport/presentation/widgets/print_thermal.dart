@@ -688,6 +688,7 @@ class _PrintPageState extends State<PrintPage> {
       }
     }
     else {
+      print('reachedPrint');
       final ticket = await _generateTicket();
 
       final result = await PrintBluetoothThermal.writeBytes(ticket);
@@ -1015,31 +1016,72 @@ class _PrintPageState extends State<PrintPage> {
       line = '-----------------------------------------------';
     }
     final imageURL = st_companyLogo;
+    print('imageURL $imageURL');
     // Decode image using `image` package
      final img.Image? image = img.decodeImage(imageBytes);
+    // if (selectedPrinter == '2 inch') {
+    //   // if (image != null) {
+    //   //   //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
+    //   //   //final img.Image resized = img.copyResize(image, width: 150,height: 150);
+    //   //   final resized = img.copyResize(image, width: 400, height: 150);
+    //   //
+    //   //   bytes += generator.image(
+    //   //     resized, // The data to encode
+    //   //     // QRSize from 1 (smallest) to 8 (largest)
+    //   //     align: PosAlign.center,
+    //   //   );
+    //   // }
+    //   final paperWidth = 384; // 80mm printer
+    //   final logoBytes = await loadLogoFromUrl(
+    //       imageURL,
+    //   );
+    //
+    //   if (logoBytes != null) {
+    //     final resized = img.copyResize(
+    //       logoBytes,
+    //       width: logoWidthInt,
+    //       height: logoHeightInt,
+    //     );
+    //     final canvas = img.Image(
+    //       width: paperWidth,
+    //       height: resized.height,
+    //     );
+    //
+    //     img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+    //
+    //     // Calculate center position
+    //     final offsetX = (paperWidth - resized.width) ~/ 2;
+    //
+    //     // Draw resized logo at center
+    //     // img.copyInto(canvas, resized, dstX: offsetX);
+    //     img.compositeImage(
+    //       canvas,
+    //       resized,
+    //       dstX: offsetX,
+    //       dstY: 0,
+    //     );
+    //
+    //     final grayscale = img.grayscale(canvas);
+    //
+    //     bytes += generator.image(
+    //       grayscale,
+    //     );
+    //   }
+    // }
     if (selectedPrinter == '2 inch') {
-      // if (image != null) {
-      //   //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
-      //   //final img.Image resized = img.copyResize(image, width: 150,height: 150);
-      //   final resized = img.copyResize(image, width: 400, height: 150);
-      //
-      //   bytes += generator.image(
-      //     resized, // The data to encode
-      //     // QRSize from 1 (smallest) to 8 (largest)
-      //     align: PosAlign.center,
-      //   );
-      // }
-      final paperWidth = 384; // 80mm printer
-      final logoBytes = await loadLogoFromUrl(
-          imageURL,
-      );
+      final paperWidth = 384; // 58mm printer safe width
+
+      final logoBytes = await loadLogoFromUrl(imageURL);
 
       if (logoBytes != null) {
+
+        // ✅ Force safe width (max 300–350 for safety)
         final resized = img.copyResize(
           logoBytes,
-          width: logoWidthInt,
-          height: logoHeightInt,
+          width: 300, // safer than dynamic large value
         );
+
+        // Create centered canvas
         final canvas = img.Image(
           width: paperWidth,
           height: resized.height,
@@ -1047,11 +1089,8 @@ class _PrintPageState extends State<PrintPage> {
 
         img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
 
-        // Calculate center position
         final offsetX = (paperWidth - resized.width) ~/ 2;
 
-        // Draw resized logo at center
-        // img.copyInto(canvas, resized, dstX: offsetX);
         img.compositeImage(
           canvas,
           resized,
@@ -1063,9 +1102,11 @@ class _PrintPageState extends State<PrintPage> {
 
         bytes += generator.image(
           grayscale,
+          align: PosAlign.center,
         );
       }
     }
+
     // if (selectedPrinter == '3 inch') {
     //   if (image != null) {
     //     //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
@@ -37,10 +39,11 @@ class _CartScreenState extends State<CartScreen> {
   final ValueNotifier<double> multiCardAmount = ValueNotifier<double>(0);
   final SharedPreferenceHelper helper = SharedPreferenceHelper();
   TextEditingController expiredStatusController = TextEditingController();
-
+  final _deviceIdController = TextEditingController();
   @override
   void initState() {
     expiredStatusController.text = 'false';
+    //getDeviceId();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndShowExpiryWarningOnceDaily();
     });
@@ -73,6 +76,16 @@ class _CartScreenState extends State<CartScreen> {
                 print('reached');
                 // showAppSnackBar(context, "Reached");
                 await _handleExpiryWarning();
+              }
+              if (state is DeviceRegisterSuccess) {
+                if (state.registerResponse.data?.result == true) {
+                  final code = await SharedPreferenceHelper().getSubscriptionCode();
+                    await context.read<RegisterCubit>().registerServer(
+                      RegisterServerRequest(slno: code),
+                    );
+                } else {
+                  showNotRegisteredDialog(context);
+                }
               }
             },
             child: BlocConsumer<SaleCubit, SaleState>(
@@ -845,21 +858,28 @@ class _CartScreenState extends State<CartScreen> {
 
       final lastApiCall = prefs.getString('subscription_api_last_called');
 
-      if (lastApiCall != todayKey) {
+      //if (lastApiCall != todayKey) {
         print('reachedHere');
         final code = await SharedPreferenceHelper().getSubscriptionCode();
-
+      final deviceId = await SharedPreferenceHelper().getDeviceID();
+        // if (code.isNotEmpty) {
+        //   await context.read<RegisterCubit>().registerServer(
+        //     RegisterServerRequest(slno: code),
+        //   );
+        // }
         if (code.isNotEmpty) {
-          await context.read<RegisterCubit>().registerServer(
-            RegisterServerRequest(slno: code),
+          context.read<RegisterCubit>().checkDeviceRegisterStatus(
+            DeviceRegisterRequest(
+              deviceId: deviceId.toString(),
+            ),
           );
         }
 
         await prefs.setString('subscription_api_last_called', todayKey);
-      } else {
-        print('elseCaseExpirewd');
-        expiredStatusController.text = 'true';
-      }
+      // } else {
+      //   print('elseCaseExpirewd');
+      //   expiredStatusController.text = 'true';
+      // }
 
       // ✅ Get expiry from your SharedPreferenceHelper
       // final expiryString = await SharedPreferenceHelper().getExpiryDate();
@@ -935,6 +955,53 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ],
       ),
+    );
+  }
+  Future<String> getDeviceId() async {
+    final deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      print('androidInfo.id ${androidInfo.id}');
+      _deviceIdController.text = androidInfo.id.toString();
+      return androidInfo.id; // ANDROID_ID
+    }
+
+    if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? 'unknown-ios-id';
+    }
+
+    return 'unsupported-platform';
+  }
+
+  
+  void showNotRegisteredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // ❌ User cannot close by tapping outside
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false, // ❌ Disable back button
+          child: AlertDialog(
+            title: const Text("Device Not Registered"),
+            content: const Text("Your device is not registered now."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Exit the app
+                  if (Platform.isAndroid) {
+                    SystemNavigator.pop();
+                  } else {
+                    exit(0);
+                  }
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

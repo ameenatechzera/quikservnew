@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/login_params.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
@@ -19,13 +22,24 @@ import 'package:quikservnew/features/units/presentation/bloc/unit_cubit.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameCtrl = TextEditingController();
+
   final TextEditingController passwordCtrl = TextEditingController();
+
   final TextEditingController codeCtrl = TextEditingController();
+
+  final _deviceIdController = TextEditingController();
+
   // Track processing (register/login/post-login APIs)
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
 
@@ -33,6 +47,13 @@ class LoginScreen extends StatelessWidget {
   final ValueNotifier<String> loadingMsg = ValueNotifier<String>(
     "Loading, please wait...",
   );
+
+  @override
+  void initState() {
+    getDeviceId();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     // ✅ Override global status bar ONLY for login
@@ -86,9 +107,7 @@ class LoginScreen extends StatelessWidget {
                 await SharedPreferenceHelper().setCompanyLogo(
                   state.result.companyDetails.first.companyLogo,
                 );
-              }catch(_){
-
-              }
+              } catch (_) {}
 
               // final logoutStatus = await SharedPreferenceHelper()
               //     .getLogoutStatus();
@@ -105,10 +124,9 @@ class LoginScreen extends StatelessWidget {
 
               /// After register -> trigger login
               loadingMsg.value = "Logging in...";
-              context.read<LoginCubit>().loginUser(
-                LoginRequest(
-                  username: usernameCtrl.text,
-                  password: passwordCtrl.text,
+              context.read<LoginCubit>().checkDeviceRegisterStatus(
+                DeviceRegisterRequest(
+                  deviceId: _deviceIdController.text.toString(),
                 ),
               );
             } else if (state is RegisterFailure) {
@@ -125,6 +143,23 @@ class LoginScreen extends StatelessWidget {
         /// ------------------- LOGIN LISTENER -----------------------
         BlocListener<LoginCubit, LoginState>(
           listener: (context, state) async {
+            if (state is DeviceRegisterStatusSuccess) {
+              /// Save token globally
+              await SharedPreferenceHelper().setDeviceID(
+                _deviceIdController.text.toString()
+              );
+              if (state.registerResponse.data?.result == true) {
+                context.read<LoginCubit>().loginUser(
+                  LoginRequest(
+                    username: usernameCtrl.text,
+                    password: passwordCtrl.text,
+                  ),
+                );
+              } else {
+                isProcessing.value = false; // re-enable button
+                showAppSnackBar(context, 'Device Not Registered..!');
+              }
+            }
             if (state is LoginSuccess) {
               // Disable button during post-login API calls
               isProcessing.value = true;
@@ -403,5 +438,23 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<String> getDeviceId() async {
+    final deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      print('androidInfo.id ${androidInfo.id}');
+      _deviceIdController.text = androidInfo.id.toString();
+      return androidInfo.id; // ANDROID_ID
+    }
+
+    if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? 'unknown-ios-id';
+    }
+
+    return 'unsupported-platform';
   }
 }

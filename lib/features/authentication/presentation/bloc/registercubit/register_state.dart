@@ -10,7 +10,7 @@ sealed class RegisterState extends Equatable {
 final class RegisterInitial extends RegisterState {}
 
 final class RegisterLoading extends RegisterState {}
-
+final class DeviceRegisterStatusLoading extends RegisterState {}
 final class RegisterSuccess extends RegisterState {
   final RegisterResponseResult result;
 
@@ -34,7 +34,14 @@ class ChangePassworsLoading extends RegisterState {}
 class ChangePasswordSuccess extends RegisterState {
   const ChangePasswordSuccess();
 }
+final class DeviceRegisterFailure extends RegisterState {
+  final String error;
 
+  const DeviceRegisterFailure(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
 class ChangePasswordFailure extends RegisterState {
   final String message;
 
@@ -42,4 +49,13 @@ class ChangePasswordFailure extends RegisterState {
 
   @override
   List<Object?> get props => [message];
+}
+
+final class DeviceRegisterSuccess extends RegisterState {
+  final DeviceRegisterResult registerResponse;
+
+  const DeviceRegisterSuccess(this.registerResponse);
+
+  @override
+  List<Object> get props => [registerResponse];
 }
