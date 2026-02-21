@@ -49,8 +49,10 @@ class SettingsScreen extends StatelessWidget {
     return FutureBuilder<String?>(
       future: _getAppVersion(),
       builder: (context, snapshot) {
-        final appVersion = snapshot.data ?? "";
+       // final appVersion = snapshot.data ?? "";
+        final appVersion = 'basic';
         print('appVersion $appVersion');
+
 
         final bool isBasic = appVersion.toLowerCase() == "basic";
 

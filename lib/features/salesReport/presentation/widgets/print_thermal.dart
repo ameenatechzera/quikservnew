@@ -35,17 +35,19 @@ class PrintPage extends StatefulWidget {
   final String? itemWiseSalesTotal;
   final String? dailyCloseReportDate;
 
-
   final String pageFrom;
   bool oneLineProductFlag = false;
   bool doubleLineProductFlag = false;
+
   // final OrdersSaveToServerRequest? salesOrder;
 
   PrintPage({
     super.key,
     this.sales,
     required this.pageFrom,
-    this.summaryList , this.expenseList,this.itemsList,
+    this.summaryList,
+    this.expenseList,
+    this.itemsList,
     this.cashBalance,
     this.bankBalance,
     this.expenseTotal,
@@ -53,6 +55,7 @@ class PrintPage extends StatefulWidget {
     this.itemWiseSalesTotal,
     this.dailyCloseReportDate,
   });
+
   @override
   _PrintPageState createState() => _PrintPageState();
 }
@@ -67,9 +70,9 @@ class _PrintPageState extends State<PrintPage> {
       st_vatType = '',
       st_vatEnabled = '',
       st_companyAddress = '',
-      st_companyLogo ='',
+      st_companyLogo = '',
       st_userName = '',
-      st_baseUrl ='';
+      st_baseUrl = '';
   bool deviceListStatus = false;
   bool arabicTextStatus = false;
   bool vatStatus = false;
@@ -83,11 +86,10 @@ class _PrintPageState extends State<PrintPage> {
   double dbl_paymentSuccess = 0;
   String companyNameFontSize = '';
   bool st_companyAdressStatus = false;
-  bool st_companyPhoneStatus =false;
+  bool st_companyPhoneStatus = false;
   double logoWidth = 0;
   double logoHeight = 0;
   String description = '';
-
 
   @override
   void initState() {
@@ -141,8 +143,8 @@ class _PrintPageState extends State<PrintPage> {
     if (selectedPrinter == '2 inch') {
       bytes += generator.row([
         PosColumn(
-          text: 'Token No:',
-          width: 4,
+          text: 'Token No',
+          width: 12,
           styles: const PosStyles(
             align: PosAlign.left,
             bold: true,
@@ -150,9 +152,31 @@ class _PrintPageState extends State<PrintPage> {
             width: PosTextSize.size1,
           ),
         ),
+        // PosColumn(
+        //   text: st_OrderNo,
+        //   width: 8,
+        //   styles: const PosStyles(
+        //     align: PosAlign.left,
+        //     bold: true,
+        //     height: PosTextSize.size7,
+        //     width: PosTextSize.size4,
+        //   ),
+        // ),
+      ]);
+      bytes += generator.row([
+        // PosColumn(
+        //   text: 'Token No:',
+        //   width: 4,
+        //   styles: const PosStyles(
+        //     align: PosAlign.left,
+        //     bold: true,
+        //     height: PosTextSize.size1,
+        //     width: PosTextSize.size1,
+        //   ),
+        // ),
         PosColumn(
           text: st_OrderNo,
-          width: 8,
+          width: 12,
           styles: const PosStyles(
             align: PosAlign.left,
             bold: true,
@@ -165,8 +189,8 @@ class _PrintPageState extends State<PrintPage> {
     if (selectedPrinter == '3 inch') {
       bytes += generator.row([
         PosColumn(
-          text: 'Token No:',
-          width: 4,
+          text: 'Token No',
+          width: 12,
           styles: const PosStyles(
             align: PosAlign.left,
             bold: false, // bold increases visual size
@@ -174,9 +198,31 @@ class _PrintPageState extends State<PrintPage> {
             width: PosTextSize.size1,
           ),
         ),
+        // PosColumn(
+        //   text: st_OrderNo,
+        //   width: 8,
+        //   styles: const PosStyles(
+        //     align: PosAlign.left,
+        //     bold: true,
+        //     height: PosTextSize.size2, // ⬅ reduced from size5
+        //     width: PosTextSize.size2, // ⬅ reduced from size4
+        //   ),
+        // ),
+      ]);
+      bytes += generator.row([
+        // PosColumn(
+        //   text: 'Token No:',
+        //   width: 4,
+        //   styles: const PosStyles(
+        //     align: PosAlign.left,
+        //     bold: false, // bold increases visual size
+        //     height: PosTextSize.size1, // smallest
+        //     width: PosTextSize.size1,
+        //   ),
+        // ),
         PosColumn(
           text: st_OrderNo,
-          width: 8,
+          width: 12,
           styles: const PosStyles(
             align: PosAlign.left,
             bold: true,
@@ -204,18 +250,51 @@ class _PrintPageState extends State<PrintPage> {
     );
 
     bytes += await printKotItemDetails(generator);
+    final details = widget.sales?.salesDetails ?? [];
+    int totalItem = 0 , totalQty = 0;
+    for (int idx = 0; idx < details.length; idx++) {
+      totalQty = totalQty + details[idx].qty;
+    }
+    bytes.addAll(
+      generator.text(
+        '',
+        styles: PosStyles(align: PosAlign.center),
+        linesAfter: 1,
+      ),
+    );
+    bytes += generator.row([
+      PosColumn(
+        text: 'Total Qty :'+totalQty.toString(),
+        width: 6,
+        styles: const PosStyles(
+          align: PosAlign.left,
+          bold: false, // bold increases visual size
+          height: PosTextSize.size1, // smallest
+          width: PosTextSize.size1,
+        ),
+      ),
+      PosColumn(
+        text: 'Total Items: '+details.length.toString(),
+        width: 6,
+        styles: const PosStyles(
+          align: PosAlign.left,
+          bold: true,
+          height: PosTextSize.size1, // ⬅ reduced from size5
+          width: PosTextSize.size1, // ⬅ reduced from size4
+        ),
+      ),
+    ]);
     bytes.addAll(
       generator.text(
         line,
         styles: PosStyles(align: PosAlign.center),
-        linesAfter: 8,
+        linesAfter: 0,
       ),
     );
 
     // Feed only one small line before cut
     bytes.addAll(generator.feed(1));
     bytes += generator.cut(mode: PosCutMode.partial);
-
     return bytes;
   }
 
@@ -453,66 +532,81 @@ class _PrintPageState extends State<PrintPage> {
   Future<List<int>> _generateDailyClosingReport() async {
     final profile = await CapabilityProfile.load();
     var generator = Generator(PaperSize.mm58, profile);
-    String line ='-----------------------------------------------';
+    String line = '-----------------------------------------------';
     // print('selectedPrinter $selectedPrinter');
-    if(selectedPrinter=='2 inch') {
+    if (selectedPrinter == '2 inch') {
       print('if $selectedPrinter');
       generator = Generator(PaperSize.mm58, profile);
-      line ='-------------------------------';
+      line = '-------------------------------';
     }
-    if(selectedPrinter=='3 inch') {
+    if (selectedPrinter == '3 inch') {
       print('secondIf $selectedPrinter');
-      line ='-----------------------------------------------';
+      line = '-----------------------------------------------';
       generator = Generator(PaperSize.mm80, profile);
     }
 
     List<int> bytes = [];
-    bytes.addAll(generator.text(
-      'Daily Closing Report',
-      styles: PosStyles(align: PosAlign.center,bold: true),
-      linesAfter: 0,
-    ));
-    bytes.addAll(generator.text(
-      ''+widget.dailyCloseReportDate.toString(),
-      styles: PosStyles(align: PosAlign.center,bold: true),
-      linesAfter: 0,
-    ));
+    bytes.addAll(
+      generator.text(
+        'Daily Closing Report',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+        linesAfter: 0,
+      ),
+    );
+    bytes.addAll(
+      generator.text(
+        '' + widget.dailyCloseReportDate.toString(),
+        styles: PosStyles(align: PosAlign.center, bold: true),
+        linesAfter: 0,
+      ),
+    );
 
-    bytes.addAll(generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-      linesAfter: 0,
-    ));
+    bytes.addAll(
+      generator.text(
+        line,
+        styles: PosStyles(align: PosAlign.center),
+        linesAfter: 0,
+      ),
+    );
 
     bytes += await printSalesSummary(generator);
     bytes += await printBalance(generator);
-    bytes.addAll(generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-      linesAfter: 0,
-    ));
+    bytes.addAll(
+      generator.text(
+        line,
+        styles: PosStyles(align: PosAlign.center),
+        linesAfter: 0,
+      ),
+    );
     bytes += generator.row([
-      PosColumn(text: 'Product Wise',
-          styles: PosStyles(align: PosAlign.left,bold: true),
-          width: 6),
-      PosColumn(text: widget.itemWiseSalesTotal!,
-          styles: PosStyles(align: PosAlign.right,bold: true),
-          width: 6),
-
+      PosColumn(
+        text: 'Product Wise',
+        styles: PosStyles(align: PosAlign.left, bold: true),
+        width: 6,
+      ),
+      PosColumn(
+        text: widget.itemWiseSalesTotal!,
+        styles: PosStyles(align: PosAlign.right, bold: true),
+        width: 6,
+      ),
     ]);
 
-    bytes.addAll(generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-      linesAfter: 0,
-    ));
+    bytes.addAll(
+      generator.text(
+        line,
+        styles: PosStyles(align: PosAlign.center),
+        linesAfter: 0,
+      ),
+    );
     bytes += await printItemSummary(generator);
 
-    bytes.addAll(generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-      linesAfter: 0,
-    ));
+    bytes.addAll(
+      generator.text(
+        line,
+        styles: PosStyles(align: PosAlign.center),
+        linesAfter: 0,
+      ),
+    );
 
     // bytes += await printFooter(generator);
 
@@ -520,6 +614,7 @@ class _PrintPageState extends State<PrintPage> {
 
     return bytes;
   }
+
   Future<List<int>> _generateTicket() async {
     final profile = await CapabilityProfile.load();
     Generator generator;
@@ -549,18 +644,18 @@ class _PrintPageState extends State<PrintPage> {
 
     bytes += generator.feed(1);
 
-
-
     /// =======================
     /// 🔹 YOUR EXISTING HEADER
     /// =======================
 
     String? st_invNo = widget.sales!.salesMaster?.invoiceNo.toString();
-    String? st_dateAndTime = widget.sales!.salesMaster?.invoiceDate.toString();
+    String? st_dateAndTime =
+        widget.sales!.salesMaster!.invoiceDate.toString() +
+        ' ' +
+        widget.sales!.salesMaster!.invoiceTime;
     String? st_Time = widget.sales!.salesMaster?.invoiceTime.toString();
     String? st_paycash = widget.sales!.salesMaster?.cashAmount.toString();
     String? st_paycard = widget.sales!.salesMaster?.cardAmount.toString();
-
 
     bytes += await header_section(
       generator,
@@ -573,19 +668,13 @@ class _PrintPageState extends State<PrintPage> {
 
     bytes += await printHeading(generator);
 
-    bytes += generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-    );
+    bytes += generator.text(line, styles: PosStyles(align: PosAlign.center));
 
     bytes += await printItemDetails(generator);
 
-    bytes += generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-    );
+    bytes += generator.text(line, styles: PosStyles(align: PosAlign.center));
 
-    bytes += await printFooter(generator);
+    bytes += await printFooter(generator, st_paycash, st_paycard);
 
     /// =======================
     /// 🔹 COMPANY DETAILS (BOTTOM)
@@ -593,15 +682,12 @@ class _PrintPageState extends State<PrintPage> {
 
     bytes += generator.feed(1);
 
-
-
     bytes += generator.feed(2);
 
     bytes += generator.cut();
 
     return bytes;
   }
-
 
   Future<pw.Font> loadArabicFont() async {
     final fontData = await rootBundle.load('fonts/Amiri-Regular.ttf');
@@ -665,17 +751,18 @@ class _PrintPageState extends State<PrintPage> {
     print('enteredPrint');
     if (dailyClosingReportStatus) {
       print('dailyClosingReportStatus $dailyClosingReportStatus');
-      if (widget.summaryList!.isNotEmpty || widget.expenseList!.isNotEmpty || widget.itemsList!.isNotEmpty) {
+      if (widget.summaryList!.isNotEmpty ||
+          widget.expenseList!.isNotEmpty ||
+          widget.itemsList!.isNotEmpty) {
         final ticket = await _generateDailyClosingReport();
         await sendBytesInChunks(ticket);
         await PrintBluetoothThermal.disconnect;
         // context.read<SalesReportCubit>().saleSaveFinished(1);
-       Navigator.pop(context);
+        Navigator.pop(context);
         Navigator.push(
-            context,
-            MaterialPageRoute(
-            builder: (context) => DailyClosingReportScreen(
-        )));
+          context,
+          MaterialPageRoute(builder: (context) => DailyClosingReportScreen()),
+        );
       } else {
         Fluttertoast.showToast(
           msg: "Generate Report And Print..!",
@@ -686,8 +773,7 @@ class _PrintPageState extends State<PrintPage> {
           fontSize: 16.0,
         );
       }
-    }
-    else {
+    } else {
       print('reachedPrint');
       final ticket = await _generateTicket();
 
@@ -830,10 +916,7 @@ class _PrintPageState extends State<PrintPage> {
                     }
                   },
                   builder: (context, state) {
-                    return const Column(children: [
-
-                      ],
-                    );
+                    return const Column(children: []);
                   },
                 ),
               ),
@@ -854,24 +937,22 @@ class _PrintPageState extends State<PrintPage> {
         .loadSelectedPrinter())!;
     selectedPrinter = (await SharedPreferenceHelper()
         .loadSelectedPrinterSize())!;
-    companyNameFontSize = (await (SharedPreferenceHelper().fetchCompanyNameFontSize()))!;
-    st_companyAdressStatus =
-    (await SharedPreferenceHelper().fetchCompanyAddressInPrintStatus())!;
-    st_companyPhoneStatus =
-    (await SharedPreferenceHelper().fetchCompanyPhoneInPrintStatus())!;
-    description =
-    (await SharedPreferenceHelper().fetchDescriptionPrint())!;
+    companyNameFontSize = (await (SharedPreferenceHelper()
+        .fetchCompanyNameFontSize()))!;
+    st_companyAdressStatus = (await SharedPreferenceHelper()
+        .fetchCompanyAddressInPrintStatus())!;
+    st_companyPhoneStatus = (await SharedPreferenceHelper()
+        .fetchCompanyPhoneInPrintStatus())!;
+    description = (await SharedPreferenceHelper().fetchDescriptionPrint())!;
     st_company = await SharedPreferenceHelper().getCompanyName() ?? "";
-    st_companyAddress = await SharedPreferenceHelper().getCompanyAddress1() ?? "";
+    st_companyAddress =
+        await SharedPreferenceHelper().getCompanyAddress1() ?? "";
     st_companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? "";
     st_companyPhone = await SharedPreferenceHelper().getCompanyPhoneNo() ?? "";
     st_baseUrl = await SharedPreferenceHelper().getBaseUrl() ?? "";
 
-
-    logoHeight = (await SharedPreferenceHelper()
-        .fetchLogoHeight())!;
-    logoWidth = (await SharedPreferenceHelper()
-        .fetchLogoWidth())!;
+    logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
+    logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
     print('st_connectedDevicePref $st_connectedDevicePref');
     print('selectedPrinter $selectedPrinter');
     print('logoHeight $logoHeight');
@@ -954,63 +1035,56 @@ class _PrintPageState extends State<PrintPage> {
     String? st_paycash,
     String? st_paycard,
   ) async {
-    final ByteData data = await rootBundle.load('assets/icons/quikservlogo.png');
+    final ByteData data = await rootBundle.load(
+      'assets/icons/quikservlogo.png',
+    );
     final Uint8List imageBytes = data.buffer.asUint8List();
     List<int> bytes = [];
     ///////////////////////////////////////
     double dblPayCard = 0, dblPayCash = 0;
-    try {
-      dblPayCard = double.parse(st_paycard!);
-    } catch (_) {}
-    try {
-      dblPayCash = double.parse(st_paycash!);
-    } catch (_) {}
+
     ////////////////////////////////////////
     String line = '-----------------------------------------------';
     print('selectedPrinterHARIS $selectedPrinter');
-    int logoWidthInt =0;
+    int logoWidthInt = 0;
     int logoHeightInt = 0;
 
     if (selectedPrinter == '2 inch') {
       print('if $selectedPrinter');
-      if(logoHeight>100){
-
-      }
-      if(logoWidth>100){
-
-      }
+      if (logoHeight > 100) {}
+      if (logoWidth > 100) {}
 
       line = '-------------------------------';
     }
     if (selectedPrinter == '3 inch') {
       print('secondIf $selectedPrinter');
       // Case 1
-      if(logoHeight>100 && logoHeight<150){
-        logoWidthInt = 540;//550
+      if (logoHeight > 100 && logoHeight < 150) {
+        logoWidthInt = 540; //550
       }
-      if(logoWidth>100 && logoWidth<150){
-        logoHeightInt = 250;//250
+      if (logoWidth > 100 && logoWidth < 150) {
+        logoHeightInt = 250; //250
       }
       // Case 2
-      if(logoHeight>150){
+      if (logoHeight > 150) {
         logoWidthInt = 570;
       }
-      if(logoWidth>150){
+      if (logoWidth > 150) {
         logoHeightInt = 300;
       }
       //Case 3
-      if(logoHeight<100 && logoHeight>50){
+      if (logoHeight < 100 && logoHeight > 50) {
         logoWidthInt = 400;
       }
-      if(logoWidth<100 && logoWidth>50){
+      if (logoWidth < 100 && logoWidth > 50) {
         logoHeightInt = 200;
       }
 
       //Case 3
-      if(logoHeight<50){
+      if (logoHeight < 50) {
         logoWidthInt = 200;
       }
-      if(logoWidth<50){
+      if (logoWidth < 50) {
         logoHeightInt = 100;
       }
       line = '-----------------------------------------------';
@@ -1018,63 +1092,14 @@ class _PrintPageState extends State<PrintPage> {
     final imageURL = st_companyLogo;
     print('imageURL $imageURL');
     // Decode image using `image` package
-     final img.Image? image = img.decodeImage(imageBytes);
-    // if (selectedPrinter == '2 inch') {
-    //   // if (image != null) {
-    //   //   //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
-    //   //   //final img.Image resized = img.copyResize(image, width: 150,height: 150);
-    //   //   final resized = img.copyResize(image, width: 400, height: 150);
-    //   //
-    //   //   bytes += generator.image(
-    //   //     resized, // The data to encode
-    //   //     // QRSize from 1 (smallest) to 8 (largest)
-    //   //     align: PosAlign.center,
-    //   //   );
-    //   // }
-    //   final paperWidth = 384; // 80mm printer
-    //   final logoBytes = await loadLogoFromUrl(
-    //       imageURL,
-    //   );
-    //
-    //   if (logoBytes != null) {
-    //     final resized = img.copyResize(
-    //       logoBytes,
-    //       width: logoWidthInt,
-    //       height: logoHeightInt,
-    //     );
-    //     final canvas = img.Image(
-    //       width: paperWidth,
-    //       height: resized.height,
-    //     );
-    //
-    //     img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
-    //
-    //     // Calculate center position
-    //     final offsetX = (paperWidth - resized.width) ~/ 2;
-    //
-    //     // Draw resized logo at center
-    //     // img.copyInto(canvas, resized, dstX: offsetX);
-    //     img.compositeImage(
-    //       canvas,
-    //       resized,
-    //       dstX: offsetX,
-    //       dstY: 0,
-    //     );
-    //
-    //     final grayscale = img.grayscale(canvas);
-    //
-    //     bytes += generator.image(
-    //       grayscale,
-    //     );
-    //   }
-    // }
+    final img.Image? image = img.decodeImage(imageBytes);
+
     if (selectedPrinter == '2 inch') {
       final paperWidth = 384; // 58mm printer safe width
 
       final logoBytes = await loadLogoFromUrl(imageURL);
 
       if (logoBytes != null) {
-
         // ✅ Force safe width (max 300–350 for safety)
         final resized = img.copyResize(
           logoBytes,
@@ -1082,28 +1107,17 @@ class _PrintPageState extends State<PrintPage> {
         );
 
         // Create centered canvas
-        final canvas = img.Image(
-          width: paperWidth,
-          height: resized.height,
-        );
+        final canvas = img.Image(width: paperWidth, height: resized.height);
 
         img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
 
         final offsetX = (paperWidth - resized.width) ~/ 2;
 
-        img.compositeImage(
-          canvas,
-          resized,
-          dstX: offsetX,
-          dstY: 0,
-        );
+        img.compositeImage(canvas, resized, dstX: offsetX, dstY: 0);
 
         final grayscale = img.grayscale(canvas);
 
-        bytes += generator.image(
-          grayscale,
-          align: PosAlign.center,
-        );
+        bytes += generator.image(grayscale, align: PosAlign.center);
       }
     }
 
@@ -1122,9 +1136,7 @@ class _PrintPageState extends State<PrintPage> {
     if (selectedPrinter == '3 inch') {
       // 🔥 Load logo from network
       final paperWidth = 576; // 80mm printer
-      final logoBytes = await loadLogoFromUrl(
-          imageURL,
-      );
+      final logoBytes = await loadLogoFromUrl(imageURL);
 
       if (logoBytes != null) {
         final resized = img.copyResize(
@@ -1132,10 +1144,7 @@ class _PrintPageState extends State<PrintPage> {
           width: logoWidthInt,
           height: logoHeightInt,
         );
-        final canvas = img.Image(
-          width: paperWidth,
-          height: resized.height,
-        );
+        final canvas = img.Image(width: paperWidth, height: resized.height);
 
         img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
 
@@ -1143,28 +1152,21 @@ class _PrintPageState extends State<PrintPage> {
         final offsetX = (paperWidth - resized.width) ~/ 2;
 
         // Draw resized logo at center
-       // img.copyInto(canvas, resized, dstX: offsetX);
-        img.compositeImage(
-          canvas,
-          resized,
-          dstX: offsetX,
-          dstY: 0,
-        );
+        // img.copyInto(canvas, resized, dstX: offsetX);
+        img.compositeImage(canvas, resized, dstX: offsetX, dstY: 0);
 
         final grayscale = img.grayscale(canvas);
 
-        bytes += generator.image(
-          grayscale,
-        );
+        bytes += generator.image(grayscale);
       }
     }
-   // st_company ='TEST COMPANY';
+    // st_company ='TEST COMPANY';
 
-    int compnyFontSize =0;
+    int compnyFontSize = 0;
     try {
       compnyFontSize = int.parse(companyNameFontSize);
-    }catch(_){
-      compnyFontSize =0;
+    } catch (_) {
+      compnyFontSize = 0;
     }
 
     final textSize = _getTextSize(compnyFontSize);
@@ -1192,7 +1194,7 @@ class _PrintPageState extends State<PrintPage> {
     // );
 
     if (st_companyAddress.length > 1) {
-      if(st_companyAdressStatus) {
+      if (st_companyAdressStatus) {
         bytes += generator.text(
           '' + st_companyAddress,
           styles: PosStyles(
@@ -1204,7 +1206,7 @@ class _PrintPageState extends State<PrintPage> {
       }
     }
     if (st_companyPhone.length > 1) {
-      if(st_companyPhoneStatus) {
+      if (st_companyPhoneStatus) {
         bytes += generator.text(
           'Phone No: ' + st_companyPhone,
           styles: const PosStyles(
@@ -1244,16 +1246,44 @@ class _PrintPageState extends State<PrintPage> {
         linesAfter: 0,
       );
     } else {
-      bytes += generator.text(
-        'INVOICE',
-        styles: PosStyles(
-          align: PosAlign.center, // ✅ Centered
-          bold: false,
-          height: PosTextSize.size2,
-          width: PosTextSize.size1,
-        ),
-        linesAfter: 0,
-      );
+      String st_OrderNo = '${widget.sales?.salesMaster?.billTokenNo ?? ''}';
+
+      // bytes.addAll(generator.text(st_OrderNo,
+      //     styles: PosStyles(align: PosAlign.center), linesAfter: 0));
+
+        bytes += generator.row([
+          PosColumn(
+            text: 'INVOICE',
+            width: 6,
+            styles: const PosStyles(
+              align: PosAlign.right,
+              bold: true,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+            ),
+          ),
+
+          PosColumn(
+            text: 'Token\n'+st_OrderNo,
+            width: 6,
+            styles: const PosStyles(
+              align: PosAlign.right,
+              bold: true,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+            ),
+          ),
+        ]);
+      // bytes += generator.text(
+      //   'INVOICE',
+      //   styles: PosStyles(
+      //     align: PosAlign.center, // ✅ Centered
+      //     bold: false,
+      //     height: PosTextSize.size1,
+      //     width: PosTextSize.size1,
+      //   ),
+      //   linesAfter: 0,
+      // );
     }
 
     if (arabicTextStatus) {
@@ -1409,13 +1439,13 @@ class _PrintPageState extends State<PrintPage> {
     } else {
       bytes += generator.row([
         PosColumn(
-          text: 'Invoice No : ' + st_invNo!.toString(),
+          text: '#' + st_invNo!.toString(),
           styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-          width: 6,
+          width: 4,
         ),
         PosColumn(
           text: 'Staff : ' + st_userName,
-          width: 6,
+          width: 8,
           styles: const PosStyles(
             height: PosTextSize.size1,
             align: PosAlign.right,
@@ -1425,48 +1455,15 @@ class _PrintPageState extends State<PrintPage> {
       bytes += generator.row([
         PosColumn(
           text: 'Date:' + _formatDateDMY(st_dateAndTime.toString())!,
-          width: 6,
+          width: 12,
           styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
         ),
-        PosColumn(
-          text: 'Time : ' + st_timeam_pm.toString(),
-          width: 6,
-          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.right),
-        ),
+        // PosColumn(
+        //   text: 'Time : ' + st_timeam_pm.toString(),
+        //   width: 6,
+        //   styles: PosStyles(height: PosTextSize.size1, align: PosAlign.right),
+        // ),
       ]);
-    }
-    if (dblPayCard > 0 && dblPayCash > 0) {
-      bytes += generator.row([
-        PosColumn(
-          text: 'Cash:' + dblPayCash.toString(),
-          width: 6,
-          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-        ),
-        PosColumn(
-          text: 'Card :' + dblPayCard.toString(),
-          width: 6,
-          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.right),
-        ),
-      ]);
-    } else {
-      if (dblPayCard > 0) {
-        bytes += generator.row([
-          PosColumn(
-            text: 'Card  :' + dblPayCard.toString(),
-            width: 12,
-            styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-          ),
-        ]);
-      }
-      if (dblPayCash > 0) {
-        bytes += generator.row([
-          PosColumn(
-            text: ' Cash :' + dblPayCash.toString(),
-            width: 12,
-            styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-          ),
-        ]);
-      }
     }
 
     if (vatStatus) {
@@ -1509,7 +1506,7 @@ class _PrintPageState extends State<PrintPage> {
       dateStr!,
     ); // Parse the string into a DateTime object
     String formattedDate = DateFormat(
-      'dd-MM-yyyy',
+      'dd-MM-yyyy HH:mm:ss',
     ).format(dateTime); // Format the DateTime object
     return formattedDate;
   }
@@ -1589,227 +1586,254 @@ class _PrintPageState extends State<PrintPage> {
 
     return bytes;
   }
+
   Future<List<int>> printItemSummary(Generator generator) async {
-    String line ='-------------------------------';
+    String line = '-------------------------------';
     List<int> bytes = [];
-    for(int i=0;i<widget.itemsList!.length;i++){
+    for (int i = 0; i < widget.itemsList!.length; i++) {
       print('CashAmount ${widget.itemsList?[i].productName.toString()}');
-      int srlNo = i+1;
-      String? st_prodName =
-      widget.itemsList?[i].productName.toString();
-      String? st_qty =
-      widget.itemsList?[i].qty.toString();
-      String? st_SubTotal =
-      widget.itemsList?[i].subTotal.toString();
-      String? st_tax =
-      widget.itemsList?[i].taxAmount.toString();
+      int srlNo = i + 1;
+      String? st_prodName = widget.itemsList?[i].productName.toString();
+      String? st_qty = widget.itemsList?[i].qty.toString();
+      String? st_SubTotal = widget.itemsList?[i].subTotal.toString();
+      String? st_tax = widget.itemsList?[i].taxAmount.toString();
 
       //if(selectedPrinter=='3 inch') {
-        try {
-          bytes += generator.row([
-
-            PosColumn(text: st_prodName!,
-                width: 12,
-                styles: const PosStyles(align: PosAlign.left, bold: true)),
-          ]);
-        }catch(_){
-
-          Uint8List imageBytesText = await _textToImage(
-              st_prodName!, fontSize: 25);
-          final decoded = img.decodeImage(imageBytesText)!;
-          bytes += generator.image(decoded, align: PosAlign.left,);
-        }
+      try {
         bytes += generator.row([
-          PosColumn(text: 'Qty',
-              styles: PosStyles(align: PosAlign.left),
-              width: 4),
-          PosColumn(text: 'Sub',
-              styles: PosStyles(align: PosAlign.left),
-              width: 4),
-          PosColumn(text: 'Tax',
-              styles: PosStyles(align: PosAlign.right),
-              width: 4),
-
-
+          PosColumn(
+            text: st_prodName!,
+            width: 12,
+            styles: const PosStyles(align: PosAlign.left, bold: true),
+          ),
         ]);
-        bytes += generator.row([
-          PosColumn(text: st_qty!,
-              styles: PosStyles(align: PosAlign.left),
-              width: 4),
-          PosColumn(text: st_SubTotal!,
-              styles: PosStyles(align: PosAlign.left),
-              width: 4),
-          PosColumn(text: st_tax!,
-              styles: PosStyles(align: PosAlign.right),
-              width: 4),
+      } catch (_) {
+        Uint8List imageBytesText = await _textToImage(
+          st_prodName!,
+          fontSize: 25,
+        );
+        final decoded = img.decodeImage(imageBytesText)!;
+        bytes += generator.image(decoded, align: PosAlign.left);
+      }
+      bytes += generator.row([
+        PosColumn(
+          text: 'Qty',
+          styles: PosStyles(align: PosAlign.left),
+          width: 4,
+        ),
+        PosColumn(
+          text: 'Sub',
+          styles: PosStyles(align: PosAlign.left),
+          width: 4,
+        ),
+        PosColumn(
+          text: 'Tax',
+          styles: PosStyles(align: PosAlign.right),
+          width: 4,
+        ),
+      ]);
+      bytes += generator.row([
+        PosColumn(
+          text: st_qty!,
+          styles: PosStyles(align: PosAlign.left),
+          width: 4,
+        ),
+        PosColumn(
+          text: st_SubTotal!,
+          styles: PosStyles(align: PosAlign.left),
+          width: 4,
+        ),
+        PosColumn(
+          text: st_tax!,
+          styles: PosStyles(align: PosAlign.right),
+          width: 4,
+        ),
+      ]);
 
-        ]);
-
-     // }
+      // }
       // bytes += escSetLineSpacing(1);
       // bytes.addAll(generator.feed(0)); // instead of feed(1) or feed(2)
-
     }
     return bytes;
   }
-  Future<List<int>> printSalesSummary(Generator generator) async {
-    String line ='-------------------------------';
-    List<int> bytes = [];
-    for(int i=0;i<widget.summaryList!.length;i++){
-      print('CashAmount ${widget.summaryList?[i].cashAmount.toString()}');
-      int srlNo = i+1;
-      String? st_cashAmt =
-      widget.summaryList?[i].cashAmount.toString();
-      String? st_cardAmt =
-      widget.summaryList?[i].cardAmount.toString();
-      String? st_creditAmt =
-      widget.summaryList?[i].creditAmount.toString();
 
-      double dbl_cashAmt =0;
+  Future<List<int>> printSalesSummary(Generator generator) async {
+    String line = '-------------------------------';
+    List<int> bytes = [];
+    for (int i = 0; i < widget.summaryList!.length; i++) {
+      print('CashAmount ${widget.summaryList?[i].cashAmount.toString()}');
+      int srlNo = i + 1;
+      String? st_cashAmt = widget.summaryList?[i].cashAmount.toString();
+      String? st_cardAmt = widget.summaryList?[i].cardAmount.toString();
+      String? st_creditAmt = widget.summaryList?[i].creditAmount.toString();
+
+      double dbl_cashAmt = 0;
       try {
         dbl_cashAmt = double.parse(st_cashAmt!);
-      }catch(_){
+      } catch (_) {}
+      String st_cashAmtDisplay = dbl_cashAmt.toStringAsFixed(
+        get_decimalpoints(),
+      );
 
-      }
-      String st_cashAmtDisplay = dbl_cashAmt.toStringAsFixed(get_decimalpoints());
-
-
-      if(selectedPrinter=='3 inch') {
-         line ='------------------------------------------';
+      if (selectedPrinter == '3 inch') {
+        line = '------------------------------------------';
         bytes += generator.row([
-          PosColumn(text: srlNo.toString(),
-              styles: PosStyles(align: PosAlign.left),
-              width: 1),
-          PosColumn(text: st_cashAmt!,
-              width: 5,
-              styles: const PosStyles(align: PosAlign.left)),
-          PosColumn(text: st_cardAmt.toString(),
-              width: 3,
-              styles: PosStyles(align: PosAlign.right)),
-          PosColumn(text: st_creditAmt!,
-              width: 3,
-              styles: PosStyles(align: PosAlign.right)),
-
+          PosColumn(
+            text: srlNo.toString(),
+            styles: PosStyles(align: PosAlign.left),
+            width: 1,
+          ),
+          PosColumn(
+            text: st_cashAmt!,
+            width: 5,
+            styles: const PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: st_cardAmt.toString(),
+            width: 3,
+            styles: PosStyles(align: PosAlign.right),
+          ),
+          PosColumn(
+            text: st_creditAmt!,
+            width: 3,
+            styles: PosStyles(align: PosAlign.right),
+          ),
         ]);
       }
-      if(selectedPrinter=='2 inch') {
+      if (selectedPrinter == '2 inch') {
         bytes += generator.row([
-          PosColumn(text: 'Sales Total',
-              styles: PosStyles(align: PosAlign.left,bold: true),
-              width: 6),
-          PosColumn(text: widget.salesTotal!,
-              width: 6,
-              styles: const PosStyles(align: PosAlign.right,bold: true)),
-
-
+          PosColumn(
+            text: 'Sales Total',
+            styles: PosStyles(align: PosAlign.left, bold: true),
+            width: 6,
+          ),
+          PosColumn(
+            text: widget.salesTotal!,
+            width: 6,
+            styles: const PosStyles(align: PosAlign.right, bold: true),
+          ),
         ]);
-        bytes.addAll(generator.text(
-          line,
-          styles: PosStyles(align: PosAlign.center),
-          linesAfter: 0,
-        ));
+        bytes.addAll(
+          generator.text(
+            line,
+            styles: PosStyles(align: PosAlign.center),
+            linesAfter: 0,
+          ),
+        );
 
         bytes += generator.row([
-          PosColumn(text: 'Cash',
-              styles: PosStyles(align: PosAlign.left),
-              width: 6),
-          PosColumn(text: st_cashAmtDisplay,
-              width: 6,
-              styles: const PosStyles(align: PosAlign.right)),
-
-        ]);
-        bytes += generator.row([
-          PosColumn(text: 'Card',
-              styles: PosStyles(align: PosAlign.left),
-              width: 6),
-          PosColumn(text: st_cardAmt!,
-              width: 6,
-              styles: const PosStyles(align: PosAlign.right)),
-
+          PosColumn(
+            text: 'Cash',
+            styles: PosStyles(align: PosAlign.left),
+            width: 6,
+          ),
+          PosColumn(
+            text: st_cashAmtDisplay,
+            width: 6,
+            styles: const PosStyles(align: PosAlign.right),
+          ),
         ]);
         bytes += generator.row([
-          PosColumn(text: 'Credit',
-              styles: PosStyles(align: PosAlign.left),
-              width: 6),
-          PosColumn(text: st_creditAmt!,
-              width: 6,
-              styles: const PosStyles(align: PosAlign.right)),
-
-
+          PosColumn(
+            text: 'Card',
+            styles: PosStyles(align: PosAlign.left),
+            width: 6,
+          ),
+          PosColumn(
+            text: st_cardAmt!,
+            width: 6,
+            styles: const PosStyles(align: PosAlign.right),
+          ),
+        ]);
+        bytes += generator.row([
+          PosColumn(
+            text: 'Credit',
+            styles: PosStyles(align: PosAlign.left),
+            width: 6,
+          ),
+          PosColumn(
+            text: st_creditAmt!,
+            width: 6,
+            styles: const PosStyles(align: PosAlign.right),
+          ),
         ]);
       }
       //bytes += escSetLineSpacing(0);
       //bytes.addAll(generator.feed(0)); // instead of feed(1) or feed(2)
-
     }
-    bytes.addAll(generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-      linesAfter: 0,
-    ));
+    bytes.addAll(
+      generator.text(
+        line,
+        styles: PosStyles(align: PosAlign.center),
+        linesAfter: 0,
+      ),
+    );
 
     bytes += generator.row([
-
-      PosColumn(text: 'Expense Total',
-          width: 6,
-          styles: const PosStyles(align: PosAlign.left,bold: true)),
-      PosColumn(text: '0.00'.toString(),
-          width: 6,
-          styles: PosStyles(align: PosAlign.right,bold: true)),
-
-
+      PosColumn(
+        text: 'Expense Total',
+        width: 6,
+        styles: const PosStyles(align: PosAlign.left, bold: true),
+      ),
+      PosColumn(
+        text: '0.00'.toString(),
+        width: 6,
+        styles: PosStyles(align: PosAlign.right, bold: true),
+      ),
     ]);
-    bytes.addAll(generator.text(
-      line,
-      styles: PosStyles(align: PosAlign.center),
-      linesAfter: 0,
-    ));
+    bytes.addAll(
+      generator.text(
+        line,
+        styles: PosStyles(align: PosAlign.center),
+        linesAfter: 0,
+      ),
+    );
 
-    for(int i=0;i<widget.expenseList!.length;i++){
+    for (int i = 0; i < widget.expenseList!.length; i++) {
       print('CashAmount ${widget.expenseList?[i].ledgerName.toString()}');
-      int srlNo = i+1;
-      String? st_ledgerName =
-      widget.expenseList?[i].ledgerName.toString();
-      String? st_amount =
-      widget.expenseList?[i].amount.toString();
+      int srlNo = i + 1;
+      String? st_ledgerName = widget.expenseList?[i].ledgerName.toString();
+      String? st_amount = widget.expenseList?[i].amount.toString();
 
-      if(selectedPrinter=='3 inch') {
+      if (selectedPrinter == '3 inch') {
         bytes += generator.row([
-
-          PosColumn(text: st_ledgerName!,
-              width: 6,
-              styles: const PosStyles(align: PosAlign.left)),
-          PosColumn(text: st_amount.toString(),
-              width: 6,
-              styles: PosStyles(align: PosAlign.right)),
-
-
+          PosColumn(
+            text: st_ledgerName!,
+            width: 6,
+            styles: const PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: st_amount.toString(),
+            width: 6,
+            styles: PosStyles(align: PosAlign.right),
+          ),
         ]);
       }
-      if(selectedPrinter=='2 inch') {
+      if (selectedPrinter == '2 inch') {
         bytes += generator.row([
-
-          PosColumn(text: st_ledgerName!,
-              width: 6,
-              styles: const PosStyles(align: PosAlign.left)),
-          PosColumn(text: st_amount.toString(),
-              width: 6,
-              styles: PosStyles(align: PosAlign.right)),
-
-
+          PosColumn(
+            text: st_ledgerName!,
+            width: 6,
+            styles: const PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: st_amount.toString(),
+            width: 6,
+            styles: PosStyles(align: PosAlign.right),
+          ),
         ]);
       }
       //bytes += escSetLineSpacing(5);
       //bytes.addAll(generator.feed(0)); // instead of feed(1) or feed(2)
-
     }
     return bytes;
   }
+
   Future<List<int>> printBalance(Generator generator) async {
     String line = '-------------------------------';
-    if(selectedPrinter=='3 inch') {
+    if (selectedPrinter == '3 inch') {
       print('secondIf $selectedPrinter');
-      line ='-----------------------------------------------';
+      line = '-----------------------------------------------';
     }
     List<int> bytes = [];
 
@@ -1986,22 +2010,22 @@ class _PrintPageState extends State<PrintPage> {
               styles: PosStyles(align: PosAlign.left),
               width: 1,
             ),
-            // PosColumn(text: decoded,
-            //     width: 3,
-            //     styles: const PosStyles(align: PosAlign.left)),
+            PosColumn(text: '',
+                width: 3,
+                styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
               text: dblQty.toString(),
-              width: 3,
+              width: 2,
               styles: PosStyles(align: PosAlign.right),
             ),
             PosColumn(
               text: st_rate!,
-              width: 4,
+              width: 3,
               styles: PosStyles(align: PosAlign.right),
             ),
             PosColumn(
               text: st_total!,
-              width: 4,
+              width: 3,
               styles: PosStyles(align: PosAlign.right),
             ),
           ]);
@@ -2023,22 +2047,22 @@ class _PrintPageState extends State<PrintPage> {
               width: 1,
             ),
 
-            // PosColumn(text: st_prodName,
-            //     width: 3,
-            //     styles: const PosStyles(align: PosAlign.left)),
+            PosColumn(text: '',
+                width: 3,
+                styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
               text: dblQty.toString(),
-              width: 3,
+              width: 2,
               styles: PosStyles(align: PosAlign.right),
             ),
             PosColumn(
               text: st_rate!,
-              width: 4,
+              width: 3,
               styles: PosStyles(align: PosAlign.right),
             ),
             PosColumn(
               text: st_total!,
-              width: 4,
+              width: 3,
               styles: PosStyles(align: PosAlign.right),
             ),
           ]);
@@ -2055,7 +2079,11 @@ class _PrintPageState extends State<PrintPage> {
     return [0x1B, 0x33, n];
   }
 
-  Future<List<int>> printFooter(Generator generator) async {
+  Future<List<int>> printFooter(
+    Generator generator,
+    String? st_paycash,
+    String? st_paycard,
+  ) async {
     List<int> bytes = [];
     String line = '-----------------------------------------------';
     if (selectedPrinter == '2 inch') {
@@ -2073,6 +2101,13 @@ class _PrintPageState extends State<PrintPage> {
     double dbl_sgst = dblSGST / 2;
     String st_sgst = dbl_sgst.toStringAsFixed(get_decimalpoints());
     String? st_Total = widget.sales!.salesMaster?.grandTotal;
+    double dblPayCard = 0, dblPayCash = 0;
+    try {
+      dblPayCard = double.parse(st_paycard!);
+    } catch (_) {}
+    try {
+      dblPayCash = double.parse(st_paycash!);
+    } catch (_) {}
 
     if (selectedPrinter == '3 inch') {
       if (vatStatus) {
@@ -2202,6 +2237,7 @@ class _PrintPageState extends State<PrintPage> {
       }
     }
 
+
     if (selectedPrinter == '2 inch') {
       if (vatStatus) {
         bytes += generator.text(
@@ -2326,7 +2362,41 @@ class _PrintPageState extends State<PrintPage> {
         );
       }
     }
-
+    String st_payCard = dblPayCard.toStringAsFixed(get_decimalpoints());
+    String st_payCash = dblPayCash.toStringAsFixed(get_decimalpoints());
+    if (dblPayCard > 0 && dblPayCash > 0) {
+      bytes += generator.row([
+        PosColumn(
+          text: 'Cash:' + st_payCash.toString(),
+          width: 6,
+          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
+        ),
+        PosColumn(
+          text: 'Card :' + st_payCard.toString(),
+          width: 6,
+          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.right),
+        ),
+      ]);
+    } else {
+      if (dblPayCard > 0) {
+        bytes += generator.row([
+          PosColumn(
+            text: 'Card  :' + st_payCard.toString(),
+            width: 12,
+            styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
+          ),
+        ]);
+      }
+      if (dblPayCash > 0) {
+        bytes += generator.row([
+          PosColumn(
+            text: ' Cash :' + st_payCash.toString(),
+            width: 12,
+            styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
+          ),
+        ]);
+      }
+    }
     bytes.addAll(
       generator.text(
         line,
@@ -2426,32 +2496,33 @@ class _PrintPageState extends State<PrintPage> {
     return malayalamRegExp.hasMatch(text);
   }
 }
-  Future<img.Image?> loadLogoFromUrl(String url) async {
-    try {
-      final response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        Uint8List bytes = response.bodyBytes;
+Future<img.Image?> loadLogoFromUrl(String url) async {
+  try {
+    final response = await http.get(Uri.parse(url));
 
-        // Decode image to image package format
-        img.Image? image = img.decodeImage(bytes);
+    if (response.statusCode == 200) {
+      Uint8List bytes = response.bodyBytes;
 
-        return image;
-      } else {
-        print("Failed to load image: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Error loading logo: $e");
+      // Decode image to image package format
+      img.Image? image = img.decodeImage(bytes);
+
+      return image;
+    } else {
+      print("Failed to load image: ${response.statusCode}");
     }
-
-    return null;
+  } catch (e) {
+    print("Error loading logo: $e");
   }
 
+  return null;
+}
 
 int get_decimalpoints() {
   final int decimal_points = 2;
   return decimal_points;
 }
+
 Future<Uint8List?> loadNetworkImage(String imageUrl) async {
   final response = await http.get(Uri.parse(imageUrl));
 
@@ -2462,6 +2533,7 @@ Future<Uint8List?> loadNetworkImage(String imageUrl) async {
     return null;
   }
 }
+
 PosTextSize _getTextSize(int size) {
   if (size >= 25) return PosTextSize.size2; // Large
   return PosTextSize.size1; // Normal

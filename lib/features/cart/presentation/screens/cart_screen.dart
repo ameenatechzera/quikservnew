@@ -93,16 +93,25 @@ class _CartScreenState extends State<CartScreen> {
                 if (state is SalesDetailsFetchSuccess) {
                   print('responseFromSales ${state.response}');
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PrintPage(
-                        pageFrom: 'SalesReport',
-                        // sales: saleList.first,
-                        sales: state.response,
+
+                  String selectedPrinter = (await SharedPreferenceHelper()
+                      .loadSelectedPrinterSize())!;
+                  if(selectedPrinter.length>1) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PrintPage(
+                              pageFrom: 'SalesReport',
+                              // sales: saleList.first,
+                              sales: state.response,
+                            ),
                       ),
-                    ),
-                  );
+                    );
+                  }
+                  else{
+                    Navigator.pop(context);
+                  }
                   // Navigator.pop(context);
                 }
                 if (state is SaleSuccess) {

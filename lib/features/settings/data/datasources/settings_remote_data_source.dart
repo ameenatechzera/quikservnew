@@ -39,6 +39,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
 
       // Build the full API URL
       final url = ApiConstants.getSettingsPath(baseUrl);
+      print('SetingsUrl ${url}');
       print('🔹 Fetch Settings URL: $url');
 
       // Get database name and token
