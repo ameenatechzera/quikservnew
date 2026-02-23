@@ -864,9 +864,19 @@ class _CartScreenState extends State<CartScreen> {
       final today = DateTime.now();
       final todayKey =
           "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+      print('todayKey $todayKey');
 
       final lastApiCall = prefs.getString('subscription_api_last_called');
+      print('lastApiCall $lastApiCall');
+      // Remove time part (important if time exists)
 
+      DateTime lastCall = DateTime.parse(lastApiCall!);
+
+      lastCall = DateTime(lastCall.year, lastCall.month, lastCall.day);
+
+      int difference = today.difference(lastCall).inDays;
+
+      print("Difference in days: $difference");
       //if (lastApiCall != todayKey) {
         print('reachedHere');
         final code = await SharedPreferenceHelper().getSubscriptionCode();
@@ -876,15 +886,20 @@ class _CartScreenState extends State<CartScreen> {
         //     RegisterServerRequest(slno: code),
         //   );
         // }
-        if (code.isNotEmpty) {
+        if (code.isNotEmpty && difference >14) {
+
           context.read<RegisterCubit>().checkDeviceRegisterStatus(
             DeviceRegisterRequest(
               deviceId: deviceId.toString(),
             ),
           );
+          await prefs.setString('subscription_api_last_called', todayKey);
+        }
+        else{
+          await _handleExpiryWarning();
         }
 
-        await prefs.setString('subscription_api_last_called', todayKey);
+        // await prefs.setString('subscription_api_last_called', todayKey);
       // } else {
       //   print('elseCaseExpirewd');
       //   expiredStatusController.text = 'true';
