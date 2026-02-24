@@ -278,7 +278,7 @@ class _PrintPageState extends State<PrintPage> {
         width: 6,
         styles: const PosStyles(
           align: PosAlign.left,
-          bold: true,
+          bold: false,
           height: PosTextSize.size1, // ⬅ reduced from size5
           width: PosTextSize.size1, // ⬅ reduced from size4
         ),
@@ -680,7 +680,50 @@ class _PrintPageState extends State<PrintPage> {
     /// 🔹 COMPANY DETAILS (BOTTOM)
     /// =======================
 
+    // bytes += generator.feed(1);
+    //
+    // bytes += generator.feed(2);
+    //
+    // bytes += generator.cut();
+
+    /// =======================
+    /// 🔹 QR CODE (BOTTOM)
+    /// =======================
+
+   // bytes += generator.feed(1);
+
+// QR data
+    String upiLink =
+        'upi://pay?pa=shamilmohd418@okicici&am=1.00&cu=INR&tn=65';
+
+// Print small instruction text
+//     bytes += generator.text(
+//       'Scan & Pay',
+//       styles: PosStyles(
+//         align: PosAlign.center,
+//         bold: true,
+//       ),
+//     );
+
+  //  bytes += generator.feed(1);
+
+// Print QR Code (Model 2 recommended)
+    bytes += generator.qrcode(
+      upiLink,
+      size: selectedPrinter == '2 inch'
+          ? QRSize.size6   // was size4 → increased
+          : QRSize.size8,  // was size6 → increased
+      cor: QRCorrection.M,
+    );
+// Optional: print UPI ID below QR (small text)
     bytes += generator.feed(1);
+    bytes += generator.text(
+      'Scan & Pay',
+      styles: PosStyles(
+        align: PosAlign.center,
+        bold: true,
+      ),
+    );
 
     bytes += generator.feed(2);
 
@@ -1170,7 +1213,7 @@ class _PrintPageState extends State<PrintPage> {
     }
 
     final textSize = _getTextSize(compnyFontSize);
-
+    String st_OrderNo = '${widget.sales?.salesMaster?.billTokenNo ?? ''}';
     bytes += generator.text(
       st_company,
       styles: PosStyles(
@@ -1178,6 +1221,16 @@ class _PrintPageState extends State<PrintPage> {
         bold: true,
         height: textSize,
         width: textSize,
+      ),
+      linesAfter: 0,
+    );
+    bytes += generator.text(
+      'Token No: '+st_OrderNo,
+      styles: PosStyles(
+        align: PosAlign.center,
+        bold: true,
+        height: PosTextSize.size2,
+        width: PosTextSize.size1,
       ),
       linesAfter: 0,
     );
@@ -1254,25 +1307,16 @@ class _PrintPageState extends State<PrintPage> {
         bytes += generator.row([
           PosColumn(
             text: 'INVOICE',
-            width: 6,
+            width: 12,
             styles: const PosStyles(
-              align: PosAlign.right,
+              align: PosAlign.center,
               bold: true,
               height: PosTextSize.size1,
               width: PosTextSize.size1,
             ),
           ),
 
-          PosColumn(
-            text: 'Token\n'+st_OrderNo,
-            width: 6,
-            styles: const PosStyles(
-              align: PosAlign.right,
-              bold: true,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-            ),
-          ),
+
         ]);
       // bytes += generator.text(
       //   'INVOICE',

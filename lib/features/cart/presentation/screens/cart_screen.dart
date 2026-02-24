@@ -40,6 +40,7 @@ class _CartScreenState extends State<CartScreen> {
   final SharedPreferenceHelper helper = SharedPreferenceHelper();
   TextEditingController expiredStatusController = TextEditingController();
   final _deviceIdController = TextEditingController();
+
   @override
   void initState() {
     expiredStatusController.text = 'false';
@@ -73,16 +74,17 @@ class _CartScreenState extends State<CartScreen> {
           child: BlocListener<RegisterCubit, RegisterState>(
             listener: (context, state) async {
               if (state is RegisterSuccess) {
-                print('reached');
+                print('reached_RegisterSuccess');
                 // showAppSnackBar(context, "Reached");
                 await _handleExpiryWarning();
               }
               if (state is DeviceRegisterSuccess) {
                 if (state.registerResponse.data?.result == true) {
-                  final code = await SharedPreferenceHelper().getSubscriptionCode();
-                    await context.read<RegisterCubit>().registerServer(
-                      RegisterServerRequest(slno: code),
-                    );
+                  final code = await SharedPreferenceHelper()
+                      .getSubscriptionCode();
+                  await context.read<RegisterCubit>().registerServer(
+                    RegisterServerRequest(slno: code),
+                  );
                 } else {
                   showNotRegisteredDialog(context);
                 }
@@ -96,20 +98,18 @@ class _CartScreenState extends State<CartScreen> {
 
                   String selectedPrinter = (await SharedPreferenceHelper()
                       .loadSelectedPrinterSize())!;
-                  if(selectedPrinter.length>1) {
+                  if (selectedPrinter.length > 1) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            PrintPage(
-                              pageFrom: 'SalesReport',
-                              // sales: saleList.first,
-                              sales: state.response,
-                            ),
+                        builder: (context) => PrintPage(
+                          pageFrom: 'SalesReport',
+                          // sales: saleList.first,
+                          sales: state.response,
+                        ),
                       ),
                     );
-                  }
-                  else{
+                  } else {
                     Navigator.pop(context);
                   }
                   // Navigator.pop(context);
@@ -856,86 +856,64 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _checkAndShowExpiryWarningOnceDaily() async {
     print('reached__checkAndShowExpiryWarningOnceDaily');
+    // try {
+    final prefs = await SharedPreferences.getInstance();
+
+    ///  CALL REGISTER API ONCE PER DAY
+
+    DateTime today;
+    final deviceId = await SharedPreferenceHelper().getDeviceID();
+    String? st_CurrentDate = await SharedPreferenceHelper().getCurrentDate();
+
+    print('st_CurrentDate $st_CurrentDate');
+
+    if (st_CurrentDate != null && st_CurrentDate.isNotEmpty) {
+      today = DateTime.parse(st_CurrentDate);
+    } else {
+      today = DateTime.now();
+    }
+
+    final todayKey =
+        "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+    print('todayKey $todayKey');
+
+    final lastApiCall = prefs.getString('subscription_api_last_called') ?? '';
+
+    // Remove time part (important if time exists)
+    DateTime lastCall;
+    int difference = 0;
     try {
-      final prefs = await SharedPreferences.getInstance();
-
-      ///  CALL REGISTER API ONCE PER DAY
-
-      final today = DateTime.now();
-      final todayKey =
-          "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-      print('todayKey $todayKey');
-
-      final lastApiCall = prefs.getString('subscription_api_last_called');
-      print('lastApiCall $lastApiCall');
-      // Remove time part (important if time exists)
-
-      DateTime lastCall = DateTime.parse(lastApiCall!);
-
+      lastCall = DateTime.parse(lastApiCall);
       lastCall = DateTime(lastCall.year, lastCall.month, lastCall.day);
 
-      int difference = today.difference(lastCall).inDays;
+      difference = today.difference(lastCall).inDays;
+    } catch (_) {}
+    print("Difference in days: $difference");
+    //if (lastApiCall != todayKey) {
+    print('reachedHere');
+    final code = await SharedPreferenceHelper().getSubscriptionCode();
 
-      print("Difference in days: $difference");
-      //if (lastApiCall != todayKey) {
-        print('reachedHere');
-        final code = await SharedPreferenceHelper().getSubscriptionCode();
-      final deviceId = await SharedPreferenceHelper().getDeviceID();
-        // if (code.isNotEmpty) {
-        //   await context.read<RegisterCubit>().registerServer(
-        //     RegisterServerRequest(slno: code),
-        //   );
-        // }
-        if (code.isNotEmpty && difference >14) {
+    // if (code.isNotEmpty) {
+    //   await context.read<RegisterCubit>().registerServer(
+    //     RegisterServerRequest(slno: code),
+    //   );
+    // }
+    if (code.isNotEmpty && difference > 14) {
+      context.read<RegisterCubit>().checkDeviceRegisterStatus(
+        DeviceRegisterRequest(deviceId: deviceId.toString()),
+      );
+      await prefs.setString('subscription_api_last_called', todayKey);
+    } else {
+      print('ElselastApiCall $lastApiCall');
+      if (lastApiCall.isEmpty) {
+        context.read<RegisterCubit>().checkDeviceRegisterStatus(
+          DeviceRegisterRequest(deviceId: deviceId.toString()),
+        );
 
-          context.read<RegisterCubit>().checkDeviceRegisterStatus(
-            DeviceRegisterRequest(
-              deviceId: deviceId.toString(),
-            ),
-          );
-          await prefs.setString('subscription_api_last_called', todayKey);
-        }
-        else{
-          await _handleExpiryWarning();
-        }
-
-        // await prefs.setString('subscription_api_last_called', todayKey);
-      // } else {
-      //   print('elseCaseExpirewd');
-      //   expiredStatusController.text = 'true';
-      // }
-
-      // ✅ Get expiry from your SharedPreferenceHelper
-      // final expiryString = await SharedPreferenceHelper().getExpiryDate();
-      //
-      // // If no expiry stored, do nothing (or you can treat as expired)
-      // if (expiryString.isEmpty || expiryString.trim().isEmpty) return;
-      //
-      // final expiry = DateTime.parse(expiryString);
-      //
-      // // Compare date-only (ignore time)
-      // final todayDate = DateTime(today.year, today.month, today.day);
-      //
-      // final expDate = DateTime(expiry.year, expiry.month, expiry.day);
-      //
-      // final daysLeft = expDate.difference(todayDate).inDays;
-      //
-      // // ✅ Show only when within 7 days before expiry (1..7)
-      // if (daysLeft < 1 || daysLeft > 7) return;
-      //
-      // // ✅ "Once per day" guard using SharedPreferences
-      // final lastShown = prefs.getString(
-      //   'expiry_warning_last_shown',
-      // ); // yyyy-mm-dd
-      //
-      // if (lastShown == todayKey) return; // already shown today
-      //
-      // await prefs.setString('expiry_warning_last_shown', todayKey);
-      //
-      // if (!mounted) return;
-      // _showExpirySoonDialog(daysLeft: daysLeft, expiryDate: expDate);
-    } catch (e) {
-      debugPrint("Expiry check error: $e");
+        await prefs.setString('subscription_api_last_called', todayKey);
+      } else {
+        await _handleExpiryWarning();
+      }
     }
   }
 
@@ -981,6 +959,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
+
   Future<String> getDeviceId() async {
     final deviceInfo = DeviceInfoPlugin();
 
@@ -999,7 +978,6 @@ class _CartScreenState extends State<CartScreen> {
     return 'unsupported-platform';
   }
 
-  
   void showNotRegisteredDialog(BuildContext context) {
     showDialog(
       context: context,
