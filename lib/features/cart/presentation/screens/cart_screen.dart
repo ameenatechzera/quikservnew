@@ -898,7 +898,7 @@ class _CartScreenState extends State<CartScreen> {
     //     RegisterServerRequest(slno: code),
     //   );
     // }
-    if (code.isNotEmpty && difference > 14) {
+    if (code.isNotEmpty && difference >= 0) {
       context.read<RegisterCubit>().checkDeviceRegisterStatus(
         DeviceRegisterRequest(deviceId: deviceId.toString()),
       );

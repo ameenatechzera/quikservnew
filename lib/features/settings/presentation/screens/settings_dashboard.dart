@@ -27,11 +27,20 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'aboutUs_screen.dart';
 
 String st_companyName = '';
+String vatType ='';
+bool vatStatus = true;
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
 
   Future<String?> _getAppVersion() async {
+     vatType =  await SharedPreferenceHelper().getVatType();
+     if(vatType=='true'){
+       vatStatus = true;
+     }
+     else{
+       vatStatus = false;
+     }
     return await SharedPreferenceHelper().getAppVersion();
   }
 
@@ -160,11 +169,14 @@ class SettingsScreen extends StatelessWidget {
                               title: "Unit",
                               page: UnitsListingScreen(),
                             ),
-                            buildTile(
-                              context: context,
-                              icon: Icons.money,
-                              title: "Tax",
-                              page: VatsListingScreen(),
+                            Visibility(
+                              visible: vatStatus,
+                              child: buildTile(
+                                context: context,
+                                icon: Icons.money,
+                                title: "Tax",
+                                page: VatsListingScreen(),
+                              ),
                             ),
                             buildTile(
                               context: context,

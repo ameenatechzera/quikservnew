@@ -189,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 await context.read<UnitCubit>().fetchUnits();
 
                 /// 🔹 Fetch VAT
-                loadingMsg.value = "Fetching VAT...";
+                loadingMsg.value = "Fetching Tax...";
                 await context.read<VatCubit>().fetchVat();
 
                 /// Fetch Groups
