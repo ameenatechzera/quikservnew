@@ -239,4 +239,11 @@ class ApiConstants {
   static String getDeviceRegisterStatusPath(String baseUrl) {
     return '$baseUrl/check-registration-status';
   }
+
+  ///fetch Sales Graph report
+
+  static String fetchSalesGraphReportPath(String baseUrl) {
+    return '$baseUrl/dashboard/total-sales-graph';
+  }
+
 }

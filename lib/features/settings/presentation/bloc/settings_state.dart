@@ -15,6 +15,8 @@ class UpdateSalesTokenLoading extends SettingsState {}
 
 class SettingsLoading extends SettingsState {}
 
+final class FetchMonthlyGraphLoading extends SettingsState {}
+
 class SettingsLoaded extends SettingsState {
   final FetchSettingsResponseModel settings;
 
@@ -35,6 +37,14 @@ class FetchSalesTokenError extends SettingsState {
   List<Object> get props => [message];
 }
 
+class FetchMonthlyGraphError extends SettingsState {
+  final String message;
+  FetchMonthlyGraphError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
 class FetchSalesTokenSuccess extends SettingsState {
   final TokenDetailsResult tokenResult;
   FetchSalesTokenSuccess(this.tokenResult);
@@ -43,6 +53,36 @@ class FetchSalesTokenSuccess extends SettingsState {
   List<Object> get props => [tokenResult];
 }
 
+class FetchMonthlyGraphSuccess extends SettingsState {
+  final MonthlyGraphReportResult monthlyGraphResult;
+  FetchMonthlyGraphSuccess(this.monthlyGraphResult);
+
+  @override
+  List<Object> get props => [monthlyGraphResult];
+}
+
+class FetchYearlyGraphSuccess extends SettingsState {
+  final MonthlyGraphReportResult monthlyGraphResult;
+  FetchYearlyGraphSuccess(this.monthlyGraphResult);
+
+  @override
+  List<Object> get props => [monthlyGraphResult];
+}
+
+class FetchWeeklyGraphSuccess extends SettingsState {
+  final WeeklyGraphReportResult weeklyGraphResult;
+  FetchWeeklyGraphSuccess(this.weeklyGraphResult);
+
+  @override
+  List<Object> get props => [weeklyGraphResult];
+}
+class FetchDailyGraphSuccess extends SettingsState {
+  final MonthlyGraphReportResult dailyGraphResult;
+  FetchDailyGraphSuccess(this.dailyGraphResult);
+
+  @override
+  List<Object> get props => [dailyGraphResult];
+}
 class PrintTypeSelected extends SettingsState {
   final String st_PrintType;
 

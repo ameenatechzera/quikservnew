@@ -3,8 +3,11 @@ import 'package:quikservnew/features/masters/domain/entities/master_result_respo
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/commonResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/weeklyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
+import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart';
 
 abstract class SettingsRepository {
@@ -14,6 +17,13 @@ abstract class SettingsRepository {
   ResultFuture<TokenUpdateResult> updateSalesTokenToServer(
     UpdateSalesTokenRequest updateSalesTokenRequest,
   );
+  ResultFuture<MonthlyGraphReportResult> fetchMonthlyGraphReport(
+      BarGraphRequest request,
+      );
+  ResultFuture<WeeklyGraphReportResult> fetchWeeklyGraphReport(
+      BarGraphRequest request,
+      );
+
   ResultFuture<MasterResponseModel> saveAccountSettings(
     AccountSettingsParams params,
   );

@@ -4,10 +4,15 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
+import 'package:quikservnew/features/settings/data/models/monthlyGraphModel.dart';
+import 'package:quikservnew/features/settings/data/models/weeklyGraphModel.dart';
 import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/commonResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/weeklyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
+import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart'
     show UpdateSalesTokenRequest;
 import 'package:quikservnew/services/shared_preference_helper.dart';
@@ -23,6 +28,14 @@ abstract class SettingsRemoteDataSource {
   Future<MasterResponseModel> saveAccountSettings(
     AccountSettingsParams accountSettingsParams,
   );
+  Future<MonthlyGraphReportResult> fetchMonthlyGraphReport(
+      BarGraphRequest request,
+      );
+  Future<WeeklyGraphReportResult> fetchWeeklyGraphReport(
+      BarGraphRequest request,
+      );
+
+
 }
 
 class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
@@ -265,6 +278,100 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
 
       if (response.statusCode == 200) {
         return MasterResponseModel.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e, stacktrace) {
+      print('❌ Exception in saveAccountSettings: $e');
+      print('Stacktrace: $stacktrace');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<MonthlyGraphReportResult> fetchMonthlyGraphReport(BarGraphRequest request) async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
+      }
+
+      final url = ApiConstants.fetchSalesGraphReportPath(baseUrl);
+      print("🔹 Save Account Settings URL: $url");
+
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+
+      print("📤 Request Body: ${request.toJson()}");
+
+      final response = await dio.post(
+        url,
+        data: request.toJson(),
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+
+      print('🔹 Status Code: ${response.statusCode}');
+      print('🔹 Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return MonthlyGraphModel.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e, stacktrace) {
+      print('❌ Exception in saveAccountSettings: $e');
+      print('Stacktrace: $stacktrace');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<WeeklyGraphReportResult> fetchWeeklyGraphReport(BarGraphRequest request) async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
+      }
+
+      final url = ApiConstants.fetchSalesGraphReportPath(baseUrl);
+      print("🔹 Save Account Settings URL: $url");
+
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+
+      print("📤 Request Body: ${request.toJson()}");
+
+      final response = await dio.post(
+        url,
+        data: request.toJson(),
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+
+      print('🔹 Status Code: ${response.statusCode}');
+      print('🔹 Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return WeeklyGraphReportModel.fromJson(response.data);
       } else {
         throw ServerException(
           errorMessageModel: ErrorMessageModel.fromJson(response.data),

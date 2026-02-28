@@ -103,6 +103,8 @@ import 'package:quikservnew/features/settings/data/datasources/settings_remote_d
 import 'package:quikservnew/features/settings/data/repositories/settings_repository_impl.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchCurrenSalesTokenUseCase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetchMonthlyGraphReportUseCase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetchWeeklyGraphReportUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/updatesalesTokenUseCase.dart';
@@ -299,7 +301,8 @@ class ServiceLocator {
         fetchSettingsUseCase: sl(),
         fetchCurrentSalesTokenUseCase: sl(),
         updateSalesTokenUseCase: sl(),
-        saveAccountSettingsUseCase: sl(),
+        saveAccountSettingsUseCase: sl(), fetchMonthlyGraphReportUseCase: sl(),
+        fetchWeeklyGraphReportUseCase: sl(),
       ),
     );
     // UseCase
@@ -307,6 +310,8 @@ class ServiceLocator {
     sl.registerLazySingleton(() => FetchCurrentSalesTokenUseCase(sl()));
     sl.registerLazySingleton(() => UpdateSalesTokenUseCase(sl()));
     sl.registerLazySingleton(() => SaveAccountSettingsUseCase(sl()));
+    sl.registerLazySingleton(() => FetchMonthlyGraphReportUseCase(sl()));
+    sl.registerLazySingleton(() => FetchWeeklyGraphReportUseCase(sl()));
 
     // Data Source
     sl.registerLazySingleton<SettingsRemoteDataSource>(

@@ -8,8 +8,11 @@ import 'package:quikservnew/features/settings/data/datasources/settings_remote_d
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/commonResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/weeklyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
+import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
 
@@ -82,6 +85,32 @@ class SettingsRepositoryImpl implements SettingsRepository {
   ) async {
     try {
       final result = await remoteDataSource.saveAccountSettings(params);
+      print('📊 API Response: ${result.toJson()}');
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<MonthlyGraphReportResult> fetchMonthlyGraphReport(BarGraphRequest request) async {
+    try {
+      final result = await remoteDataSource.fetchMonthlyGraphReport(request);
+      print('📊 API Response: ${result.toJson()}');
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<WeeklyGraphReportResult> fetchWeeklyGraphReport(BarGraphRequest request) async {
+    try {
+      final result = await remoteDataSource.fetchWeeklyGraphReport(request);
       print('📊 API Response: ${result.toJson()}');
       return Right(result);
     } on ServerException catch (failure) {

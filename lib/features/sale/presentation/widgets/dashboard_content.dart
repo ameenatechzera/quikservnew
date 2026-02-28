@@ -321,18 +321,18 @@ class _DashboardContentState extends State<DashboardContent> {
                           icon: Icons.receipt_outlined,
                           label: 'Sales Report',
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const SalesReportPage(),
-                              ),
-                            );
                             // Navigator.push(
                             //   context,
                             //   MaterialPageRoute(
-                            //     builder: (_) => const MonthlyReportPage(),
+                            //     builder: (_) => const SalesReportPage(),
                             //   ),
                             // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const MonthlyReportPage(),
+                              ),
+                            );
                           },
                         ),
                       ),
