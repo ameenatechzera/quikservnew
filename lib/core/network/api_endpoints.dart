@@ -190,18 +190,14 @@ class ApiConstants {
   }
 
   //for Delete Account Groups
-  static String getDeleteAccountGroupsPath(
-    String baseUrl,
-    String st_accountGroupId,
-  ) {
+  static String getDeleteAccountGroupsPath(String baseUrl,
+      String st_accountGroupId,) {
     return '$baseUrl/accountgroup/delete-accountgroup/' + st_accountGroupId;
   }
 
   ///for Update Account Groups
-  static String getUpdateAccountGroupsPath(
-    String baseUrl,
-    String st_accountGroupId,
-  ) {
+  static String getUpdateAccountGroupsPath(String baseUrl,
+      String st_accountGroupId,) {
     return '$baseUrl/accountgroup/update-accountgroup/' + st_accountGroupId;
   }
 
@@ -246,4 +242,9 @@ class ApiConstants {
     return '$baseUrl/dashboard/total-sales-graph';
   }
 
+  ///fetch Sales Count Graph report
+
+  static String fetchSalesCountGraphReportPath(String baseUrl) {
+    return '$baseUrl/dashboard/total-sales-graph-by-count';
+  }
 }

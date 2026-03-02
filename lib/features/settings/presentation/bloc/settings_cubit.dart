@@ -6,13 +6,19 @@ import 'package:quikservnew/features/masters/domain/entities/master_result_respo
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/salesCountGraphResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/weeklyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
 import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchCurrenSalesTokenUseCase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetchCustomSalesAmountGraphUseCase.dart';
+
+
 import 'package:quikservnew/features/settings/domain/usecases/fetchMonthlyGraphReportUseCase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetchSalesCountGraphUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchWeeklyGraphReportUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
@@ -26,7 +32,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   final UpdateSalesTokenUseCase _updateSalesTokenUseCase;
   final SaveAccountSettingsUseCase _saveAccountSettingsUseCase;
   final FetchMonthlyGraphReportUseCase _fetchMonthlyGraphReportUseCase;
-  final FetchWeeklyGraphReportUseCase _fetchWeeklyGraphReportUseCase;
+  final FetchSalesCountGraphReportUseCase _fetchSalesCountGraphReportUseCase;
+  final FetchCustomSalesAmountGraphReportUseCase _fetchCustomSalesAmountGraphReportUseCase;
 
   SettingsCubit({
     required FetchSettingsUseCase fetchSettingsUseCase,
@@ -34,13 +41,15 @@ class SettingsCubit extends Cubit<SettingsState> {
     required UpdateSalesTokenUseCase updateSalesTokenUseCase,
     required SaveAccountSettingsUseCase saveAccountSettingsUseCase,
     required FetchMonthlyGraphReportUseCase fetchMonthlyGraphReportUseCase,
-    required FetchWeeklyGraphReportUseCase fetchWeeklyGraphReportUseCase
+    required FetchSalesCountGraphReportUseCase fetchSalesCountGraphReportUseCase,
+    required FetchCustomSalesAmountGraphReportUseCase fetchCustomSalesAmountGraphReportUseCase
   }) : _fetchSettingsUseCase = fetchSettingsUseCase,
        _fetchCurrentSalesTokenUseCase = fetchCurrentSalesTokenUseCase,
        _updateSalesTokenUseCase = updateSalesTokenUseCase,
        _saveAccountSettingsUseCase = saveAccountSettingsUseCase,
         _fetchMonthlyGraphReportUseCase = fetchMonthlyGraphReportUseCase,
-        _fetchWeeklyGraphReportUseCase = fetchWeeklyGraphReportUseCase,
+        _fetchSalesCountGraphReportUseCase = fetchSalesCountGraphReportUseCase,
+        _fetchCustomSalesAmountGraphReportUseCase = fetchCustomSalesAmountGraphReportUseCase,
        super(SettingsInitial());
 
   Future<void> fetchSettings() async {
@@ -142,26 +151,6 @@ class SettingsCubit extends Cubit<SettingsState> {
       emit(FetchMonthlyGraphError('An error occurred: $e'));
     }
   }
-  Future<void> fetchWeeklyGraphFromServer(BarGraphRequest request) async {
-    emit(FetchMonthlyGraphLoading());
-    try {
-      print('reached cubit');
-      final response = await _fetchWeeklyGraphReportUseCase(request);
-      log(response.toString(), name: 'result_settings');
-
-      response.fold(
-            (failure) async {
-          log("failure");
-          emit(FetchMonthlyGraphError(failure.message));
-        },
-            (success) {
-          emit(FetchWeeklyGraphSuccess(success));
-        },
-      );
-    } catch (e) {
-      emit(FetchMonthlyGraphError('An error occurred: $e'));
-    }
-  }
 
   Future<void> updateSalesTokenFromServer(
     UpdateSalesTokenRequest updateTokenRequest,
@@ -210,6 +199,48 @@ class SettingsCubit extends Cubit<SettingsState> {
       );
     } catch (e) {
       emit(SaveAccountSettingsError(error: 'An error occurred: $e'));
+    }
+  }
+
+  Future<void> fetchSalesCountFromServer(BarGraphRequest request) async {
+    emit(FetchSalesCountGraphLoading());
+    try {
+      print('reached cubit');
+      final response = await _fetchSalesCountGraphReportUseCase(request);
+      log(response.toString(), name: 'result_settings');
+
+      response.fold(
+            (failure) async {
+          log("failure");
+          emit(FetchSalesCountGraphError(failure.message));
+        },
+            (success) {
+          emit(FetchSalesCountGraphSuccess(success));
+        },
+      );
+    } catch (e) {
+      emit(FetchSalesCountGraphError('An error occurred: $e'));
+    }
+  }
+
+  Future<void> fetchCustomSalesGraphFromServer(CustomSalesGraphRequest request) async {
+    emit(FetchCustomSalesGraphLoading());
+    try {
+      print('reached cubit');
+      final response = await _fetchCustomSalesAmountGraphReportUseCase(request);
+      log(response.toString(), name: 'result_settings');
+
+      response.fold(
+            (failure) async {
+          log("failure");
+          emit(FetchCustomSalesGraphError(failure.message));
+        },
+            (success) {
+          emit(FetchCustomSalesGraphSuccess(success));
+        },
+      );
+    } catch (e) {
+      emit(FetchCustomSalesGraphError('An error occurred: $e'));
     }
   }
 
