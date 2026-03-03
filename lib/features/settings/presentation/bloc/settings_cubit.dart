@@ -244,6 +244,8 @@ class SettingsCubit extends Cubit<SettingsState> {
     }
   }
 
+
+
   // /// 🔹 Optional: Load saved ledger IDs
   // Future<Map<String, int>> loadSavedLedgers() async {
   //   final prefs = await SharedPreferences.getInstance();

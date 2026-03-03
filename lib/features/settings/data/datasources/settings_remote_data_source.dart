@@ -447,8 +447,11 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
+      var url = ApiConstants.fetchSalesGraphReportPath(baseUrl);
+      if(request.salesType =='count'){
+         url = ApiConstants.fetchSalesCountGraphReportPath(baseUrl);
+      }
 
-      final url = ApiConstants.fetchSalesGraphReportPath(baseUrl);
       print("🔹 Save Account Settings URL: $url");
 
       final dbName = await SharedPreferenceHelper().getDatabaseName();
