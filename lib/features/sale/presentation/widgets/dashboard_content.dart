@@ -21,6 +21,8 @@ import 'package:quikservnew/features/settings/domain/entities/salesCountGraphRes
 import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
+import 'package:quikservnew/services/shared_preference_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final DateFormat formatter = DateFormat('dd MMM yyyy');
 List<SaleCountGraphList> salesCountList = [];
@@ -35,6 +37,8 @@ final TextEditingController toController = TextEditingController();
 enum SalesPeriod { daily, weekly, monthly, yearly }
 
 enum SalesViewType { amount, count }
+ int currentYear = 0;
+String stBranchId = '1';
 
 SalesViewType selectedView = SalesViewType.amount;
 SalesPeriod selectedPeriod = SalesPeriod.daily;
@@ -55,6 +59,7 @@ class _DashboardContentState extends State<DashboardContent> {
   @override
   void initState() {
     super.initState();
+    currentYear = DateTime.now().year;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // SubscriptionService.validateSubscription(context);
@@ -80,10 +85,15 @@ class _DashboardContentState extends State<DashboardContent> {
     return double.tryParse(value?.toString() ?? '') ?? 0.0;
   }
 
-  void _fetchReport() {
+  Future<void> _fetchReport() async {
     final fromDate = DateFormat('yyyy-MM-dd').format(fromDateNotifier.value);
     final toDate = DateFormat('yyyy-MM-dd').format(toDateNotifier.value);
-
+    final prefs = await SharedPreferences.getInstance();
+    stBranchId = await SharedPreferenceHelper().getBranchId();
+    print('stBranchId $stBranchId');
+    context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
+      BarGraphRequest(period: 'daily', branchId: '1'),
+    );
     context.read<SalesReportCubit>().fetchSalesReportMasterByDate(
       SalesReportMasterByDateRequest(fromDate: fromDate, toDate: toDate),
     );
@@ -506,7 +516,7 @@ class _DashboardContentState extends State<DashboardContent> {
                                 .fetchMonthlyGraphFromServer(
                                   BarGraphRequest(
                                     period: period,
-                                    branchId: '1',
+                                    branchId: stBranchId,
                                   ),
                                 );
                           } else {
@@ -515,7 +525,7 @@ class _DashboardContentState extends State<DashboardContent> {
                                 .fetchSalesCountFromServer(
                                   BarGraphRequest(
                                     period: period,
-                                    branchId: '1',
+                                    branchId: stBranchId,
                                   ),
                                 );
                           }
@@ -596,11 +606,11 @@ class _DashboardContentState extends State<DashboardContent> {
       context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
         CustomSalesGraphRequest(
           period: 'custom',
-          branchId: '1',
+          branchId: stBranchId,
           fromDate: fromApi,
           toDate: toApi,
           month: "",
-          year: '2026',
+          year: currentYear.toString(),
           week: '1',
           salesType: selectedView.name,
         ),
@@ -630,11 +640,11 @@ class _DashboardContentState extends State<DashboardContent> {
                   context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
                     CustomSalesGraphRequest(
                       period: 'custom',
-                      branchId: '1',
+                      branchId: stBranchId,
                       fromDate: fromApi,
                       toDate: toApi,
                       month: "",
-                      year: '2026',
+                      year: currentYear.toString(),
                       week: '1',
                       salesType: selectedView.name,
                     ),
@@ -675,11 +685,11 @@ class _DashboardContentState extends State<DashboardContent> {
                   context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
                     CustomSalesGraphRequest(
                       period: 'custom',
-                      branchId: '1',
+                      branchId: stBranchId,
                       fromDate: fromApi,
                       toDate: toApi,
                       month: "",
-                      year: '2026',
+                      year: currentYear.toString(),
                       week: '1',
                       salesType: selectedView.name,
                     ),
@@ -687,7 +697,7 @@ class _DashboardContentState extends State<DashboardContent> {
                 }
                 else {
                   context.read<SettingsCubit>().fetchSalesCountFromServer(
-                    BarGraphRequest(period: selectedPeriod.name, branchId: '1'),
+                    BarGraphRequest(period: selectedPeriod.name, branchId: stBranchId),
                   );
                 }
                 // 🔥 Call API if needed
@@ -773,11 +783,11 @@ class _DashboardContentState extends State<DashboardContent> {
                           .fetchCustomSalesGraphFromServer(
                             CustomSalesGraphRequest(
                               period: 'custom',
-                              branchId: '1',
+                              branchId: stBranchId,
                               fromDate: "",
                               toDate: "",
                               month: monthNumber,
-                              year: '2026',
+                              year: currentYear.toString(),
                               week: '1',
                             ),
                           );
@@ -865,14 +875,15 @@ class _DashboardContentState extends State<DashboardContent> {
                           .fetchCustomSalesGraphFromServer(
                             CustomSalesGraphRequest(
                               period: 'custom',
-                              branchId: '1',
+                              branchId: stBranchId,
                               fromDate: "",
                               toDate: "",
                               month: monthNumber,
-                              year: '2026',
+                              year: currentYear.toString(),
                               week: '1',
                             ),
                           );
+
 
                       /// 🔥 Drill down logic
                       if (selectedPeriod == SalesPeriod.yearly) {
