@@ -147,17 +147,15 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                           }
                         }
 
-                        print('Hr ${selectedView.name}');
-                        print('ClickedHR ${selectedView.name}');
-                        if (selectedView.name == 'amount') {
+                        // print('Hr ${selectedView.name}');
+                        // print('ClickedHR ${selectedView.name}');
+                       // if (selectedView.name == 'amount') {
                           context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
                             BarGraphRequest(period: period, branchId: '1'),
                           );
-                        } else {
-                          context.read<SettingsCubit>().fetchSalesCountFromServer(
-                            BarGraphRequest(period: period, branchId: '1'),
-                          );
-                        }
+                       // } else {
+
+                       // }
                       },
                       items: SalesPeriod.values.map((period) {
                         return DropdownMenuItem(
@@ -287,9 +285,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                 setState(() {
                   selectedView = SalesViewType.count;
                 });
-                context.read<SettingsCubit>().fetchSalesCountFromServer(
-                  BarGraphRequest(period: selectedPeriod.name, branchId: '1'),
-                );
+
                 // 🔥 Call API if needed
                 // fetchGraph(viewType: "count");
               },

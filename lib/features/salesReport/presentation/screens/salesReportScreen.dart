@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/dashboard_content.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
@@ -36,7 +37,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   @override
   void dispose() {
     _totalRecordsController.dispose();
-    _totalSalesController.dispose();
+   // _totalSalesController.dispose();
     super.dispose();
   }
 
@@ -44,34 +45,14 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF5F6FA),
+
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: const BackButton(color: Colors.black),
+        toolbarHeight: 40,
+        backgroundColor: AppColors.theme,
         title: const Text(
-          "Sales Report",
-          style: TextStyle(color: Colors.black),
+          'Sales Report',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          Visibility(
-            visible: false,
-            child: Row(
-              children: [
-                Checkbox(
-                  value: false,
-                  onChanged: (_) {},
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const Text("Select All", style: TextStyle(color: Colors.black)),
-                const SizedBox(width: 8),
-                _deleteButton(0),
-                const SizedBox(width: 12),
-              ],
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

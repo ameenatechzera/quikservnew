@@ -202,26 +202,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     }
   }
 
-  Future<void> fetchSalesCountFromServer(BarGraphRequest request) async {
-    emit(FetchSalesCountGraphLoading());
-    try {
-      print('reached cubit');
-      final response = await _fetchSalesCountGraphReportUseCase(request);
-      log(response.toString(), name: 'result_settings');
 
-      response.fold(
-            (failure) async {
-          log("failure");
-          emit(FetchSalesCountGraphError(failure.message));
-        },
-            (success) {
-          emit(FetchSalesCountGraphSuccess(success));
-        },
-      );
-    } catch (e) {
-      emit(FetchSalesCountGraphError('An error occurred: $e'));
-    }
-  }
 
   Future<void> fetchCustomSalesGraphFromServer(CustomSalesGraphRequest request) async {
     emit(FetchCustomSalesGraphLoading());

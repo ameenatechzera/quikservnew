@@ -20,6 +20,7 @@ import 'package:quikservnew/features/settings/domain/entities/salesCountGraphRes
 
 import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
+import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 final DateFormat formatter = DateFormat('dd MMM yyyy');
 List<SaleCountGraphList> salesCountList = [];
 List<MonthlyReportList> dailyList = [];
+List<MonthlyReportList> countList = [];
 List<MonthlyGraphReportResult> customGraphList = [];
 DateTime? fromDate;
 DateTime? toDate;
@@ -36,7 +38,7 @@ final TextEditingController toController = TextEditingController();
 
 enum SalesPeriod { daily, weekly, monthly, yearly }
 
-enum SalesViewType { amount, count }
+enum SalesViewTypeAmount { amount, count }
  int currentYear = 0;
 String stBranchId = '1';
 
@@ -92,6 +94,9 @@ class _DashboardContentState extends State<DashboardContent> {
     stBranchId = await SharedPreferenceHelper().getBranchId();
     print('stBranchId $stBranchId');
     context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
+      BarGraphRequest(period: 'daily', branchId: '1'),
+    );
+    context.read<SalesCountCubit>().fetchSalesCountFromServer(
       BarGraphRequest(period: 'daily', branchId: '1'),
     );
     context.read<SalesReportCubit>().fetchSalesReportMasterByDate(
@@ -411,7 +416,11 @@ class _DashboardContentState extends State<DashboardContent> {
                   const SizedBox(height: 24),
                   // ✅ some bottom space
                   _buildCustomSelector(),
-                  _buildSalesTypeSelector(),
+                 // _buildSalesTypeSelector(),
+
+                  // //Sales Count
+                  // _buildCustomSelector(),
+                  // _buildSalesTypeSelector(),
                   _buildSalesChart(),
                 ],
               ),
@@ -427,12 +436,171 @@ class _DashboardContentState extends State<DashboardContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         /// 🔹 Chart Section
+        Text('Sales Amount',style: TextStyle(fontWeight: FontWeight.bold),),
+        SizedBox(height: 10,),
         _buildChartBody(),
+        SizedBox(height: 10,),
+        Text('Sales Count',style: TextStyle(fontWeight: FontWeight.bold),),
+        SizedBox(height: 10,),
+        _buildChartSaleCountBody()
       ],
     );
   }
 
   Widget _buildCustomSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// 🔹 Heading + Dropdown Row
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Sales Graph",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+
+        /// 🔹 Only One Checkbox
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Checkbox(
+                  value: isCustomSelected,
+                  onChanged: (value) {
+                    setState(() {
+                      isCustomSelected = value ?? false;
+
+                      if (!isCustomSelected) {
+                        fromDate = null;
+                        toDate = null;
+                        fromController.clear();
+                        toController.clear();
+                      }
+                    });
+                  },
+                ),
+                const Text("Custom", style: TextStyle(fontSize: 14)),
+              ],
+            ),
+            if (!isCustomSelected)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    /// 🔹 Dropdown
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButton<SalesPeriod>(
+                        value: selectedPeriod,
+                        underline: const SizedBox(),
+                        onChanged: (SalesPeriod? newValue) {
+                          if (newValue == null) return;
+
+                          setState(() {
+                            selectedPeriod = newValue;
+                          });
+
+                          /// 🔥 Call API based on selection
+                          String period = newValue.name; // daily, weekly...
+                          if (selectedView.name == 'count') {
+                            if (period == 'daily') {
+                              period = 'hourly';
+                            }
+                          }
+
+
+                          // print('Hr ${selectedView.name}');
+                          // print('ClickedHR ${selectedView.name}');
+                         // if (selectedView.name == 'amount') {
+                            context
+                                .read<SettingsCubit>()
+                                .fetchMonthlyGraphFromServer(
+                                  BarGraphRequest(
+                                    period: period,
+                                    branchId: stBranchId,
+                                  ),
+                                );
+                          // } else {
+                            context
+                                .read<SalesCountCubit>()
+                                .fetchSalesCountFromServer(
+                                  BarGraphRequest(
+                                    period: period,
+                                    branchId: stBranchId,
+                                  ),
+                                );
+                         // }
+                        },
+                        items: SalesPeriod.values.map((period) {
+                          return DropdownMenuItem(
+                            value: period,
+                            child: Text(
+                              period.name.toUpperCase(),
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+
+        const SizedBox(height: 10),
+
+        /// 🔹 Show Date Fields Only When Checked
+        if (isCustomSelected)
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: fromController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    hintText: "From (dd-MM-yyyy)",
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onTap: () => _pickDate2(true),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: toController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    hintText: "To (dd-MM-yyyy)",
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onTap: () => _pickDate2(false),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCustomCountSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -514,20 +682,20 @@ class _DashboardContentState extends State<DashboardContent> {
                             context
                                 .read<SettingsCubit>()
                                 .fetchMonthlyGraphFromServer(
-                                  BarGraphRequest(
-                                    period: period,
-                                    branchId: stBranchId,
-                                  ),
-                                );
+                              BarGraphRequest(
+                                period: period,
+                                branchId: stBranchId,
+                              ),
+                            );
                           } else {
                             context
-                                .read<SettingsCubit>()
+                                .read<SalesCountCubit>()
                                 .fetchSalesCountFromServer(
-                                  BarGraphRequest(
-                                    period: period,
-                                    branchId: stBranchId,
-                                  ),
-                                );
+                              BarGraphRequest(
+                                period: period,
+                                branchId: stBranchId,
+                              ),
+                            );
                           }
                         },
                         items: SalesPeriod.values.map((period) {
@@ -615,100 +783,20 @@ class _DashboardContentState extends State<DashboardContent> {
           salesType: selectedView.name,
         ),
       );
+
+      context.read<SalesCountCubit>().fetchCustomSalesGraphFromServer(
+        CustomSalesGraphRequest(
+          period: 'custom',
+          branchId: stBranchId,
+          fromDate: fromApi,
+          toDate: toApi,
+          month: "",
+          year: currentYear.toString(),
+          week: '1',
+          salesType: 'count',
+        ),
+      );
     }
-  }
-
-  Widget _buildSalesTypeSelector() {
-    return Row(
-      children: [
-        /// 🔹 Sales Amount Checkbox
-        Row(
-          children: [
-            Checkbox(
-              value: selectedView == SalesViewType.amount,
-              onChanged: (value) {
-                setState(() {
-                  selectedView = SalesViewType.amount;
-                });
-                if (isCustomSelected){
-                  final fromApi = DateFormat('yyyy-MM-dd').format(fromDate!);
-                  final toApi = DateFormat('yyyy-MM-dd').format(toDate!);
-
-                  print("From: $fromApi");
-                  print("To: $toApi");
-
-                  context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
-                    CustomSalesGraphRequest(
-                      period: 'custom',
-                      branchId: stBranchId,
-                      fromDate: fromApi,
-                      toDate: toApi,
-                      month: "",
-                      year: currentYear.toString(),
-                      week: '1',
-                      salesType: selectedView.name,
-                    ),
-                  );
-                }
-                else {
-                  context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
-                    BarGraphRequest(period: selectedPeriod.name, branchId: '1'),
-                  );
-                }
-
-                // 🔥 Call API if needed
-                // fetchGraph(viewType: "amount");
-              },
-            ),
-            const Text("Sales Amount", style: TextStyle(fontSize: 14)),
-          ],
-        ),
-
-        const SizedBox(width: 20),
-
-        /// 🔹 Sales Count Checkbox
-        Row(
-          children: [
-            Checkbox(
-              value: selectedView == SalesViewType.count,
-              onChanged: (value) {
-                setState(() {
-                  selectedView = SalesViewType.count;
-                });
-                if (isCustomSelected){
-                  final fromApi = DateFormat('yyyy-MM-dd').format(fromDate!);
-                  final toApi = DateFormat('yyyy-MM-dd').format(toDate!);
-
-                  print("From: $fromApi");
-                  print("To: $toApi");
-
-                  context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
-                    CustomSalesGraphRequest(
-                      period: 'custom',
-                      branchId: stBranchId,
-                      fromDate: fromApi,
-                      toDate: toApi,
-                      month: "",
-                      year: currentYear.toString(),
-                      week: '1',
-                      salesType: selectedView.name,
-                    ),
-                  );
-                }
-                else {
-                  context.read<SettingsCubit>().fetchSalesCountFromServer(
-                    BarGraphRequest(period: selectedPeriod.name, branchId: stBranchId),
-                  );
-                }
-                // 🔥 Call API if needed
-                // fetchGraph(viewType: "count");
-              },
-            ),
-            const Text("Sales Count", style: TextStyle(fontSize: 14)),
-          ],
-        ),
-      ],
-    );
   }
 
   /// 🔹 CHART SECTION
@@ -733,10 +821,10 @@ class _DashboardContentState extends State<DashboardContent> {
           dailyList.clear();
           dailyList.addAll(state.graphResult.data);
         }
-        if (state is FetchSalesCountGraphSuccess) {
-          salesCountList.clear();
-          salesCountList.addAll(state.graphResult.data);
-        }
+        // if (state is FetchSalesCountGraphSuccess) {
+        //   salesCountList.clear();
+        //   salesCountList.addAll(state.graphResult.data);
+        // }
         if (state is FetchCustomSalesGraphSuccess) {
           dailyList.clear();
           dailyList.addAll(state.graphResult.data);
@@ -755,32 +843,130 @@ class _DashboardContentState extends State<DashboardContent> {
             .reduce((a, b) => a > b ? a : b);
 
         maxY = maxY + (maxY * 0.2);
-        if (state is FetchSalesCountGraphSuccess) {
+        // if (state is FetchSalesCountGraphSuccess) {
+        //   return SizedBox(
+        //     height: 260,
+        //     child: BarChart(
+        //       BarChartData(
+        //         alignment: BarChartAlignment.spaceAround,
+        //         maxY: maxY,
+        //         borderData: FlBorderData(show: false),
+        //
+        //         /// 🔥 BAR CLICK HANDLER
+        //         barTouchData: BarTouchData(
+        //           enabled: true,
+        //           touchCallback: (event, response) {
+        //             if (event.isInterestedForInteractions &&
+        //                 response != null &&
+        //                 response.spot != null) {
+        //               final index = response.spot!.touchedBarGroupIndex;
+        //
+        //               final selectedItem = salesCountList[index];
+        //               print('period ${selectedPeriod.name}');
+        //
+        //               print("ClickedHere: ${selectedItem.name}");
+        //               String? monthNumber = getMonthNumber(selectedItem.name);
+        //               context
+        //                   .read<SettingsCubit>()
+        //                   .fetchCustomSalesGraphFromServer(
+        //                     CustomSalesGraphRequest(
+        //                       period: 'custom',
+        //                       branchId: stBranchId,
+        //                       fromDate: "",
+        //                       toDate: "",
+        //                       month: monthNumber,
+        //                       year: currentYear.toString(),
+        //                       week: '1',
+        //                     ),
+        //                   );
+        //
+        //               /// 🔥 Drill down logic
+        //               if (selectedPeriod == SalesPeriod.yearly) {
+        //                 selectedPeriod = SalesPeriod.monthly;
+        //               } else if (selectedPeriod == SalesPeriod.monthly) {
+        //                 selectedPeriod = SalesPeriod.daily;
+        //               }
+        //
+        //               setState(() {});
+        //               // _fetchGraph(
+        //               //     drillValue: selectedItem.name.toString());
+        //             }
+        //           },
+        //         ),
+        //
+        //         titlesData: FlTitlesData(
+        //           leftTitles: AxisTitles(
+        //             sideTitles: SideTitles(showTitles: true),
+        //           ),
+        //           bottomTitles: AxisTitles(
+        //             sideTitles: SideTitles(
+        //               showTitles: true,
+        //               getTitlesWidget: (value, meta) {
+        //                 int index = value.toInt();
+        //                 if (index >= 0 && index < salesCountList.length) {
+        //                   return Text(
+        //                     salesCountList[index].name.toString(),
+        //                     style: const TextStyle(fontSize: 10),
+        //                   );
+        //                 }
+        //                 return const SizedBox();
+        //               },
+        //             ),
+        //           ),
+        //         ),
+        //
+        //         barGroups: List.generate(salesCountList.length, (index) {
+        //           double yValue =
+        //               double.tryParse(salesCountList[index].value.toString()) ??
+        //               0;
+        //
+        //           return BarChartGroupData(
+        //             x: index,
+        //             barRods: [
+        //               BarChartRodData(
+        //                 toY: yValue,
+        //                 width: 16,
+        //                 borderRadius: BorderRadius.circular(4),
+        //               ),
+        //             ],
+        //           );
+        //         }),
+        //       ),
+        //     ),
+        //   );
+        // }
+        // else {
+          double chartWidth = (dailyList.length * 60).toDouble();
+
           return SizedBox(
-            height: 260,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: maxY,
-                borderData: FlBorderData(show: false),
+            height: 360,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: chartWidth < MediaQuery.of(context).size.width
+                    ? MediaQuery.of(context).size.width
+                    : chartWidth,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: maxY,
+                    borderData: FlBorderData(show: false),
 
-                /// 🔥 BAR CLICK HANDLER
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchCallback: (event, response) {
-                    if (event.isInterestedForInteractions &&
-                        response != null &&
-                        response.spot != null) {
-                      final index = response.spot!.touchedBarGroupIndex;
+                    /// BAR CLICK
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      touchCallback: (event, response) {
+                        if (event.isInterestedForInteractions &&
+                            response != null &&
+                            response.spot != null) {
+                          final index = response.spot!.touchedBarGroupIndex;
+                          final selectedItem = dailyList[index];
 
-                      final selectedItem = salesCountList[index];
-                      print('period ${selectedPeriod.name}');
+                          print("ClickedBar: ${selectedItem.name}");
 
-                      print("ClickedHere: ${selectedItem.name}");
-                      String? monthNumber = getMonthNumber(selectedItem.name);
-                      context
-                          .read<SettingsCubit>()
-                          .fetchCustomSalesGraphFromServer(
+                          String? monthNumber = getMonthNumber(selectedItem.name);
+
+                          context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
                             CustomSalesGraphRequest(
                               period: 'custom',
                               branchId: stBranchId,
@@ -792,153 +978,219 @@ class _DashboardContentState extends State<DashboardContent> {
                             ),
                           );
 
-                      /// 🔥 Drill down logic
-                      if (selectedPeriod == SalesPeriod.yearly) {
-                        selectedPeriod = SalesPeriod.monthly;
-                      } else if (selectedPeriod == SalesPeriod.monthly) {
-                        selectedPeriod = SalesPeriod.daily;
-                      }
+                          if (selectedPeriod == SalesPeriod.yearly) {
+                            selectedPeriod = SalesPeriod.monthly;
+                          } else if (selectedPeriod == SalesPeriod.monthly) {
+                            selectedPeriod = SalesPeriod.daily;
+                          }
 
-                      setState(() {});
-                      // _fetchGraph(
-                      //     drillValue: selectedItem.name.toString());
-                    }
-                  },
-                ),
-
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        int index = value.toInt();
-                        if (index >= 0 && index < salesCountList.length) {
-                          return Text(
-                            salesCountList[index].name.toString(),
-                            style: const TextStyle(fontSize: 10),
-                          );
+                          setState(() {});
                         }
-                        return const SizedBox();
                       },
                     ),
+
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          interval: maxY <= 5 ? 1 : (maxY / 5).ceilToDouble(),
+                          getTitlesWidget: (value, meta) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Text(
+                                value.toInt().toString(),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 45, // gives space for numbers
+                          interval: maxY / 5, // controls spacing between values
+                          getTitlesWidget: (value, meta) {
+                            int index = value.toInt();
+                            if (index >= 0 && index < dailyList.length) {
+                              return Text(
+                                dailyList[index].name.toString(),
+                                style: const TextStyle(fontSize: 10),
+                              );
+                            }
+                            return const SizedBox();
+                          },
+                        ),
+                      ),
+                    ),
+
+                    barGroups: List.generate(dailyList.length, (index) {
+                      double yValue =
+                          double.tryParse(dailyList[index].value.toString()) ?? 0;
+
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: yValue,
+                            width: 18,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ],
+                      );
+                    }),
                   ),
                 ),
-
-                barGroups: List.generate(salesCountList.length, (index) {
-                  double yValue =
-                      double.tryParse(salesCountList[index].value.toString()) ??
-                      0;
-
-                  return BarChartGroupData(
-                    x: index,
-                    barRods: [
-                      BarChartRodData(
-                        toY: yValue,
-                        width: 16,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ],
-                  );
-                }),
               ),
             ),
           );
-        } else {
-          return SizedBox(
+        //}
+      },
+    );
+  }
+
+  /// 🔹 CHART SECTION
+  Widget _buildChartSaleCountBody() {
+    return BlocConsumer<SalesCountCubit, SalesCountState>(
+      listener: (context, state) {
+
+        if (state is FetchSales_CountGraphSuccess) {
+          countList.clear();
+          countList.addAll(state.graphResult.data);
+        }
+        if (state is FetchCustom_SalesGraphSuccess) {
+          countList.clear();
+          countList.addAll(state.graphResult.data);
+        }
+      },
+      builder: (context, state) {
+        if (countList.isEmpty ) {
+          return const SizedBox(
             height: 260,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: maxY,
-                borderData: FlBorderData(show: false),
-
-                /// 🔥 BAR CLICK HANDLER
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchCallback: (event, response) {
-                    if (event.isInterestedForInteractions &&
-                        response != null &&
-                        response.spot != null) {
-                      final index = response.spot!.touchedBarGroupIndex;
-
-                      final selectedItem = dailyList[index];
-
-                      print("ClickedBar: ${selectedItem.name}");
-                      print('period ${selectedPeriod.name}');
-                      String? monthNumber = getMonthNumber(selectedItem.name);
-                      print('monthNumber ${monthNumber}');
-                      context
-                          .read<SettingsCubit>()
-                          .fetchCustomSalesGraphFromServer(
-                            CustomSalesGraphRequest(
-                              period: 'custom',
-                              branchId: stBranchId,
-                              fromDate: "",
-                              toDate: "",
-                              month: monthNumber,
-                              year: currentYear.toString(),
-                              week: '1',
-                            ),
-                          );
-
-
-                      /// 🔥 Drill down logic
-                      if (selectedPeriod == SalesPeriod.yearly) {
-                        selectedPeriod = SalesPeriod.monthly;
-                      } else if (selectedPeriod == SalesPeriod.monthly) {
-                        selectedPeriod = SalesPeriod.daily;
-                      }
-
-                      setState(() {});
-                      // _fetchGraph(
-                      //     drillValue: selectedItem.name.toString());
-                    }
-                  },
-                ),
-
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        int index = value.toInt();
-                        if (index >= 0 && index < dailyList.length) {
-                          return Text(
-                            dailyList[index].name.toString(),
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        }
-                        return const SizedBox();
-                      },
-                    ),
-                  ),
-                ),
-
-                barGroups: List.generate(dailyList.length, (index) {
-                  double yValue =
-                      double.tryParse(dailyList[index].value.toString()) ?? 0;
-
-                  return BarChartGroupData(
-                    x: index,
-                    barRods: [
-                      BarChartRodData(
-                        toY: yValue,
-                        width: 16,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ],
-                  );
-                }),
-              ),
-            ),
+            child: Center(child: Text('No Data Found..!')),
           );
         }
+
+        double maxY = countList
+            .map((e) => double.tryParse(e.value.toString()) ?? 0)
+            .reduce((a, b) => a > b ? a : b);
+
+        maxY = maxY + (maxY * 0.2);
+        double chartWidth = (countList.length * 60).toDouble();
+        return SizedBox(
+          height: 360,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: chartWidth < MediaQuery.of(context).size.width
+                  ? MediaQuery.of(context).size.width
+                  : chartWidth,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: maxY,
+                  borderData: FlBorderData(show: false),
+
+                  /// BAR CLICK
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchCallback: (event, response) {
+                      if (event.isInterestedForInteractions &&
+                          response != null &&
+                          response.spot != null) {
+                        final index = response.spot!.touchedBarGroupIndex;
+                        final selectedItem = countList[index];
+
+                        print("ClickedBar: ${selectedItem.name}");
+
+                        String? monthNumber = getMonthNumber(selectedItem.name);
+
+                        context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
+                          CustomSalesGraphRequest(
+                            period: 'custom',
+                            branchId: stBranchId,
+                            fromDate: "",
+                            toDate: "",
+                            month: monthNumber,
+                            year: currentYear.toString(),
+                            week: '1',
+                          ),
+                        );
+
+                        if (selectedPeriod == SalesPeriod.yearly) {
+                          selectedPeriod = SalesPeriod.monthly;
+                        } else if (selectedPeriod == SalesPeriod.monthly) {
+                          selectedPeriod = SalesPeriod.daily;
+                        }
+
+                        setState(() {});
+                      }
+                    },
+                  ),
+
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        interval: maxY <= 5 ? 1 : (maxY / 5).ceilToDouble(),
+                        getTitlesWidget: (value, meta) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Text(
+                              value.toInt().toString(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 45, // gives space for numbers
+                        interval: maxY / 5, // controls spacing between values
+                        getTitlesWidget: (value, meta) {
+                          int index = value.toInt();
+                          if (index >= 0 && index < countList.length) {
+                            return Text(
+                              countList[index].name.toString(),
+                              style: const TextStyle(fontSize: 10),
+                            );
+                          }
+                          return const SizedBox();
+                        },
+                      ),
+                    ),
+                  ),
+
+                  barGroups: List.generate(countList.length, (index) {
+                    double yValue =
+                        double.tryParse(countList[index].value.toString()) ?? 0;
+
+                    return BarChartGroupData(
+                      x: index,
+                      barRods: [
+                        BarChartRodData(
+                          toY: yValue,
+                          width: 18,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+            ),
+          ),
+        );
+
+
       },
     );
   }

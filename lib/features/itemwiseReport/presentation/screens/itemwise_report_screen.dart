@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/config/colors.dart';
+import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
@@ -37,15 +38,14 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: const Color(0xffF5F6FA),
-    appBar: AppBar(
-    backgroundColor: Colors.white,
-    elevation: 0,
-    leading: const BackButton(color: Colors.black),
-    title: const Text(
-    "Sales Report",
-    style: TextStyle(color: Colors.black),
-    ),
-    ),
+      appBar: AppBar(
+        toolbarHeight: 40,
+        backgroundColor: AppColors.theme,
+        title: const Text(
+          'Item Wise Report',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: Column(
         children: [
           _dateFilter(),
@@ -76,32 +76,35 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
                           child: Column(
                             children: [
                               Container(
-                                height: 40,
-                                // color: Colors.amber,
+                                height: 50,
                                 decoration: const BoxDecoration(
                                   color: appThemeLightOrange,
                                   borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(
-                                        10), // match Card's default radius
+                                    topLeft: Radius.circular(10),
                                     topRight: Radius.circular(10),
                                   ),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 38.0, right: 20),
+                                  padding: const EdgeInsets.only(left: 38.0, right: 20),
                                   child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        item.productName,
-                                        style: TextStyle(
+                                      Expanded(
+                                        child: Text(
+                                          item.productName,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
                                             fontSize: 18,
-                                            fontWeight: FontWeight.bold),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
+
+                                      const SizedBox(width: 10),
+
                                       Text(
                                         item.totalAmount,
-                                        style: TextStyle(fontSize: 18),
+                                        style: const TextStyle(fontSize: 18),
                                       )
                                     ],
                                   ),

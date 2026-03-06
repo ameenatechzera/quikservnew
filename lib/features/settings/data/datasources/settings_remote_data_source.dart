@@ -37,7 +37,7 @@ abstract class SettingsRemoteDataSource {
   Future<WeeklyGraphReportResult> fetchWeeklyGraphReport(
       BarGraphRequest request,
       );
-  Future<SalesCountGraphResult> fetchSalesCountGraph(
+  Future<MonthlyGraphReportResult> fetchSalesCountGraph(
       BarGraphRequest request,
       );
   Future<MonthlyGraphReportResult> fetchCustomSalesGraph(
@@ -394,7 +394,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<SalesCountGraphResult> fetchSalesCountGraph(BarGraphRequest request) async {
+  Future<MonthlyGraphReportResult> fetchSalesCountGraph(BarGraphRequest request) async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {

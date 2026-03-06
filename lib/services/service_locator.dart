@@ -110,6 +110,7 @@ import 'package:quikservnew/features/settings/domain/usecases/fetchWeeklyGraphRe
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/updatesalesTokenUseCase.dart';
+import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/features/units/data/datasources/units_remote_datasource.dart';
 import 'package:quikservnew/features/units/data/repositories/units_repository_impl.dart';
@@ -306,6 +307,15 @@ class ServiceLocator {
         saveAccountSettingsUseCase: sl(), fetchMonthlyGraphReportUseCase: sl(),
           fetchSalesCountGraphReportUseCase: sl(),
           fetchCustomSalesAmountGraphReportUseCase: sl()
+      ),
+    );
+
+    // Cubit
+    sl.registerFactory(
+          () => SalesCountCubit(
+
+          fetchSalesCountGraphReportUseCase: sl(), fetchCustomSalesAmountGraphReportUseCase: sl(),
+
       ),
     );
     // UseCase

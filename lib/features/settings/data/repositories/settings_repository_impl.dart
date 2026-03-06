@@ -123,7 +123,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  ResultFuture<SalesCountGraphResult> fetchSalesCountReport(BarGraphRequest params) async {
+  ResultFuture<MonthlyGraphReportResult> fetchSalesCountReport(BarGraphRequest params) async {
     try {
       final result = await remoteDataSource.fetchSalesCountGraph(params);
       print('📊 API Response: ${result.toJson()}');

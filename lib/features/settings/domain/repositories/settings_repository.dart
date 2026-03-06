@@ -30,7 +30,7 @@ abstract class SettingsRepository {
     AccountSettingsParams params,
   );
 
-  ResultFuture<SalesCountGraphResult> fetchSalesCountReport(
+  ResultFuture<MonthlyGraphReportResult> fetchSalesCountReport(
       BarGraphRequest params,
       );
 

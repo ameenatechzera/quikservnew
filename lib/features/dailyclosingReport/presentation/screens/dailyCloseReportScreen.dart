@@ -87,10 +87,7 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
               // );
               String formatedDate = formatDateString(
                   dateController.text.toString());
-              print('formatedDate $formatedDate');
-              print('itemsList $itemsList');
-              print('summaryList $summaryList');
-              print('expenseList $expenseList');
+
 
               Future.delayed(Duration(seconds: 0), () {
                 Navigator.pushAndRemoveUntil(
@@ -126,10 +123,11 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
               return Container(
                 width: double.infinity,
                 height: 50,
-                color: appBarColor,
+                color: appThemeLightOrange,
                 padding: const EdgeInsets.symmetric(
                     horizontal: 16, vertical: 10),
-                child: Row(
+                child:
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
@@ -141,25 +139,25 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                             DateFormat('yyyy-MM-dd').format(previous);
                         _onDateChanged(context);
                       },
-                      child: const Text(
-                        '<',
-                        style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                      child: const Icon(
+                        Icons.chevron_left,
+                        size: 32,
+                        color: Colors.black,
                       ),
                     ),
+
                     GestureDetector(
                       onTap: () => _selectDate(context),
                       child: Text(
                         DateFormat('dd-MM-yyyy').format(selectedDate),
                         style: const TextStyle(
                           fontSize: 16,
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
+
                     GestureDetector(
                       onTap: () {
                         final next =
@@ -169,16 +167,14 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                             DateFormat('yyyy-MM-dd').format(next);
                         _onDateChanged(context);
                       },
-                      child: const Text(
-                        '>',
-                        style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                      child: const Icon(
+                        Icons.chevron_right,
+                        size: 32,
+                        color: Colors.black,
                       ),
                     ),
                   ],
-                ),
+                )
               );
             },
           ),
