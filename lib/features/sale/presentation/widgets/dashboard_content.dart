@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
+import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemWiseReportScreen.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemwise_report_screen.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
@@ -382,7 +383,7 @@ class _DashboardContentState extends State<DashboardContent> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => ItemWiseReportScreen(),
+                                builder: (_) => ItemWiseReportPage(),
                               ),
                             );
                           },
@@ -1012,7 +1013,8 @@ class _DashboardContentState extends State<DashboardContent> {
                         sideTitles: SideTitles(
                           showTitles: true,
                           reservedSize: 45, // gives space for numbers
-                          interval: maxY / 5, // controls spacing between values
+                          // interval: maxY / 5, // controls spacing between values
+                          interval: 1, // controls spacing between values
                           getTitlesWidget: (value, meta) {
                             int index = value.toInt();
                             if (index >= 0 && index < dailyList.length) {

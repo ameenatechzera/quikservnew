@@ -23,13 +23,33 @@ List<SalesMaster> salesList = [];
 double saleTotal = 0;
 final _totalRecordsController = TextEditingController();
 final _totalSalesController = TextEditingController();
+final TextEditingController fromDateController = TextEditingController();
+final TextEditingController toDateController = TextEditingController();
 String st_branchId = '';
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime.now();
+final DateFormat formatter = DateFormat('MM-dd-yyyy');
+void _onDateChanged(BuildContext context) {
 
+  final fromDateRaw = fromDateController.text.trim();
+  final toDateRaw = toDateController.text.trim();
+  if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
+    context.read<SalesReportCubit>().fetchSalesReport(
+      FetchReportRequest(
+        from_date: formatter.format(fromDate),
+        to_date: formatter.format(toDate),
+        user_id: '1',
+        branchId: st_branchId,
+      ),
+    );
+  }
+}
 class _SalesReportPageNEWState extends State<SalesReportPage> {
   @override
   void initState() {
+    final now = DateTime.now();
+    fromDateController.text = DateFormat('dd-MM-yyyy').format(now);
+    toDateController.text = DateFormat('dd-MM-yyyy').format(now);
     super.initState();
     fetchSalesReport();
   }
@@ -55,7 +75,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(0),
         child: Column(
           children: [
             _dateFilter(),
@@ -126,28 +146,124 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   /// 🔹 Date Filter
   Widget _dateFilter() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xffFFF4CC),
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return   Container(
+      color: AppColors.theme,
+      padding:
+      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+
+      // margin: EdgeInsets.zero,
+      //height: 70,
       child: Row(
         children: [
           Expanded(
-            child: _dateBox(
-              "From Date",
-              fromDate,
-              () => pickDate(isFrom: true),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12)),
+              child: TextFormField(
+                controller: fromDateController,
+                readOnly: true,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: const InputDecoration(
+                  labelText: '  From Date',
+                  labelStyle: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  floatingLabelAlignment:
+                  FloatingLabelAlignment.center,
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 0,
+                  ),
+                ),
+                onTap: () => _selectDate(context, fromDateController),
+              ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: _dateBox("To Date", toDate, () => pickDate(isFrom: false)),
-          ),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: TextFormField(
+                  controller: toDateController,
+                  readOnly: true,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'To Date',
+                    labelStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    floatingLabelAlignment:
+                    FloatingLabelAlignment.center,
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 0,
+                    ),
+                  ),
+                  onTap: () => _selectDate(context, toDateController),
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );
+    // return Container(
+    //   padding: const EdgeInsets.all(12),
+    //   decoration: BoxDecoration(
+    //     color: const Color(0xffFFF4CC),
+    //     borderRadius: BorderRadius.circular(12),
+    //   ),
+    //   child: Row(
+    //     children: [
+    //       Expanded(
+    //         child: _dateBox(
+    //           "From Date",
+    //           fromDate,
+    //           () => pickDate(isFrom: true),
+    //         ),
+    //       ),
+    //       const SizedBox(width: 12),
+    //       Expanded(
+    //         child: _dateBox("To Date", toDate, () => pickDate(isFrom: false)),
+    //       ),
+    //     ],
+    //   ),
+    // );
+  }
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      final formatted = DateFormat('dd-MM-yyyy').format(picked);
+      controller.text = formatted;
+      _onDateChanged(context);
+    }
   }
 
   Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {

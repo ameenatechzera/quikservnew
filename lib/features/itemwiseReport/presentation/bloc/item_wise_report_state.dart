@@ -16,3 +16,10 @@ class ItemSaleReportLoaded extends ItemWiseReportState {
   ItemSaleReportLoaded({required this.itemWisReport});
 
 }
+
+class ItemSaleReportNewLoaded extends ItemWiseReportState {
+  final SummaryReportNew itemWisReportNew;
+
+  ItemSaleReportNewLoaded({required this.itemWisReportNew});
+
+}

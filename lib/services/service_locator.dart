@@ -59,6 +59,7 @@ import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart'
 import 'package:quikservnew/features/itemwiseReport/data/datasources/itemwiseReport_remote_datasource.dart';
 import 'package:quikservnew/features/itemwiseReport/data/repositories/itemwiseReport_repository_impl.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/repositories/ItemWiseReportRepository.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetchItemWiseReportNewUseCase.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetchItemwiseReportUseCase.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'package:quikservnew/features/masters/data/datasources/userCreationRemoteDataSource.dart';
@@ -446,9 +447,11 @@ class ServiceLocator {
 
     // ------------------- Item Report Cubit -------------------
     sl.registerFactory(
-      () => ItemWiseReportCubit(fetchItemWiseReportUseCase: sl()),
+      () => ItemWiseReportCubit(fetchItemWiseReportUseCase: sl(), fetchItemWiseReportNewUseCase: sl()),
     );
     sl.registerLazySingleton(() => FetchItemWiseReportUseCase(sl()));
+    sl.registerLazySingleton(() => FetchItemWiseReportNewUseCase(sl()));
+
 
     sl.registerLazySingleton<ItemWiseReportRemoteDataSource>(
       () => ItemWiseReportRemoteDataSourceImpl(),

@@ -247,4 +247,12 @@ class ApiConstants {
   static String fetchSalesCountGraphReportPath(String baseUrl) {
     return '$baseUrl/dashboard/total-sales-graph-by-count';
   }
+
+  ///fetch Item wise summary report
+
+  static String fetchItemWiseReportNewReportPath(String baseUrl) {
+    return '$baseUrl/salesmaster/item-wise-sales-summaryNew';
+  }
+
+
 }

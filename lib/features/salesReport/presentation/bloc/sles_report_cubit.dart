@@ -77,6 +77,7 @@ class SalesReportCubit extends Cubit<SlesReportState> {
   Future<void> fetchSalesReportMasterByDate(
     SalesReportMasterByDateRequest request,
   ) async {
+    print('SalesReportMasterByDateRequest ${request.toJson()}');
     emit(SalesReportMasterByDateInitial());
 
     try {
