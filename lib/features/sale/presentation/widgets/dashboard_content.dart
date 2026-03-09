@@ -414,7 +414,7 @@ class _DashboardContentState extends State<DashboardContent> {
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 4),
                   // ✅ some bottom space
                   _buildCustomSelector(),
                  // _buildSalesTypeSelector(),
@@ -438,11 +438,11 @@ class _DashboardContentState extends State<DashboardContent> {
       children: [
         /// 🔹 Chart Section
         Text('Sales Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-        SizedBox(height: 10,),
+        SizedBox(height: 5,),
         _buildChartBody(),
-        SizedBox(height: 10,),
+        SizedBox(height: 5,),
         Text('Sales Count',style: TextStyle(fontWeight: FontWeight.bold),),
-        SizedBox(height: 10,),
+        SizedBox(height: 5,),
         _buildChartSaleCountBody()
       ],
     );
@@ -452,20 +452,6 @@ class _DashboardContentState extends State<DashboardContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// 🔹 Heading + Dropdown Row
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Sales Graph",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-
         /// 🔹 Only One Checkbox
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -801,34 +787,17 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   /// 🔹 CHART SECTION
+
   Widget _buildChartBody() {
     return BlocConsumer<SettingsCubit, SettingsState>(
       listener: (context, state) {
-        if (state is FetchDailyGraphSuccess) {
+        if (state is FetchDailyGraphSuccess ||
+            state is FetchWeeklyGraphSuccess ||
+            state is FetchMonthlyGraphSuccess ||
+            state is FetchYearlyGraphSuccess ||
+            state is FetchCustomSalesGraphSuccess) {
           dailyList.clear();
-          dailyList.addAll(state.graphResult.data);
-          // context.read<SettingsCubit>().fetchWeeklyGraphFromServer(
-          //     BarGraphRequest(period: 'weekly', branchId: '1'));
-        }
-        if (state is FetchWeeklyGraphSuccess) {
-          dailyList.clear();
-          dailyList.addAll(state.graphResult.data);
-        }
-        if (state is FetchMonthlyGraphSuccess) {
-          dailyList.clear();
-          dailyList.addAll(state.graphResult.data);
-        }
-        if (state is FetchYearlyGraphSuccess) {
-          dailyList.clear();
-          dailyList.addAll(state.graphResult.data);
-        }
-        // if (state is FetchSalesCountGraphSuccess) {
-        //   salesCountList.clear();
-        //   salesCountList.addAll(state.graphResult.data);
-        // }
-        if (state is FetchCustomSalesGraphSuccess) {
-          dailyList.clear();
-          dailyList.addAll(state.graphResult.data);
+          dailyList.addAll((state as dynamic).graphResult.data);
         }
       },
       builder: (context, state) {
@@ -843,245 +812,14 @@ class _DashboardContentState extends State<DashboardContent> {
             .map((e) => double.tryParse(e.value.toString()) ?? 0)
             .reduce((a, b) => a > b ? a : b);
 
-        maxY = maxY + (maxY * 0.2);
-        // if (state is FetchSalesCountGraphSuccess) {
-        //   return SizedBox(
-        //     height: 260,
-        //     child: BarChart(
-        //       BarChartData(
-        //         alignment: BarChartAlignment.spaceAround,
-        //         maxY: maxY,
-        //         borderData: FlBorderData(show: false),
-        //
-        //         /// 🔥 BAR CLICK HANDLER
-        //         barTouchData: BarTouchData(
-        //           enabled: true,
-        //           touchCallback: (event, response) {
-        //             if (event.isInterestedForInteractions &&
-        //                 response != null &&
-        //                 response.spot != null) {
-        //               final index = response.spot!.touchedBarGroupIndex;
-        //
-        //               final selectedItem = salesCountList[index];
-        //               print('period ${selectedPeriod.name}');
-        //
-        //               print("ClickedHere: ${selectedItem.name}");
-        //               String? monthNumber = getMonthNumber(selectedItem.name);
-        //               context
-        //                   .read<SettingsCubit>()
-        //                   .fetchCustomSalesGraphFromServer(
-        //                     CustomSalesGraphRequest(
-        //                       period: 'custom',
-        //                       branchId: stBranchId,
-        //                       fromDate: "",
-        //                       toDate: "",
-        //                       month: monthNumber,
-        //                       year: currentYear.toString(),
-        //                       week: '1',
-        //                     ),
-        //                   );
-        //
-        //               /// 🔥 Drill down logic
-        //               if (selectedPeriod == SalesPeriod.yearly) {
-        //                 selectedPeriod = SalesPeriod.monthly;
-        //               } else if (selectedPeriod == SalesPeriod.monthly) {
-        //                 selectedPeriod = SalesPeriod.daily;
-        //               }
-        //
-        //               setState(() {});
-        //               // _fetchGraph(
-        //               //     drillValue: selectedItem.name.toString());
-        //             }
-        //           },
-        //         ),
-        //
-        //         titlesData: FlTitlesData(
-        //           leftTitles: AxisTitles(
-        //             sideTitles: SideTitles(showTitles: true),
-        //           ),
-        //           bottomTitles: AxisTitles(
-        //             sideTitles: SideTitles(
-        //               showTitles: true,
-        //               getTitlesWidget: (value, meta) {
-        //                 int index = value.toInt();
-        //                 if (index >= 0 && index < salesCountList.length) {
-        //                   return Text(
-        //                     salesCountList[index].name.toString(),
-        //                     style: const TextStyle(fontSize: 10),
-        //                   );
-        //                 }
-        //                 return const SizedBox();
-        //               },
-        //             ),
-        //           ),
-        //         ),
-        //
-        //         barGroups: List.generate(salesCountList.length, (index) {
-        //           double yValue =
-        //               double.tryParse(salesCountList[index].value.toString()) ??
-        //               0;
-        //
-        //           return BarChartGroupData(
-        //             x: index,
-        //             barRods: [
-        //               BarChartRodData(
-        //                 toY: yValue,
-        //                 width: 16,
-        //                 borderRadius: BorderRadius.circular(4),
-        //               ),
-        //             ],
-        //           );
-        //         }),
-        //       ),
-        //     ),
-        //   );
-        // }
-        // else {
-          double chartWidth = (dailyList.length * 60).toDouble();
-
-          return SizedBox(
-            height: 360,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: chartWidth < MediaQuery.of(context).size.width
-                    ? MediaQuery.of(context).size.width
-                    : chartWidth,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: maxY,
-                    borderData: FlBorderData(show: false),
-
-                    /// BAR CLICK
-                    barTouchData: BarTouchData(
-                      enabled: true,
-                      touchCallback: (event, response) {
-                        if (event.isInterestedForInteractions &&
-                            response != null &&
-                            response.spot != null) {
-                          final index = response.spot!.touchedBarGroupIndex;
-                          final selectedItem = dailyList[index];
-
-                          print("ClickedBar: ${selectedItem.name}");
-
-                          String? monthNumber = getMonthNumber(selectedItem.name);
-
-                          context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
-                            CustomSalesGraphRequest(
-                              period: 'custom',
-                              branchId: stBranchId,
-                              fromDate: "",
-                              toDate: "",
-                              month: monthNumber,
-                              year: currentYear.toString(),
-                              week: '1',
-                            ),
-                          );
-
-                          if (selectedPeriod == SalesPeriod.yearly) {
-                            selectedPeriod = SalesPeriod.monthly;
-                          } else if (selectedPeriod == SalesPeriod.monthly) {
-                            selectedPeriod = SalesPeriod.daily;
-                          }
-
-                          setState(() {});
-                        }
-                      },
-                    ),
-
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          interval: maxY <= 5 ? 1 : (maxY / 5).ceilToDouble(),
-                          getTitlesWidget: (value, meta) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: Text(
-                                value.toInt().toString(),
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 45, // gives space for numbers
-                          // interval: maxY / 5, // controls spacing between values
-                          interval: 1, // controls spacing between values
-                          getTitlesWidget: (value, meta) {
-                            int index = value.toInt();
-                            if (index >= 0 && index < dailyList.length) {
-                              return Text(
-                                dailyList[index].name.toString(),
-                                style: const TextStyle(fontSize: 10),
-                              );
-                            }
-                            return const SizedBox();
-                          },
-                        ),
-                      ),
-                    ),
-
-                    barGroups: List.generate(dailyList.length, (index) {
-                      double yValue =
-                          double.tryParse(dailyList[index].value.toString()) ?? 0;
-
-                      return BarChartGroupData(
-                        x: index,
-                        barRods: [
-                          BarChartRodData(
-                            toY: yValue,
-                            width: 18,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ],
-                      );
-                    }),
-                  ),
-                ),
-              ),
-            ),
-          );
-        //}
-      },
-    );
-  }
-
-  /// 🔹 CHART SECTION
-  Widget _buildChartSaleCountBody() {
-    return BlocConsumer<SalesCountCubit, SalesCountState>(
-      listener: (context, state) {
-
-        if (state is FetchSales_CountGraphSuccess) {
-          countList.clear();
-          countList.addAll(state.graphResult.data);
-        }
-        if (state is FetchCustom_SalesGraphSuccess) {
-          countList.clear();
-          countList.addAll(state.graphResult.data);
-        }
-      },
-      builder: (context, state) {
-        if (countList.isEmpty ) {
-          return const SizedBox(
-            height: 260,
-            child: Center(child: Text('No Data Found..!')),
-          );
-        }
-
-        double maxY = countList
-            .map((e) => double.tryParse(e.value.toString()) ?? 0)
-            .reduce((a, b) => a > b ? a : b);
+        double interval = (maxY / 5).ceilToDouble();
+        if (interval == 0) interval = 1;
+        if (maxY == 0) maxY = 10;
 
         maxY = maxY + (maxY * 0.2);
-        double chartWidth = (countList.length * 60).toDouble();
+
+        double chartWidth = (dailyList.length * 60).toDouble();
+
         return SizedBox(
           height: 360,
           child: SingleChildScrollView(
@@ -1096,41 +834,36 @@ class _DashboardContentState extends State<DashboardContent> {
                   maxY: maxY,
                   borderData: FlBorderData(show: false),
 
-                  /// BAR CLICK
+                  /// subtle background grid
+                  gridData: FlGridData(
+                    show: true,
+                    horizontalInterval: interval,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.withOpacity(0.2),
+                        strokeWidth: 1,
+                      );
+                    },
+                  ),
+
+                  /// always show value
                   barTouchData: BarTouchData(
-                    enabled: true,
-                    touchCallback: (event, response) {
-                      if (event.isInterestedForInteractions &&
-                          response != null &&
-                          response.spot != null) {
-                        final index = response.spot!.touchedBarGroupIndex;
-                        final selectedItem = countList[index];
-
-                        print("ClickedBar: ${selectedItem.name}");
-
-                        String? monthNumber = getMonthNumber(selectedItem.name);
-
-                        context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
-                          CustomSalesGraphRequest(
-                            period: 'custom',
-                            branchId: stBranchId,
-                            fromDate: "",
-                            toDate: "",
-                            month: monthNumber,
-                            year: currentYear.toString(),
-                            week: '1',
+                    enabled: false,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (group) => Colors.transparent,
+                      tooltipPadding: EdgeInsets.zero,
+                      tooltipMargin: 6,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        return BarTooltipItem(
+                          rod.toY.toStringAsFixed(0),
+                          const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
                         );
-
-                        if (selectedPeriod == SalesPeriod.yearly) {
-                          selectedPeriod = SalesPeriod.monthly;
-                        } else if (selectedPeriod == SalesPeriod.monthly) {
-                          selectedPeriod = SalesPeriod.daily;
-                        }
-
-                        setState(() {});
-                      }
-                    },
+                      },
+                    ),
                   ),
 
                   titlesData: FlTitlesData(
@@ -1138,7 +871,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 40,
-                        interval: maxY <= 5 ? 1 : (maxY / 5).ceilToDouble(),
+                        interval: interval,
                         getTitlesWidget: (value, meta) {
                           return Padding(
                             padding: const EdgeInsets.only(right: 6),
@@ -1146,23 +879,211 @@ class _DashboardContentState extends State<DashboardContent> {
                               value.toInt().toString(),
                               style: const TextStyle(
                                 fontSize: 11,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           );
                         },
                       ),
                     ),
+
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 45, // gives space for numbers
-                        interval: maxY / 5, // controls spacing between values
+                        reservedSize: 45,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          int index = value.toInt();
+                          if (index >= 0 && index < dailyList.length) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Text(
+                                dailyList[index].name.toString(),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox();
+                        },
+                      ),
+                    ),
+                  ),
+
+                  barGroups: List.generate(dailyList.length, (index) {
+                    double yValue =
+                        double.tryParse(dailyList[index].value.toString()) ?? 0;
+
+                    /// color palette
+                    final colors = [
+                      const Color(0xff4facfe),
+                      const Color(0xff43e97b),
+                      const Color(0xfffa709a),
+                      const Color(0xfff093fb),
+                      const Color(0xffffc371),
+                    ];
+
+                    return BarChartGroupData(
+                      x: index,
+                      showingTooltipIndicators: const [0],
+                      barRods: [
+                        BarChartRodData(
+                          toY: yValue,
+                          width: 20,
+                          borderRadius: BorderRadius.circular(8),
+
+                          /// gradient bars
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              colors[index % colors.length],
+                              colors[index % colors.length].withOpacity(0.5),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+  /// 🔹 CHART SECTION
+  Widget _buildChartSaleCountBody() {
+    return BlocConsumer<SalesCountCubit, SalesCountState>(
+      listener: (context, state) {
+        if (state is FetchSales_CountGraphSuccess) {
+          countList.clear();
+          countList.addAll(state.graphResult.data);
+        }
+
+        if (state is FetchCustom_SalesGraphSuccess) {
+          countList.clear();
+          countList.addAll(state.graphResult.data);
+        }
+      },
+      builder: (context, state) {
+        if (countList.isEmpty) {
+          return const SizedBox(
+            height: 260,
+            child: Center(child: Text('No Data Found..!')),
+          );
+        }
+
+        double maxY = countList
+            .map((e) => double.tryParse(e.value.toString()) ?? 0)
+            .reduce((a, b) => a > b ? a : b);
+
+        double interval = (maxY / 5).ceilToDouble();
+        if (interval == 0) interval = 1;
+        if (maxY == 0) maxY = 10;
+
+        maxY = maxY + (maxY * 0.2);
+
+        double chartWidth = (countList.length * 60).toDouble();
+
+        /// Color palette
+        final colors = [
+          const Color(0xff4facfe),
+          const Color(0xff43e97b),
+          const Color(0xffff7a18),
+          const Color(0xfffa709a),
+          const Color(0xffa18cd1),
+        ];
+
+        return SizedBox(
+          height: 360,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: chartWidth < MediaQuery.of(context).size.width
+                  ? MediaQuery.of(context).size.width
+                  : chartWidth,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: maxY,
+                  borderData: FlBorderData(show: false),
+
+                  /// subtle grid
+                  gridData: FlGridData(
+                    show: true,
+                    horizontalInterval: interval,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.withOpacity(0.2),
+                        strokeWidth: 1,
+                      );
+                    },
+                  ),
+
+                  /// always show value
+                  barTouchData: BarTouchData(
+                    enabled: false,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (group) => Colors.transparent,
+                      tooltipPadding: EdgeInsets.zero,
+                      tooltipMargin: 6,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        return BarTooltipItem(
+                          rod.toY.toStringAsFixed(0),
+                          const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        interval: interval,
+                        getTitlesWidget: (value, meta) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Text(
+                              value.toInt().toString(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 45,
+                        interval: 1,
                         getTitlesWidget: (value, meta) {
                           int index = value.toInt();
                           if (index >= 0 && index < countList.length) {
-                            return Text(
-                              countList[index].name.toString(),
-                              style: const TextStyle(fontSize: 10),
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Text(
+                                countList[index].name.toString(),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             );
                           }
                           return const SizedBox();
@@ -1175,13 +1096,26 @@ class _DashboardContentState extends State<DashboardContent> {
                     double yValue =
                         double.tryParse(countList[index].value.toString()) ?? 0;
 
+                    final color = colors[index % colors.length];
+
                     return BarChartGroupData(
                       x: index,
+                      showingTooltipIndicators: const [0],
                       barRods: [
                         BarChartRodData(
                           toY: yValue,
-                          width: 18,
-                          borderRadius: BorderRadius.circular(4),
+                          width: 20,
+                          borderRadius: BorderRadius.circular(8),
+
+                          /// gradient bars
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              color,
+                              color.withOpacity(0.5),
+                            ],
+                          ),
                         ),
                       ],
                     );
@@ -1191,8 +1125,6 @@ class _DashboardContentState extends State<DashboardContent> {
             ),
           ),
         );
-
-
       },
     );
   }

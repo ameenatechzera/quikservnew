@@ -229,10 +229,10 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                             st_ExpenseTotal = state.dayCloseReport.expenseTotal;
                             st_CashBalance = state.dayCloseReport.cashBalance;
                             st_BankBalance = state.dayCloseReport.bankBalance;
-                            if (paymentList.summaryReport.isEmpty) {
-                              return const Center(
-                                  child: Text("No data found."));
-                            }
+                            // if (paymentList.summaryReport.isEmpty) {
+                            //   return const Center(
+                            //       child: Text("No data found."));
+                            // }
                             return ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
@@ -464,7 +464,7 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
 
                           if (state is ItemWiseDetailInitial) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                               );
                           }
                           else if (state is ItemDetailFailure) {
                             return Center(
@@ -478,7 +478,7 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                             final itemList = state.itemWisReport;
                             if (itemList.isEmpty) {
                               return const Center(
-                                  child: Text("No data found."));
+                                  child: Text(""));
                             }
                             else{
                               st_SalesTotalItemWise ='';
@@ -657,6 +657,14 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                           }
                         },
                       ),
+
+                      itemsList.isEmpty || summaryList.isEmpty
+                      ? const Center(
+                    child: Text("No data found."),
+                  )
+                      : Container(
+                    // your normal container content here
+                  )
                     ],
                   ),
                 );
