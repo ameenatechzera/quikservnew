@@ -17,8 +17,6 @@ class PrinterSettingsContent extends StatefulWidget {
 class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   String printerType = 'Wifi';
   String? paperSize = '2 inch';
-  String kotStatus ='0', st_printerType ='';
-  bool kotPrintEnabled =false;
 
   String companyNameFontSize = '';
   bool st_companyAdressStatus = false;
@@ -32,7 +30,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   final TextEditingController connectedDeviceController = TextEditingController(
     text: 'Not connected',
   );
-  final _kotStatusController = TextEditingController();
+
   final List<String> printerTypesList = ['Wifi', 'Bluetooth'];
   final List<String> blPrinterTypes = ['2 inch', '3 inch', 'No print'];
 
@@ -81,15 +79,6 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   Future<void> _initBluetooth() async {
     final prefs = await SharedPreferences.getInstance();
     final savedDevice = prefs.getString('bt_device_name') ?? '';
-    kotStatus = prefs.getString('KOT_status') ?? '';
-    printerType = prefs.getString('printerType') ?? '';
-    if(printerType.isEmpty){
-      printerType = 'Wifi';
-    }
-    print('kotStatus $kotStatus');
-    if(kotStatus=='1') {
-      kotPrintEnabled = true;
-    }
 
     if (savedDevice.isNotEmpty) {
       connectedDeviceController.text = savedDevice;
@@ -168,33 +157,6 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              Row(
-                children: [
-                  Checkbox(
-                    value: kotPrintEnabled,
-                    onChanged: (value) {
-
-                      setState(() {
-                        kotPrintEnabled = value ?? false;
-                      });
-                      if(kotPrintEnabled){
-                        kotStatus = '1';
-                      }
-                      else{
-                        kotStatus = '0';
-                      }
-                      _kotStatusController.text=kotStatus.toString();
-                      // widget.onKotChanged(kotPrintEnabled); // send value to parent
-                    },
-                  ),
-                  const Text(
-                    "Enable KOT Print",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
               _printSettingsCard(),
               _printerTypeCard(),
               printerType == 'Bluetooth' ? _bluetoothUi() : _wifiUi(),
@@ -513,20 +475,20 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           child: bluetoothDevices.isEmpty
               ? const Center(child: Text('No printers found'))
               : ListView.builder(
-            itemCount: bluetoothDevices.length,
-            itemBuilder: (context, i) {
-              final d = bluetoothDevices[i];
-              return ListTile(
-                leading: const Icon(Icons.bluetooth, color: Colors.blue),
-                title: Text(d.name),
-                subtitle: Text(d.macAdress),
-                trailing: IconButton(
-                  icon: const Icon(Icons.link, color: Color(0xFFFF8A00)),
-                  onPressed: () => _connectAndPrint(d.macAdress, d.name),
+                  itemCount: bluetoothDevices.length,
+                  itemBuilder: (context, i) {
+                    final d = bluetoothDevices[i];
+                    return ListTile(
+                      leading: const Icon(Icons.bluetooth, color: Colors.blue),
+                      title: Text(d.name),
+                      subtitle: Text(d.macAdress),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.link, color: Color(0xFFFF8A00)),
+                        onPressed: () => _connectAndPrint(d.macAdress, d.name),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -637,11 +599,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           Navigator.pop(context);
 
           print('paperSize $paperSize');
-          try {
-            await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
-          }catch(_){
-
-          }
+          await SharedPreferenceHelper().savePrinterType(printerType);
+          await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
           await SharedPreferenceHelper().saveCompanyNameFontSize(
             _companyFontSizeController.text.toString(),
           );
@@ -651,18 +610,12 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           await SharedPreferenceHelper().saveCompanyPhoneInPrintStatus(
             isPhoneEnabled,
           );
-          print('_kotStatusController ${_kotStatusController.text.toString()}');
-          await SharedPreferenceHelper().setKOTStatus(
-            _kotStatusController.text.toString(),
-          );
 
           await SharedPreferenceHelper().saveLogoHeight(logoHeight);
           await SharedPreferenceHelper().saveLogoWidth(logoWidth);
           await SharedPreferenceHelper().saveDescriptionPrint(
             _descriptionController.text.toString(),
           );
-          await SharedPreferenceHelper().savePrinterType(printerType);
-
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));
@@ -676,6 +629,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     paperSize = await (SharedPreferenceHelper().loadSelectedPrinterSize());
     companyNameFontSize = (await (SharedPreferenceHelper()
         .fetchCompanyNameFontSize()))!;
+    final loadedPrinterType = await SharedPreferenceHelper().fetchPrinterType();
+    if (loadedPrinterType != null && loadedPrinterType.isNotEmpty) {
+      printerType = loadedPrinterType;
+    }
     st_companyAdressStatus = (await SharedPreferenceHelper()
         .fetchCompanyAddressInPrintStatus())!;
     st_companyPhoneStatus = (await SharedPreferenceHelper()
@@ -691,6 +648,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     }
     logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
     logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
+    setState(() {});
   }
 }
 
@@ -698,8 +656,8 @@ Future<List<int>> _generateTicket() async {
   final profile = await CapabilityProfile.load();
   final generator = Generator(PaperSize.mm58, profile);
   return generator.text(
-    'Test Print',
-    styles: const PosStyles(align: PosAlign.center),
-  ) +
+        'Test Print',
+        styles: const PosStyles(align: PosAlign.center),
+      ) +
       generator.cut();
 }

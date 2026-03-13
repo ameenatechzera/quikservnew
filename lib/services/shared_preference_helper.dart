@@ -16,7 +16,6 @@ class SharedPreferenceHelper {
   static const _kBankLedgerId = 'bank_ledger_id';
 
   static const _kAppVersion = 'app_version';
-  static const _KOTStatus = 'KOT_status';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
 
   /// ------------------ BASE URL ------------------
@@ -140,7 +139,6 @@ class SharedPreferenceHelper {
     return prefs.getString('company_phone');
   }
 
-
   /// ------------------ setStaffName ------------------
   Future<bool> setStaffName(String staffName) async {
     final prefs = await SharedPreferences.getInstance();
@@ -207,7 +205,6 @@ class SharedPreferenceHelper {
     return prefs.getString("companyFontSize");
   }
 
-
   //Description
   Future<bool> saveDescriptionPrint(String description) async {
     final prefs = await SharedPreferences.getInstance();
@@ -245,17 +242,6 @@ class SharedPreferenceHelper {
   Future<bool> saveLogoWidth(double logoWidth) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.setDouble("logoWidth", logoWidth);
-  }
-
-  //Printer Type
-  Future<bool> savePrinterType(String printerType) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.setString("printerType", printerType);
-  }
-
-  Future<String?> getPrinterType() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("printerType");
   }
 
   Future<double?> fetchLogoWidth() async {
@@ -392,12 +378,6 @@ class SharedPreferenceHelper {
     await prefs.setString(_kAppVersion, value);
   }
 
-  Future<void> setKOTStatus(String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_KOTStatus, value);
-  }
-
-
   // Optional getters
   Future<String> getCashLedgerId() async {
     final prefs = await SharedPreferences.getInstance();
@@ -419,8 +399,13 @@ class SharedPreferenceHelper {
     return prefs.getString(_kAppVersion) ?? '';
   }
 
-  Future<String> getKOTStatus() async {
+  Future<void> savePrinterType(String value) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_KOTStatus) ?? '';
+    await prefs.setString('printer_type', value);
+  }
+
+  Future<String> fetchPrinterType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('printer_type') ?? 'Wifi';
   }
 }
