@@ -25,7 +25,7 @@ class SavePrinterSettingsRequest extends Equatable {
   final String kitchenPrinter;
   static const String kitchenPrinterKey = "kitchenPrinter";
 
-  final int kitchenPrintStatus;
+  final String kitchenPrintStatus;
   static const String kitchenPrintStatusKey = "KitchenPrintStatus";
 
   final String paperSize;
@@ -46,7 +46,7 @@ class SavePrinterSettingsRequest extends Equatable {
     String? ipAddressWithPort,
     String? mainPrinter,
     String? kitchenPrinter,
-    int? kitchenPrintStatus,
+    String? kitchenPrintStatus,
     String? paperSize,
     String? printFooterText,
     int? branchId,
@@ -71,7 +71,7 @@ class SavePrinterSettingsRequest extends Equatable {
       ipAddressWithPort: json["IpAddress_withPort"] ?? "",
       mainPrinter: json["mainPrinter"] ?? "",
       kitchenPrinter: json["kitchenPrinter"] ?? "",
-      kitchenPrintStatus: json["KitchenPrintStatus"] ?? 0,
+      kitchenPrintStatus: json["KitchenPrintStatus"] ?? "",
       paperSize: json["paperSize"] ?? "",
       printFooterText: json["printFooterText"] ?? "",
       branchId: json["branchId"] ?? 0,

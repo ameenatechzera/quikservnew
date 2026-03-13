@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
+import 'package:quikservnew/features/settings/domain/parameters/savePrinterSettingsRequest.dart';
+import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrinterSettingsContent extends StatefulWidget {
-  final String companyName;
+  final String companyName ;
   const PrinterSettingsContent({super.key, required this.companyName});
 
   @override
@@ -17,7 +20,8 @@ class PrinterSettingsContent extends StatefulWidget {
 class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   String printerType = 'Wifi';
   String? paperSize = '2 inch';
-
+  String kotStatus ='0', st_printerType ='';
+  bool kotPrintEnabled =false;
   String companyNameFontSize = '';
   bool st_companyAdressStatus = false;
   bool st_companyPhoneStatus = false;
@@ -35,7 +39,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   final List<String> blPrinterTypes = ['2 inch', '3 inch', 'No print'];
 
   //print settings
-
+  final _kotStatusController = TextEditingController();
   final _companyNameController = TextEditingController();
   final _descriptionController = TextEditingController();
   //final _phoneController = TextEditingController();
@@ -79,7 +83,15 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   Future<void> _initBluetooth() async {
     final prefs = await SharedPreferences.getInstance();
     final savedDevice = prefs.getString('bt_device_name') ?? '';
-
+    kotStatus = prefs.getString('KOT_status') ?? '';
+    printerType = prefs.getString('printerType') ?? '';
+    if(printerType.isEmpty){
+      printerType = 'Wifi';
+    }
+    print('kotStatus $kotStatus');
+    if(kotStatus=='1') {
+      kotPrintEnabled = true;
+    }
     if (savedDevice.isNotEmpty) {
       connectedDeviceController.text = savedDevice;
     }
@@ -157,6 +169,33 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
         body: SingleChildScrollView(
           child: Column(
             children: [
+              Row(
+                children: [
+                  Checkbox(
+                    value: kotPrintEnabled,
+                    onChanged: (value) {
+
+                      setState(() {
+                        kotPrintEnabled = value ?? false;
+                      });
+                      if(kotPrintEnabled){
+                        kotStatus = '1';
+                      }
+                      else{
+                        kotStatus = '0';
+                      }
+                      _kotStatusController.text=kotStatus.toString();
+                      // widget.onKotChanged(kotPrintEnabled); // send value to parent
+                    },
+                  ),
+                  const Text(
+                    "Enable KOT Print",
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
               _printSettingsCard(),
               _printerTypeCard(),
               printerType == 'Bluetooth' ? _bluetoothUi() : _wifiUi(),
@@ -604,6 +643,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           await SharedPreferenceHelper().saveCompanyNameFontSize(
             _companyFontSizeController.text.toString(),
           );
+          await SharedPreferenceHelper().setKOTStatus(
+            _kotStatusController.text.toString(),
+          );
+          await SharedPreferenceHelper().savePrinterType(printerType);
           await SharedPreferenceHelper().saveCompanyAddressInPrintStatus(
             isAddressEnabled,
           );
@@ -616,6 +659,18 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           await SharedPreferenceHelper().saveDescriptionPrint(
             _descriptionController.text.toString(),
           );
+          context
+              .read<SettingsCubit>()
+              .savePrinterSettingsToServer(
+              SavePrinterSettingsRequest(
+
+                  printType: printerType,
+
+                  mainPrinter: '',
+                  kitchenPrinter: _kotStatusController.text.toString(),
+                  paperSize: '',
+                  kitchenPrintStatus: _kotStatusController.text.toString(), printFooterText:"",
+                  ipAddressWithPort: '', branchId: 1, createdUser: 1));
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));
