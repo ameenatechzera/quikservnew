@@ -203,15 +203,15 @@ class _HomeScreenState extends State<HomeScreen>
       final lastApiCall = prefs.getString('subscription_api_last_called');
 
       //if (lastApiCall != todayKey) {
-        final code = await SharedPreferenceHelper().getSubscriptionCode();
+      final code = await SharedPreferenceHelper().getSubscriptionCode();
 
-        if (code.isNotEmpty) {
-          await context.read<RegisterCubit>().registerServer(
-            RegisterServerRequest(slno: code),
-          );
-        }
+      if (code.isNotEmpty) {
+        await context.read<RegisterCubit>().registerServer(
+          RegisterServerRequest(slno: code),
+        );
+      }
 
-        await prefs.setString('subscription_api_last_called', todayKey);
+      await prefs.setString('subscription_api_last_called', todayKey);
       //}
 
       // ✅ Get expiry from your SharedPreferenceHelper
@@ -2311,119 +2311,130 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: const AppScrollBehavior(),
-      child: Scaffold(
-        // backgroundColor: AppColors.theme,
-        // appBar: AppBar(toolbarHeight: 20, backgroundColor: AppColors.theme),
-        resizeToAvoidBottomInset: false,
-        body: SafeArea(
-          child: BlocListener<ProductCubit, ProductsState>(
-            listener: (context, state) {
-              if (state is SaveProductSuccess || state is ProductSuccess) {
-                context.read<ProductCubit>().loadProductsFromLocal();
-              }
-            },
-            child: Stack(
-              children: [
-                // ADD THIS - App bar that stays during transition
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 40,
-                  // MediaQuery.of(context).padding.top + 40, // App bar height
-                  child: Container(
-                    color: AppColors.theme, // Same as your screen color
-                  ),
-                ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 320),
-                  reverseDuration: const Duration(milliseconds: 280),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, animation) {
-                    final bool isForward = _currentTabIndex > _previousTabIndex;
-
-                    final beginOffset = isForward
-                        ? const Offset(0.12, 0)
-                        : const Offset(-0.12, 0);
-                    final endOffset = isForward
-                        ? const Offset(-0.12, 0)
-                        : const Offset(0.12, 0);
-
-                    final inSlide = Tween<Offset>(
-                      begin: beginOffset,
-                      end: Offset.zero,
-                    ).animate(animation);
-                    final outSlide = Tween<Offset>(
-                      begin: Offset.zero,
-                      end: endOffset,
-                    ).animate(animation);
-
-                    // AnimatedSwitcher uses the same animation for both incoming/outgoing.
-                    // We detect which child is incoming by checking its key.
-                    final bool isIncoming =
-                        (child.key == ValueKey(_currentTabIndex));
-
-                    final slideAnim = isIncoming ? inSlide : outSlide;
-
-                    final fade = CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOut,
-                    );
-
-                    return FadeTransition(
-                      opacity: fade,
-                      child: SlideTransition(position: slideAnim, child: child),
-                    );
-                  },
-                  child: KeyedSubtree(
-                    key: ValueKey(
-                      _currentTabIndex,
-                    ), // ✅ IMPORTANT: key by tab index
-                    child: _currentTabIndex == 0
-                        ? _buildSalesContent()
-                        : _currentTabIndex == 1
-                        ? const DashboardContent()
-                        : SettingsScreen(),
-                  ),
-                ),
-
-                // ✅ BOTTOM BAR (unchanged)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: MediaQuery.removeViewInsets(
-                    context: context,
-                    removeBottom: true,
-                    child: CommomBottomBar(
-                      currentTabIndex: _currentTabIndex,
-                      onTabChanged: _switchTab,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await _handleBackButton();
+      },
+      child: ScrollConfiguration(
+        behavior: const AppScrollBehavior(),
+        child: Scaffold(
+          // backgroundColor: AppColors.theme,
+          // appBar: AppBar(toolbarHeight: 20, backgroundColor: AppColors.theme),
+          resizeToAvoidBottomInset: false,
+          body: SafeArea(
+            child: BlocListener<ProductCubit, ProductsState>(
+              listener: (context, state) {
+                if (state is SaveProductSuccess || state is ProductSuccess) {
+                  context.read<ProductCubit>().loadProductsFromLocal();
+                }
+              },
+              child: Stack(
+                children: [
+                  // ADD THIS - App bar that stays during transition
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 40,
+                    // MediaQuery.of(context).padding.top + 40, // App bar height
+                    child: Container(
+                      color: AppColors.theme, // Same as your screen color
                     ),
                   ),
-                ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 320),
+                    reverseDuration: const Duration(milliseconds: 280),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) {
+                      final bool isForward =
+                          _currentTabIndex > _previousTabIndex;
 
-                // ✅ CART BAR ONLY FOR HOME
-                if (_currentTabIndex == 0)
-                  ValueListenableBuilder<bool>(
-                    valueListenable: showCartBar,
-                    builder: (context, visible, _) {
-                      if (!visible) return const SizedBox();
-                      return Positioned(
-                        left: 20,
-                        right: 20,
-                        bottom: 80,
-                        child: MediaQuery.removeViewInsets(
-                          context: context,
-                          removeBottom: true,
-                          child: cartBottomBar(context),
+                      final beginOffset = isForward
+                          ? const Offset(0.12, 0)
+                          : const Offset(-0.12, 0);
+                      final endOffset = isForward
+                          ? const Offset(-0.12, 0)
+                          : const Offset(0.12, 0);
+
+                      final inSlide = Tween<Offset>(
+                        begin: beginOffset,
+                        end: Offset.zero,
+                      ).animate(animation);
+                      final outSlide = Tween<Offset>(
+                        begin: Offset.zero,
+                        end: endOffset,
+                      ).animate(animation);
+
+                      // AnimatedSwitcher uses the same animation for both incoming/outgoing.
+                      // We detect which child is incoming by checking its key.
+                      final bool isIncoming =
+                          (child.key == ValueKey(_currentTabIndex));
+
+                      final slideAnim = isIncoming ? inSlide : outSlide;
+
+                      final fade = CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOut,
+                      );
+
+                      return FadeTransition(
+                        opacity: fade,
+                        child: SlideTransition(
+                          position: slideAnim,
+                          child: child,
                         ),
                       );
                     },
+                    child: KeyedSubtree(
+                      key: ValueKey(
+                        _currentTabIndex,
+                      ), // ✅ IMPORTANT: key by tab index
+                      child: _currentTabIndex == 0
+                          ? _buildSalesContent()
+                          : _currentTabIndex == 1
+                          ? const DashboardContent()
+                          : SettingsScreen(),
+                    ),
                   ),
-              ],
+
+                  // ✅ BOTTOM BAR (unchanged)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: MediaQuery.removeViewInsets(
+                      context: context,
+                      removeBottom: true,
+                      child: CommomBottomBar(
+                        currentTabIndex: _currentTabIndex,
+                        onTabChanged: _switchTab,
+                      ),
+                    ),
+                  ),
+
+                  // ✅ CART BAR ONLY FOR HOME
+                  if (_currentTabIndex == 0)
+                    ValueListenableBuilder<bool>(
+                      valueListenable: showCartBar,
+                      builder: (context, visible, _) {
+                        if (!visible) return const SizedBox();
+                        return Positioned(
+                          left: 20,
+                          right: 20,
+                          bottom: 80,
+                          child: MediaQuery.removeViewInsets(
+                            context: context,
+                            removeBottom: true,
+                            child: cartBottomBar(context),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -2507,6 +2518,144 @@ class _HomeScreenState extends State<HomeScreen>
 
     if (await Permission.location.isDenied) {
       await Permission.location.request();
+    }
+  }
+
+  Future<bool> _showCloseConfirmationDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.exit_to_app_rounded,
+                  size: 38,
+                  color: AppColors.primary,
+                ),
+
+                const SizedBox(height: 12),
+
+                const Text(
+                  "Exit Application",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  "Are you sure you want to exit the app?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                ),
+
+                const SizedBox(height: 22),
+
+                Row(
+                  children: [
+                    /// Cancel
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: Colors.grey),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(dialogContext, false);
+                        },
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    /// Exit
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(dialogContext, true);
+                        },
+                        child: const Text(
+                          "Exit",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+  // Future<bool> _showCloseConfirmationDialog() async {
+  //   final result = await showDialog<bool>(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (dialogContext) {
+  //       return AlertDialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(16),
+  //         ),
+  //         title: const Text("Exit App"),
+  //         content: const Text("Are you sure you want to exit the app?"),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(dialogContext).pop(false);
+  //             },
+  //             child: const Text("No"),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(dialogContext).pop(true);
+  //             },
+  //             child: const Text("Yes"),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+
+  //   return result ?? false;
+  // }
+
+  Future<void> _handleBackButton() async {
+    final shouldClose = await _showCloseConfirmationDialog();
+    if (shouldClose) {
+      SystemNavigator.pop();
     }
   }
 }

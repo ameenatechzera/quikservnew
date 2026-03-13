@@ -139,7 +139,6 @@ class SharedPreferenceHelper {
     return prefs.getString('company_phone');
   }
 
-
   /// ------------------ setStaffName ------------------
   Future<bool> setStaffName(String staffName) async {
     final prefs = await SharedPreferences.getInstance();
@@ -205,7 +204,6 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("companyFontSize");
   }
-
 
   //Description
   Future<bool> saveDescriptionPrint(String description) async {
@@ -399,5 +397,15 @@ class SharedPreferenceHelper {
   Future<String> getAppVersion() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_kAppVersion) ?? '';
+  }
+
+  Future<void> savePrinterType(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('printer_type', value);
+  }
+
+  Future<String> fetchPrinterType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('printer_type') ?? 'Wifi';
   }
 }

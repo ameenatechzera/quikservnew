@@ -599,6 +599,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           Navigator.pop(context);
 
           print('paperSize $paperSize');
+          await SharedPreferenceHelper().savePrinterType(printerType);
           await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
           await SharedPreferenceHelper().saveCompanyNameFontSize(
             _companyFontSizeController.text.toString(),
@@ -628,6 +629,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     paperSize = await (SharedPreferenceHelper().loadSelectedPrinterSize());
     companyNameFontSize = (await (SharedPreferenceHelper()
         .fetchCompanyNameFontSize()))!;
+    final loadedPrinterType = await SharedPreferenceHelper().fetchPrinterType();
+    if (loadedPrinterType != null && loadedPrinterType.isNotEmpty) {
+      printerType = loadedPrinterType;
+    }
     st_companyAdressStatus = (await SharedPreferenceHelper()
         .fetchCompanyAddressInPrintStatus())!;
     st_companyPhoneStatus = (await SharedPreferenceHelper()
@@ -643,6 +648,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     }
     logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
     logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
+    setState(() {});
   }
 }
 

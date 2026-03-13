@@ -58,6 +58,7 @@ dependencies:
   shimmer: ^3.0.0
   device_info_plus: ^10.1.0
   fl_chart: ^1.1.1
+  url_launcher: 6.1.12
 
 
 dev_dependencies:
