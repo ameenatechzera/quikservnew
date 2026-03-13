@@ -21,12 +21,30 @@ final class FetchSalesCountGraphLoading extends SettingsState {}
 
 final class FetchCustomSalesGraphLoading extends SettingsState {}
 
+class SavePrinterSettingsInitial extends SettingsState {}
+
 class SettingsLoaded extends SettingsState {
   final FetchSettingsResponseModel settings;
 
   const SettingsLoaded({required this.settings});
 }
+class savePrinterSettingsError extends SettingsState {
+  final String error;
 
+  savePrinterSettingsError(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
+
+class PrinterSettingsSaved extends SettingsState {
+  final PrinterSettingsSaveResult printersSaveResult;
+
+  PrinterSettingsSaved(this.printersSaveResult);
+
+  @override
+  List<Object> get props => [printersSaveResult];
+}
 class SettingsError extends SettingsState {
   final String error;
 

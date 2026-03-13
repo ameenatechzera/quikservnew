@@ -1,4 +1,4 @@
-package com.example.quikservnew
+package com.techzera.quikserv
 
 import io.flutter.embedding.android.FlutterActivity
 

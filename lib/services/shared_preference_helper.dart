@@ -16,6 +16,7 @@ class SharedPreferenceHelper {
   static const _kBankLedgerId = 'bank_ledger_id';
 
   static const _kAppVersion = 'app_version';
+  static const _KOTStatus = 'KOT_status';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
 
   /// ------------------ BASE URL ------------------
@@ -246,6 +247,17 @@ class SharedPreferenceHelper {
     return prefs.setDouble("logoWidth", logoWidth);
   }
 
+  //Printer Type
+  Future<bool> savePrinterType(String printerType) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("printerType", printerType);
+  }
+
+  Future<String?> getPrinterType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("printerType");
+  }
+
   Future<double?> fetchLogoWidth() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getDouble("logoWidth");
@@ -380,6 +392,12 @@ class SharedPreferenceHelper {
     await prefs.setString(_kAppVersion, value);
   }
 
+  Future<void> setKOTStatus(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_KOTStatus, value);
+  }
+
+
   // Optional getters
   Future<String> getCashLedgerId() async {
     final prefs = await SharedPreferences.getInstance();
@@ -399,5 +417,10 @@ class SharedPreferenceHelper {
   Future<String> getAppVersion() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_kAppVersion) ?? '';
+  }
+
+  Future<String> getKOTStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_KOTStatus) ?? '';
   }
 }

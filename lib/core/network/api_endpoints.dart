@@ -255,4 +255,9 @@ class ApiConstants {
   }
 
 
+  static String fetchSavePrinterSettingsPath(String baseUrl) {
+    return '$baseUrl/settings/save-printerSettings';
+  }
+
+
 }

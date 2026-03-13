@@ -9,6 +9,7 @@ import 'package:quikservnew/features/settings/data/models/fetch_settings_model.d
 import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/commonResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/printerSaveResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/salesCountGraphResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/weeklyGraphReportResult.dart';
@@ -16,6 +17,7 @@ import 'package:quikservnew/features/settings/domain/parameters/account_settings
 import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/savePrinterSettingsRequest.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
@@ -140,6 +142,19 @@ class SettingsRepositoryImpl implements SettingsRepository {
     try {
       final result = await remoteDataSource.fetchCustomSalesGraph(params);
       print('📊 API Response: ${result.toJson()}');
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<PrinterSettingsSaveResult> savePrinterSettingsToServer(SavePrinterSettingsRequest savePrinterSettingsRequest) async {
+    try {
+      final result = await remoteDataSource
+          .savePrinterSettings(savePrinterSettingsRequest);
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(failure.errorMessageModel.statusMessage));

@@ -249,6 +249,10 @@ class _LoginScreenState extends State<LoginScreen> {
               await SharedPreferenceHelper().setAppVersion(
                 (settings.appVersion ?? '').toString(),
               );
+              print('KOT Status ${settings.isKOT}');
+              await SharedPreferenceHelper().setKOTStatus(
+                (settings.isKOT ?? '').toString(),
+              );
               final storedVatStatus = await SharedPreferenceHelper()
                   .getVatStatus();
               final storedVatType = await SharedPreferenceHelper().getVatType();

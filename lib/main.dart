@@ -44,7 +44,7 @@ void main() async {
   final currentBaseUrl = await sharedPrefHelper.getBaseUrl();
   if (currentBaseUrl == null) {
     await sharedPrefHelper.setBaseUrl(
-      'https://techzera.in/quikSERV_Api/public/api',
+      'https://test.quikserv.app/Api/public/api',
     );
   }
   runApp(MyApp());
