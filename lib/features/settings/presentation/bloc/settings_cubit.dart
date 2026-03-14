@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/printerSaveResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/salesCountGraphResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
@@ -13,6 +14,7 @@ import 'package:quikservnew/features/settings/domain/parameters/account_settings
 import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/savePrinterSettingsRequest.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchCurrenSalesTokenUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchCustomSalesAmountGraphUseCase.dart';
 
@@ -21,6 +23,7 @@ import 'package:quikservnew/features/settings/domain/usecases/fetchMonthlyGraphR
 import 'package:quikservnew/features/settings/domain/usecases/fetchSalesCountGraphUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchWeeklyGraphReportUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/savePrinterSettingsUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/updatesalesTokenUseCase.dart';
 
@@ -34,6 +37,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final FetchMonthlyGraphReportUseCase _fetchMonthlyGraphReportUseCase;
   final FetchSalesCountGraphReportUseCase _fetchSalesCountGraphReportUseCase;
   final FetchCustomSalesAmountGraphReportUseCase _fetchCustomSalesAmountGraphReportUseCase;
+  final SavePrinterSettingsUseCase _savePrinterSettingsUseCase;
 
   SettingsCubit({
     required FetchSettingsUseCase fetchSettingsUseCase,
@@ -42,7 +46,8 @@ class SettingsCubit extends Cubit<SettingsState> {
     required SaveAccountSettingsUseCase saveAccountSettingsUseCase,
     required FetchMonthlyGraphReportUseCase fetchMonthlyGraphReportUseCase,
     required FetchSalesCountGraphReportUseCase fetchSalesCountGraphReportUseCase,
-    required FetchCustomSalesAmountGraphReportUseCase fetchCustomSalesAmountGraphReportUseCase
+    required FetchCustomSalesAmountGraphReportUseCase fetchCustomSalesAmountGraphReportUseCase,
+    required SavePrinterSettingsUseCase savePrinterSettingsUseCase
   }) : _fetchSettingsUseCase = fetchSettingsUseCase,
        _fetchCurrentSalesTokenUseCase = fetchCurrentSalesTokenUseCase,
        _updateSalesTokenUseCase = updateSalesTokenUseCase,
@@ -50,6 +55,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         _fetchMonthlyGraphReportUseCase = fetchMonthlyGraphReportUseCase,
         _fetchSalesCountGraphReportUseCase = fetchSalesCountGraphReportUseCase,
         _fetchCustomSalesAmountGraphReportUseCase = fetchCustomSalesAmountGraphReportUseCase,
+        _savePrinterSettingsUseCase = savePrinterSettingsUseCase,
        super(SettingsInitial());
 
   Future<void> fetchSettings() async {
@@ -62,7 +68,25 @@ class SettingsCubit extends Cubit<SettingsState> {
       (response) => emit(SettingsLoaded(settings: response)),
     );
   }
+  Future<void> savePrinterSettingsToServer(SavePrinterSettingsRequest savePrinterSettingsRequest) async {
+    print('savePrinterSettingsRequest ${savePrinterSettingsRequest.toJson()}');
+    emit(SavePrinterSettingsInitial());
+    try {
+      final response =
+      await _savePrinterSettingsUseCase(savePrinterSettingsRequest);
+      response.fold(
+            (failure) {
+          emit(savePrinterSettingsError(failure.message));
+        },
+            (success) {
 
+          emit(PrinterSettingsSaved(success));
+        },
+      );
+    } catch (e) {
+      emit(savePrinterSettingsError('An error occurred: $e'));
+    }
+  }
   Future<void> printSelection(String st_PrintType) async {
     emit(PrintTypeSelected(st_PrintType));
   }

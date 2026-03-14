@@ -143,6 +143,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
 
       print('🔹 Fetch Sales Report by Date URL: $url');
       print('🔹 DB Name: $dbName');
+      print('SalesReportMasterByDateRequest ${request.toJson()}');
       print('🔹 Token exists: ${token.isNotEmpty}');
       print('🔹 Token : ${token}');
 

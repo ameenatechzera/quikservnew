@@ -90,7 +90,8 @@ class _PrintPageState extends State<PrintPage> {
   double logoWidth = 0;
   double logoHeight = 0;
   String description = '';
-
+  String kotStatus ='';
+  bool kotPrintEnabled =false;
   @override
   void initState() {
     _statusTextController.text = '';
@@ -821,9 +822,11 @@ class _PrintPageState extends State<PrintPage> {
       final ticket = await _generateTicket();
 
       final result = await PrintBluetoothThermal.writeBytes(ticket);
+      if(kotPrintEnabled){
       await Future.delayed(const Duration(seconds: 2));
       final kitchenTicket = await _generateKitchenPrintFromSales();
       await sendBytesInChunks(kitchenTicket);
+      }
       //PrintBluetoothThermal.disconnect;
       print('resultPrint $result');
       context.read<SalesReportCubit>().saleSaveFinished(1);
@@ -857,90 +860,104 @@ class _PrintPageState extends State<PrintPage> {
       body: Container(
         color: Colors.white,
         child: Column(
+
           children: [
-            Visibility(
-              visible: deviceListStatus,
-              child: Container(
-                color: Colors.white,
-                height: dbl_bluetoothList,
+             Center(
+              child: Lottie.asset(
+                'assets/success_animation.json',
                 width: double.infinity,
-                child: ListView.builder(
-                  itemCount: availableBluetoothDevices.length,
-                  itemBuilder: (context, index) {
-                    final device = availableBluetoothDevices[index];
-                    return ListTile(
-                      title: Text(device.name ?? 'Unknown'),
-                      subtitle: Text(device.macAdress ?? ''),
-                      onTap: () async {
-                        if (device.macAdress != null) {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setString(
-                            'bt_device_name',
-                            device!.name.toString(),
-                          );
-                          await prefs.setString(
-                            'bt_device_mac',
-                            device!.macAdress.toString(),
-                          );
-                          // SharedPrefrence()
-                          //     .setBluetoothMacAddress(device!.macAdress.toString());
-                          // SharedPrefrence()
-                          //     .setBluetoothDevice(device!.name.toString());
-                          // _connectAndPrint(device.macAdress!);
-                        }
-                      },
-                    );
-                  },
-                ),
+                height: 500,
+                fit: BoxFit.contain,
+
               ),
             ),
-            Visibility(
-              visible: salesCase,
-              child: Container(
-                width: double.infinity,
-                height: dbl_paymentSuccess,
-                color: Colors.white,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: Lottie.asset('assets/success_animation.json'),
-                    ),
-                    // Add your animation file here
-                    const SizedBox(height: 20),
-                    const Visibility(
-                      visible: true,
-                      child: Text(
-                        'Payment Successful!',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Visibility(
-              visible: salesReportCase,
-              child: Visibility(
-                child: Container(
-                  width: double.infinity,
-                  height: 500,
-                  color: Colors.white,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        _statusTextController.text,
-                        style: TextStyle(color: Colors.black, fontSize: 22),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Container(color: Colors.red,
+            //   width: double.infinity,
+            //   height: 500)
+
+            // Visibility(
+            //   visible: deviceListStatus,
+            //   child: Container(
+            //     color: Colors.white,
+            //     height: dbl_bluetoothList,
+            //     width: double.infinity,
+            //     child: ListView.builder(
+            //       itemCount: availableBluetoothDevices.length,
+            //       itemBuilder: (context, index) {
+            //         final device = availableBluetoothDevices[index];
+            //         return ListTile(
+            //           title: Text(device.name ?? 'Unknown'),
+            //           subtitle: Text(device.macAdress ?? ''),
+            //           onTap: () async {
+            //             if (device.macAdress != null) {
+            //               final prefs = await SharedPreferences.getInstance();
+            //               await prefs.setString(
+            //                 'bt_device_name',
+            //                 device!.name.toString(),
+            //               );
+            //               await prefs.setString(
+            //                 'bt_device_mac',
+            //                 device!.macAdress.toString(),
+            //               );
+            //               // SharedPrefrence()
+            //               //     .setBluetoothMacAddress(device!.macAdress.toString());
+            //               // SharedPrefrence()
+            //               //     .setBluetoothDevice(device!.name.toString());
+            //               // _connectAndPrint(device.macAdress!);
+            //             }
+            //           },
+            //         );
+            //       },
+            //     ),
+            //   ),
+            // ),
+            // Visibility(
+            //   visible: salesCase,
+            //   child: Container(
+            //     width: double.infinity,
+            //     height: dbl_paymentSuccess,
+            //     color: Colors.white,
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: <Widget>[
+            //         Expanded(
+            //           child: Lottie.asset('assets/success_animation.json'),
+            //         ),
+            //         // Add your animation file here
+            //         const SizedBox(height: 20),
+            //         const Visibility(
+            //           visible: true,
+            //           child: Text(
+            //             'Payment Successful!',
+            //             style: TextStyle(
+            //               fontSize: 24,
+            //               fontWeight: FontWeight.bold,
+            //             ),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            // Visibility(
+            //   visible: salesReportCase,
+            //   child: Visibility(
+            //     child: Container(
+            //       width: double.infinity,
+            //       height: 500,
+            //       color: Colors.white,
+            //       child: Center(
+            //         child: Padding(
+            //           padding: const EdgeInsets.all(8.0),
+            //           child: Text(
+            //             _statusTextController.text,
+            //             style: TextStyle(color: Colors.black, fontSize: 22),
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             Visibility(
               visible: true,
               child: Container(
@@ -959,7 +976,20 @@ class _PrintPageState extends State<PrintPage> {
                     }
                   },
                   builder: (context, state) {
-                    return const Column(children: []);
+                    if (state is SaleFinishSuccess) {
+                     return Container();
+                    }
+                    else{
+                      return Center(
+                        child: Lottie.asset(
+                          'assets/success_animation.json',
+                          width: double.infinity,
+                          height: 500,
+                          fit: BoxFit.contain,
+
+                        ),
+                      );
+                    }
                   },
                 ),
               ),
@@ -2474,7 +2504,12 @@ class _PrintPageState extends State<PrintPage> {
   void checkBluetooth() async {
     final bluetoothState = await FlutterBluePlus.bondedDevices;
     double screenHeight = MediaQuery.of(context).size.height;
-
+    final prefs = await SharedPreferences.getInstance();
+    kotStatus = prefs.getString('KOT_status') ?? '';
+    print('kotStatus $kotStatus');
+    if(kotStatus=='1') {
+      kotPrintEnabled = true;
+    }
     if (bluetoothState.isEmpty) {
       setState(() {
         dbl_paymentSuccess = screenHeight;

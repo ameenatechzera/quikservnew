@@ -5,6 +5,7 @@ import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/data/models/monthlyGraphModel.dart';
+import 'package:quikservnew/features/settings/data/models/printSaveResultModel.dart';
 import 'package:quikservnew/features/settings/data/models/salesCountGraphModel.dart';
 import 'package:quikservnew/features/settings/data/models/weeklyGraphModel.dart';
 import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
@@ -18,6 +19,7 @@ import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.
 import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart'
     show UpdateSalesTokenRequest;
+import 'package:quikservnew/features/settings/domain/parameters/savePrinterSettingsRequest.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 abstract class SettingsRemoteDataSource {
@@ -43,7 +45,8 @@ abstract class SettingsRemoteDataSource {
   Future<MonthlyGraphReportResult> fetchCustomSalesGraph(
       CustomSalesGraphRequest request,
       );
-
+  Future<PrinterSettingsResultModel> savePrinterSettings(
+      SavePrinterSettingsRequest savePrinterSettings);
 
 }
 
@@ -478,6 +481,53 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
 
       if (response.statusCode == 200) {
         return MonthlyGraphModel.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e, stacktrace) {
+      print('❌ Exception in saveAccountSettings: $e');
+      print('Stacktrace: $stacktrace');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<PrinterSettingsResultModel> savePrinterSettings(SavePrinterSettingsRequest savePrinterSettings) async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
+      }
+      var url = ApiConstants.fetchSavePrinterSettingsPath(baseUrl);
+
+      print("🔹 Save Account Settings URL: $url");
+
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+
+      print("📤 Request Body: ${savePrinterSettings.toJson()}");
+
+      final response = await dio.post(
+        url,
+        data: savePrinterSettings.toJson(),
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+
+      print('🔹 Status Code: ${response.statusCode}');
+      print('🔹 Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return PrinterSettingsResultModel.fromJson(response.data);
       } else {
         throw ServerException(
           errorMessageModel: ErrorMessageModel.fromJson(response.data),

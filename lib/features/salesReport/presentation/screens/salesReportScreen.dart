@@ -56,7 +56,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   @override
   void dispose() {
-    _totalRecordsController.dispose();
+  //  _totalRecordsController.dispose();
    // _totalSalesController.dispose();
     super.dispose();
   }

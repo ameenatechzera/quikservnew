@@ -109,6 +109,7 @@ import 'package:quikservnew/features/settings/domain/usecases/fetchMonthlyGraphR
 import 'package:quikservnew/features/settings/domain/usecases/fetchSalesCountGraphUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetchWeeklyGraphReportUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/savePrinterSettingsUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/updatesalesTokenUseCase.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
@@ -307,7 +308,7 @@ class ServiceLocator {
         updateSalesTokenUseCase: sl(),
         saveAccountSettingsUseCase: sl(), fetchMonthlyGraphReportUseCase: sl(),
           fetchSalesCountGraphReportUseCase: sl(),
-          fetchCustomSalesAmountGraphReportUseCase: sl()
+          fetchCustomSalesAmountGraphReportUseCase: sl(), savePrinterSettingsUseCase: sl()
       ),
     );
 
@@ -327,6 +328,8 @@ class ServiceLocator {
     sl.registerLazySingleton(() => FetchMonthlyGraphReportUseCase(sl()));
     sl.registerLazySingleton(() => FetchSalesCountGraphReportUseCase(sl()));
     sl.registerLazySingleton(() => FetchCustomSalesAmountGraphReportUseCase(sl()));
+    sl.registerLazySingleton(() => SavePrinterSettingsUseCase(sl()));
+
 
 
     // Data Source

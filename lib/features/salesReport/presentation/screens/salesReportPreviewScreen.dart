@@ -227,7 +227,6 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
                                 ),
                                 onPressed: () {
                                   print('pressed');
-
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
