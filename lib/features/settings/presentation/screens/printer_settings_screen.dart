@@ -630,7 +630,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     companyNameFontSize = (await (SharedPreferenceHelper()
         .fetchCompanyNameFontSize()))!;
     final loadedPrinterType = await SharedPreferenceHelper().fetchPrinterType();
-    if (loadedPrinterType != null && loadedPrinterType.isNotEmpty) {
+    if (loadedPrinterType.isNotEmpty) {
       printerType = loadedPrinterType;
     }
     st_companyAdressStatus = (await SharedPreferenceHelper()

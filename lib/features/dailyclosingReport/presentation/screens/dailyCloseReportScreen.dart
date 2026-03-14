@@ -12,7 +12,6 @@ import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/item_b
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/widgets/report_row.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
-import 'package:quikservnew/features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
@@ -30,8 +29,9 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
   final TextEditingController toDateController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final ValueNotifier<bool> hasSelectedDate = ValueNotifier(false);
-  final ValueNotifier<DateTime> selectedDateNotifier =
-  ValueNotifier<DateTime>(DateTime.now());
+  final ValueNotifier<DateTime> selectedDateNotifier = ValueNotifier<DateTime>(
+    DateTime.now(),
+  );
   DateTime fromDate = DateTime.now();
 
   String st_branchId = '';
@@ -86,29 +86,28 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
               //   page: UnitCreationScreen(),
               // );
               String formatedDate = formatDateString(
-                  dateController.text.toString());
-
+                dateController.text.toString(),
+              );
 
               Future.delayed(Duration(seconds: 0), () {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => PrintPage(
-                        pageFrom: 'DailyClosingReport',
-                        expenseList: expenseList,
-                        summaryList: summaryList,
-                        itemsList: itemsList,
-                        cashBalance: st_CashBalance,
-                        bankBalance: st_BankBalance,
-                        expenseTotal: st_ExpenseTotal,
-                        salesTotal: st_salesTotal,
-                        itemWiseSalesTotal:
-                        st_SalesTotalItemWise,
-                        dailyCloseReportDate:
-                        formatedDate,
-                      )),
-                      (Route<dynamic> route) =>
-                  false, // removes all previous routes
+                    builder: (context) => PrintPage(
+                      pageFrom: 'DailyClosingReport',
+                      expenseList: expenseList,
+                      summaryList: summaryList,
+                      itemsList: itemsList,
+                      cashBalance: st_CashBalance,
+                      bankBalance: st_BankBalance,
+                      expenseTotal: st_ExpenseTotal,
+                      salesTotal: st_salesTotal,
+                      itemWiseSalesTotal: st_SalesTotalItemWise,
+                      dailyCloseReportDate: formatedDate,
+                    ),
+                  ),
+                  (Route<dynamic> route) =>
+                      false, // removes all previous routes
                 );
               });
             },
@@ -125,18 +124,21 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                 height: 50,
                 color: appThemeLightOrange,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 10),
-                child:
-                Row(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
                       onTap: () {
-                        final previous =
-                        selectedDate.subtract(const Duration(days: 1));
+                        final previous = selectedDate.subtract(
+                          const Duration(days: 1),
+                        );
                         selectedDateNotifier.value = previous;
-                        dateController.text =
-                            DateFormat('yyyy-MM-dd').format(previous);
+                        dateController.text = DateFormat(
+                          'yyyy-MM-dd',
+                        ).format(previous);
                         _onDateChanged(context);
                       },
                       child: const Icon(
@@ -160,11 +162,11 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
 
                     GestureDetector(
                       onTap: () {
-                        final next =
-                        selectedDate.add(const Duration(days: 1));
+                        final next = selectedDate.add(const Duration(days: 1));
                         selectedDateNotifier.value = next;
-                        dateController.text =
-                            DateFormat('yyyy-MM-dd').format(next);
+                        dateController.text = DateFormat(
+                          'yyyy-MM-dd',
+                        ).format(next);
                         _onDateChanged(context);
                       },
                       child: const Icon(
@@ -174,7 +176,7 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                       ),
                     ),
                   ],
-                )
+                ),
               );
             },
           ),
@@ -184,7 +186,8 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
               builder: (context, value, _) {
                 if (!value) {
                   return const Center(
-                      child: Text("Select a date to view the report."));
+                    child: Text("Select a date to view the report."),
+                  );
                 }
 
                 return SingleChildScrollView(
@@ -214,18 +217,21 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                           // }
                           if (state is DaycloseReportInitial) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           } else if (state is DayCloseReportFailure) {
-                            return Center(
-                                child: Text("Error: ${state.error}"));
+                            return Center(child: Text("Error: ${state.error}"));
                           } else if (state is DayCloseReportLoaded) {
-
                             final paymentList = state.dayCloseReport;
 
                             summaryList.clear();
-                            summaryList.addAll(state.dayCloseReport.summaryReport);
+                            summaryList.addAll(
+                              state.dayCloseReport.summaryReport,
+                            );
                             expenseList.clear();
-                            expenseList.addAll(state.dayCloseReport.expenseDetails);
+                            expenseList.addAll(
+                              state.dayCloseReport.expenseDetails,
+                            );
                             st_ExpenseTotal = state.dayCloseReport.expenseTotal;
                             st_CashBalance = state.dayCloseReport.cashBalance;
                             st_BankBalance = state.dayCloseReport.bankBalance;
@@ -239,31 +245,47 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                               itemCount: paymentList.summaryReport.length,
                               itemBuilder: (context, index) {
                                 double dbl_salesTotal = 0;
-                                final payment = paymentList.summaryReport[index];
-                                double dbl_creditAmt = 0,dbl_cashAmt =0 , cbl_cardAmt =0;
+                                final payment =
+                                    paymentList.summaryReport[index];
+                                double dbl_creditAmt = 0,
+                                    dbl_cashAmt = 0,
+                                    cbl_cardAmt = 0;
                                 try {
                                   dbl_creditAmt = double.parse(
-                                      payment.creditAmount);
+                                    payment.creditAmount,
+                                  );
                                   dbl_cashAmt = double.parse(
-                                      payment.cashAmount);
+                                    payment.cashAmount,
+                                  );
                                   cbl_cardAmt = double.parse(
-                                      payment.cardAmount);
-                                }catch(_){
-                                  print('null value salestotal parse conversion');
+                                    payment.cardAmount,
+                                  );
+                                } catch (_) {
+                                  print(
+                                    'null value salestotal parse conversion',
+                                  );
                                 }
                                 st_salesTotal = '';
-                                dbl_salesTotal = dbl_salesTotal + (dbl_creditAmt + dbl_cashAmt + cbl_cardAmt);
-                                st_salesTotal = dbl_salesTotal.toStringAsFixed(get_decimalpoints());
-
+                                dbl_salesTotal =
+                                    dbl_salesTotal +
+                                    (dbl_creditAmt + dbl_cashAmt + cbl_cardAmt);
+                                st_salesTotal = dbl_salesTotal.toStringAsFixed(
+                                  get_decimalpoints(),
+                                );
 
                                 return Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 8.0, right: 8),
+                                    left: 8.0,
+                                    right: 8,
+                                  ),
                                   child: Card(
-                                      elevation: 5,
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 6, horizontal: 6),
-                                      child: Column(children: [
+                                    elevation: 5,
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 6,
+                                    ),
+                                    child: Column(
+                                      children: [
                                         Container(
                                           height: 40,
                                           decoration: const BoxDecoration(
@@ -280,34 +302,36 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                             ),
                                             child: Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 const Text(
                                                   'Sales Total',
                                                   style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                      FontWeight.bold),
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                                 Text(
                                                   st_salesTotal,
                                                   style: const TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold),
-                                                )
+                                                    fontSize: 18,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),
                                         ),
                                         Column(
                                           mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .spaceBetween,
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.all(4.0),
+                                              padding: const EdgeInsets.all(
+                                                4.0,
+                                              ),
                                               child: LabelAmountRow(
                                                 title: 'Cash',
                                                 amount: payment.cashAmount,
@@ -316,18 +340,24 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                             height10,
 
                                             Padding(
-                                              padding: const EdgeInsets.all(4.0),
+                                              padding: const EdgeInsets.all(
+                                                4.0,
+                                              ),
                                               child: LabelAmountRow(
-                                                  title: 'Card',
-                                                  amount: payment.cardAmount),
+                                                title: 'Card',
+                                                amount: payment.cardAmount,
+                                              ),
                                             ),
                                             height10,
 
                                             Padding(
-                                              padding: const EdgeInsets.all(4.0),
+                                              padding: const EdgeInsets.all(
+                                                4.0,
+                                              ),
                                               child: LabelAmountRow(
-                                                  title: 'Credit',
-                                                  amount: payment.creditAmount),
+                                                title: 'Credit',
+                                                amount: payment.creditAmount,
+                                              ),
                                             ),
                                             //  height10,
                                             // const Divider(),
@@ -342,113 +372,140 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                               ),
                                               child: Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .start,
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   const Padding(
-                                                    padding: EdgeInsets.all(4.0),
+                                                    padding: EdgeInsets.all(
+                                                      4.0,
+                                                    ),
                                                     child: Text(
                                                       ' Expense Total',
                                                       style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                          FontWeight
-                                                              .bold),
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
                                                     ),
                                                   ),
                                                   Padding(
-                                                    padding: const EdgeInsets.all(4.0),
-                                                    child: Text(st_ExpenseTotal,
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                            FontWeight
-                                                                .bold,
-                                                            fontSize: 18)),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          4.0,
+                                                        ),
+                                                    child: Text(
+                                                      st_ExpenseTotal,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ),
                                             ListView.builder(
                                               shrinkWrap: true,
-                                              physics: const NeverScrollableScrollPhysics(),
-                                              itemCount: paymentList.expenseDetails.length,
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              itemCount: paymentList
+                                                  .expenseDetails
+                                                  .length,
                                               itemBuilder: (BuildContext context, int index) {
-                                                final expense = paymentList.expenseDetails[index];
+                                                final expense = paymentList
+                                                    .expenseDetails[index];
                                                 return Container(
                                                   //height: 40,
                                                   decoration: const BoxDecoration(
                                                     //color: appThemeLightOrange,
-                                                    borderRadius: BorderRadius.only(
-                                                      topLeft: Radius.circular(10),
-                                                      topRight: Radius.circular(10),
-                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                10,
+                                                              ),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
                                                   ),
                                                   child: Column(
                                                     children: [
-
                                                       height5,
 
                                                       Padding(
-                                                        padding: const EdgeInsets.all(4.0),
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              4.0,
+                                                            ),
                                                         child: LabelAmountRow(
-                                                            title: expense.ledgerName,
-                                                            amount: expense.amount),
+                                                          title: expense
+                                                              .ledgerName,
+                                                          amount:
+                                                              expense.amount,
+                                                        ),
                                                       ),
                                                       height5,
-
                                                     ],
                                                   ),
                                                 );
                                               },
-
                                             ),
                                             const Padding(
                                               padding: EdgeInsets.all(4.0),
                                               child: Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .center,
+                                                    MainAxisAlignment.center,
                                                 crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .start,
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     'Balance',
                                                     style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: Colors.red,
-                                                        fontWeight:
-                                                        FontWeight
-                                                            .bold),
+                                                      fontSize: 18,
+                                                      color: Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            // height5,
 
+                                            // height5,
                                             Padding(
-                                              padding: const EdgeInsets.only(left: 4.0,right: 4.0,bottom: 4.0),
+                                              padding: const EdgeInsets.only(
+                                                left: 4.0,
+                                                right: 4.0,
+                                                bottom: 4.0,
+                                              ),
                                               child: LabelAmountRow(
-                                                  title: 'Cash',
-                                                  amount: st_CashBalance),
+                                                title: 'Cash',
+                                                amount: st_CashBalance,
+                                              ),
                                             ),
                                             height5,
 
                                             Padding(
-                                              padding: const EdgeInsets.all(4.0),
+                                              padding: const EdgeInsets.all(
+                                                4.0,
+                                              ),
                                               child: LabelAmountRow(
-                                                  title: 'Card',
-                                                  amount: st_BankBalance),
+                                                title: 'Card',
+                                                amount: st_BankBalance,
+                                              ),
                                             ),
 
                                             // LabelAmountRow(title: 'Expense Total', amount:'0.00') ,
-
                                           ],
                                         ),
-                                      ])),
+                                      ],
+                                    ),
+                                  ),
                                 );
                               },
                             );
@@ -463,34 +520,29 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                           double dbl_salesTotal = 0, dbl_total = 0;
 
                           if (state is ItemWiseDetailInitial) {
-                            return const Center(
-                               );
-                          }
-                          else if (state is ItemDetailFailure) {
-                            return Center(
-                                child: Text("Error: ${state.error}"));
-                          }
-                          else if (state is ItemDetailLoaded) {
+                            return const Center();
+                          } else if (state is ItemDetailFailure) {
+                            return Center(child: Text("Error: ${state.error}"));
+                          } else if (state is ItemDetailLoaded) {
                             print('reached_ItemDetailsLoaded');
                             itemsList.clear();
                             itemsList.addAll(state.itemWisReport);
 
                             final itemList = state.itemWisReport;
                             if (itemList.isEmpty) {
-                              return const Center(
-                                  child: Text(""));
-                            }
-                            else{
-                              st_SalesTotalItemWise ='';
-                              try{
-                                for(int i =0;i<itemList.length;i++) {
+                              return const Center(child: Text(""));
+                            } else {
+                              st_SalesTotalItemWise = '';
+                              try {
+                                for (int i = 0; i < itemList.length; i++) {
                                   dbl_salesTotal = double.parse(
-                                      itemList[i].totalAmount.toString());
+                                    itemList[i].totalAmount.toString(),
+                                  );
                                   dbl_total = dbl_total + dbl_salesTotal;
-                                  st_SalesTotalItemWise = dbl_total.toStringAsFixed(
-                                      get_decimalpoints());
+                                  st_SalesTotalItemWise = dbl_total
+                                      .toStringAsFixed(get_decimalpoints());
                                 }
-                              }catch(_){
+                              } catch (_) {
                                 print('calculation item_bloc sale total error');
                               }
                             }
@@ -500,7 +552,9 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                               child: Card(
                                 elevation: 5,
                                 margin: const EdgeInsets.symmetric(
-                                    vertical: 6, horizontal: 6),
+                                  vertical: 6,
+                                  horizontal: 6,
+                                ),
                                 child: Column(
                                   children: [
                                     Container(
@@ -514,77 +568,86 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment
-                                            .spaceBetween,
+                                            MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment:
-                                        CrossAxisAlignment
-                                            .start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Padding(
                                             padding: EdgeInsets.all(4.0),
                                             child: Text(
                                               ' Product Wise',
                                               style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight:
-                                                  FontWeight
-                                                      .bold),
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(4.0),
-                                            child: Text(st_SalesTotalItemWise,
-                                                style: const TextStyle(
-                                                    fontWeight:
-                                                    FontWeight
-                                                        .bold,
-                                                    fontSize: 18)),
+                                            child: Text(
+                                              st_SalesTotalItemWise,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
                                     ListView.builder(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: itemList.length,
                                       itemBuilder: (context, index) {
                                         final item_list = itemList[index];
                                         return Column(
                                           children: [
-
                                             Padding(
                                               padding: const EdgeInsets.all(4),
                                               child: Column(
                                                 children: [
                                                   Row(
-                                                      mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                      children: [
-                                                        Padding(
-                                                          padding: const EdgeInsets.all(4.0),
-                                                          child: Text(
-                                                            item_list.productName,
-                                                            style: const TextStyle(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              4.0,
+                                                            ),
+                                                        child: Text(
+                                                          item_list.productName,
+                                                          style:
+                                                              const TextStyle(
                                                                 fontSize: 16,
                                                                 fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                          ),
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                         ),
-
-                                                      ]),
+                                                      ),
+                                                    ],
+                                                  ),
                                                   Padding(
-                                                    padding: const EdgeInsets.only(top: 4.0,bottom: 2.0,left: 4.0,right: 4.0),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          top: 4.0,
+                                                          bottom: 2.0,
+                                                          left: 4.0,
+                                                          right: 4.0,
+                                                        ),
                                                     child: Row(
                                                       mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
                                                       children: [
                                                         Column(
                                                           crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
                                                             const Text(
                                                               'Qty',
@@ -592,18 +655,21 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                                                 fontSize: 13,
                                                               ),
                                                             ),
-                                                            Text( item_list.qty.toString(),
-                                                                style: const TextStyle(
-                                                                    fontWeight:
+                                                            Text(
+                                                              item_list.qty
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                fontWeight:
                                                                     FontWeight
-                                                                        .bold
-                                                                )),
+                                                                        .bold,
+                                                              ),
+                                                            ),
                                                           ],
                                                         ),
                                                         Column(
                                                           crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
                                                             const Text(
                                                               'Sub',
@@ -611,17 +677,21 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                                                 fontSize: 13,
                                                               ),
                                                             ),
-                                                            Text( item_list.subTotal,
-                                                                style: const TextStyle(
-                                                                    fontWeight:
+                                                            Text(
+                                                              item_list
+                                                                  .subTotal,
+                                                              style: const TextStyle(
+                                                                fontWeight:
                                                                     FontWeight
-                                                                        .bold)),
+                                                                        .bold,
+                                                              ),
+                                                            ),
                                                           ],
                                                         ),
                                                         Column(
                                                           crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
                                                             const Text(
                                                               'Tax',
@@ -630,11 +700,13 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                                               ),
                                                             ),
                                                             Text(
-                                                              item_list.taxAmount,
+                                                              item_list
+                                                                  .taxAmount,
                                                               style: const TextStyle(
-                                                                  fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                             ),
                                                           ],
                                                         ),
@@ -659,12 +731,10 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                       ),
 
                       itemsList.isEmpty || summaryList.isEmpty
-                      ? const Center(
-                    child: Text("No data found."),
-                  )
-                      : Container(
-                    // your normal container content here
-                  )
+                          ? const Center(child: Text("No data found."))
+                          : Container(
+                              // your normal container content here
+                            ),
                     ],
                   ),
                 );
@@ -675,7 +745,6 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
       ),
     );
   }
-
 
   Future<void> pickDate({required bool isFrom}) async {
     print('reached SalesReport');
@@ -793,6 +862,7 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
       ),
     );
   }
+
   void _onDateChanged(BuildContext context) {
     final selectedDate = dateController.text.trim();
     print('selectedDate $selectedDate');
@@ -802,7 +872,9 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
 
       context.read<ItemCubit>().fetchItemWiseReports(
         ItemWiseReportRequest(
-          FromDate: selectedDate, ToDate: selectedDate, branchId: "1",
+          FromDate: selectedDate,
+          ToDate: selectedDate,
+          branchId: "1",
         ),
       );
 
@@ -815,6 +887,7 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
       );
     }
   }
+
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -830,6 +903,7 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
       _onDateChanged(context);
     }
   }
+
   String formatDateString(String inputDate) {
     DateTime parsedDate = DateTime.parse(inputDate);
     String formattedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
