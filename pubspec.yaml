@@ -59,7 +59,8 @@ dependencies:
   device_info_plus: ^10.1.0
   fl_chart: ^1.1.1
   url_launcher: 6.1.12
-
+  share_plus: ^7.2.1
+  pdf: ^3.10.8
 
 
 dev_dependencies:

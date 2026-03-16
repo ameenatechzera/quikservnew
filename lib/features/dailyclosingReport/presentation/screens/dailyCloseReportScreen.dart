@@ -9,6 +9,7 @@ import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyClo
 import 'package:quikservnew/features/dailyclosingReport/domain/parameters/dailyClosingReportRequest.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/item_bloc/item_cubit.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/screens/widgets/report_pdf.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/widgets/report_row.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
@@ -78,39 +79,59 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
         title: "Daily Closing Report",
 
         actions: [
-          IconButton(
-            icon: const Icon(Icons.print, color: AppColors.black, size: 28),
-            onPressed: () {
-              // AppNavigator.pushSlide(
-              //   context: context,
-              //   page: UnitCreationScreen(),
-              // );
-              String formatedDate = formatDateString(
-                dateController.text.toString(),
-              );
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  shareDailyClosingReport(
+                    dateText: dateController.text,
+                    salesTotal: st_salesTotal,
+                    expenseTotal: st_ExpenseTotal,
+                    cashBalance: st_CashBalance,
+                    bankBalance: st_BankBalance,
+                    salesTotalItemWise: st_SalesTotalItemWise,
+                    summaryList: summaryList,
+                    expenseList: expenseList,
+                    itemsList: itemsList,
+                  );
+                },
+                icon: Icon(Icons.share),
+              ),
+              IconButton(
+                icon: const Icon(Icons.print, color: AppColors.black, size: 28),
+                onPressed: () {
+                  // AppNavigator.pushSlide(
+                  //   context: context,
+                  //   page: UnitCreationScreen(),
+                  // );
+                  String formatedDate = formatDateString(
+                    dateController.text.toString(),
+                  );
 
-              Future.delayed(Duration(seconds: 0), () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PrintPage(
-                      pageFrom: 'DailyClosingReport',
-                      expenseList: expenseList,
-                      summaryList: summaryList,
-                      itemsList: itemsList,
-                      cashBalance: st_CashBalance,
-                      bankBalance: st_BankBalance,
-                      expenseTotal: st_ExpenseTotal,
-                      salesTotal: st_salesTotal,
-                      itemWiseSalesTotal: st_SalesTotalItemWise,
-                      dailyCloseReportDate: formatedDate,
-                    ),
-                  ),
-                  (Route<dynamic> route) =>
-                      false, // removes all previous routes
-                );
-              });
-            },
+                  Future.delayed(Duration(seconds: 0), () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PrintPage(
+                          pageFrom: 'DailyClosingReport',
+                          expenseList: expenseList,
+                          summaryList: summaryList,
+                          itemsList: itemsList,
+                          cashBalance: st_CashBalance,
+                          bankBalance: st_BankBalance,
+                          expenseTotal: st_ExpenseTotal,
+                          salesTotal: st_salesTotal,
+                          itemWiseSalesTotal: st_SalesTotalItemWise,
+                          dailyCloseReportDate: formatedDate,
+                        ),
+                      ),
+                      (Route<dynamic> route) =>
+                          false, // removes all previous routes
+                    );
+                  });
+                },
+              ),
+            ],
           ),
         ],
       ),

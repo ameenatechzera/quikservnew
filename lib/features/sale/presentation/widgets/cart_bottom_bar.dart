@@ -64,35 +64,65 @@ Widget cartBottomBar(BuildContext context) {
               ),
 
               const Spacer(),
+              SizedBox(
+                height: 48,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => CartScreen()),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        "View Cart",
+                        style: TextStyle(
+                          color: Color(0xFFEAB307),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
 
-              // VIEW CART TEXT
-              TextButton(
-                child: const Text(
-                  "View Cart",
-                  style: TextStyle(
-                    color: Color(0xFFEAB307),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                      SizedBox(width: 8),
+
+                      Icon(
+                        Icons.shopping_bag_outlined,
+                        color: Color(0xFFEAB307),
+                        size: 22,
+                      ),
+                    ],
                   ),
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return CartScreen();
-                      },
-                    ),
-                  );
-                },
               ),
-              const SizedBox(width: 8),
+              // // VIEW CART TEXT
+              // TextButton(
+              //   child: const Text(
+              //     "View Cart",
+              //     style: TextStyle(
+              //       color: Color(0xFFEAB307),
+              //       fontSize: 18,
+              //       fontWeight: FontWeight.w700,
+              //     ),
+              //   ),
+              //   onPressed: () {
+              //     Navigator.of(context).push(
+              //       MaterialPageRoute(
+              //         builder: (context) {
+              //           return CartScreen();
+              //         },
+              //       ),
+              //     );
+              //   },
+              // ),
+              // const SizedBox(width: 8),
 
-              // BAG ICON
-              const Icon(
-                Icons.shopping_bag_outlined,
-                color: Color(0xFFEAB307),
-                size: 22,
-              ),
+              // // BAG ICON
+              // const Icon(
+              //   Icons.shopping_bag_outlined,
+              //   color: Color(0xFFEAB307),
+              //   size: 22,
+              // ),
             ],
           ),
         );
