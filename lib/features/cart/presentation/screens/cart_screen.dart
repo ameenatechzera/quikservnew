@@ -12,6 +12,7 @@ import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
+import 'package:quikservnew/features/authentication/presentation/screens/login_screen.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/cart_item_row.dart';
@@ -864,13 +865,14 @@ class _CartScreenState extends State<CartScreen> {
     DateTime today;
     final deviceId = await SharedPreferenceHelper().getDeviceID();
     String? st_CurrentDate = await SharedPreferenceHelper().getCurrentDate();
-
+    // st_CurrentDate = (DateTime.now().subtract(Duration(days: 1))).toString();
     print('st_CurrentDate $st_CurrentDate');
 
     if (st_CurrentDate != null && st_CurrentDate.isNotEmpty) {
       today = DateTime.parse(st_CurrentDate);
     } else {
       today = DateTime.now();
+
     }
 
     final todayKey =
@@ -878,7 +880,7 @@ class _CartScreenState extends State<CartScreen> {
     print('todayKey $todayKey');
 
     final lastApiCall = prefs.getString('subscription_api_last_called') ?? '';
-
+    print('lastApiCall $lastApiCall');
     // Remove time part (important if time exists)
     DateTime lastCall;
     int difference = 0;
@@ -898,22 +900,43 @@ class _CartScreenState extends State<CartScreen> {
     //     RegisterServerRequest(slno: code),
     //   );
     // }
-    if (code.isNotEmpty && difference >= 14) {
-      context.read<RegisterCubit>().checkDeviceRegisterStatus(
-        DeviceRegisterRequest(deviceId: deviceId.toString()),
-      );
-      await prefs.setString('subscription_api_last_called', todayKey);
-    } else {
-      print('ElselastApiCall $lastApiCall');
-      if (lastApiCall.isEmpty) {
+    // if (code.isNotEmpty && difference == 0) {
+    //   print('if_difference $difference ');
+    //   context.read<RegisterCubit>().checkDeviceRegisterStatus(
+    //     DeviceRegisterRequest(deviceId: deviceId.toString()),
+    //   );
+    //   await prefs.setString('subscription_api_last_called', todayKey);
+    // } else {
+    //   print('ElselastApiCall $lastApiCall');
+    //   if (lastApiCall.isEmpty) {
+    //     context.read<RegisterCubit>().checkDeviceRegisterStatus(
+    //       DeviceRegisterRequest(deviceId: deviceId.toString()),
+    //     );
+    //
+    //     await prefs.setString('subscription_api_last_called', todayKey);
+    //   } else {
+    //     print('elseCall');
+    //     // context.read<RegisterCubit>().checkDeviceRegisterStatus(
+    //     //   DeviceRegisterRequest(deviceId: deviceId.toString()),
+    //     // );
+    //     await _handleExpiryWarning();
+    //   }
+    // }
+
+    // ✅ MAIN LOGIC
+    if (lastApiCall != todayKey) {
+      print('Calling API (first time today)');
+
+      if (code.isNotEmpty) {
         context.read<RegisterCubit>().checkDeviceRegisterStatus(
           DeviceRegisterRequest(deviceId: deviceId.toString()),
         );
-
-        await prefs.setString('subscription_api_last_called', todayKey);
-      } else {
-        await _handleExpiryWarning();
       }
+
+      await prefs.setString('subscription_api_last_called', todayKey);
+    } else {
+      print('Already called today → showing warning');
+      await _handleExpiryWarning();
     }
   }
 
@@ -990,10 +1013,16 @@ class _CartScreenState extends State<CartScreen> {
             content: const Text("Your device is not registered now."),
             actions: [
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   // Exit the app
                   if (Platform.isAndroid) {
-                    SystemNavigator.pop();
+                    //SystemNavigator.pop();
+                    await clearAppData();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                          (route) => false,
+                    );
                   } else {
                     exit(0);
                   }
@@ -1006,4 +1035,8 @@ class _CartScreenState extends State<CartScreen> {
       },
     );
   }
+}
+Future<void> clearAppData() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear(); // 🔥 clears everything
 }
