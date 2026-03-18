@@ -146,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
             if (state is DeviceRegisterStatusSuccess) {
               /// Save token globally
               await SharedPreferenceHelper().setDeviceID(
-                _deviceIdController.text.toString()
+                _deviceIdController.text.toString(),
               );
               if (state.registerResponse.data?.result == true) {
                 context.read<LoginCubit>().loginUser(
@@ -336,7 +336,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             hint: 'Password',
                             controller: passwordCtrl,
                             prefixIcon: Icons.lock,
-                            obscure: true,
+                            isPassword: true,
                             suffixIcon: Icons.visibility,
                             enabled: !processing,
                           ),

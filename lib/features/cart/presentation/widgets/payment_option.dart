@@ -5,7 +5,7 @@ class PaymentOption extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool selected;
-  final IconData icon;
+  final String iconPath;
   final double amount;
 
   const PaymentOption({
@@ -13,7 +13,7 @@ class PaymentOption extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.selected,
-    required this.icon,
+    required this.iconPath,
     required this.amount,
   });
 
@@ -33,10 +33,11 @@ class PaymentOption extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 24,
-            color: selected ? AppColors.white : Colors.black87,
+          Image.asset(
+            iconPath,
+            width: 24,
+            height: 24,
+            color: selected ? AppColors.white : Colors.black87, // optional
           ),
           const SizedBox(height: 6),
           Text(

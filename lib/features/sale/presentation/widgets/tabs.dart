@@ -37,50 +37,6 @@ Widget buildTab(
                 ),
               ),
             ),
-
-            // Bottom border that expands from center
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 8,
-              child: AnimatedAlign(
-                duration: const Duration(milliseconds: 350),
-                curve: Curves.fastOutSlowIn,
-                alignment: selected ? Alignment.center : Alignment.center,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 350),
-                  curve: Curves.fastOutSlowIn,
-                  height: 2,
-                  width: selected ? 70 : 0,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(1),
-                    gradient: LinearGradient(
-                      colors: [Colors.black, Colors.grey[900]!],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Top highlight when selected
-            if (selected)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    width: 20,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),

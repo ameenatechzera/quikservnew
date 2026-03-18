@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemWiseReportScreen.dart';
-import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemwise_report_screen.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
@@ -40,7 +39,8 @@ final TextEditingController toController = TextEditingController();
 enum SalesPeriod { daily, weekly, monthly, yearly }
 
 enum SalesViewTypeAmount { amount, count }
- int currentYear = 0;
+
+int currentYear = 0;
 String stBranchId = '1';
 
 SalesViewType selectedView = SalesViewType.amount;
@@ -322,14 +322,14 @@ class _DashboardContentState extends State<DashboardContent> {
                               ),
                             );
                           },
-                          icon: Icons.receipt_long_outlined,
+                          iconPath: 'assets/icons/salesinvoiceicon.png',
                           label: 'Sales Invoice',
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: _ActionTile(
-                          icon: Icons.camera_alt_outlined,
+                          iconPath: 'assets/icons/paymenticon.png',
                           label: 'Payment',
                           onTap: () {
                             Navigator.push(
@@ -356,7 +356,7 @@ class _DashboardContentState extends State<DashboardContent> {
                     children: [
                       Expanded(
                         child: _ActionTile(
-                          icon: Icons.receipt_outlined,
+                          iconPath: 'assets/icons/salesreporticon.png',
                           label: 'Sales Report',
                           onTap: () {
                             Navigator.push(
@@ -377,7 +377,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _ActionTile(
-                          icon: Icons.flag_outlined,
+                          iconPath: 'assets/icons/itemreporticon.png',
                           label: 'Item Report',
                           onTap: () {
                             Navigator.push(
@@ -397,7 +397,7 @@ class _DashboardContentState extends State<DashboardContent> {
                     children: [
                       Expanded(
                         child: _ActionTile(
-                          icon: Icons.calendar_month_outlined,
+                          iconPath: 'assets/icons/dailyreporticon.png',
                           label: 'Daily Closing\nReport',
                           onTap: () {
                             Navigator.push(
@@ -417,7 +417,7 @@ class _DashboardContentState extends State<DashboardContent> {
                   const SizedBox(height: 4),
                   // ✅ some bottom space
                   _buildCustomSelector(),
-                 // _buildSalesTypeSelector(),
+                  // _buildSalesTypeSelector(),
 
                   // //Sales Count
                   // _buildCustomSelector(),
@@ -437,13 +437,13 @@ class _DashboardContentState extends State<DashboardContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         /// 🔹 Chart Section
-        Text('Sales Amount',style: TextStyle(fontWeight: FontWeight.bold),),
-        SizedBox(height: 5,),
+        Text('Sales Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 5),
         _buildChartBody(),
-        SizedBox(height: 5,),
-        Text('Sales Count',style: TextStyle(fontWeight: FontWeight.bold),),
-        SizedBox(height: 5,),
-        _buildChartSaleCountBody()
+        SizedBox(height: 5),
+        Text('Sales Count', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 5),
+        _buildChartSaleCountBody(),
       ],
     );
   }
@@ -510,28 +510,27 @@ class _DashboardContentState extends State<DashboardContent> {
                             }
                           }
 
-
                           // print('Hr ${selectedView.name}');
                           // print('ClickedHR ${selectedView.name}');
-                         // if (selectedView.name == 'amount') {
-                            context
-                                .read<SettingsCubit>()
-                                .fetchMonthlyGraphFromServer(
-                                  BarGraphRequest(
-                                    period: period,
-                                    branchId: stBranchId,
-                                  ),
-                                );
+                          // if (selectedView.name == 'amount') {
+                          context
+                              .read<SettingsCubit>()
+                              .fetchMonthlyGraphFromServer(
+                                BarGraphRequest(
+                                  period: period,
+                                  branchId: stBranchId,
+                                ),
+                              );
                           // } else {
-                            context
-                                .read<SalesCountCubit>()
-                                .fetchSalesCountFromServer(
-                                  BarGraphRequest(
-                                    period: period,
-                                    branchId: stBranchId,
-                                  ),
-                                );
-                         // }
+                          context
+                              .read<SalesCountCubit>()
+                              .fetchSalesCountFromServer(
+                                BarGraphRequest(
+                                  period: period,
+                                  branchId: stBranchId,
+                                ),
+                              );
+                          // }
                         },
                         items: SalesPeriod.values.map((period) {
                           return DropdownMenuItem(
@@ -669,20 +668,20 @@ class _DashboardContentState extends State<DashboardContent> {
                             context
                                 .read<SettingsCubit>()
                                 .fetchMonthlyGraphFromServer(
-                              BarGraphRequest(
-                                period: period,
-                                branchId: stBranchId,
-                              ),
-                            );
+                                  BarGraphRequest(
+                                    period: period,
+                                    branchId: stBranchId,
+                                  ),
+                                );
                           } else {
                             context
                                 .read<SalesCountCubit>()
                                 .fetchSalesCountFromServer(
-                              BarGraphRequest(
-                                period: period,
-                                branchId: stBranchId,
-                              ),
-                            );
+                                  BarGraphRequest(
+                                    period: period,
+                                    branchId: stBranchId,
+                                  ),
+                                );
                           }
                         },
                         items: SalesPeriod.values.map((period) {
@@ -956,6 +955,7 @@ class _DashboardContentState extends State<DashboardContent> {
       },
     );
   }
+
   /// 🔹 CHART SECTION
   Widget _buildChartSaleCountBody() {
     return BlocConsumer<SalesCountCubit, SalesCountState>(
@@ -1111,10 +1111,7 @@ class _DashboardContentState extends State<DashboardContent> {
                           gradient: LinearGradient(
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
-                            colors: [
-                              color,
-                              color.withOpacity(0.5),
-                            ],
+                            colors: [color, color.withOpacity(0.5)],
                           ),
                         ),
                       ],
@@ -1221,12 +1218,12 @@ class _StatCard extends StatelessWidget {
 }
 
 class _ActionTile extends StatelessWidget {
-  final IconData icon;
+  final String iconPath;
   final String label;
   final VoidCallback onTap;
 
   const _ActionTile({
-    required this.icon,
+    required this.iconPath,
     required this.label,
     required this.onTap,
   });
@@ -1245,7 +1242,7 @@ class _ActionTile extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 20, color: Colors.black),
+            Image.asset(iconPath, width: 20, height: 20, color: Colors.black),
             const SizedBox(width: 10),
             Text(
               label,

@@ -74,7 +74,7 @@ Widget cartBottomBar(BuildContext context) {
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
                         "View Cart",
                         style: TextStyle(
@@ -86,10 +86,14 @@ Widget cartBottomBar(BuildContext context) {
 
                       SizedBox(width: 8),
 
-                      Icon(
-                        Icons.shopping_bag_outlined,
-                        color: Color(0xFFEAB307),
-                        size: 22,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5.0),
+                        child: Image.asset(
+                          'assets/icons/Clip path group.png',
+                          // width: 24,
+                          // height: 24,
+                          color: const Color(0xFFEAB307),
+                        ),
                       ),
                     ],
                   ),

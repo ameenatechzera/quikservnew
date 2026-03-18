@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
-import 'package:quikservnew/features/sale/presentation/widgets/dashboard_content.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 
@@ -30,7 +29,6 @@ DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime.now();
 final DateFormat formatter = DateFormat('MM-dd-yyyy');
 void _onDateChanged(BuildContext context) {
-
   final fromDateRaw = fromDateController.text.trim();
   final toDateRaw = toDateController.text.trim();
   if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
@@ -44,6 +42,7 @@ void _onDateChanged(BuildContext context) {
     );
   }
 }
+
 class _SalesReportPageNEWState extends State<SalesReportPage> {
   @override
   void initState() {
@@ -56,8 +55,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   @override
   void dispose() {
-  //  _totalRecordsController.dispose();
-   // _totalSalesController.dispose();
+    //  _totalRecordsController.dispose();
+    // _totalSalesController.dispose();
     super.dispose();
   }
 
@@ -146,10 +145,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   /// 🔹 Date Filter
   Widget _dateFilter() {
-    return   Container(
+    return Container(
       color: AppColors.theme,
-      padding:
-      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
 
       // margin: EdgeInsets.zero,
       //height: 70,
@@ -158,24 +156,21 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12)),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: TextFormField(
                 controller: fromDateController,
                 readOnly: true,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 decoration: const InputDecoration(
                   labelText: '  From Date',
                   labelStyle: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
-                  floatingLabelAlignment:
-                  FloatingLabelAlignment.center,
+                  floatingLabelAlignment: FloatingLabelAlignment.center,
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(
@@ -191,18 +186,16 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12)),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.only(left: 10.0),
                 child: TextFormField(
                   controller: toDateController,
                   readOnly: true,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   decoration: const InputDecoration(
                     labelText: 'To Date',
                     labelStyle: TextStyle(
@@ -210,8 +203,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
-                    floatingLabelAlignment:
-                    FloatingLabelAlignment.center,
+                    floatingLabelAlignment: FloatingLabelAlignment.center,
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -223,7 +215,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -250,8 +242,11 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     //   ),
     // );
   }
+
   Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -266,40 +261,40 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     }
   }
 
-  Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12)),
-        const SizedBox(height: 6),
-        InkWell(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    date == null
-                        ? "Select Date"
-                        : "${date.day.toString().padLeft(2, '0')}-"
-                              "${date.month.toString().padLeft(2, '0')}-"
-                              "${date.year}",
-                  ),
-                ),
-                const Icon(Icons.calendar_today_outlined, size: 18),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(label, style: const TextStyle(fontSize: 12)),
+  //       const SizedBox(height: 6),
+  //       InkWell(
+  //         onTap: onTap,
+  //         child: Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(8),
+  //             border: Border.all(color: Colors.grey.shade300),
+  //           ),
+  //           child: Row(
+  //             children: [
+  //               Expanded(
+  //                 child: Text(
+  //                   date == null
+  //                       ? "Select Date"
+  //                       : "${date.day.toString().padLeft(2, '0')}-"
+  //                             "${date.month.toString().padLeft(2, '0')}-"
+  //                             "${date.year}",
+  //                 ),
+  //               ),
+  //               const Icon(Icons.calendar_today_outlined, size: 18),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
@@ -337,7 +332,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             /// Top Row
             Row(
               children: [
-                const Icon(Icons.receipt_long, size: 18),
+                Image.asset('assets/icons/reporticon(1).png'),
+
+                // const Icon(Icons.receipt_long, size: 18),
                 const SizedBox(width: 6),
                 Text(
                   "#${sale.billTokenNo}",
@@ -347,7 +344,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                   ),
                 ),
                 const Spacer(),
-                const Icon(Icons.calendar_today_outlined, size: 16),
+                Image.asset('assets/icons/reporticon(2).png'),
                 const SizedBox(width: 6),
 
                 Text(
@@ -379,7 +376,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             /// Invoice & Time
             Row(
               children: [
-                Icon(Icons.confirmation_number_outlined, size: 16),
+                Image.asset('assets/icons/reporticon(4).png'),
                 SizedBox(width: 6),
                 Text(sale.invoiceNo.toString()),
                 SizedBox(width: 16),
@@ -397,7 +394,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.payments_outlined, size: 18),
+                    Image.asset('assets/icons/reporticon(3).png'),
                     SizedBox(width: 6),
                     Text(sale.salesType.toString()),
                   ],
@@ -429,7 +426,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       child: CircleAvatar(
         radius: 16,
         backgroundColor: const Color(0xffFFE08A),
-        child: const Icon(Icons.delete_outline, size: 18, color: Colors.black),
+        child: Image.asset('assets/icons/reporticon(5).png'),
       ),
     );
   }
