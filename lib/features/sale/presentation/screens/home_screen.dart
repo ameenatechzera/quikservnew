@@ -755,10 +755,17 @@ class _HomeScreenState extends State<HomeScreen>
                         // }
                       },
                       child: Center(
-                        child: Icon(
-                          isMenuMode ? Icons.arrow_back : Icons.menu,
-                          color: AppColors.white,
+                        child: Image.asset(
+                          'assets/icons/Vector.png',
+                          width: 24, // adjust size if needed
+                          height: 24,
+                          color: AppColors
+                              .white, // optional (only works if image is single-color)
                         ),
+                        // Icon(
+                        //   isMenuMode ? Icons.arrow_back : Icons.menu,
+                        //   color: AppColors.white,
+                        // ),
                       ),
                     ),
                   ),

@@ -51,7 +51,7 @@ class AboutScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: _infoTile(
                     icon: Icons.chat_bubble_outline,
-                    title: "support@quikserv.app@gmail.com",
+                    title: "support@quikserv.app",
                     onTap: _openEmail,
                   ),
                 ),
@@ -99,31 +99,35 @@ class AboutScreen extends StatelessWidget {
                   color: Color(0xFFFFF0C2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "About Us",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "About Us",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 26.0),
+                      SizedBox(height: 10),
+                      const Text(
+                        "QuikSERV is a smart and easy-to-use billing application designed for hospitality businesses. "
+                        "It helps businesses manage billing, sales, and inventory smoothly, even during busy hours.\n\n"
+                        "Our focus is to provide a fast, reliable, and user-friendly solution that simplifies daily operations "
+                        "and improves efficiency at the billing counter.\n\n"
+                        "QuikSERV is built keeping real business needs in mind — accuracy, speed, and simplicity. "
+                        "Our vision is to become a trusted digital partner for food businesses by delivering simple, stable, "
+                        "and scalable billing solutions that support growth and operational excellence.",
 
-                      child: const Text(
-                        "QuikSERV is a smart and easy-to-use billing application designed for Hospitality businesses."
-                        "It helps businesses manage billing, sales, and inventory smoothly, even during busy hours."
-                        "Our focus is to provide a fast, reliable, and user-friendly solution that simplifies daily operations and improves efficiency at the billing counter."
-                        "QuikSERV is built keeping real business needs in mind — accuracy, speed, and simplicity."
-                        "Our Vision is to become a trusted digital partner for food businesses by delivering simple, stable, and scalable billing solutions that support growth and operational excellence.",
-                        style: TextStyle(height: 1.5, fontSize: 14),
+                        textAlign: TextAlign.start,
+                        style: TextStyle(height: 1.6, fontSize: 14),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

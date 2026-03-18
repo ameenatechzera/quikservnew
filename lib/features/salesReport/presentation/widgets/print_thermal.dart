@@ -90,8 +90,8 @@ class _PrintPageState extends State<PrintPage> {
   double logoWidth = 0;
   double logoHeight = 0;
   String description = '';
-  String kotStatus ='';
-  bool kotPrintEnabled =false;
+  String kotStatus = '';
+  bool kotPrintEnabled = false;
   @override
   void initState() {
     _statusTextController.text = '';
@@ -252,7 +252,7 @@ class _PrintPageState extends State<PrintPage> {
 
     bytes += await printKotItemDetails(generator);
     final details = widget.sales?.salesDetails ?? [];
-    int totalItem = 0 , totalQty = 0;
+    int totalItem = 0, totalQty = 0;
     for (int idx = 0; idx < details.length; idx++) {
       totalQty = totalQty + details[idx].qty;
     }
@@ -265,7 +265,7 @@ class _PrintPageState extends State<PrintPage> {
     );
     bytes += generator.row([
       PosColumn(
-        text: 'Total Qty :'+totalQty.toString(),
+        text: 'Total Qty :' + totalQty.toString(),
         width: 6,
         styles: const PosStyles(
           align: PosAlign.left,
@@ -275,7 +275,7 @@ class _PrintPageState extends State<PrintPage> {
         ),
       ),
       PosColumn(
-        text: 'Total Items: '+details.length.toString(),
+        text: 'Total Items: ' + details.length.toString(),
         width: 6,
         styles: const PosStyles(
           align: PosAlign.left,
@@ -691,39 +691,36 @@ class _PrintPageState extends State<PrintPage> {
     /// 🔹 QR CODE (BOTTOM)
     /// =======================
 
-   // bytes += generator.feed(1);
+    // bytes += generator.feed(1);
 
-// QR data
-    String upiLink =
-        'upi://pay?pa=shamilmohd418@okicici&am=1.00&cu=INR&tn=65';
+    // QR data
+    String upiLink = 'upi://pay?pa=shamilmohd418@okicici&am=1.00&cu=INR&tn=65';
 
-// Print small instruction text
-//     bytes += generator.text(
-//       'Scan & Pay',
-//       styles: PosStyles(
-//         align: PosAlign.center,
-//         bold: true,
-//       ),
-//     );
+    // Print small instruction text
+    //     bytes += generator.text(
+    //       'Scan & Pay',
+    //       styles: PosStyles(
+    //         align: PosAlign.center,
+    //         bold: true,
+    //       ),
+    //     );
 
-  //  bytes += generator.feed(1);
+    //  bytes += generator.feed(1);
 
-// Print QR Code (Model 2 recommended)
+    // Print QR Code (Model 2 recommended)
     bytes += generator.qrcode(
       upiLink,
       size: selectedPrinter == '2 inch'
-          ? QRSize.size6   // was size4 → increased
-          : QRSize.size8,  // was size6 → increased
+          ? QRSize
+                .size6 // was size4 → increased
+          : QRSize.size8, // was size6 → increased
       cor: QRCorrection.M,
     );
-// Optional: print UPI ID below QR (small text)
+    // Optional: print UPI ID below QR (small text)
     bytes += generator.feed(1);
     bytes += generator.text(
       'Scan & Pay',
-      styles: PosStyles(
-        align: PosAlign.center,
-        bold: true,
-      ),
+      styles: PosStyles(align: PosAlign.center, bold: true),
     );
 
     bytes += generator.feed(2);
@@ -822,10 +819,10 @@ class _PrintPageState extends State<PrintPage> {
       final ticket = await _generateTicket();
 
       final result = await PrintBluetoothThermal.writeBytes(ticket);
-      if(kotPrintEnabled){
-      await Future.delayed(const Duration(seconds: 2));
-      final kitchenTicket = await _generateKitchenPrintFromSales();
-      await sendBytesInChunks(kitchenTicket);
+      if (kotPrintEnabled) {
+        await Future.delayed(const Duration(seconds: 2));
+        final kitchenTicket = await _generateKitchenPrintFromSales();
+        await sendBytesInChunks(kitchenTicket);
       }
       //PrintBluetoothThermal.disconnect;
       print('resultPrint $result');
@@ -860,15 +857,13 @@ class _PrintPageState extends State<PrintPage> {
       body: Container(
         color: Colors.white,
         child: Column(
-
           children: [
-             Center(
+            Center(
               child: Lottie.asset(
                 'assets/success_animation.json',
                 width: double.infinity,
                 height: 500,
                 fit: BoxFit.contain,
-
               ),
             ),
             // Container(color: Colors.red,
@@ -977,16 +972,14 @@ class _PrintPageState extends State<PrintPage> {
                   },
                   builder: (context, state) {
                     if (state is SaleFinishSuccess) {
-                     return Container();
-                    }
-                    else{
+                      return Container();
+                    } else {
                       return Center(
                         child: Lottie.asset(
                           'assets/success_animation.json',
                           width: double.infinity,
                           height: 500,
                           fit: BoxFit.contain,
-
                         ),
                       );
                     }
@@ -1255,7 +1248,7 @@ class _PrintPageState extends State<PrintPage> {
       linesAfter: 0,
     );
     bytes += generator.text(
-      'Token No: '+st_OrderNo,
+      'Token No: ' + st_OrderNo,
       styles: PosStyles(
         align: PosAlign.center,
         bold: true,
@@ -1334,20 +1327,18 @@ class _PrintPageState extends State<PrintPage> {
       // bytes.addAll(generator.text(st_OrderNo,
       //     styles: PosStyles(align: PosAlign.center), linesAfter: 0));
 
-        bytes += generator.row([
-          PosColumn(
-            text: 'INVOICE',
-            width: 12,
-            styles: const PosStyles(
-              align: PosAlign.center,
-              bold: true,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-            ),
+      bytes += generator.row([
+        PosColumn(
+          text: 'INVOICE',
+          width: 12,
+          styles: const PosStyles(
+            align: PosAlign.center,
+            bold: true,
+            height: PosTextSize.size1,
+            width: PosTextSize.size1,
           ),
-
-
-        ]);
+        ),
+      ]);
       // bytes += generator.text(
       //   'INVOICE',
       //   styles: PosStyles(
@@ -2084,9 +2075,11 @@ class _PrintPageState extends State<PrintPage> {
               styles: PosStyles(align: PosAlign.left),
               width: 1,
             ),
-            PosColumn(text: '',
-                width: 3,
-                styles: const PosStyles(align: PosAlign.left)),
+            PosColumn(
+              text: '',
+              width: 3,
+              styles: const PosStyles(align: PosAlign.left),
+            ),
             PosColumn(
               text: dblQty.toString(),
               width: 2,
@@ -2121,9 +2114,11 @@ class _PrintPageState extends State<PrintPage> {
               width: 1,
             ),
 
-            PosColumn(text: '',
-                width: 3,
-                styles: const PosStyles(align: PosAlign.left)),
+            PosColumn(
+              text: '',
+              width: 3,
+              styles: const PosStyles(align: PosAlign.left),
+            ),
             PosColumn(
               text: dblQty.toString(),
               width: 2,
@@ -2310,7 +2305,6 @@ class _PrintPageState extends State<PrintPage> {
         );
       }
     }
-
 
     if (selectedPrinter == '2 inch') {
       if (vatStatus) {
@@ -2507,7 +2501,7 @@ class _PrintPageState extends State<PrintPage> {
     final prefs = await SharedPreferences.getInstance();
     kotStatus = prefs.getString('KOT_status') ?? '';
     print('kotStatus $kotStatus');
-    if(kotStatus=='1') {
+    if (kotStatus == '1') {
       kotPrintEnabled = true;
     }
     if (bluetoothState.isEmpty) {

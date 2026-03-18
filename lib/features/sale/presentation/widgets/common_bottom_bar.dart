@@ -28,18 +28,22 @@ class CommomBottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // HOME
-              _buildTab(icon: Icons.home_outlined, label: "Home", index: 0),
+              _buildTab(
+                iconPath: 'assets/icons/homeicon.png',
+                label: "Home",
+                index: 0,
+              ),
 
               // DASHBOARD
               _buildTab(
-                icon: Icons.pause_rounded,
+                iconPath: 'assets/icons/Group (1).png',
                 label: "Dashboard",
                 index: 1,
               ),
 
               // SETTINGS
               _buildTab(
-                icon: Icons.settings_outlined,
+                iconPath: 'assets/icons/settingsicon.png',
                 label: "Settings",
                 index: 2,
               ),
@@ -51,7 +55,7 @@ class CommomBottomBar extends StatelessWidget {
   }
 
   Widget _buildTab({
-    required IconData icon,
+    required String iconPath,
     required String label,
     required int index,
   }) {
@@ -70,13 +74,19 @@ class CommomBottomBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : Colors.black,
-              size: 20,
+            Image.asset(
+              iconPath,
+              width: 20,
+              height: 20,
+              color: isSelected ? Colors.white : Colors.black, // optional
             ),
+            // Icon(
+            //   icon,
+            //   color: isSelected ? Colors.white : Colors.black,
+            //   size: 20,
+            // ),
             if (isSelected) ...[
-              //  const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Text(
                 label,
                 style: const TextStyle(

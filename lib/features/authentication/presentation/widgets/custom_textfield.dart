@@ -4,16 +4,17 @@ import 'package:quikservnew/core/theme/colors.dart';
 class CustomInputField extends StatelessWidget {
   final String hint;
   final IconData prefixIcon;
-  final bool obscure;
+  final bool isPassword;
   final IconData? suffixIcon;
   final TextEditingController? controller;
   final TextInputAction textInputAction;
   final bool enabled;
-  const CustomInputField({
+  final ValueNotifier<bool> obscureNotifier = ValueNotifier(true);
+  CustomInputField({
     super.key,
     required this.hint,
     required this.prefixIcon,
-    this.obscure = false,
+    this.isPassword = false,
     this.suffixIcon,
     this.controller,
     this.textInputAction = TextInputAction.next,
@@ -22,23 +23,37 @@ class CustomInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: obscure,
-      textInputAction: textInputAction,
-      enabled: enabled,
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixIcon: Icon(prefixIcon),
-        suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.primary),
-        ),
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.9),
-      ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: obscureNotifier,
+      builder: (context, isObscure, child) {
+        return TextField(
+          controller: controller,
+          obscureText: isPassword ? isObscure : false,
+          textInputAction: textInputAction,
+          enabled: enabled,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(prefixIcon),
+            suffixIcon: isPassword
+                ? IconButton(
+                    onPressed: () {
+                      obscureNotifier.value = !obscureNotifier.value;
+                    },
+                    icon: Icon(
+                      isObscure ? Icons.visibility_off : Icons.visibility,
+                    ),
+                  )
+                : null,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.primary),
+            ),
+            filled: true,
+            fillColor: Colors.white.withOpacity(0.9),
+          ),
+        );
+      },
     );
   }
 }

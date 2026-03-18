@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
-import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
@@ -288,7 +287,8 @@ class _CartScreenState extends State<CartScreen> {
                                         title: 'Cash',
                                         subtitle: '',
                                         selected: payment == 'Cash',
-                                        icon: Icons.money,
+                                        iconPath:
+                                            'assets/icons/Clip path group (1).png',
                                         amount: payment == 'Cash' ? total : 0,
                                       ),
                                     ),
@@ -307,7 +307,7 @@ class _CartScreenState extends State<CartScreen> {
                                         title: 'Card',
                                         subtitle: '',
                                         selected: payment == 'Card',
-                                        icon: Icons.credit_card,
+                                        iconPath: 'assets/icons/cardicon.png',
                                         amount: payment == 'Card' ? total : 0,
                                       ),
                                     ),
@@ -351,8 +351,8 @@ class _CartScreenState extends State<CartScreen> {
                                                     : 'Cash ${cash.toStringAsFixed(0)} | '
                                                           'Card ${card.toStringAsFixed(0)}',
                                                 selected: payment == 'Multi',
-                                                icon: Icons
-                                                    .dashboard_customize_outlined,
+                                                iconPath:
+                                                    'assets/icons/multiicon.png',
                                                 amount: cash + card,
                                               );
                                             },
@@ -844,7 +844,7 @@ class _CartScreenState extends State<CartScreen> {
     // if (daysLeft < 1 || daysLeft > 7) return;
     if (daysLeft > 7) return;
 
-    final lastShown = prefs.getString('expiry_warning_last_shown');
+    //final lastShown = prefs.getString('expiry_warning_last_shown');
 
     //if (lastShown == todayKey) return; //check once in a day
 
