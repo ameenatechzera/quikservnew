@@ -294,6 +294,28 @@ class SharedPreferenceHelper {
     return prefs.getString('expiryDate') ?? '';
   }
 
+  /// ------------------ User name ------------------
+  Future<void> setUsername(String userName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', userName);
+  }
+
+  Future<String> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userName') ?? '';
+  }
+
+  /// ------------------ Password ------------------
+  Future<void> setPassword(String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('password', password);
+  }
+
+  Future<String> getPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('password') ?? '';
+  }
+
   Future<void> setKOTStatus(String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_KOTStatus, value);

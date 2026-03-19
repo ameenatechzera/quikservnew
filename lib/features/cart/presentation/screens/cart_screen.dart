@@ -455,7 +455,7 @@ class _CartScreenState extends State<CartScreen> {
                                         supplierId: 1,
                                         cashierId: 1,
                                         orderMasterId: 10,
-                                        billStatus: '',
+                                        billStatus: 'Completed',
                                         salesType: '',
                                         billTokenNo: 22,
                                         createdUser: 1,
@@ -1017,7 +1017,7 @@ class _CartScreenState extends State<CartScreen> {
                   // Exit the app
                   if (Platform.isAndroid) {
                     //SystemNavigator.pop();
-                    await clearAppData();
+                   // await clearAppData();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (_) => LoginScreen()),

@@ -177,7 +177,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 await SharedPreferenceHelper().setSubscriptionCode(
                   codeCtrl.text.toString(),
                 );
-
+                await SharedPreferenceHelper().setUsername(
+                  usernameCtrl.text.toString(),
+                );
+                await SharedPreferenceHelper().setPassword(
+                  passwordCtrl.text.toString(),
+                );
                 print('reached_2');
                 await SharedPreferenceHelper().setStaffName(
                   state.loginResponse.data.first.name,
@@ -445,6 +450,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<String> getDeviceId() async {
+    codeCtrl.text = await SharedPreferenceHelper()
+        .getSubscriptionCode();
+    usernameCtrl.text = await SharedPreferenceHelper()
+        .getUsername();
+    passwordCtrl.text = await SharedPreferenceHelper()
+        .getPassword();
+
     final deviceInfo = DeviceInfoPlugin();
 
     if (Platform.isAndroid) {
