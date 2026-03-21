@@ -94,8 +94,9 @@ class _CartScreenState extends State<CartScreen> {
               listener: (context, state) async {
                 if (state is SalesDetailsFetchSuccess) {
                   print('responseFromSales ${state.response}');
-                  Navigator.pop(context);
 
+                  Navigator.pop(context);
+                  CartManager().clearCart();
                   String selectedPrinter = (await SharedPreferenceHelper()
                       .loadSelectedPrinterSize())!;
                   if (selectedPrinter.length > 1) {
@@ -132,7 +133,7 @@ class _CartScreenState extends State<CartScreen> {
                   //     backgroundColor: AppColors.green,
                   //   ),
                   // );
-                  CartManager().clearCart();
+
                   final branchId = await SharedPreferenceHelper().getBranchId();
                   print('reachedHHHHHHHHHHHHHHHH');
                   context.read<SaleCubit>().fetchSalesDetailsByMasterId(
