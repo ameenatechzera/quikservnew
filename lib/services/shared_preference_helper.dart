@@ -17,6 +17,7 @@ class SharedPreferenceHelper {
 
   static const _kAppVersion = 'app_version';
   static const _KOTStatus = 'KOT_status';
+  static const _PrintGap = 'print_gap';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
 
   /// ------------------ BASE URL ------------------
@@ -320,6 +321,17 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_KOTStatus, value);
   }
+
+  /////printDElay
+  Future<void> setPrintDelayForKot(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_PrintGap, value);
+  }
+  Future<int?> getPrintDelayForKot() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_PrintGap);
+  }
+  ////////////////
 
   //Printer Type
   Future<bool> savePrinterType(String printerType) async {

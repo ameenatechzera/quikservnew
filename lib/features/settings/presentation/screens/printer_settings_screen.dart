@@ -10,7 +10,8 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrinterSettingsContent extends StatefulWidget {
-  final String companyName ;
+  final String companyName;
+
   const PrinterSettingsContent({super.key, required this.companyName});
 
   @override
@@ -20,13 +21,14 @@ class PrinterSettingsContent extends StatefulWidget {
 class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   String printerType = 'Wifi';
   String? paperSize = '2 inch';
-  String kotStatus ='0', st_printerType ='';
-  bool kotPrintEnabled =false;
+  String kotStatus = '0', st_printerType = '';
+  bool kotPrintEnabled = false;
   String companyNameFontSize = '';
   bool st_companyAdressStatus = false;
   bool st_companyPhoneStatus = false;
   bool deviceListStatus = false;
-
+  int selectedSeconds = 2;
+  final List<int> delayOptions = [1, 2, 3, 4, 5,6,7,8];
   final TextEditingController ipController = TextEditingController(
     text: '192.168.1.40:5000',
   );
@@ -42,6 +44,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   final _kotStatusController = TextEditingController();
   final _companyNameController = TextEditingController();
   final _descriptionController = TextEditingController();
+
   //final _phoneController = TextEditingController();
   final _companyFontSizeController = TextEditingController(text: "18");
   bool isPhoneEnabled = false;
@@ -85,11 +88,12 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     final savedDevice = prefs.getString('bt_device_name') ?? '';
     kotStatus = prefs.getString('KOT_status') ?? '';
     printerType = prefs.getString('printerType') ?? '';
-    if(printerType.isEmpty){
+
+    if (printerType.isEmpty) {
       printerType = 'Wifi';
     }
     print('kotStatus $kotStatus');
-    if(kotStatus=='1') {
+    if (kotStatus == '1') {
       kotPrintEnabled = true;
     }
     if (savedDevice.isNotEmpty) {
@@ -99,6 +103,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     final devices = await PrintBluetoothThermal.pairedBluetooths;
     setState(() {
       bluetoothDevices = devices;
+      selectedSeconds  = prefs.getInt('print_gap')!;
     });
   }
 
@@ -174,25 +179,21 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                   Checkbox(
                     value: kotPrintEnabled,
                     onChanged: (value) {
-
                       setState(() {
                         kotPrintEnabled = value ?? false;
                       });
-                      if(kotPrintEnabled){
+                      if (kotPrintEnabled) {
                         kotStatus = '1';
-                      }
-                      else{
+                      } else {
                         kotStatus = '0';
                       }
-                      _kotStatusController.text=kotStatus.toString();
+                      _kotStatusController.text = kotStatus.toString();
                       // widget.onKotChanged(kotPrintEnabled); // send value to parent
                     },
                   ),
                   const Text(
                     "Enable KOT Print",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -394,6 +395,51 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                     ),
                   ],
                 ),
+
+                /////
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Print Delay",
+                        style: TextStyle(
+                          fontSize: 15,
+
+                        ),
+                      ),
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButton<int>(
+                          value: selectedSeconds,
+                          underline: SizedBox(),
+                          items: delayOptions.map((int value) {
+                            return DropdownMenuItem<int>(
+                              value: value,
+                              child: Text("$value sec"),
+                            );
+                          }).toList(),
+                          onChanged: (int? newValue) {
+                            setState(() {
+                              selectedSeconds = newValue!;
+                            });
+
+                            // 👉 Use this value for your print delay logic
+                            print("Selected delay: $selectedSeconds seconds");
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                ////
               ],
             ),
           ],
@@ -646,6 +692,9 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           await SharedPreferenceHelper().setKOTStatus(
             _kotStatusController.text.toString(),
           );
+          await SharedPreferenceHelper().setPrintDelayForKot(
+            selectedSeconds,
+          );
           await SharedPreferenceHelper().savePrinterType(printerType);
           await SharedPreferenceHelper().saveCompanyAddressInPrintStatus(
             isAddressEnabled,
@@ -659,18 +708,20 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           await SharedPreferenceHelper().saveDescriptionPrint(
             _descriptionController.text.toString(),
           );
-          context
-              .read<SettingsCubit>()
-              .savePrinterSettingsToServer(
-              SavePrinterSettingsRequest(
+          context.read<SettingsCubit>().savePrinterSettingsToServer(
+            SavePrinterSettingsRequest(
+              printType: printerType,
 
-                  printType: printerType,
-
-                  mainPrinter: '',
-                  kitchenPrinter: _kotStatusController.text.toString(),
-                  paperSize: '',
-                  kitchenPrintStatus: _kotStatusController.text.toString(), printFooterText:"",
-                  ipAddressWithPort: '', branchId: 1, createdUser: 1));
+              mainPrinter: '',
+              kitchenPrinter: _kotStatusController.text.toString(),
+              paperSize: '',
+              kitchenPrintStatus: _kotStatusController.text.toString(),
+              printFooterText: "",
+              ipAddressWithPort: '',
+              branchId: 1,
+              createdUser: 1,
+            ),
+          );
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings saved')));
