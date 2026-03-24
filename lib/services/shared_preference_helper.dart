@@ -185,6 +185,28 @@ class SharedPreferenceHelper {
     return prefs.getString("selectedPrinter");
   }
 
+  //Second printer
+  Future<bool> saveSelectedSecondPrinter(String selectedPrinter) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("selectedSecondPrinter", selectedPrinter);
+  }
+
+  Future<String?> loadSelectedSecondPrinter() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("selectedSecondPrinter");
+  }
+
+  //Second printer Name
+  Future<bool> saveSelectedSecondPrinterName(String selectedPrinter) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("selectedSecondPrinterName", selectedPrinter);
+  }
+
+  Future<String?> loadSelectedSecondPrinterName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("selectedSecondPrinterName");
+  }
+
   //printer
   Future<bool> saveSelectedPrinterSize(String printerSize) async {
     final prefs = await SharedPreferences.getInstance();

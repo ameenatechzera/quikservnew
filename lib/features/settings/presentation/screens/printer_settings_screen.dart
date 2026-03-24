@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:quikservnew/core/theme/colors.dart';
@@ -27,13 +30,17 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   bool st_companyAdressStatus = false;
   bool st_companyPhoneStatus = false;
   bool deviceListStatus = false;
+  bool deviceListKOTStatus = false;
   int selectedSeconds = 2;
   final List<int> delayOptions = [1, 2, 3, 4, 5,6,7,8];
-  final TextEditingController ipController = TextEditingController(
+   TextEditingController ipController = TextEditingController(
     text: '192.168.1.40:5000',
   );
 
   final TextEditingController connectedDeviceController = TextEditingController(
+    text: 'Not connected',
+  );
+  final TextEditingController connectedKOTDeviceController = TextEditingController(
     text: 'Not connected',
   );
 
@@ -58,15 +65,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   bool bluetoothDeviceChanged = false;
 
   // Dummy WiFi printer lists
-  final List<String> printersList = [
-    'MainPrinter_1',
-    'MainPrinter_2',
-    'MainPrinter_3',
-  ];
-  final List<String> printersKitchenList = [
-    'KitchenPrinter_1',
-    'KitchenPrinter_2',
-    'KitchenPrinter_3',
+   List<String> printersList = [];
+   List<String> printersKitchenList = [
   ];
   String? selectedMainPrinter;
   String? selectedKitchenPrinter;
@@ -74,8 +74,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   @override
   void initState() {
     super.initState();
-    selectedMainPrinter = printersList.first;
-    selectedKitchenPrinter = printersKitchenList.first;
+    //selectedMainPrinter = printersList.first;
+    //selectedKitchenPrinter = printersKitchenList.first;
     _companyNameController.text = widget.companyName;
 
     fetchPrinterSettings();
@@ -86,6 +86,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   Future<void> _initBluetooth() async {
     final prefs = await SharedPreferences.getInstance();
     final savedDevice = prefs.getString('bt_device_name') ?? '';
+    final savedSecondDevice = prefs.getString('selectedSecondPrinterName') ?? '';
     kotStatus = prefs.getString('KOT_status') ?? '';
     printerType = prefs.getString('printerType') ?? '';
 
@@ -99,16 +100,58 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     if (savedDevice.isNotEmpty) {
       connectedDeviceController.text = savedDevice;
     }
-
+    connectedKOTDeviceController.text = savedSecondDevice;
     final devices = await PrintBluetoothThermal.pairedBluetooths;
     setState(() {
       bluetoothDevices = devices;
       selectedSeconds  = prefs.getInt('print_gap')!;
     });
   }
+  Future<void> printToTwoPrinters(String mac1, String name, String printerName) async {
+    final bytes = await _generateTicket();
 
+    if (printerName == 'Main') {
+      // 🔹 Printer 1
+      await PrintBluetoothThermal.disconnect;
+      bool connected1 = await PrintBluetoothThermal.connect(
+          macPrinterAddress: mac1);
+
+      if (connected1) {
+        await PrintBluetoothThermal.writeBytes(bytes);
+        await Future.delayed(Duration(milliseconds: 500));
+        await PrintBluetoothThermal.disconnect;
+      }
+      setState(() {
+        connectedDeviceController.text = name;
+        deviceListStatus = false;
+      });
+      await SharedPreferenceHelper().saveSelectedPrinter(mac1);
+    }
+    if (printerName == 'Kitchen') {
+      // 🔹 Printer 2
+      bool connected2 = await PrintBluetoothThermal.connect(
+          macPrinterAddress: mac1);
+
+      if (connected2) {
+        await PrintBluetoothThermal.writeBytes(bytes);
+        await PrintBluetoothThermal.disconnect;
+      }
+      setState(() {
+        connectedKOTDeviceController.text = name;
+        deviceListKOTStatus = false;
+      });
+      await SharedPreferenceHelper().saveSelectedSecondPrinter(mac1);
+      await SharedPreferenceHelper().saveSelectedSecondPrinterName(name);
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Printer connected successfully')),
+    );
+  }
   Future<void> _connectAndPrint(String mac, String name) async {
     await SharedPreferenceHelper().saveSelectedPrinter(mac);
+    //await SharedPreferenceHelper().saveSelectedSecondPrinter(mac);
+
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Connecting... Please wait')));
@@ -471,6 +514,12 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
             ),
           ),
           const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Select Main Printer',style: TextStyle(fontWeight: FontWeight.bold),),
+            ],
+          ),
           Card(
             elevation: 4,
             shape: RoundedRectangleBorder(
@@ -495,7 +544,43 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                   ),
                   const SizedBox(height: 10),
                   _connectedDeviceBox(),
-                  if (deviceListStatus) _deviceList(),
+                  if (deviceListStatus) _deviceList('Main'),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Select Kitchen Printer',style: TextStyle(fontWeight: FontWeight.bold),),
+            ],
+          ),
+          Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'Change Printer',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      Switch(
+                        value: deviceListKOTStatus,
+                        onChanged: (v) => setState(() => deviceListKOTStatus = v),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _connectedKOTDeviceBox(),
+                  if (deviceListKOTStatus) _deviceList('Kitchen'),
                 ],
               ),
             ),
@@ -538,8 +623,41 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
       ),
     );
   }
+  Widget _connectedKOTDeviceBox() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.print, color: Colors.blueGrey),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Connected Device',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                Text(
+                  connectedKOTDeviceController.text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget _deviceList() {
+  Widget _deviceList(String printerName) {
     return Column(
       children: [
         const SizedBox(height: 14),
@@ -569,7 +687,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                       subtitle: Text(d.macAdress),
                       trailing: IconButton(
                         icon: const Icon(Icons.link, color: Color(0xFFFF8A00)),
-                        onPressed: () => _connectAndPrint(d.macAdress, d.name),
+                        //onPressed: () => _connectAndPrint(d.macAdress, d.name),
+                        onPressed: (){
+                          printToTwoPrinters(d.macAdress, d.name,printerName);
+                        },
                       ),
                     );
                   },
@@ -612,7 +733,23 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                 ),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.refresh),
-                  onPressed: () {},
+                  onPressed: () async {
+                    try {
+                      final list =
+                          await fetchPrinters(); // get printers
+                      setState(() {
+                        printersList =
+                            list; // update state
+                      });
+                    } catch (e) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                "Failed to fetch printers: $e")),
+                      );
+                    }
+                  },
                 ),
               ),
             ),
@@ -635,7 +772,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                 labelText: "Select Kitchen Printer",
                 border: OutlineInputBorder(),
               ),
-              items: printersKitchenList
+              items: printersList
                   .map((p) => DropdownMenuItem(value: p, child: Text(p)))
                   .toList(),
               onChanged: (v) => setState(() => selectedKitchenPrinter = v),
@@ -755,6 +892,20 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
     logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
     setState(() {});
+  }
+
+  Future<List<String>> fetchPrinters() async {
+    print('printerfetchCalled');
+
+    String st_IpAddress =
+        'http://' + ipController.text.toString().trim() + '/printers';
+    final response = await http.get(Uri.parse(st_IpAddress));
+    print('response ${response.body}');
+    if (response.statusCode == 200) {
+      return List<String>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load printers');
+    }
   }
 }
 

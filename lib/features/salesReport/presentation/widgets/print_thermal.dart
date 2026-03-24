@@ -72,7 +72,8 @@ class _PrintPageState extends State<PrintPage> {
       st_companyAddress = '',
       st_companyLogo = '',
       st_userName = '',
-      st_baseUrl = '';
+      st_baseUrl = '',
+  st_connectedSecondPrinter ='';
   bool deviceListStatus = false;
   bool arabicTextStatus = false;
   bool vatStatus = false;
@@ -615,7 +616,24 @@ class _PrintPageState extends State<PrintPage> {
 
     return bytes;
   }
-
+  Future<List<int>> _generateTestTicket() async {
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(PaperSize.mm58, profile);
+    return generator.text(
+      'Test Print',
+      styles: const PosStyles(align: PosAlign.center),
+    ) +
+        generator.cut();
+  }
+  Future<List<int>> _generateTestKitchenTicket() async {
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(PaperSize.mm58, profile);
+    return generator.text(
+      'Test Kitchen Print',
+      styles: const PosStyles(align: PosAlign.center),
+    ) +
+        generator.cut();
+  }
   Future<List<int>> _generateTicket() async {
     final profile = await CapabilityProfile.load();
     Generator generator;
@@ -993,6 +1011,30 @@ class _PrintPageState extends State<PrintPage> {
     );
   }
 
+  Future<void> printToTwoPrinters(String mac1, String mac2) async {
+    print('mac1 $mac1');
+    print('mac2 $mac2');
+    final bytes = await _generateTestTicket();
+    final bytesK = await _generateTestKitchenTicket();
+
+    // 🔹 Printer 1
+    await PrintBluetoothThermal.disconnect;
+    bool connected1 = await PrintBluetoothThermal.connect(macPrinterAddress: mac1);
+
+    if (connected1) {
+      await PrintBluetoothThermal.writeBytes(bytes);
+      await Future.delayed(Duration(milliseconds: 500));
+      await PrintBluetoothThermal.disconnect;
+    }
+    await Future.delayed(Duration(milliseconds: 5000));
+    // 🔹 Printer 2
+    bool connected2 = await PrintBluetoothThermal.connect(macPrinterAddress: mac2);
+
+    if (connected2) {
+      await PrintBluetoothThermal.writeBytes(bytesK);
+      await PrintBluetoothThermal.disconnect;
+    }
+  }
   Future<void> checkDeviceList() async {
     final baseUrl = await SharedPreferenceHelper().getBaseUrl();
     if (baseUrl == null || baseUrl.isEmpty) {
@@ -1001,6 +1043,8 @@ class _PrintPageState extends State<PrintPage> {
 
     st_connectedDevicePref = (await SharedPreferenceHelper()
         .loadSelectedPrinter())!;
+    st_connectedSecondPrinter = (await SharedPreferenceHelper()
+        .loadSelectedSecondPrinter())!;
     selectedPrinter = (await SharedPreferenceHelper()
         .loadSelectedPrinterSize())!;
     companyNameFontSize = (await (SharedPreferenceHelper()
@@ -1020,6 +1064,7 @@ class _PrintPageState extends State<PrintPage> {
     logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
     logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
     print('st_connectedDevicePref $st_connectedDevicePref');
+    print('st_connectedSecondPrinter $st_connectedSecondPrinter');
     print('selectedPrinter $selectedPrinter');
     print('logoHeight $logoHeight');
     print('logoWidth $logoWidth');
@@ -1087,8 +1132,11 @@ class _PrintPageState extends State<PrintPage> {
       _getBluetoothDevices();
     } else {
       deviceListStatus = false;
+      print('reachedHere');
 
-      _connectAndPrint(st_connectedDevicePref);
+      printToTwoPrinters(st_connectedDevicePref,st_connectedSecondPrinter);
+
+     // _connectAndPrint(st_connectedDevicePref);
     }
   }
 
