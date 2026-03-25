@@ -61,6 +61,7 @@ dependencies:
   url_launcher: 6.1.12
   share_plus: ^7.2.1
   pdf: ^3.10.8
+  flutter_svg: ^2.0.10
 
 
 dev_dependencies:
@@ -118,8 +119,18 @@ flutter:
     - assets/icons/reporticon(3).png
     - assets/icons/reporticon(4).png
     - assets/icons/reporticon(5).png
-
-
+    - assets/icons/Clip path group.svg
+    - assets/icons/dashboardicon.svg
+    - assets/icons/homeicon.svg
+    - assets/icons/menuicon.svg
+    - assets/icons/cashicon.svg
+    - assets/icons/cardicon.svg
+    - assets/icons/multiicon.svg
+    - assets/icons/salesinvoiceicon.svg
+    - assets/icons/paymenticon.svg
+    - assets/icons/salesreporticon.svg
+    - assets/icons/itemreporticon.svg
+    - assets/icons/dailyclosingicon.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

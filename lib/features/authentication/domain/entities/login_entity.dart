@@ -51,15 +51,13 @@ class UserData {
       password: json["password"],
       isActive: json["isactive"],
       name: json["name"],
-      // ✅ SAFE conversion
-      branchIds:
-          json["branchids"] == null
-              ? []
-              : (json["branchids"] is List
-                  ? json["branchids"]
+      branchIds: json["branchids"] == null
+          ? []
+          : (json["branchids"] is List
+                ? json["branchids"]
                       .map<int>((e) => int.parse(e.toString()))
                       .toList()
-                  : [int.parse(json["branchids"].toString())]),
+                : [int.parse(json["branchids"].toString())]),
 
       createdDate: json["createddate"],
       modifiedDate: json["modifieddate"],

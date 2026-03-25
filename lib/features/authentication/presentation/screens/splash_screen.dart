@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    super.initState(); // Wait for first frame to avoid jump / bottom animation
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _opacity = 1.0; // fade in logo
@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // ✅ Override global status bar ONLY for splash
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent, // or your splash bg color
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
@@ -49,17 +49,6 @@ class _SplashScreenState extends State<SplashScreen> {
             fit: BoxFit.contain,
           ),
         ),
-        // child: Column(
-        //   mainAxisSize: MainAxisSize.min,
-        //   children: [
-        //     Image.asset(
-        //       "assets/icons/quikservlogo.png",
-
-        //       fit: BoxFit.contain,
-        //     ),
-        //     const SizedBox(height: 16),
-        //   ],
-        // ),
       ),
     );
   }
@@ -69,7 +58,6 @@ class _SplashScreenState extends State<SplashScreen> {
     final token = await sharedPrefHelper.getToken();
     final expiryDateStr = await sharedPrefHelper.getExpiryDate();
 
-    // Optional: keep splash for 3 seconds
     await Future.delayed(const Duration(milliseconds: 1200));
 
     if (!mounted) return;

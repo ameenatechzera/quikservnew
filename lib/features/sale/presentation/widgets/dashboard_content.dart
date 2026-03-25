@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
@@ -322,14 +323,15 @@ class _DashboardContentState extends State<DashboardContent> {
                               ),
                             );
                           },
-                          iconPath: 'assets/icons/salesinvoiceicon.png',
+
+                          iconPath: 'assets/icons/salesinvoiceicon.svg',
                           label: 'Sales Invoice',
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: _ActionTile(
-                          iconPath: 'assets/icons/paymenticon.png',
+                          iconPath: 'assets/icons/paymenticon.svg',
                           label: 'Payment',
                           onTap: () {
                             Navigator.push(
@@ -356,7 +358,8 @@ class _DashboardContentState extends State<DashboardContent> {
                     children: [
                       Expanded(
                         child: _ActionTile(
-                          iconPath: 'assets/icons/salesreporticon.png',
+                          iconPath: 'assets/icons/salesreporticon.svg',
+
                           label: 'Sales Report',
                           onTap: () {
                             Navigator.push(
@@ -377,7 +380,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _ActionTile(
-                          iconPath: 'assets/icons/itemreporticon.png',
+                          iconPath: 'assets/icons/itemreporticon.svg',
                           label: 'Item Report',
                           onTap: () {
                             Navigator.push(
@@ -397,7 +400,7 @@ class _DashboardContentState extends State<DashboardContent> {
                     children: [
                       Expanded(
                         child: _ActionTile(
-                          iconPath: 'assets/icons/dailyreporticon.png',
+                          iconPath: 'assets/icons/dailyclosingicon.svg',
                           label: 'Daily Closing\nReport',
                           onTap: () {
                             Navigator.push(
@@ -1242,7 +1245,12 @@ class _ActionTile extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(iconPath, width: 20, height: 20, color: Colors.black),
+            SvgPicture.asset(
+              iconPath,
+              width: 20,
+              height: 20,
+              color: Colors.black,
+            ),
             const SizedBox(width: 10),
             Text(
               label,

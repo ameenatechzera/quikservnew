@@ -767,7 +767,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                                           !_focusNodes['purchaseRate']!
                                               .hasFocus &&
                                           _purchaseRateController.text.isEmpty,
-                                      labelText: "Purchase Rate",
+                                      labelText: "Purchase Cost",
                                       labelStyle: const TextStyle(fontSize: 14),
                                     ),
                                   ),

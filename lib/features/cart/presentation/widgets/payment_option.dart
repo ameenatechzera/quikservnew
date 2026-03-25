@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 
 class PaymentOption extends StatelessWidget {
@@ -33,7 +34,7 @@ class PaymentOption extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
+          SvgPicture.asset(
             iconPath,
             width: 24,
             height: 24,

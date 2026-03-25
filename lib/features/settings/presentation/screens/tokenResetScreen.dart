@@ -14,18 +14,14 @@ class ResetTokenScreen extends StatefulWidget {
 
 class _ResetTokenScreenState extends State<ResetTokenScreen> {
   final TextEditingController _tokenController = TextEditingController();
-
   @override
   void initState() {
-    // TODO: implement initState
-
     context.read<SettingsCubit>().fetchSalesTokenFromServer();
     super.initState();
   }
 
   void _resetToken() {
     setState(() {
-      // _tokenController.clear();
       _tokenController.text = '1';
     });
   }
@@ -75,6 +71,7 @@ class _ResetTokenScreenState extends State<ResetTokenScreen> {
           }
         },
         builder: (context, state) {
+          final isLoading = state is! FetchSalesTokenSuccess;
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -83,12 +80,24 @@ class _ResetTokenScreenState extends State<ResetTokenScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: TextFormField(
-                        controller: _tokenController,
-                        decoration: const InputDecoration(
-                          labelText: 'Enter Token',
-                          border: OutlineInputBorder(),
-                        ),
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          TextFormField(
+                            controller: _tokenController,
+                            decoration: const InputDecoration(
+                              labelText: 'Enter Token',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          if (isLoading)
+                            const Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: LinearProgressIndicator(minHeight: 2),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 4),

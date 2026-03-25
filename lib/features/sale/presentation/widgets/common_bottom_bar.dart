@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CommomBottomBar extends StatelessWidget {
   final int currentTabIndex;
@@ -29,21 +30,21 @@ class CommomBottomBar extends StatelessWidget {
             children: [
               // HOME
               _buildTab(
-                iconPath: 'assets/icons/homeicon.png',
+                iconPath: 'assets/icons/homeicon.svg',
                 label: "Home",
                 index: 0,
               ),
 
               // DASHBOARD
               _buildTab(
-                iconPath: 'assets/icons/Group (1).png',
+                iconPath: 'assets/icons/dashboardicon.svg',
                 label: "Dashboard",
                 index: 1,
               ),
 
               // SETTINGS
               _buildTab(
-                iconPath: 'assets/icons/settingsicon.png',
+                iconPath: 'assets/icons/Clip path group.svg',
                 label: "Settings",
                 index: 2,
               ),
@@ -74,10 +75,10 @@ class CommomBottomBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Image.asset(
+            SvgPicture.asset(
               iconPath,
-              width: 20,
-              height: 20,
+              width: 25,
+              height: 25,
               color: isSelected ? Colors.white : Colors.black, // optional
             ),
             // Icon(

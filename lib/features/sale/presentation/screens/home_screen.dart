@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
@@ -46,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Search controller
   final TextEditingController _searchController = TextEditingController();
-
+  //final FocusNode _searchFocusNode = FocusNode();
   // ✅ Adjust if needed (match your real widget heights)
   final double _bottomBarHeight = 70; // CommomBottomBar height
   final double _cartBarHeight = 60; // cartBottomBar height
@@ -170,11 +171,11 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context.read<ProductCubit>().loadProductsFromLocal(); // reload every time
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   context.read<ProductCubit>().loadProductsFromLocal(); // reload every time
+  // }
 
   @override
   void dispose() {
@@ -755,10 +756,10 @@ class _HomeScreenState extends State<HomeScreen>
                         // }
                       },
                       child: Center(
-                        child: Image.asset(
-                          'assets/icons/Vector.png',
-                          width: 24, // adjust size if needed
-                          height: 24,
+                        child: SvgPicture.asset(
+                          'assets/icons/menuicon.svg',
+                          // width: 20, // adjust size if needed
+                          // height: ,
                           color: AppColors
                               .white, // optional (only works if image is single-color)
                         ),

@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/error_message_model.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
@@ -18,7 +17,7 @@ abstract class AccountLedgerRemoteDataSource {
   Future<MasterResponseModel> updateAccountLedger(
     int ledgerId,
     AccountLedgerParams params,
-  ); // ✅ New method for fetching bank account ledgers
+  );
   Future<FetchBankAccountLedgerResponseModel> fetchBankAccountLedger(
     FetchBankAccountLedgerParams params,
   );
@@ -63,9 +62,7 @@ class AccountLedgerRemoteDataSourceImpl
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in fetchAccountLedgers: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -82,12 +79,6 @@ class AccountLedgerRemoteDataSourceImpl
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
 
-      // debug prints
-      print('🔹 Delete Account Ledger URL: $url');
-      print('🔹 Ledger ID: $ledgerId');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-
       if (token.isEmpty) {
         throw Exception("Token missing! Please login again.");
       }
@@ -103,10 +94,6 @@ class AccountLedgerRemoteDataSourceImpl
           },
         ),
       );
-
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
-
       if (response.statusCode == 200) {
         return MasterResponseModel.fromJson(response.data);
       } else {
@@ -114,9 +101,7 @@ class AccountLedgerRemoteDataSourceImpl
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in deleteAccountLedger: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -135,12 +120,6 @@ class AccountLedgerRemoteDataSourceImpl
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
 
-      // debug prints
-      print('🔹 Save Account Ledger URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-      print('🔹 Request Body: ${params.toJson()}');
-
       if (token.isEmpty) {
         throw Exception("Token missing! Please login again.");
       }
@@ -158,9 +137,6 @@ class AccountLedgerRemoteDataSourceImpl
         ),
       );
 
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AccLedgerResponseModel.fromJson(response.data);
       } else {
@@ -168,9 +144,7 @@ class AccountLedgerRemoteDataSourceImpl
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in saveAccountLedger: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -193,19 +167,11 @@ class AccountLedgerRemoteDataSourceImpl
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
 
-      // debug prints
-      print('🔹 Update Account Ledger URL: $url');
-      print('🔹 Ledger ID: $ledgerId');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-      print('🔹 Request Body: ${params.toJson()}');
-
       if (token.isEmpty) {
         throw Exception("Token missing! Please login again.");
       }
 
       final response = await dio.post(
-        // ⚠️ change to POST if backend expects POST
         url,
         data: params.toJson(),
         options: Options(
@@ -217,13 +183,6 @@ class AccountLedgerRemoteDataSourceImpl
           },
         ),
       );
-      debugPrint(
-        "🔵 UPDATE LEDGER URL: ${ApiConstants.updateAccountLedgerPath(baseUrl, ledgerId)}/$ledgerId",
-      );
-      debugPrint("🔵 UPDATE LEDGER BODY: ${params.toJson()}");
-
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
 
       if (response.statusCode == 200) {
         return MasterResponseModel.fromJson(response.data);
@@ -232,9 +191,7 @@ class AccountLedgerRemoteDataSourceImpl
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in updateAccountLedger: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -249,16 +206,9 @@ class AccountLedgerRemoteDataSourceImpl
         throw Exception("Base URL not set");
       }
 
-      final url = ApiConstants.getBankAccountLedgerPath(
-        baseUrl,
-      ); // 🔹 make sure this exists
+      final url = ApiConstants.getBankAccountLedgerPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
-
-      // debug prints
-      print('🔹 Fetch Bank Account Ledger URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
 
       if (token.isEmpty) {
         throw Exception("Token missing! Please login again.");
@@ -277,9 +227,6 @@ class AccountLedgerRemoteDataSourceImpl
         ),
       );
 
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
-
       if (response.statusCode == 200) {
         return FetchBankAccountLedgerResponseModel.fromJson(response.data);
       } else {
@@ -287,9 +234,7 @@ class AccountLedgerRemoteDataSourceImpl
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in fetchBankAccountLedger: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }

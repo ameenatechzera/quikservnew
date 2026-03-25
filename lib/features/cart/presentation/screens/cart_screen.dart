@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
-import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
+import 'package:quikservnew/features/cart/presentation/helper/cartscreen_helper.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/cart_item_row.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/payment_option.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/summary_row.dart';
@@ -21,7 +20,6 @@ import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -39,13 +37,16 @@ class _CartScreenState extends State<CartScreen> {
   final SharedPreferenceHelper helper = SharedPreferenceHelper();
   TextEditingController expiredStatusController = TextEditingController();
   final _deviceIdController = TextEditingController();
-
+  final CartScreenHelper cartScreenHelper = CartScreenHelper();
   @override
   void initState() {
     expiredStatusController.text = 'false';
     //getDeviceId();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAndShowExpiryWarningOnceDaily();
+      cartScreenHelper.checkAndShowExpiryWarningOnceDaily(
+        context: context,
+        expiredStatusController: expiredStatusController,
+      );
     });
     super.initState();
     _loadDefaultPayment();
@@ -73,9 +74,11 @@ class _CartScreenState extends State<CartScreen> {
           child: BlocListener<RegisterCubit, RegisterState>(
             listener: (context, state) async {
               if (state is RegisterSuccess) {
-                print('reached_RegisterSuccess');
                 // showAppSnackBar(context, "Reached");
-                await _handleExpiryWarning();
+                await cartScreenHelper.handleExpiryWarning(
+                  context: context,
+                  expiredStatusController: expiredStatusController,
+                );
               }
               if (state is DeviceRegisterSuccess) {
                 if (state.registerResponse.data?.result == true) {
@@ -195,7 +198,7 @@ class _CartScreenState extends State<CartScreen> {
           valueListenable: CartManager().cartItems,
           builder: (context, cartItems, _) {
             return FutureBuilder<Map<String, dynamic>>(
-              future: _calculateTotals(),
+              future: CartScreenHelper().calculateTotals(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const SizedBox(
@@ -253,7 +256,7 @@ class _CartScreenState extends State<CartScreen> {
                                 // Will Show tax label based on vatType
                                 if (tax > 0)
                                   summaryRow(
-                                    '${_getTaxLabel(vatType)} :',
+                                    '${CartScreenHelper().getTaxLabel(vatType)} :',
                                     tax.toStringAsFixed(2),
                                   ),
                                 //summaryRow('Tax :', '₹ ${tax.toStringAsFixed(2)}'),
@@ -286,8 +289,7 @@ class _CartScreenState extends State<CartScreen> {
                                         title: 'Cash',
                                         subtitle: '',
                                         selected: payment == 'Cash',
-                                        iconPath:
-                                            'assets/icons/Clip path group (1).png',
+                                        iconPath: 'assets/icons/cashicon.svg',
                                         amount: payment == 'Cash' ? total : 0,
                                       ),
                                     ),
@@ -306,7 +308,7 @@ class _CartScreenState extends State<CartScreen> {
                                         title: 'Card',
                                         subtitle: '',
                                         selected: payment == 'Card',
-                                        iconPath: 'assets/icons/cardicon.png',
+                                        iconPath: 'assets/icons/cardicon.svg',
                                         amount: payment == 'Card' ? total : 0,
                                       ),
                                     ),
@@ -317,19 +319,362 @@ class _CartScreenState extends State<CartScreen> {
                                       onTap: () {
                                         final prevPayment =
                                             selectedPayment.value;
-                                        _showMultiPaymentModal(
-                                          context,
-                                          total: total,
-                                          prevPayment: prevPayment,
-                                          onCancel: () {
-                                            // ✅ go back to previous selection
-                                            selectedPayment.value = prevPayment;
-                                          },
-                                          onOk: () {
-                                            // ✅ set Multi only when user confirms
-                                            selectedPayment.value = 'Multi';
-                                          },
+                                        var onCancel = () {
+                                          // ✅ go back to previous selection
+                                          selectedPayment.value = prevPayment;
+                                        };
+                                        var onOk = () {
+                                          // ✅ set Multi only when user confirms
+                                          selectedPayment.value = 'Multi';
+                                        };
+                                        final bool wasMulti =
+                                            prevPayment == 'Multi';
+                                        // final double initialCash = prevPayment == 'Cash' ? total : 0;
+                                        // final double initialCard = prevPayment == 'Card' ? total : 0;
+                                        final double initialCash = wasMulti
+                                            ? multiCashAmount.value
+                                            : (prevPayment == 'Cash'
+                                                  ? total
+                                                  : 0);
+
+                                        final double initialCard = wasMulti
+                                            ? multiCardAmount.value
+                                            : (prevPayment == 'Card'
+                                                  ? total
+                                                  : 0);
+
+                                        // ✅ TEMP values (only commit on OK)
+                                        double tempCash = initialCash;
+                                        double tempCard = initialCard;
+
+                                        final cashCtrl = TextEditingController(
+                                          text: initialCash == 0
+                                              ? ''
+                                              : initialCash.toStringAsFixed(2),
                                         );
+                                        final cardCtrl = TextEditingController(
+                                          text: initialCard == 0
+                                              ? ''
+                                              : initialCard.toStringAsFixed(2),
+                                        );
+
+                                        bool isAutoUpdating = false;
+                                        bool closedByButton = false;
+                                        double _parse(String v) =>
+                                            double.tryParse(v.trim()) ?? 0;
+
+                                        // double _clampToTotal(double v) {
+                                        //   if (v < 0) return 0;
+                                        //   if (v > total) return total;
+                                        //   return v;
+                                        // }
+
+                                        void _setText(
+                                          TextEditingController c,
+                                          double value,
+                                        ) {
+                                          final t = value == 0
+                                              ? ''
+                                              : value.toStringAsFixed(2);
+                                          c.value = TextEditingValue(
+                                            text: t,
+                                            selection: TextSelection.collapsed(
+                                              offset: t.length,
+                                            ),
+                                          );
+                                        }
+
+                                        // ✅ INPUT FORMATTER: stop typing if value > total
+                                        TextInputFormatter _maxTotalFormatter(
+                                          double total,
+                                        ) {
+                                          return TextInputFormatter.withFunction(
+                                            (oldValue, newValue) {
+                                              final t = newValue.text.trim();
+
+                                              // allow empty
+                                              if (t.isEmpty) return newValue;
+
+                                              // allow just "." while typing
+                                              if (t == ".") return newValue;
+
+                                              final v = double.tryParse(t);
+                                              if (v == null) return oldValue;
+
+                                              // ❌ reject if exceeds total
+                                              if (v > total) return oldValue;
+
+                                              return newValue;
+                                            },
+                                          );
+                                        }
+
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(16),
+                                            ),
+                                          ),
+                                          builder: (context) {
+                                            return WillPopScope(
+                                              onWillPop: () async {
+                                                // ✅ back button behaves like Cancel
+                                                if (!closedByButton) onCancel();
+                                                return true;
+                                              },
+                                              child: Padding(
+                                                padding: EdgeInsets.only(
+                                                  left: 16,
+                                                  right: 16,
+                                                  top: 16,
+                                                  bottom:
+                                                      MediaQuery.of(
+                                                        context,
+                                                      ).viewInsets.bottom +
+                                                      16,
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    const Text(
+                                                      'Multi Payment',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        'Total: ${total.toStringAsFixed(2)}',
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 16),
+
+                                                    /// 🔹 Cash row
+                                                    Row(
+                                                      children: [
+                                                        const SizedBox(
+                                                          width: 160,
+                                                          child: Text('Cash'),
+                                                        ),
+                                                        Expanded(
+                                                          child: TextField(
+                                                            controller:
+                                                                cashCtrl,
+                                                            keyboardType:
+                                                                const TextInputType.numberWithOptions(
+                                                                  decimal: true,
+                                                                ),
+                                                            inputFormatters: [
+                                                              FilteringTextInputFormatter.allow(
+                                                                RegExp(
+                                                                  r'^\d*\.?\d{0,2}$',
+                                                                ), // 2 decimals
+                                                              ),
+                                                              _maxTotalFormatter(
+                                                                total,
+                                                              ), // ✅ stop if > total
+                                                            ],
+                                                            decoration: InputDecoration(
+                                                              hintText:
+                                                                  'Amount',
+                                                              border: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      8,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                            onChanged: (v) {
+                                                              if (isAutoUpdating)
+                                                                return;
+                                                              isAutoUpdating =
+                                                                  true;
+
+                                                              final cash =
+                                                                  _parse(v);
+                                                              final card =
+                                                                  total - cash;
+
+                                                              // ✅ update TEMP only
+                                                              tempCash = cash;
+                                                              tempCard = card;
+
+                                                              // if ((_parse(v) - cash).abs() > 0.001) {
+                                                              //   _setText(cashCtrl, cash);
+                                                              // }
+                                                              _setText(
+                                                                cardCtrl,
+                                                                card,
+                                                              );
+
+                                                              isAutoUpdating =
+                                                                  false;
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+
+                                                    const SizedBox(height: 12),
+
+                                                    /// 🔹 Card row
+                                                    Row(
+                                                      children: [
+                                                        const SizedBox(
+                                                          width: 160,
+                                                          child: Text('Card'),
+                                                        ),
+                                                        Expanded(
+                                                          child: TextField(
+                                                            controller:
+                                                                cardCtrl,
+                                                            keyboardType:
+                                                                const TextInputType.numberWithOptions(
+                                                                  decimal: true,
+                                                                ),
+                                                            inputFormatters: [
+                                                              FilteringTextInputFormatter.allow(
+                                                                RegExp(
+                                                                  r'^\d*\.?\d{0,2}$',
+                                                                ),
+                                                              ),
+                                                              _maxTotalFormatter(
+                                                                total,
+                                                              ), // ✅ stop if > total
+                                                            ],
+                                                            decoration: InputDecoration(
+                                                              hintText:
+                                                                  'Amount',
+                                                              border: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      8,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                            onChanged: (v) {
+                                                              if (isAutoUpdating)
+                                                                return;
+                                                              isAutoUpdating =
+                                                                  true;
+
+                                                              final card =
+                                                                  _parse(v);
+                                                              final cash =
+                                                                  total - card;
+
+                                                              // ✅ update TEMP only
+                                                              tempCard = card;
+                                                              tempCash = cash;
+
+                                                              // if ((_parse(v) - card).abs() > 0.001) {
+                                                              //   _setText(cardCtrl, card);
+                                                              // }
+                                                              _setText(
+                                                                cashCtrl,
+                                                                cash,
+                                                              );
+
+                                                              isAutoUpdating =
+                                                                  false;
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+
+                                                    const SizedBox(height: 20),
+
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: OutlinedButton(
+                                                            onPressed: () {
+                                                              closedByButton =
+                                                                  true;
+                                                              onCancel();
+                                                              // ✅ Cancel = do nothing, just close
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                            },
+                                                            child: const Text(
+                                                              'Cancel',
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 12,
+                                                        ),
+                                                        Expanded(
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor:
+                                                                  const Color(
+                                                                    0xFFEAB307,
+                                                                  ),
+                                                              foregroundColor:
+                                                                  Colors.black,
+                                                            ),
+                                                            onPressed: () {
+                                                              // ✅ OK = commit values
+                                                              if ((tempCash +
+                                                                          tempCard -
+                                                                          total)
+                                                                      .abs() >
+                                                                  0.01) {
+                                                                ScaffoldMessenger.of(
+                                                                  context,
+                                                                ).showSnackBar(
+                                                                  const SnackBar(
+                                                                    content: Text(
+                                                                      'Cash + Card must equal Total',
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                                return;
+                                                              }
+                                                              closedByButton =
+                                                                  true;
+                                                              multiCashAmount
+                                                                      .value =
+                                                                  tempCash;
+                                                              multiCardAmount
+                                                                      .value =
+                                                                  tempCard;
+                                                              onOk();
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                            },
+                                                            child: const Text(
+                                                              'OK',
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ).whenComplete(() {
+                                          // ✅ swipe down / tap outside behaves like Cancel too
+                                          if (!closedByButton) onCancel();
+                                        });
                                         // selectedPayment.value = 'Multi';
                                         // _showMultiPaymentModal(
                                         //   context,
@@ -351,7 +696,7 @@ class _CartScreenState extends State<CartScreen> {
                                                           'Card ${card.toStringAsFixed(0)}',
                                                 selected: payment == 'Multi',
                                                 iconPath:
-                                                    'assets/icons/multiicon.png',
+                                                    'assets/icons/multiicon.svg',
                                                 amount: cash + card,
                                               );
                                             },
@@ -516,446 +861,6 @@ class _CartScreenState extends State<CartScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  /// 🔹 Get the appropriate tax label based on vatType
-  String _getTaxLabel(String? vatType) {
-    switch (vatType?.toLowerCase()) {
-      case 'tax':
-        return 'Tax';
-      case 'gst':
-        return 'GST';
-      default:
-        return ''; // Default label if null or unknown
-    }
-  }
-
-  /// 🔹 Calculate totals dynamically using VAT settings
-  Future<Map<String, dynamic>> _calculateTotals() async {
-    final items = CartManager().cartItems.value;
-    final subTotal = items.fold(0.0, (sum, item) => sum + item.totalPrice);
-    final discount = 0.0;
-
-    final vatStatus = await SharedPreferenceHelper().getVatStatus();
-    final vatType = await SharedPreferenceHelper().getVatType();
-    double tax = 0.0;
-    if (vatStatus == true) {
-      // Apply 1% tax regardless of tax type (tax or gst)
-      tax = subTotal * 0.01; // 1% tax
-    }
-    final total = subTotal - discount + tax;
-
-    return {
-      'subTotal': subTotal,
-      'discount': discount,
-      'tax': tax,
-      'total': total,
-      'vatType': vatType,
-    };
-  }
-
-  void _showMultiPaymentModal(
-    BuildContext context, {
-    required double total,
-    required String prevPayment,
-    required VoidCallback onCancel,
-    required VoidCallback onOk,
-  }) {
-    // ✅ If user already set Multi before, preload saved values
-    final bool wasMulti = prevPayment == 'Multi';
-    // final double initialCash = prevPayment == 'Cash' ? total : 0;
-    // final double initialCard = prevPayment == 'Card' ? total : 0;
-    final double initialCash = wasMulti
-        ? multiCashAmount.value
-        : (prevPayment == 'Cash' ? total : 0);
-
-    final double initialCard = wasMulti
-        ? multiCardAmount.value
-        : (prevPayment == 'Card' ? total : 0);
-
-    // ✅ TEMP values (only commit on OK)
-    double tempCash = initialCash;
-    double tempCard = initialCard;
-
-    final cashCtrl = TextEditingController(
-      text: initialCash == 0 ? '' : initialCash.toStringAsFixed(2),
-    );
-    final cardCtrl = TextEditingController(
-      text: initialCard == 0 ? '' : initialCard.toStringAsFixed(2),
-    );
-
-    bool isAutoUpdating = false;
-    bool closedByButton = false;
-    double _parse(String v) => double.tryParse(v.trim()) ?? 0;
-
-    // double _clampToTotal(double v) {
-    //   if (v < 0) return 0;
-    //   if (v > total) return total;
-    //   return v;
-    // }
-
-    void _setText(TextEditingController c, double value) {
-      final t = value == 0 ? '' : value.toStringAsFixed(2);
-      c.value = TextEditingValue(
-        text: t,
-        selection: TextSelection.collapsed(offset: t.length),
-      );
-    }
-
-    // ✅ INPUT FORMATTER: stop typing if value > total
-    TextInputFormatter _maxTotalFormatter(double total) {
-      return TextInputFormatter.withFunction((oldValue, newValue) {
-        final t = newValue.text.trim();
-
-        // allow empty
-        if (t.isEmpty) return newValue;
-
-        // allow just "." while typing
-        if (t == ".") return newValue;
-
-        final v = double.tryParse(t);
-        if (v == null) return oldValue;
-
-        // ❌ reject if exceeds total
-        if (v > total) return oldValue;
-
-        return newValue;
-      });
-    }
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return WillPopScope(
-          onWillPop: () async {
-            // ✅ back button behaves like Cancel
-            if (!closedByButton) onCancel();
-            return true;
-          },
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Multi Payment',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Total: ${total.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                /// 🔹 Cash row
-                Row(
-                  children: [
-                    const SizedBox(width: 160, child: Text('Cash')),
-                    Expanded(
-                      child: TextField(
-                        controller: cashCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d{0,2}$'), // 2 decimals
-                          ),
-                          _maxTotalFormatter(total), // ✅ stop if > total
-                        ],
-                        decoration: InputDecoration(
-                          hintText: 'Amount',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onChanged: (v) {
-                          if (isAutoUpdating) return;
-                          isAutoUpdating = true;
-
-                          final cash = _parse(v);
-                          final card = total - cash;
-
-                          // ✅ update TEMP only
-                          tempCash = cash;
-                          tempCard = card;
-
-                          // if ((_parse(v) - cash).abs() > 0.001) {
-                          //   _setText(cashCtrl, cash);
-                          // }
-                          _setText(cardCtrl, card);
-
-                          isAutoUpdating = false;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                /// 🔹 Card row
-                Row(
-                  children: [
-                    const SizedBox(width: 160, child: Text('Card')),
-                    Expanded(
-                      child: TextField(
-                        controller: cardCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d{0,2}$'),
-                          ),
-                          _maxTotalFormatter(total), // ✅ stop if > total
-                        ],
-                        decoration: InputDecoration(
-                          hintText: 'Amount',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onChanged: (v) {
-                          if (isAutoUpdating) return;
-                          isAutoUpdating = true;
-
-                          final card = _parse(v);
-                          final cash = total - card;
-
-                          // ✅ update TEMP only
-                          tempCard = card;
-                          tempCash = cash;
-
-                          // if ((_parse(v) - card).abs() > 0.001) {
-                          //   _setText(cardCtrl, card);
-                          // }
-                          _setText(cashCtrl, cash);
-
-                          isAutoUpdating = false;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          closedByButton = true;
-                          onCancel();
-                          // ✅ Cancel = do nothing, just close
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEAB307),
-                          foregroundColor: Colors.black,
-                        ),
-                        onPressed: () {
-                          // ✅ OK = commit values
-                          if ((tempCash + tempCard - total).abs() > 0.01) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Cash + Card must equal Total'),
-                              ),
-                            );
-                            return;
-                          }
-                          closedByButton = true;
-                          multiCashAmount.value = tempCash;
-                          multiCardAmount.value = tempCard;
-                          onOk();
-                          Navigator.pop(context);
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    ).whenComplete(() {
-      // ✅ swipe down / tap outside behaves like Cancel too
-      if (!closedByButton) onCancel();
-    });
-  }
-
-  Future<void> _handleExpiryWarning() async {
-    print('reachedHaris');
-    expiredStatusController.text = 'true';
-    final prefs = await SharedPreferences.getInstance();
-
-    final today = DateTime.now();
-    final todayKey =
-        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-
-    final expiryString = await SharedPreferenceHelper().getExpiryDate();
-
-    if (expiryString.isEmpty || expiryString.trim().isEmpty) return;
-
-    final expiry = DateTime.parse(expiryString);
-    String? st_CurrentDate = await SharedPreferenceHelper().getCurrentDate();
-
-    // final todayDate = DateTime(today.year, today.month, today.day);
-    // final todayDate = await SharedPreferenceHelper().getCurrentDate();
-    DateTime todayDate;
-    try {
-      todayDate = DateTime.parse(st_CurrentDate!);
-      print('todayDate $todayDate');
-    } catch (_) {
-      todayDate = DateTime(today.year, today.month, today.day);
-      print('todayDateCatch $todayDate');
-    }
-
-    final expDate = DateTime(expiry.year, expiry.month, expiry.day);
-
-    final daysLeft = expDate.difference(todayDate).inDays;
-    print('daysLeft $daysLeft');
-
-    // if (daysLeft < 1 || daysLeft > 7) return;
-    if (daysLeft > 7) return;
-
-    //final lastShown = prefs.getString('expiry_warning_last_shown');
-
-    //if (lastShown == todayKey) return; //check once in a day
-
-    await prefs.setString('expiry_warning_last_shown', todayKey);
-
-    if (!mounted) return;
-
-    _showExpirySoonDialog(daysLeft: daysLeft, expiryDate: expDate);
-  }
-
-  Future<void> _checkAndShowExpiryWarningOnceDaily() async {
-    print('reached__checkAndShowExpiryWarningOnceDaily');
-    // try {
-    final prefs = await SharedPreferences.getInstance();
-
-    ///  CALL REGISTER API ONCE PER DAY
-
-    DateTime today;
-    final deviceId = await SharedPreferenceHelper().getDeviceID();
-    String? st_CurrentDate = await SharedPreferenceHelper().getCurrentDate();
-
-    print('st_CurrentDate $st_CurrentDate');
-
-    if (st_CurrentDate != null && st_CurrentDate.isNotEmpty) {
-      today = DateTime.parse(st_CurrentDate);
-    } else {
-      today = DateTime.now();
-    }
-
-    final todayKey =
-        "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-    print('todayKey $todayKey');
-
-    final lastApiCall = prefs.getString('subscription_api_last_called') ?? '';
-
-    // Remove time part (important if time exists)
-    DateTime lastCall;
-    int difference = 0;
-    try {
-      lastCall = DateTime.parse(lastApiCall);
-      lastCall = DateTime(lastCall.year, lastCall.month, lastCall.day);
-
-      difference = today.difference(lastCall).inDays;
-    } catch (_) {}
-    print("Difference in days: $difference");
-    //if (lastApiCall != todayKey) {
-    print('reachedHere');
-    final code = await SharedPreferenceHelper().getSubscriptionCode();
-
-    // if (code.isNotEmpty) {
-    //   await context.read<RegisterCubit>().registerServer(
-    //     RegisterServerRequest(slno: code),
-    //   );
-    // }
-    if (code.isNotEmpty && difference >= 14) {
-      context.read<RegisterCubit>().checkDeviceRegisterStatus(
-        DeviceRegisterRequest(deviceId: deviceId.toString()),
-      );
-      await prefs.setString('subscription_api_last_called', todayKey);
-    } else {
-      print('ElselastApiCall $lastApiCall');
-      if (lastApiCall.isEmpty) {
-        context.read<RegisterCubit>().checkDeviceRegisterStatus(
-          DeviceRegisterRequest(deviceId: deviceId.toString()),
-        );
-
-        await prefs.setString('subscription_api_last_called', todayKey);
-      } else {
-        await _handleExpiryWarning();
-      }
-    }
-  }
-
-  void _showExpirySoonDialog({
-    required int daysLeft,
-    required DateTime expiryDate,
-  }) {
-    String st_head = 'Subscription Expiring';
-    String st_text =
-        'Your subscription will expire in $daysLeft day(s).\n\nPlease renew to avoid interruption.';
-    if (daysLeft == 0) {
-      st_text = 'Your subscription expired.';
-      st_head = 'Subscription Expired';
-      expiredStatusController.text = 'false';
-    } else {
-      expiredStatusController.text = 'true';
-    }
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.warning, color: Color(0xFFFFC107)),
-            Text(st_head),
-          ],
-        ),
-        content: Text(st_text),
-        actions: [
-          TextButton(
-            //onPressed: () => Navigator.pop(context),
-            onPressed: () {
-              if (daysLeft <= 0) {
-                exit(0);
-              } else {
-                Navigator.pop(context);
-              }
-            },
-            child: const Text("OK"),
-          ),
-        ],
       ),
     );
   }

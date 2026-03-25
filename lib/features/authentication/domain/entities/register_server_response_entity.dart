@@ -16,10 +16,9 @@ class RegisterResponseResult {
       status: json['status'] ?? 0,
       error: json['error'] ?? false,
       messages: json['messages'] ?? '',
-      companyDetails:
-          (json['company_details'] as List<dynamic>? ?? [])
-              .map((e) => CompanyModel.fromJson(e as Map<String, dynamic>))
-              .toList(),
+      companyDetails: (json['company_details'] as List<dynamic>? ?? [])
+          .map((e) => CompanyModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -75,11 +74,9 @@ class CompanyModel {
 
   factory CompanyModel.fromJson(Map<String, dynamic> json) {
     return CompanyModel(
-      // NOTE: API has "CompanyId " (with space). Use exact key.
-      companyId:
-          json['CompanyId '] is int
-              ? json['CompanyId ']
-              : int.tryParse((json['CompanyId '] ?? '0').toString()) ?? 0,
+      companyId: json['CompanyId '] is int
+          ? json['CompanyId ']
+          : int.tryParse((json['CompanyId '] ?? '0').toString()) ?? 0,
       companyName: json['CompanyName'] ?? '',
       companyNameFL: json['CompanyNameFL'] ?? '',
       address1: json['Address1'] ?? '',
@@ -90,7 +87,6 @@ class CompanyModel {
       web: json['Web'],
       currency: json['Currency'],
       currencySymbol: json['CurrencySymbol'],
-      // NOTE: API has "SerialNumber " (with space).
       serialNumber: json['SerialNumber '] ?? '',
       databaseName: json['DatabaseName'],
       vatNumber: json['VATNumber'],

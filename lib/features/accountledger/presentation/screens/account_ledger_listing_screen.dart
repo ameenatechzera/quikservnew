@@ -13,7 +13,6 @@ class AccountLedgerListingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Fetch ledger data when screen loads
     context.read<AccountledgerCubit>().fetchAccountLedger();
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -56,10 +55,6 @@ class AccountLedgerListingScreen extends StatelessWidget {
                 return AccountLedgerTile(
                   title: ledger.ledgerName!,
                   onEdit: () {
-                    debugPrint(
-                      "✏️ Edit tapped for ledgerId = ${ledger.ledgerId}",
-                    );
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -71,9 +66,6 @@ class AccountLedgerListingScreen extends StatelessWidget {
                     );
                   },
                   onDelete: () async {
-                    debugPrint(
-                      "🟥 Delete tapped for ledgerId = ${ledger.ledgerId}",
-                    );
                     final shouldDelete = await showDialog<bool>(
                       context: context,
                       builder: (context) {
@@ -100,7 +92,6 @@ class AccountLedgerListingScreen extends StatelessWidget {
                     );
 
                     if (shouldDelete == true) {
-                      debugPrint("✅ User confirmed delete");
                       context.read<AccountledgerCubit>().deleteAccountLedger(
                         ledger.ledgerId!,
                       );

@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:quikservnew/core/database/app_database.dart';
 import 'package:quikservnew/features/accountledger/data/datasources/account_ledger_remote_datasource.dart';
-import 'package:quikservnew/features/accountledger/data/repositories/account_ledger_repositoryImpl.dart';
+import 'package:quikservnew/features/accountledger/data/repositories/account_ledger_repository_impl.dart';
 import 'package:quikservnew/features/accountledger/domain/repositories/account_ledger_repository.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/delete_accountledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/fetchAccountLedgersUseCase.dart';
@@ -21,7 +21,7 @@ import 'package:quikservnew/features/authentication/data/datasources/auth_remote
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:quikservnew/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/change_password_usecase.dart';
-import 'package:quikservnew/features/authentication/domain/usecases/deviceRegisterUseCase.dart';
+import 'package:quikservnew/features/authentication/domain/usecases/device_register_usecase.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/login_usecase.dart';
 import 'package:quikservnew/features/authentication/domain/usecases/register_server_usecase.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
@@ -141,16 +141,21 @@ class ServiceLocator {
     sl.registerFactory(
       () => RegisterCubit(
         registerServerUseCase: sl(),
-        changePasswordUseCase: sl(), checkDeviceRegisterStatusUseCase: sl(),
+        changePasswordUseCase: sl(),
+        checkDeviceRegisterStatusUseCase: sl(),
       ),
     );
-    sl.registerFactory(() => LoginCubit(loginServerUseCase: sl(), checkDeviceRegisterStatusUseCase: sl()));
+    sl.registerFactory(
+      () => LoginCubit(
+        loginServerUseCase: sl(),
+        checkDeviceRegisterStatusUseCase: sl(),
+      ),
+    );
     // usecase
     sl.registerLazySingleton(() => RegisterServerUseCase(sl()));
     sl.registerLazySingleton(() => LoginServerUseCase(sl()));
     sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
     sl.registerLazySingleton(() => CheckDeviceRegisterStatusUseCase(sl()));
-
 
     // Data Source
     sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -306,18 +311,19 @@ class ServiceLocator {
         fetchSettingsUseCase: sl(),
         fetchCurrentSalesTokenUseCase: sl(),
         updateSalesTokenUseCase: sl(),
-        saveAccountSettingsUseCase: sl(), fetchMonthlyGraphReportUseCase: sl(),
-          fetchSalesCountGraphReportUseCase: sl(),
-          fetchCustomSalesAmountGraphReportUseCase: sl(), savePrinterSettingsUseCase: sl()
+        saveAccountSettingsUseCase: sl(),
+        fetchMonthlyGraphReportUseCase: sl(),
+        fetchSalesCountGraphReportUseCase: sl(),
+        fetchCustomSalesAmountGraphReportUseCase: sl(),
+        savePrinterSettingsUseCase: sl(),
       ),
     );
 
     // Cubit
     sl.registerFactory(
-          () => SalesCountCubit(
-
-          fetchSalesCountGraphReportUseCase: sl(), fetchCustomSalesAmountGraphReportUseCase: sl(),
-
+      () => SalesCountCubit(
+        fetchSalesCountGraphReportUseCase: sl(),
+        fetchCustomSalesAmountGraphReportUseCase: sl(),
       ),
     );
     // UseCase
@@ -327,10 +333,10 @@ class ServiceLocator {
     sl.registerLazySingleton(() => SaveAccountSettingsUseCase(sl()));
     sl.registerLazySingleton(() => FetchMonthlyGraphReportUseCase(sl()));
     sl.registerLazySingleton(() => FetchSalesCountGraphReportUseCase(sl()));
-    sl.registerLazySingleton(() => FetchCustomSalesAmountGraphReportUseCase(sl()));
+    sl.registerLazySingleton(
+      () => FetchCustomSalesAmountGraphReportUseCase(sl()),
+    );
     sl.registerLazySingleton(() => SavePrinterSettingsUseCase(sl()));
-
-
 
     // Data Source
     sl.registerLazySingleton<SettingsRemoteDataSource>(
@@ -393,12 +399,7 @@ class ServiceLocator {
 
     // -------------- Item Cubit in day close report -----------------
 
-    sl.registerFactory(
-          () => ItemCubit(
-              fetchItemWiseDetailsUseCase:sl()
-      ),
-    );
-
+    sl.registerFactory(() => ItemCubit(fetchItemWiseDetailsUseCase: sl()));
 
     // ------------------- CreateUSer Cubit -------------------
     sl.registerFactory(
@@ -450,11 +451,13 @@ class ServiceLocator {
 
     // ------------------- Item Report Cubit -------------------
     sl.registerFactory(
-      () => ItemWiseReportCubit(fetchItemWiseReportUseCase: sl(), fetchItemWiseReportNewUseCase: sl()),
+      () => ItemWiseReportCubit(
+        fetchItemWiseReportUseCase: sl(),
+        fetchItemWiseReportNewUseCase: sl(),
+      ),
     );
     sl.registerLazySingleton(() => FetchItemWiseReportUseCase(sl()));
     sl.registerLazySingleton(() => FetchItemWiseReportNewUseCase(sl()));
-
 
     sl.registerLazySingleton<ItemWiseReportRemoteDataSource>(
       () => ItemWiseReportRemoteDataSourceImpl(),
@@ -467,7 +470,7 @@ class ServiceLocator {
     sl.registerFactory(
       () => DaycloseReportCubit(
         fetchDailyClosingReportUseCase: sl(),
-       // fetchItemWiseDetailsUseCase: sl(),
+        // fetchItemWiseDetailsUseCase: sl(),
       ),
     );
     sl.registerLazySingleton(() => FetchDailyClosingReportUseCase(sl()));

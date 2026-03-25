@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:quikservnew/features/accountledger/data/models/fetch_accountledger_model.dart';
 import 'package:quikservnew/features/accountledger/data/models/fetch_bankaccountledger_model.dart';
 import 'package:quikservnew/features/accountledger/domain/parameters/fetch_backaccountledger_parameter.dart';
@@ -30,11 +29,7 @@ class AccountledgerCubit extends Cubit<AccountledgerState> {
        _saveAccountLedgerUseCase = saveAccountLedgerUseCase,
        _updateAccountLedgerUseCase = updateAccountLedgerUseCase,
        _fetchBankAccountLedgerUseCase = fetchBankAccountLedgerUseCase,
-       super(AccountledgerInitial()) {
-    debugPrint("🔥 update usecase = $_updateAccountLedgerUseCase");
-    debugPrint("🔥 save usecase = $_saveAccountLedgerUseCase");
-    debugPrint("🔥 update usecase = $_updateAccountLedgerUseCase");
-  }
+       super(AccountledgerInitial()) {}
 
   /// 🔹 Fetch account ledger list
   Future<void> fetchAccountLedger() async {

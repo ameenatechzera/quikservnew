@@ -12,13 +12,13 @@ class CartManager {
     [],
   );
 
+  /// Add product to cart
   void addToCart(CartItem item) {
     final items = List<CartItem>.from(cartItems.value);
 
     final index = items.indexWhere((e) => e.productCode == item.productCode);
 
     if (index != -1) {
-      // ✅ UPDATE PRICE EVERY TIME
       items[index] = items[index].copyWith(
         qty: items[index].qty + item.qty,
         salesRate: item.salesRate,
@@ -30,80 +30,89 @@ class CartManager {
     cartItems.value = items;
   }
 
-  /// ➖ Remove product
-  void removeFromCart(String productId) {
-    cartItems.value.removeWhere((e) => e.productCode == productId);
-    cartItems.notifyListeners();
+  ///  Remove product
+  void removeFromCart(String productCode) {
+    final items = List<CartItem>.from(cartItems.value);
+    items.removeWhere((e) => e.productCode == productCode);
+    cartItems.value = items;
+
+    if (items.isEmpty) showCartBar.value = false;
   }
 
-  /// 🔽 Decrease quantity
-  void decreaseQty(int productId) {
-    final index = cartItems.value.indexWhere((e) => e.productCode == productId);
+  ///  Decrease quantity
+  void decreaseQty(String productCode) {
+    final items = List<CartItem>.from(cartItems.value);
+    final index = items.indexWhere((e) => e.productCode == productCode);
 
     if (index != -1) {
-      if (cartItems.value[index].qty > 1) {
-        cartItems.value[index].qty--;
+      if (items[index].qty > 1) {
+        items[index] = items[index].copyWith(qty: items[index].qty - 1);
       } else {
-        cartItems.value.removeAt(index);
+        items.removeAt(index);
       }
-      cartItems.notifyListeners();
     }
+
+    cartItems.value = items;
+
+    if (items.isEmpty) showCartBar.value = false;
   }
 
-  /// 💰 Total items
-  // int get totalItems =>
-  //     cartItems.value.fold(0, (sum, item_bloc) => sum + item_bloc.quantity);
+  ///  Increase quantity
+  void incrementQuantity(String productCode) {
+    final items = List<CartItem>.from(cartItems.value);
+
+    final index = items.indexWhere((item) => item.productCode == productCode);
+
+    if (index != -1) {
+      items[index] = items[index].copyWith(qty: items[index].qty + 1);
+    }
+
+    cartItems.value = items;
+  }
+
+  ///  Decrement quantity
+  void decrementQuantity(String productCode) {
+    final items = List<CartItem>.from(cartItems.value);
+
+    final index = items.indexWhere((item) => item.productCode == productCode);
+
+    if (index != -1) {
+      if (items[index].qty > 1) {
+        items[index] = items[index].copyWith(qty: items[index].qty - 1);
+      } else {
+        items.removeAt(index);
+      }
+    }
+
+    cartItems.value = items;
+
+    if (items.isEmpty) showCartBar.value = false;
+  }
+
+  ///  Total items
   int get totalItems =>
       cartItems.value.fold(0, (sum, item) => sum + item.qty.toInt());
 
-  /// 💰 Total price
+  ///  Total price
   double get totalPrice =>
       cartItems.value.fold(0, (sum, item) => sum + item.totalPrice);
 
-  /// ❌ Clear cart
+  ///  Clear cart
   void clearCart() {
-    cartItems.value.clear();
-    cartItems.notifyListeners();
+    cartItems.value = [];
     showCartBar.value = false;
   }
 
-  void incrementQuantity(String productId) {
-    final index = cartItems.value.indexWhere(
-      (item) => item.productCode == productId,
-    );
-    if (index != -1) {
-      cartItems.value[index].qty++;
-      cartItems.notifyListeners();
-    }
-  }
-
-  void decrementQuantity(String productId) {
-    final index = cartItems.value.indexWhere(
-      (item) => item.productCode == productId,
-    );
-    if (index != -1) {
-      if (cartItems.value[index].qty > 1) {
-        cartItems.value[index].qty--;
-      } else {
-        // Remove item_bloc completely
-        cartItems.value.removeAt(index);
-        if (cartItems.value.isEmpty) showCartBar.value = false;
-      }
-      cartItems.notifyListeners();
-    }
-  }
-
-  // In your CartManager class
+  ///  Update item price
   void updateItemPrice(String productCode, double newPrice) {
-    final index = cartItems.value.indexWhere(
-      (item) => item.productCode == productCode,
-    );
+    final items = List<CartItem>.from(cartItems.value);
+
+    final index = items.indexWhere((item) => item.productCode == productCode);
 
     if (index != -1) {
-      final updatedItem = cartItems.value[index].copyWith(salesRate: newPrice);
-      final newList = List<CartItem>.from(cartItems.value);
-      newList[index] = updatedItem;
-      cartItems.value = newList;
+      items[index] = items[index].copyWith(salesRate: newPrice);
     }
+
+    cartItems.value = items;
   }
 }

@@ -1,31 +1,19 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
-import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
-import 'package:quikservnew/features/authentication/domain/parameters/login_params.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/logincubit/login_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
+import 'package:quikservnew/features/authentication/presentation/helper/login_screen_helper.dart';
 import 'package:quikservnew/features/authentication/presentation/widgets/custom_textfield.dart';
-import 'package:quikservnew/features/authentication/presentation/widgets/expiry_dialog.dart';
 import 'package:quikservnew/features/authentication/presentation/widgets/login_locks.dart';
 import 'package:quikservnew/features/authentication/presentation/widgets/three_dot_loader.dart';
-import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
-import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
-import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
-import 'package:quikservnew/features/units/presentation/bloc/unit_cubit.dart';
-import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
-import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
-import 'package:quikservnew/services/shared_preference_helper.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -33,33 +21,26 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameCtrl = TextEditingController();
-
   final TextEditingController passwordCtrl = TextEditingController();
-
   final TextEditingController codeCtrl = TextEditingController();
-
-  final _deviceIdController = TextEditingController();
-
-  // Track processing (register/login/post-login APIs)
+  final TextEditingController deviceIdController = TextEditingController();
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
 
-  /// ✅ Dynamic message shown in the SAME button (under your ThreeDotLoader)
   final ValueNotifier<String> loadingMsg = ValueNotifier<String>(
     "Loading, please wait...",
   );
 
   @override
   void initState() {
-    getDeviceId();
     super.initState();
+    LoginScreenHelper.getDeviceId(deviceIdController);
   }
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Override global status bar ONLY for login
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent, // or login bg color
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
@@ -69,203 +50,40 @@ class _LoginScreenState extends State<LoginScreen> {
         /// ------------------- REGISTER LISTENER -------------------
         BlocListener<RegisterCubit, RegisterState>(
           listener: (context, state) async {
-            if (state is RegisterLoading) {
-              loadingMsg.value = "Logging in...";
-              return;
-            }
-            if (state is RegisterSuccess) {
-              /// Save database name globally
-              await SharedPreferenceHelper().setDatabaseName(
-                state.result.companyDetails.first.databaseName!,
-              );
-              await SharedPreferenceHelper().setExpiryDate(
-                state.result.companyDetails.first.expiryDate!,
-              );
-
-              /// ✅ STORE COMPANY NAME
-              await SharedPreferenceHelper().setCompanyName(
-                state.result.companyDetails.first.companyName,
-              );
-
-              /// ✅ STORE COMPANY Address1
-              await SharedPreferenceHelper().setCompanyAddress1(
-                state.result.companyDetails.first.address1,
-              );
-
-              /// ✅ STORE COMPANY Address2
-              await SharedPreferenceHelper().setCompanyAddress2(
-                state.result.companyDetails.first.address2,
-              );
-
-              /// ✅ STORE COMPANY PhoneNo
-              await SharedPreferenceHelper().setCompanyPhoneNo(
-                state.result.companyDetails.first.phone,
-              );
-
-              /// ✅ STORE COMPANY Logo
-              try {
-                await SharedPreferenceHelper().setCompanyLogo(
-                  state.result.companyDetails.first.companyLogo,
-                );
-              } catch (_) {}
-
-              // final logoutStatus = await SharedPreferenceHelper()
-              //     .getLogoutStatus();
-
-              // //  EXPIRY CHECK FIRST (BEFORE ANYTHING)
-              loadingMsg.value = "Checking expirydate...";
-              final expired = await isLicenseExpired();
-              if (expired) {
-                loadingMsg.value = "Loading, please wait...";
-                showExpiryDialog(context);
-                isProcessing.value = false;
-                return; //  STOP EVERYTHING
-              }
-
-              /// After register -> trigger login
-              loadingMsg.value = "Logging in...";
-              context.read<LoginCubit>().checkDeviceRegisterStatus(
-                DeviceRegisterRequest(
-                  deviceId: _deviceIdController.text.toString(),
-                ),
-              );
-            } else if (state is RegisterFailure) {
-              isProcessing.value = false; // re-enable button
-              loadingMsg.value = "Loading, please wait...";
-              print(state.error);
-              showAppSnackBar(context, state.error);
-            } else if (state is LoginFailure) {
-              isProcessing.value = false; // re-enable button
-            }
+            await LoginScreenHelper.handleRegisterState(
+              context: context,
+              state: state,
+              codeCtrl: codeCtrl,
+              deviceIdController: deviceIdController,
+              isProcessing: isProcessing,
+              loadingMsg: loadingMsg,
+            );
           },
         ),
 
         /// ------------------- LOGIN LISTENER -----------------------
         BlocListener<LoginCubit, LoginState>(
           listener: (context, state) async {
-            if (state is DeviceRegisterStatusSuccess) {
-              /// Save token globally
-              await SharedPreferenceHelper().setDeviceID(
-                _deviceIdController.text.toString(),
-              );
-              if (state.registerResponse.data?.result == true) {
-                context.read<LoginCubit>().loginUser(
-                  LoginRequest(
-                    username: usernameCtrl.text,
-                    password: passwordCtrl.text,
-                  ),
-                );
-              } else {
-                isProcessing.value = false; // re-enable button
-                showAppSnackBar(context, 'Device Not Registered..!');
-              }
-            }
-            if (state is LoginSuccess) {
-              // Disable button during post-login API calls
-              isProcessing.value = true;
-              try {
-                print('reached_0');
-
-                /// Save token globally
-                await SharedPreferenceHelper().setToken(
-                  state.loginResponse.token,
-                );
-                print('reached_1');
-                await SharedPreferenceHelper().setBranchId(
-                  state.loginResponse.data.first.branchIds.first.toString(),
-                );
-                await SharedPreferenceHelper().setSubscriptionCode(
-                  codeCtrl.text.toString(),
-                );
-
-                print('reached_2');
-                await SharedPreferenceHelper().setStaffName(
-                  state.loginResponse.data.first.name,
-                );
-                print('reached_3');
-
-                /// Trigger fetching units
-                loadingMsg.value = "Fetching Units...";
-                await context.read<UnitCubit>().fetchUnits();
-
-                /// 🔹 Fetch VAT
-                loadingMsg.value = "Fetching Tax...";
-                await context.read<VatCubit>().fetchVat();
-
-                /// Fetch Groups
-                loadingMsg.value = "Fetching Groups...";
-                await context.read<GroupsCubit>().fetchGroups();
-
-                /// Trigger fetching Products
-                loadingMsg.value = "Fetching Products...";
-                await context.read<ProductCubit>().fetchProducts();
-                loadingMsg.value = "Fetching Settings...";
-                await context.read<SettingsCubit>().fetchSettings();
-                loadingMsg.value = "Fetching Categories...";
-                await context.read<CategoriesCubit>().fetchCategories();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => HomeScreen()),
-                );
-                return;
-              } catch (e) {
-                isProcessing.value = false;
-                loadingMsg.value = "Loading, please wait...";
-                showAppSnackBar(context, "Error fetching data: $e");
-              }
-            } else if (state is LoginFailure) {
-              isProcessing.value = false;
-              loadingMsg.value = "Loading, please wait...";
-              showAppSnackBar(context, 'Invalid Credentials');
-            }
+            await LoginScreenHelper.handleLoginState(
+              context: context,
+              state: state,
+              usernameCtrl: usernameCtrl,
+              passwordCtrl: passwordCtrl,
+              codeCtrl: codeCtrl,
+              deviceIdController: deviceIdController,
+              isProcessing: isProcessing,
+              loadingMsg: loadingMsg,
+            );
           },
         ),
 
         /// ------------------- SETTINGS LISTENER (VAT STORE HERE) -------------------
         BlocListener<SettingsCubit, SettingsState>(
           listener: (context, state) async {
-            if (state is SettingsLoaded) {
-              final settings = state.settings.settings!.first;
-
-              /// 🔍 DEBUG: Print raw values from API
-              debugPrint('🧾 SETTINGS API RESPONSE');
-              debugPrint('VAT STATUS  : ${settings.vatStatus}');
-              debugPrint('VAT TYPE    : ${settings.vatType}');
-              debugPrint('APP VERSION    : ${settings.appVersion}');
-
-              /// ✅ STORE VAT STATUS & TYPE FROM SETTINGS API
-              await SharedPreferenceHelper().setVatStatus(settings.vatStatus!);
-              await SharedPreferenceHelper().setVatType(settings.vatType!);
-
-              // ✅ STORE LEDGER IDS + APP VERSION
-              await SharedPreferenceHelper().setCashLedgerId(
-                (settings.cashLedgerId ?? '').toString(),
-              );
-              await SharedPreferenceHelper().setCardLedgerId(
-                (settings.cardLedgerId ?? '').toString(),
-              );
-              await SharedPreferenceHelper().setBankLedgerId(
-                (settings.bankLedgerId ?? '').toString(),
-              );
-              await SharedPreferenceHelper().setAppVersion(
-                (settings.appVersion ?? '').toString(),
-              );
-              print('KOT Status ${settings.isKOT}');
-              await SharedPreferenceHelper().setKOTStatus(
-                (settings.isKOT ?? '').toString(),
-              );
-              final storedVatStatus = await SharedPreferenceHelper()
-                  .getVatStatus();
-              final storedVatType = await SharedPreferenceHelper().getVatType();
-
-              debugPrint('💾 STORED IN SHARED PREFS');
-              debugPrint('VAT STATUS  : $storedVatStatus');
-              debugPrint('VAT TYPE    : $storedVatType');
-            }
-
-            if (state is SettingsError) {
-              debugPrint('❌ SETTINGS ERROR: ${state.error}');
-              showAppSnackBar(context, state.error);
-            }
+            await LoginScreenHelper.handleSettingsState(
+              context: context,
+              state: state,
+            );
           },
         ),
       ],
@@ -305,18 +123,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 100,
                           ),
                           const SizedBox(height: 16),
-
-                          /// Title
-                          // const Text(
-                          //   'Login',
-                          //   style: TextStyle(
-                          //     fontSize: 24,
-                          //     fontWeight: FontWeight.bold,
-                          //     color: AppColors.black,
-                          //   ),
-                          // ),
-                          //
-                          // const SizedBox(height: 32),
 
                           /// Lock Icons
                           Loginlocks(),
@@ -418,18 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         fontSize: 18,
                                       ),
                                     ),
-                              // child: processing
-                              //     ? Text('processing.......')
-                              //     : const Text(
-                              //         'Login',
-                              //         style: TextStyle(
-                              //           color: AppColors.black,
-                              //           fontSize: 18,
-                              //         ),
-                              //       ),
                             ),
-
-                            // const SizedBox(height: 16),
                           ),
                         ],
                       );
@@ -442,23 +237,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  Future<String> getDeviceId() async {
-    final deviceInfo = DeviceInfoPlugin();
-
-    if (Platform.isAndroid) {
-      final androidInfo = await deviceInfo.androidInfo;
-      print('androidInfo.id ${androidInfo.id}');
-      _deviceIdController.text = androidInfo.id.toString();
-      return androidInfo.id; // ANDROID_ID
-    }
-
-    if (Platform.isIOS) {
-      final iosInfo = await deviceInfo.iosInfo;
-      return iosInfo.identifierForVendor ?? 'unknown-ios-id';
-    }
-
-    return 'unsupported-platform';
   }
 }

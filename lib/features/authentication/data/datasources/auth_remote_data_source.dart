@@ -2,12 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:quikservnew/core/errors/error_message_model.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
-import 'package:quikservnew/features/authentication/data/models/deviceRegisterMoidel.dart';
-import 'package:quikservnew/features/authentication/domain/entities/deviceRegisterResult.dart';
+import 'package:quikservnew/features/authentication/data/models/device_register_model.dart';
+import 'package:quikservnew/features/authentication/domain/entities/device_register_result.dart';
 import 'package:quikservnew/features/authentication/domain/entities/login_entity.dart';
 import 'package:quikservnew/features/authentication/domain/entities/register_server_response_entity.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/changepassword_parameter.dart';
-import 'package:quikservnew/features/authentication/domain/parameters/deviceRegisterRequest.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/device_register_request.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/login_params.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
@@ -19,7 +19,9 @@ abstract class AuthRemoteDataSource {
   );
   Future<LoginResponseResult> loginServer(LoginRequest loginRequest);
   Future<MasterResponseModel> changePassword(ChangePasswordRequest request);
-  Future<DeviceRegisterResult> checkDeviceRegisterStatus(DeviceRegisterRequest request);
+  Future<DeviceRegisterResult> checkDeviceRegisterStatus(
+    DeviceRegisterRequest request,
+  );
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -29,7 +31,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<RegisterResponseResult> registerServer(
     RegisterServerRequest registerServerParams,
   ) async {
-    // Load base URL safely
     final baseUrl = await SharedPreferenceHelper().getBaseUrl();
 
     if (baseUrl == null || baseUrl.isEmpty) {}
@@ -138,7 +139,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<DeviceRegisterResult> checkDeviceRegisterStatus(DeviceRegisterRequest request) async {
+  Future<DeviceRegisterResult> checkDeviceRegisterStatus(
+    DeviceRegisterRequest request,
+  ) async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
@@ -155,12 +158,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
         options: Options(
           contentType: "application/json",
-          headers: {
-            "Accept": "application/json",
-            "X-Database-Name":
-            dbName,
-
-          },
+          headers: {"Accept": "application/json", "X-Database-Name": dbName},
         ),
       );
 

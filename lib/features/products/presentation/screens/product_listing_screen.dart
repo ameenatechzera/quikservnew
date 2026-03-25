@@ -6,6 +6,7 @@ import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/products/domain/entities/fetch_product_entity.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
+import 'package:quikservnew/features/products/presentation/helper/product_share_helper.dart';
 import 'package:quikservnew/features/products/presentation/screens/product_entry_screen.dart';
 import 'package:quikservnew/features/products/presentation/widgets/category_bottomsheet.dart';
 import 'package:quikservnew/features/products/presentation/widgets/group_bottomsheet.dart';
@@ -475,7 +476,9 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
               Row(
                 children: [
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      shareProductToWhatsApp(context: context, item: item);
+                    },
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: SizedBox(

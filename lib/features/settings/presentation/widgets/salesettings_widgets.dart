@@ -38,7 +38,7 @@ Widget itemTapBehaviorSection({
   required ValueChanged<int> onChanged,
 }) {
   return settingsCard(
-    title: "Item Tap Behavior",
+    title: "Default Payment Option",
     children: [
       radioTile(
         label: "Increase Quantity",
@@ -92,7 +92,7 @@ Widget paymentOptionsSection({
     title: "Payment Options",
     children: [
       radioTile(
-        label: "CASH",
+        label: "Cash",
         value: 0,
         groupValue: selectedValue,
         onChanged: (v) {
@@ -100,7 +100,7 @@ Widget paymentOptionsSection({
         },
       ),
       radioTile(
-        label: "CARD",
+        label: "Card",
         value: 1,
         groupValue: selectedValue,
         onChanged: (v) {
