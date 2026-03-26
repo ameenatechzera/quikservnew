@@ -40,7 +40,7 @@ class _CartScreenState extends State<CartScreen> {
   final SharedPreferenceHelper helper = SharedPreferenceHelper();
   TextEditingController expiredStatusController = TextEditingController();
   final _deviceIdController = TextEditingController();
-
+  bool _isButtonDisabled = false;
   @override
   void initState() {
     expiredStatusController.text = 'false';
@@ -377,6 +377,7 @@ class _CartScreenState extends State<CartScreen> {
                                     child: CircularProgressIndicator(),
                                   )
                                 : ElevatedButton(
+
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFFEAB307),
                                       shape: RoundedRectangleBorder(
@@ -384,7 +385,12 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       elevation: 0,
                                     ),
-                                    onPressed: () async {
+                              onPressed: _isButtonDisabled
+                                  ? null // disables the button
+                                  : () async {
+                                setState(() {
+                                  _isButtonDisabled = true;
+                                });
                                       print(
                                         'expiredStatus ${expiredStatusController.text}',
                                       );
