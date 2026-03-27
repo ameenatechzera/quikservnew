@@ -40,6 +40,7 @@ class _CartScreenState extends State<CartScreen> {
   TextEditingController expiredStatusController = TextEditingController();
   final _deviceIdController = TextEditingController();
   final CartScreenHelper cartScreenHelper = CartScreenHelper();
+  bool _isButtonDisabled = false;
   @override
   void initState() {
     expiredStatusController.text = 'false';
@@ -730,121 +731,133 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       elevation: 0,
                                     ),
-                                    onPressed: () async {
-                                      print(
-                                        'expiredStatus ${expiredStatusController.text}',
-                                      );
+                                    onPressed: _isButtonDisabled
+                                        ? null // disables the button
+                                        : () async {
+                                            setState(() {
+                                              _isButtonDisabled = true;
+                                            });
+                                            print(
+                                              'expiredStatus ${expiredStatusController.text}',
+                                            );
 
-                                      final payment = selectedPayment.value;
+                                            final payment =
+                                                selectedPayment.value;
 
-                                      double cashAmt = 0;
-                                      double cardAmt = 0;
+                                            double cashAmt = 0;
+                                            double cardAmt = 0;
 
-                                      if (payment == 'Cash') {
-                                        cashAmt = total;
-                                        cardAmt = 0;
-                                      } else if (payment == 'Card') {
-                                        cashAmt = 0;
-                                        cardAmt = total;
-                                      } else if (payment == 'Multi') {
-                                        cashAmt = multiCashAmount.value;
-                                        cardAmt = multiCardAmount.value;
+                                            if (payment == 'Cash') {
+                                              cashAmt = total;
+                                              cardAmt = 0;
+                                            } else if (payment == 'Card') {
+                                              cashAmt = 0;
+                                              cardAmt = total;
+                                            } else if (payment == 'Multi') {
+                                              cashAmt = multiCashAmount.value;
+                                              cardAmt = multiCardAmount.value;
 
-                                        // safety check (only if user did not press OK or mismatch)
-                                        if ((cashAmt + cardAmt - total).abs() >
-                                            0.01) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Multi payment amount mismatch',
-                                              ),
-                                            ),
-                                          );
-                                          return;
-                                        }
-                                      } // 🔹 LOAD LEDGERS FROM SHARED PREF
-                                      final ledgerData =
-                                          await SharedPreferenceHelper()
-                                              .getLedgers();
+                                              // safety check (only if user did not press OK or mismatch)
+                                              if ((cashAmt + cardAmt - total)
+                                                      .abs() >
+                                                  0.01) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Multi payment amount mismatch',
+                                                    ),
+                                                  ),
+                                                );
+                                                return;
+                                              }
+                                            } // 🔹 LOAD LEDGERS FROM SHARED PREF
+                                            final ledgerData =
+                                                await SharedPreferenceHelper()
+                                                    .getLedgers();
 
-                                      final int cashLedgerId =
-                                          ledgerData['cashLedgerId'] ?? 0;
-                                      final int cardLedgerId =
-                                          ledgerData['cardLedgerId'] ?? 0;
+                                            final int cashLedgerId =
+                                                ledgerData['cashLedgerId'] ?? 0;
+                                            final int cardLedgerId =
+                                                ledgerData['cardLedgerId'] ?? 0;
 
-                                      final items =
-                                          CartManager().cartItems.value;
-                                      // Build SaveSaleRequest from cart
-                                      final request = SaveSaleRequest(
-                                        invoiceDate: DateTime.now()
-                                            .toIso8601String()
-                                            .split('T')
-                                            .first,
-                                        invoiceTime: DateTime.now()
-                                            .toIso8601String()
-                                            .split('T')
-                                            .last
-                                            .split('.')
-                                            .first,
-                                        ledgerId: 0,
-                                        subTotal: subTotal,
-                                        discountAmount: discount,
-                                        vatAmount: tax,
-                                        grandTotal: total,
-                                        cashLedgerId: cashLedgerId,
-                                        cashAmount: cashAmt,
-                                        cardLedgerId: cardLedgerId,
-                                        cardAmount: cardAmt,
-                                        creditAmount: 0,
-                                        tableId: 1,
-                                        supplierId: 1,
-                                        cashierId: 1,
-                                        orderMasterId: 10,
-                                        billStatus: 'Completed',
-                                        salesType: '',
-                                        billTokenNo: 22,
-                                        createdUser: 1,
-                                        branchId: 1,
-                                        totalTax: tax,
-                                        salesDetails: items
-                                            .map(
-                                              (e) => SaleDetail(
-                                                productCode: e.productCode,
-                                                productName: e.productName,
-                                                qty: (e.qty as num).toInt(),
-                                                // safer
-                                                unitId: double.parse(
-                                                  e.unitId,
-                                                ).toInt(),
-                                                purchaseCost: double.parse(
-                                                  e.purchaseCost,
-                                                ),
-                                                salesRate: e.salesRate,
-                                                excludeRate: e.salesRate,
-                                                subtotal: e.totalPrice,
-                                                vatId: 1,
-                                                vatAmount: tax / items.length,
-                                                totalAmount:
-                                                    e.totalPrice +
-                                                    (tax / items.length),
-                                                conversionRate: 1,
-                                              ),
-                                            )
-                                            .toList(),
-                                      );
-                                      if (expiredStatusController.text
-                                              .toString() ==
-                                          'true') {
-                                        // Trigger cubit
-                                        context.read<SaleCubit>().saveSale(
-                                          request,
-                                        );
-                                      } else {
-                                        print('expiredCheckFalse');
-                                      }
-                                    },
+                                            final items =
+                                                CartManager().cartItems.value;
+                                            // Build SaveSaleRequest from cart
+                                            final request = SaveSaleRequest(
+                                              invoiceDate: DateTime.now()
+                                                  .toIso8601String()
+                                                  .split('T')
+                                                  .first,
+                                              invoiceTime: DateTime.now()
+                                                  .toIso8601String()
+                                                  .split('T')
+                                                  .last
+                                                  .split('.')
+                                                  .first,
+                                              ledgerId: 0,
+                                              subTotal: subTotal,
+                                              discountAmount: discount,
+                                              vatAmount: tax,
+                                              grandTotal: total,
+                                              cashLedgerId: cashLedgerId,
+                                              cashAmount: cashAmt,
+                                              cardLedgerId: cardLedgerId,
+                                              cardAmount: cardAmt,
+                                              creditAmount: 0,
+                                              tableId: 1,
+                                              supplierId: 1,
+                                              cashierId: 1,
+                                              orderMasterId: 10,
+                                              billStatus: 'Completed',
+                                              salesType: '',
+                                              billTokenNo: 22,
+                                              createdUser: 1,
+                                              branchId: 1,
+                                              totalTax: tax,
+                                              salesDetails: items
+                                                  .map(
+                                                    (e) => SaleDetail(
+                                                      productCode:
+                                                          e.productCode,
+                                                      productName:
+                                                          e.productName,
+                                                      qty: (e.qty as num)
+                                                          .toInt(),
+                                                      // safer
+                                                      unitId: double.parse(
+                                                        e.unitId,
+                                                      ).toInt(),
+                                                      purchaseCost:
+                                                          double.parse(
+                                                            e.purchaseCost,
+                                                          ),
+                                                      salesRate: e.salesRate,
+                                                      excludeRate: e.salesRate,
+                                                      subtotal: e.totalPrice,
+                                                      vatId: 1,
+                                                      vatAmount:
+                                                          tax / items.length,
+                                                      totalAmount:
+                                                          e.totalPrice +
+                                                          (tax / items.length),
+                                                      conversionRate: 1,
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                            );
+                                            if (expiredStatusController.text
+                                                    .toString() ==
+                                                'true') {
+                                              // Trigger cubit
+                                              context
+                                                  .read<SaleCubit>()
+                                                  .saveSale(request);
+                                            } else {
+                                              print('expiredCheckFalse');
+                                            }
+                                          },
                                     child: const Text(
                                       'Confirm Sale',
                                       style: TextStyle(

@@ -857,6 +857,19 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
               ipAddressWithPort: '',
               branchId: 1,
               createdUser: 1,
+
+              mainBluettothPrinterId: 0,
+              kitchenBluetoothPrinterId: 0,
+              mainBluetoothPrinterName: '',
+              kitchenBluetoothPrinterName: '',
+              companyDescription: '',
+              printInvoiceKotDelay: '',
+              logoheight: '',
+              logowidth: '',
+              companyAddressVisible: '',
+              companyPhonenoVisible: '',
+              companyNameFontSize: '',
+              kotPrintStatus: '',
             ),
           );
           ScaffoldMessenger.of(
