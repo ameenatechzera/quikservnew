@@ -3,15 +3,15 @@ import 'package:dio/dio.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
-import 'package:quikservnew/features/accountGroups/data/datasources/accountGroup_remote_datasources.dart';
-import 'package:quikservnew/features/accountGroups/domain/entities/accountGroupResponse.dart';
+import 'package:quikservnew/features/accountGroups/data/datasources/accountgroup_remote_data_source.dart.dart';
+import 'package:quikservnew/features/accountGroups/domain/entities/account_group_response.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/delete_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/save_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/update_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/domain/repositories/account_group_repository.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 
-class AccountGroupRepositoryImpl implements AccountGroupRepository{
+class AccountGroupRepositoryImpl implements AccountGroupRepository {
   final AccountGroupsRemoteDataSource remoteDataSource;
   AccountGroupRepositoryImpl({required this.remoteDataSource});
   @override
@@ -29,7 +29,9 @@ class AccountGroupRepositoryImpl implements AccountGroupRepository{
   }
 
   @override
-  ResultFuture<MasterResponseModel> saveAccountGroup(SaveAccountGroupRequest request) async {
+  ResultFuture<MasterResponseModel> saveAccountGroup(
+    SaveAccountGroupRequest request,
+  ) async {
     try {
       final result = await remoteDataSource.saveAccountGroups(request);
       return Right(result);
@@ -43,7 +45,9 @@ class AccountGroupRepositoryImpl implements AccountGroupRepository{
   }
 
   @override
-  ResultFuture<MasterResponseModel> deleteAccountGroup(DeleteAccountGroupRequest request) async {
+  ResultFuture<MasterResponseModel> deleteAccountGroup(
+    DeleteAccountGroupRequest request,
+  ) async {
     try {
       final result = await remoteDataSource.deleteAccountGroups(request);
       return Right(result);
@@ -57,7 +61,9 @@ class AccountGroupRepositoryImpl implements AccountGroupRepository{
   }
 
   @override
-  ResultFuture<MasterResponseModel> updateAccountGroup(UpdateAccountGroupRequest request) async {
+  ResultFuture<MasterResponseModel> updateAccountGroup(
+    UpdateAccountGroupRequest request,
+  ) async {
     try {
       final result = await remoteDataSource.updateAccountGroups(request);
       return Right(result);

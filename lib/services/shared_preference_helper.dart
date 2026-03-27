@@ -17,6 +17,7 @@ class SharedPreferenceHelper {
 
   static const _kAppVersion = 'app_version';
   static const _KOTStatus = 'KOT_status';
+  static const _PrintGap = 'print_gap';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
 
   /// ------------------ BASE URL ------------------
@@ -184,6 +185,28 @@ class SharedPreferenceHelper {
     return prefs.getString("selectedPrinter");
   }
 
+  //Second printer
+  Future<bool> saveSelectedSecondPrinter(String selectedPrinter) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("selectedSecondPrinter", selectedPrinter);
+  }
+
+  Future<String?> loadSelectedSecondPrinter() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("selectedSecondPrinter");
+  }
+
+  //Second printer Name
+  Future<bool> saveSelectedSecondPrinterName(String selectedPrinter) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("selectedSecondPrinterName", selectedPrinter);
+  }
+
+  Future<String?> loadSelectedSecondPrinterName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("selectedSecondPrinterName");
+  }
+
   //printer
   Future<bool> saveSelectedPrinterSize(String printerSize) async {
     final prefs = await SharedPreferences.getInstance();
@@ -294,10 +317,43 @@ class SharedPreferenceHelper {
     return prefs.getString('expiryDate') ?? '';
   }
 
+  /// ------------------ User name ------------------
+  Future<void> setUsername(String userName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', userName);
+  }
+
+  Future<String> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userName') ?? '';
+  }
+
+  /// ------------------ Password ------------------
+  Future<void> setPassword(String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('password', password);
+  }
+
+  Future<String> getPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('password') ?? '';
+  }
+
   Future<void> setKOTStatus(String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_KOTStatus, value);
   }
+
+  /////printDElay
+  Future<void> setPrintDelayForKot(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_PrintGap, value);
+  }
+  Future<int?> getPrintDelayForKot() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_PrintGap);
+  }
+  ////////////////
 
   //Printer Type
   Future<bool> savePrinterType(String printerType) async {

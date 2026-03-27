@@ -361,6 +361,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Added this method to handle tab switching
   void _switchTab(int index) {
+    print('swichHARIS');
     setState(() {
       _previousTabIndex = _currentTabIndex;
       _currentTabIndex = index;
@@ -374,6 +375,7 @@ class _HomeScreenState extends State<HomeScreen>
         saleCubit.resetCategory();
       } else {
         // ✅ When coming back to Home, show cartbar if cart has items
+        context.read<ProductCubit>().loadProductsFromLocal();
         showCartBar.value = cartManager.cartItems.value.isNotEmpty;
       }
     });
@@ -381,6 +383,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Method to handle menu toggle with fade animation
   void _toggleMenuModeWithAnimation() {
+
     final saleCubit = context.read<SaleCubit>();
     final wasMenuMode = saleCubit.isMenuMode;
 
@@ -777,6 +780,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: isMenuMode
                         ? BlocBuilder<ProductCubit, ProductsState>(
                             builder: (context, state) {
+
                               int count = 0;
                               List<FetchProductDetails> products = [];
 
@@ -2334,9 +2338,11 @@ class _HomeScreenState extends State<HomeScreen>
           body: SafeArea(
             child: BlocListener<ProductCubit, ProductsState>(
               listener: (context, state) {
-                if (state is SaveProductSuccess || state is ProductSuccess) {
+                if (state is SaveProductSuccess || state is ProductSuccess ) {
+
                   context.read<ProductCubit>().loadProductsFromLocal();
                 }
+
               },
               child: Stack(
                 children: [

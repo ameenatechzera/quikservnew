@@ -1,13 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:quikservnew/features/accountGroups/domain/entities/accountGroupResponse.dart';
+import 'package:quikservnew/features/accountGroups/domain/entities/account_group_response.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/delete_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/save_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/update_accountgroup_request.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/deleteAccountGroupUseCase.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/fetchAccountGroupsUseCase.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/saveAccountGroupUseCase.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/updateAccountGroupUseCase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/delete_accountgroup_usecase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/fetch_accountgroup_usecase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/save_accountgroup_usecase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/update_accountgroup_usecase.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 
 part 'account_group_state.dart';
@@ -35,7 +35,7 @@ class AccountGroupCubit extends Cubit<AccountGroupState> {
 
     response.fold(
       (failure) => emit(AccountGroupsError(error: failure.message)),
-      (response) => emit(AccountGroupsLoaded(account_groups: response.data)),
+      (response) => emit(AccountGroupsLoaded(accountGroups: response.data)),
     );
   }
 
@@ -62,7 +62,6 @@ class AccountGroupCubit extends Cubit<AccountGroupState> {
   }
 
   Future<void> updateAccountGroups(UpdateAccountGroupRequest request) async {
-    print('UpdateRequest ${request.toJson()}');
     emit(UpdateAccountGroupInitial());
 
     final response = await _updateAccountGroupUseCase(request);

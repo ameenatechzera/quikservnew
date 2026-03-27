@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/navigation/app_navigator.dart';
@@ -8,6 +5,7 @@ import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
+import 'package:quikservnew/features/category/presentation/helper/category_helper.dart';
 import 'package:quikservnew/features/category/presentation/screens/category_creation_screen.dart';
 
 class CategoriesListingScreen extends StatelessWidget {
@@ -15,7 +13,6 @@ class CategoriesListingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Load categories from LOCAL DB only (once)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoriesCubit>().fetchCategories();
     });
@@ -87,7 +84,9 @@ class CategoriesListingScreen extends StatelessWidget {
                             category.categoryImage != null &&
                                 category.categoryImage!.isNotEmpty
                             ? Image.memory(
-                                decodeImage(category.categoryImage!)!,
+                                CategoryHelper().decodeImage(
+                                  category.categoryImage!,
+                                )!,
                                 width: 52,
                                 height: 52,
                                 fit: BoxFit.cover,
@@ -142,7 +141,7 @@ class CategoriesListingScreen extends StatelessWidget {
                         iconSize: 18,
                         icon: Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
-                          _showDeleteConfirmDialog(
+                          CategoryHelper().showDeleteConfirmDialog(
                             context: context,
                             categoryId: category.categoryId!,
                           );
@@ -160,45 +159,6 @@ class CategoriesListingScreen extends StatelessWidget {
           }
         },
       ),
-    );
-  }
-
-  Uint8List? decodeImage(String? base64String) {
-    if (base64String == null || base64String.isEmpty) return null;
-    try {
-      return base64Decode(base64String);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  void _showDeleteConfirmDialog({
-    required BuildContext context,
-    required int categoryId,
-  }) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text("Delete Category"),
-          content: const Text("Are you sure you want to delete this category?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-
-                // 🔥 Trigger delete using Cubit
-                context.read<CategoriesCubit>().deleteCategory(categoryId);
-              },
-              child: const Text("Delete", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
     );
   }
 }

@@ -9,13 +9,13 @@ import 'package:quikservnew/features/accountledger/domain/usecases/fetch_bankacc
 import 'package:quikservnew/features/accountledger/domain/usecases/save_account_ledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/domain/usecases/update_ledger_usecase.dart';
 import 'package:quikservnew/features/accountledger/presentation/bloc/accountledger_cubit.dart';
-import 'package:quikservnew/features/accountGroups/data/datasources/accountGroup_remote_datasources.dart';
+import 'package:quikservnew/features/accountGroups/data/datasources/accountgroup_remote_data_source.dart.dart';
 import 'package:quikservnew/features/accountGroups/data/repositories/account_group_repository_impl.dart';
 import 'package:quikservnew/features/accountGroups/domain/repositories/account_group_repository.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/deleteAccountGroupUseCase.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/fetchAccountGroupsUseCase.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/saveAccountGroupUseCase.dart';
-import 'package:quikservnew/features/accountGroups/domain/usecases/updateAccountGroupUseCase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/delete_accountgroup_usecase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/fetch_accountgroup_usecase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/save_accountgroup_usecase.dart';
+import 'package:quikservnew/features/accountGroups/domain/usecases/update_accountgroup_usecase.dart';
 import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
 import 'package:quikservnew/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:quikservnew/features/authentication/data/repositories/auth_repository_impl.dart';
@@ -40,11 +40,11 @@ import 'package:quikservnew/features/category/domain/usecases/local_fetch_catego
 import 'package:quikservnew/features/category/domain/usecases/save_category_usecase.dart';
 
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
-import 'package:quikservnew/features/dailyclosingReport/data/datasources/dailyCloseReport_remote_datasource.dart';
-import 'package:quikservnew/features/dailyclosingReport/data/repositories/dailyCloseReport_repository_impl.dart';
-import 'package:quikservnew/features/dailyclosingReport/domain/repositories/dailyClosingReportRepository.dart';
-import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetchDailyClosingReportUseCase.dart';
-import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetchItemWiseDetailsUseCase.dart';
+import 'package:quikservnew/features/dailyclosingReport/data/datasources/dailyclosingreport_remote_data_source.dart';
+import 'package:quikservnew/features/dailyclosingReport/data/repositories/dailyclosingreport_repository_impl.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/repositories/dailyclosingreport_repository.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetch_dailyclosingreport_usecase.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetch_itemwisedetails_usecase.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/item_bloc/item_cubit.dart';
 import 'package:quikservnew/features/groups/data/datasources/group_remote_data_source.dart';

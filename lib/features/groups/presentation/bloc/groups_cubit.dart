@@ -62,7 +62,7 @@ class GroupsCubit extends Cubit<GroupsState> {
       response,
     ) {
       emit(GroupDeleted(response: response));
-      fetchGroups(); // refresh the list after deletion
+      fetchGroups();
     });
   }
 

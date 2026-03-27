@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyClosingReportResult.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyclosingreport_result.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
 import 'package:share_plus/share_plus.dart';
 

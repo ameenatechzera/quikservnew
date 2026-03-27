@@ -6,13 +6,13 @@ import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
 import 'package:quikservnew/features/groups/presentation/screens/product_group_creation_screen.dart';
+import 'package:quikservnew/features/groups/presentation/widgets/unit_row.dart';
 
 class ProductgroupListingScreen extends StatelessWidget {
   const ProductgroupListingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    /// 🔥 Trigger fetchGroups once
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<GroupsCubit>().fetchGroups();
     });
@@ -46,21 +46,13 @@ class ProductgroupListingScreen extends StatelessWidget {
                 ? state.error
                 : (state as GroupDeleteError).error;
             showAnimatedToast(context, message: error, isSuccess: false);
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   SnackBar(content: Text(error), backgroundColor: Colors.red),
-            // );
           }
           if (state is GroupDeleted) {
             showAnimatedToast(
               context,
               message: 'Group Deleted Successfully',
               isSuccess: true,
-            ); // ScaffoldMessenger.of(context).showSnackBar(
-            //   const SnackBar(
-            //     content: Text("Group deleted successfully!"),
-            //     backgroundColor: Colors.green,
-            //   ),
-            // );
+            );
           }
           if (state is GroupAdded) {
             showAnimatedToast(
@@ -68,12 +60,6 @@ class ProductgroupListingScreen extends StatelessWidget {
               message: "Group added successfully!",
               isSuccess: false,
             );
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   const SnackBar(
-            //     content: Text("Group added successfully!"),
-            //     backgroundColor: Colors.green,
-            //   ),
-            // );
           }
         },
         builder: (context, state) {
@@ -92,7 +78,7 @@ class ProductgroupListingScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final group = state.groups.groupDetails![index];
 
-                return _unitRow(
+                return unitRow(
                   unitName: group.groupName!,
                   onEdit: () {
                     AppNavigator.pushSlide(
@@ -129,7 +115,6 @@ class ProductgroupListingScreen extends StatelessWidget {
                       );
 
                       if (confirm ?? false) {
-                        // Trigger delete in cubit
                         context.read<GroupsCubit>().deleteProductGroup(
                           group.groupId!,
                         );
@@ -151,55 +136,6 @@ class ProductgroupListingScreen extends StatelessWidget {
 
           return const SizedBox();
         },
-      ),
-    );
-  }
-
-  // 🔹 Single Unit Row
-  Widget _unitRow({
-    required String unitName,
-    required VoidCallback onEdit,
-    required VoidCallback onDelete,
-  }) {
-    return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        //border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              unitName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-
-          IconButton(
-            splashRadius: 20,
-            icon: const Icon(Icons.edit, color: Colors.black54),
-            onPressed: onEdit,
-          ),
-          IconButton(
-            splashRadius: 20,
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: onDelete,
-          ),
-        ],
       ),
     );
   }

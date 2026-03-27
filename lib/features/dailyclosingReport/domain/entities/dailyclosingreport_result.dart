@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class DailyClosingReportResponse extends Equatable {
-  DailyClosingReportResponse({
+  const DailyClosingReportResponse({
     required this.status,
     required this.error,
     required this.message,
@@ -109,7 +109,7 @@ class DailyClosingReportResponse extends Equatable {
 }
 
 class ExpenseDetail extends Equatable {
-  ExpenseDetail({
+  const ExpenseDetail({
     required this.paymentMasterId,
     required this.paymentNo,
     required this.paymentDate,
@@ -263,7 +263,7 @@ class ExpenseDetail extends Equatable {
 }
 
 class SummaryReports extends Equatable {
-  SummaryReports({
+  const SummaryReports({
     required this.invoiceDate,
     required this.cashAmount,
     required this.cardAmount,

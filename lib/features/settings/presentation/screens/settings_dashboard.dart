@@ -13,6 +13,7 @@ import 'package:quikservnew/features/masters/presentation/screens/user_listing_s
 import 'package:quikservnew/features/products/presentation/screens/product_listing_screen.dart';
 import 'package:quikservnew/features/groups/presentation/screens/productgroup_listing_screen.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/passwordchange_screen.dart';
+import 'package:quikservnew/features/settings/presentation/screens/print_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/widgets/dailyTaskSetings.dart';
 import 'package:quikservnew/features/units/presentation/screens/unit_listing_screen.dart';
 // import 'package:quikservnew/features/masters/presentation/screens/user_listing_screen.dart';
@@ -27,20 +28,19 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'aboutUs_screen.dart';
 
 String st_companyName = '';
-String vatType ='';
+String vatType = '';
 bool vatStatus = true;
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
 
   Future<String?> _getAppVersion() async {
-     vatType =  await SharedPreferenceHelper().getVatType();
-     if(vatType=='true'){
-       vatStatus = true;
-     }
-     else{
-       vatStatus = false;
-     }
+    vatType = await SharedPreferenceHelper().getVatType();
+    if (vatType == 'true') {
+      vatStatus = true;
+    } else {
+      vatStatus = false;
+    }
     return await SharedPreferenceHelper().getAppVersion();
   }
 
@@ -58,10 +58,9 @@ class SettingsScreen extends StatelessWidget {
     return FutureBuilder<String?>(
       future: _getAppVersion(),
       builder: (context, snapshot) {
-       // final appVersion = snapshot.data ?? "";
+        // final appVersion = snapshot.data ?? "";
         final appVersion = 'basic';
         print('appVersion $appVersion');
-
 
         final bool isBasic = appVersion.toLowerCase() == "basic";
 
@@ -104,9 +103,12 @@ class SettingsScreen extends StatelessWidget {
                               context: context,
                               icon: Icons.print_outlined,
                               title: "Print Settings",
-                              page: PrinterSettingsContent(
+                              page: PrintSettingsScreen(
                                 companyName: st_companyName,
                               ),
+                              // page: PrinterSettingsContent(
+                              //   companyName: st_companyName,
+                              // ),
                             ),
                             buildTile(
                               context: context,

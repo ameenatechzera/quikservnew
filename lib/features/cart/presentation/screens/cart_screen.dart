@@ -9,6 +9,7 @@ import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
+import 'package:quikservnew/features/authentication/presentation/screens/login_screen.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
 import 'package:quikservnew/features/cart/presentation/helper/cartscreen_helper.dart';
@@ -20,6 +21,7 @@ import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -96,8 +98,9 @@ class _CartScreenState extends State<CartScreen> {
               listener: (context, state) async {
                 if (state is SalesDetailsFetchSuccess) {
                   print('responseFromSales ${state.response}');
-                  Navigator.pop(context);
 
+                  Navigator.pop(context);
+                  CartManager().clearCart();
                   String selectedPrinter = (await SharedPreferenceHelper()
                       .loadSelectedPrinterSize())!;
                   if (selectedPrinter.length > 1) {
@@ -134,7 +137,7 @@ class _CartScreenState extends State<CartScreen> {
                   //     backgroundColor: AppColors.green,
                   //   ),
                   // );
-                  CartManager().clearCart();
+
                   final branchId = await SharedPreferenceHelper().getBranchId();
                   print('reachedHHHHHHHHHHHHHHHH');
                   context.read<SaleCubit>().fetchSalesDetailsByMasterId(
@@ -799,7 +802,7 @@ class _CartScreenState extends State<CartScreen> {
                                         supplierId: 1,
                                         cashierId: 1,
                                         orderMasterId: 10,
-                                        billStatus: '',
+                                        billStatus: 'Completed',
                                         salesType: '',
                                         billTokenNo: 22,
                                         createdUser: 1,
@@ -895,10 +898,16 @@ class _CartScreenState extends State<CartScreen> {
             content: const Text("Your device is not registered now."),
             actions: [
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   // Exit the app
                   if (Platform.isAndroid) {
-                    SystemNavigator.pop();
+                    //SystemNavigator.pop();
+                    // await clearAppData();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                      (route) => false,
+                    );
                   } else {
                     exit(0);
                   }
@@ -911,4 +920,9 @@ class _CartScreenState extends State<CartScreen> {
       },
     );
   }
+}
+
+Future<void> clearAppData() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear(); // 🔥 clears everything
 }

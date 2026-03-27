@@ -5,20 +5,21 @@ import 'package:intl/intl.dart';
 import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
-import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyClosingReportResult.dart';
-import 'package:quikservnew/features/dailyclosingReport/domain/parameters/dailyClosingReportRequest.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyclosingreport_result.dart';
+import 'package:quikservnew/features/dailyclosingReport/domain/parameters/dailyclosingreport_request.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/item_bloc/item_cubit.dart';
-import 'package:quikservnew/features/dailyclosingReport/presentation/screens/widgets/report_pdf.dart';
-import 'package:quikservnew/features/dailyclosingReport/presentation/screens/widgets/report_row.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/helper/dailyclosingreport_helper.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/widgets/dayclose_report_widget.dart';
+import 'package:quikservnew/features/dailyclosingReport/presentation/widgets/report_pdf.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
-import 'package:quikservnew/services/shared_preference_helper.dart';
+
+final helper = DailyclosingreportHelper();
 
 class DailyClosingReportScreen extends StatefulWidget {
-  DailyClosingReportScreen({super.key});
-
+  const DailyClosingReportScreen({super.key});
   @override
   State<DailyClosingReportScreen> createState() =>
       _DailyClosingReportScreenState();
@@ -34,7 +35,6 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
     DateTime.now(),
   );
   DateTime fromDate = DateTime.now();
-
   String st_branchId = '';
   double dbl_salesTotal = 0, dbl_total = 0;
   DateTime toDate = DateTime.now();
@@ -66,15 +66,6 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   elevation: 0,
-      //   leading: const BackButton(color: Colors.black),
-      //   title: const Text(
-      //     "Daily Closing Report",
-      //     style: TextStyle(color: Colors.black),
-      //   ),
-      // ),
       appBar: CommonAppBar(
         title: "Daily Closing Report",
 
@@ -100,10 +91,6 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
               IconButton(
                 icon: const Icon(Icons.print, color: AppColors.black, size: 28),
                 onPressed: () {
-                  // AppNavigator.pushSlide(
-                  //   context: context,
-                  //   page: UnitCreationScreen(),
-                  // );
                   String formatedDate = formatDateString(
                     dateController.text.toString(),
                   );
@@ -294,239 +281,13 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                   get_decimalpoints(),
                                 );
 
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 8.0,
-                                    right: 8,
-                                  ),
-                                  child: Card(
-                                    elevation: 5,
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 6,
-                                      horizontal: 6,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: appThemeLightOrange,
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(10),
-                                              topRight: Radius.circular(10),
-                                            ),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 10,
-                                              right: 10,
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const Text(
-                                                  'Sales Total',
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  st_salesTotal,
-                                                  style: const TextStyle(
-                                                    fontSize: 18,
-                                                    color: Colors.black,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                4.0,
-                                              ),
-                                              child: LabelAmountRow(
-                                                title: 'Cash',
-                                                amount: payment.cashAmount,
-                                              ),
-                                            ),
-                                            height10,
-
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                4.0,
-                                              ),
-                                              child: LabelAmountRow(
-                                                title: 'Card',
-                                                amount: payment.cardAmount,
-                                              ),
-                                            ),
-                                            height10,
-
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                4.0,
-                                              ),
-                                              child: LabelAmountRow(
-                                                title: 'Credit',
-                                                amount: payment.creditAmount,
-                                              ),
-                                            ),
-                                            //  height10,
-                                            // const Divider(),
-                                            Container(
-                                              height: 40,
-                                              decoration: const BoxDecoration(
-                                                color: appThemeLightOrange,
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(0),
-                                                  topRight: Radius.circular(0),
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(
-                                                      4.0,
-                                                    ),
-                                                    child: Text(
-                                                      ' Expense Total',
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          4.0,
-                                                        ),
-                                                    child: Text(
-                                                      st_ExpenseTotal,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            ListView.builder(
-                                              shrinkWrap: true,
-                                              physics:
-                                                  const NeverScrollableScrollPhysics(),
-                                              itemCount: paymentList
-                                                  .expenseDetails
-                                                  .length,
-                                              itemBuilder: (BuildContext context, int index) {
-                                                final expense = paymentList
-                                                    .expenseDetails[index];
-                                                return Container(
-                                                  //height: 40,
-                                                  decoration: const BoxDecoration(
-                                                    //color: appThemeLightOrange,
-                                                    borderRadius:
-                                                        BorderRadius.only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                10,
-                                                              ),
-                                                          topRight:
-                                                              Radius.circular(
-                                                                10,
-                                                              ),
-                                                        ),
-                                                  ),
-                                                  child: Column(
-                                                    children: [
-                                                      height5,
-
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets.all(
-                                                              4.0,
-                                                            ),
-                                                        child: LabelAmountRow(
-                                                          title: expense
-                                                              .ledgerName,
-                                                          amount:
-                                                              expense.amount,
-                                                        ),
-                                                      ),
-                                                      height5,
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.all(4.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'Balance',
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            // height5,
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 4.0,
-                                                right: 4.0,
-                                                bottom: 4.0,
-                                              ),
-                                              child: LabelAmountRow(
-                                                title: 'Cash',
-                                                amount: st_CashBalance,
-                                              ),
-                                            ),
-                                            height5,
-
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                4.0,
-                                              ),
-                                              child: LabelAmountRow(
-                                                title: 'Card',
-                                                amount: st_BankBalance,
-                                              ),
-                                            ),
-
-                                            // LabelAmountRow(title: 'Expense Total', amount:'0.00') ,
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                return DayCloseReportWidget(
+                                  st_salesTotal: st_salesTotal,
+                                  payment: payment,
+                                  st_ExpenseTotal: st_ExpenseTotal,
+                                  paymentList: paymentList,
+                                  st_CashBalance: st_CashBalance,
+                                  st_BankBalance: st_BankBalance,
                                 );
                               },
                             );
@@ -768,7 +529,6 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
   }
 
   Future<void> pickDate({required bool isFrom}) async {
-    print('reached SalesReport');
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isFrom ? fromDate : toDate,
@@ -784,105 +544,79 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
           toDate = picked;
         }
       });
-      fetchSalesReport();
+      helper.fetchSalesReport(
+        context: context,
+        fromDate: fromDate,
+        toDate: toDate,
+      );
     }
   }
 
-  Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12)),
-        const SizedBox(height: 6),
-        InkWell(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    date == null
-                        ? "Select Date"
-                        : "${date.day.toString().padLeft(2, '0')}-"
-                              "${date.month.toString().padLeft(2, '0')}-"
-                              "${date.year}",
-                  ),
-                ),
-                const Icon(Icons.calendar_today_outlined, size: 18),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// 🔹 API / DB CALL
-  Future<void> fetchSalesReport() async {
-    final sharedPrefHelper = SharedPreferenceHelper();
-    st_branchId = await sharedPrefHelper.getBranchId();
-
-    // context.read<ItemWiseReportCubit>().fetchItemWiseReport(
-    //   ItemWiseReportRequest(
-    //     FromDate: formatter.format(fromDate),
-    //     ToDate: formatter.format(toDate),
-    //     branchId: st_branchId,
-    //   ),
-    // );
-
-    context.read<ItemCubit>().fetchItemWiseReports(
-      ItemWiseReportRequest(
-        FromDate: formatter.format(fromDate),
-        ToDate: formatter.format(toDate),
-        branchId: st_branchId,
-      ),
-    );
-
-    context.read<DaycloseReportCubit>().fetchDayCloseReport(
-      DailyCloseReportRequest(
-        FromDate: formatter.format(fromDate),
-        ToDate: formatter.format(toDate),
-        branchId: st_branchId,
-      ),
-    );
-  }
+  // Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(label, style: const TextStyle(fontSize: 12)),
+  //       const SizedBox(height: 6),
+  //       InkWell(
+  //         onTap: onTap,
+  //         child: Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(8),
+  //             border: Border.all(color: Colors.grey.shade300),
+  //           ),
+  //           child: Row(
+  //             children: [
+  //               Expanded(
+  //                 child: Text(
+  //                   date == null
+  //                       ? "Select Date"
+  //                       : "${date.day.toString().padLeft(2, '0')}-"
+  //                             "${date.month.toString().padLeft(2, '0')}-"
+  //                             "${date.year}",
+  //                 ),
+  //               ),
+  //               const Icon(Icons.calendar_today_outlined, size: 18),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   int get_decimalpoints() {
     final int decimal_points = 2;
     return decimal_points;
   }
 
-  /// 🔹 Date Filter
-  Widget _dateFilter() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xffFFF4CC),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _dateBox(
-              "From Date",
-              fromDate,
-              () => pickDate(isFrom: true),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _dateBox("To Date", toDate, () => pickDate(isFrom: false)),
-          ),
-        ],
-      ),
-    );
-  }
+  // /// 🔹 Date Filter
+  // Widget _dateFilter() {
+  //   return Container(
+  //     padding: const EdgeInsets.all(12),
+  //     decoration: BoxDecoration(
+  //       color: const Color(0xffFFF4CC),
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Expanded(
+  //           child: _dateBox(
+  //             "From Date",
+  //             fromDate,
+  //             () => pickDate(isFrom: true),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 12),
+  //         Expanded(
+  //           child: _dateBox("To Date", toDate, () => pickDate(isFrom: false)),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void _onDateChanged(BuildContext context) {
     final selectedDate = dateController.text.trim();

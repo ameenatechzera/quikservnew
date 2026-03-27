@@ -13,6 +13,7 @@ import 'package:quikservnew/features/products/presentation/widgets/group_bottoms
 
 class ProductListingScreen extends StatefulWidget {
   final bool showAppBar;
+
   const ProductListingScreen({super.key, this.showAppBar = true});
 
   @override
@@ -27,6 +28,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
 
   int? selectedCategoryId;
   int? selectedGroupId;
+
   @override
   void initState() {
     super.initState();
@@ -441,126 +443,159 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
   }
 
   Widget _productTile(FetchProductDetails item) {
-    return ListTile(
-      tileColor: Colors.white,
-      contentPadding: EdgeInsets.zero,
-      title: Column(
-        children: [
-          // ---- TOP ROW ----
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.productName ?? '',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductEntryUiOnlyScreen(
+              pageFrom: '',
+              product: item,
+              // 👈 pass selected product
+            ),
+          ),
+        );
+      },
+      child: ListTile(
+        tileColor: Colors.white,
+        contentPadding: EdgeInsets.zero,
+        title: Column(
+          children: [
+            // ---- TOP ROW ----
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.productName ?? '',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      item.categoryName ?? '',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        item.categoryName ?? '',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      shareProductToWhatsApp(context: context, item: item);
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        height: 25,
-                        width: 25,
-                        child: Image.asset(
-                          "assets/icons/forwardicon.png",
-                          fit: BoxFit.cover,
+
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        shareProductToWhatsApp(context: context, item: item);
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: Image.asset(
+                            "assets/icons/forwardicon.png",
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, size: 20),
-                    onSelected: (value) {
-                      if (value == "edit") {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ProductEntryUiOnlyScreen(
-                              pageFrom: '',
-                              product: item,
-                              // 👈 pass selected product
-                            ),
-                          ),
-                        );
-                      }
-                      if (value == "delete") {
+                    InkWell(
+                      onTap: () {
                         _showDeleteConfirmDialog(
                           context: context,
                           productId: int.parse(
                             item.productCode.toString(),
                           ), // ✅ ensure not null
                         );
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: "edit",
-                        height: 30,
-                        child: Center(child: Text("Edit")),
-                      ),
-                      const PopupMenuItem(
-                        value: "delete",
-                        height: 30,
-                        child: Center(
-                          child: Text(
-                            "Delete",
-                            style: TextStyle(color: Colors.red),
-                          ),
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: Icon(Icons.delete),
                         ),
                       ),
-                    ],
-                    constraints: const BoxConstraints(
-                      minWidth: 100,
-                      maxWidth: 120,
                     ),
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // ---- BOTTOM 3 COLS ----
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _priceCol(
-                  label: "Sale Price",
-                  value: item.salesPrice?.toString() ?? '0',
+                    // PopupMenuButton<String>(
+                    //   icon: const Icon(Icons.more_vert, size: 20),
+                    //   onSelected: (value) {
+                    //     if (value == "edit") {
+                    //       // Navigator.push(
+                    //       //   context,
+                    //       //   MaterialPageRoute(
+                    //       //     builder: (_) => ProductEntryUiOnlyScreen(
+                    //       //       pageFrom: '',
+                    //       //       product: item,
+                    //       //       // 👈 pass selected product
+                    //       //     ),
+                    //       //   ),
+                    //       // );
+                    //     }
+                    //     if (value == "delete") {
+                    //       _showDeleteConfirmDialog(
+                    //         context: context,
+                    //         productId: int.parse(
+                    //           item.productCode.toString(),
+                    //         ), // ✅ ensure not null
+                    //       );
+                    //     }
+                    //   },
+                    //   itemBuilder: (context) => [
+                    //     const PopupMenuItem(
+                    //       value: "edit",
+                    //       height: 30,
+                    //       child: Center(child: Text("Edit")),
+                    //     ),
+                    //     const PopupMenuItem(
+                    //       value: "delete",
+                    //       height: 30,
+                    //       child: Center(
+                    //         child: Text(
+                    //           "Delete",
+                    //           style: TextStyle(color: Colors.red),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    //   constraints: const BoxConstraints(
+                    //     minWidth: 100,
+                    //     maxWidth: 120,
+                    //   ),
+                    //   padding: EdgeInsets.zero,
+                    // ),
+                  ],
                 ),
-                _priceCol(
-                  label: "Purchase Price",
-                  value: item.purchaseRate?.toString() ?? '0',
-                ),
-                _stockCol(label: "In Stock", value: '0'),
               ],
             ),
-          ),
-        ],
+            // ---- BOTTOM 3 COLS ----
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _priceCol(
+                    label: "Sale Price",
+                    value: item.salesPrice?.toString() ?? '0',
+                  ),
+                  _priceCol(
+                    label: "Purchase Price",
+                    value: item.purchaseRate?.toString() ?? '0',
+                  ),
+                  _stockCol(label: "In Stock", value: '0'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

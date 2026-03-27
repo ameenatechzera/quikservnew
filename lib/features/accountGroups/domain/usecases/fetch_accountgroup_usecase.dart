@@ -1,6 +1,6 @@
 import 'package:quikservnew/core/usecases/general_usecases.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
-import 'package:quikservnew/features/accountGroups/domain/entities/accountGroupResponse.dart';
+import 'package:quikservnew/features/accountGroups/domain/entities/account_group_response.dart';
 import 'package:quikservnew/features/accountGroups/domain/repositories/account_group_repository.dart';
 
 class FetchAccountGroupsUseCase

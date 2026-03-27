@@ -1,5 +1,5 @@
 import 'package:quikservnew/core/utils/typedef.dart';
-import 'package:quikservnew/features/accountGroups/domain/entities/accountGroupResponse.dart';
+import 'package:quikservnew/features/accountGroups/domain/entities/account_group_response.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/delete_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/save_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/update_accountgroup_request.dart';

@@ -11,7 +11,6 @@ class EditCategoryRequestModel {
     required this.modifiedUser,
   });
 
-  /// 🔹 Convert model → JSON
   Map<String, dynamic> toJson() {
     return {
       "category_name": categoryName,

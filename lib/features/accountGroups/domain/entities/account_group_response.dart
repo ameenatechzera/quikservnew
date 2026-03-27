@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class AccountGroupResponse extends Equatable {
-  AccountGroupResponse({
+  const AccountGroupResponse({
     required this.status,
     required this.error,
     required this.message,
@@ -64,7 +64,7 @@ class AccountGroupResponse extends Equatable {
 }
 
 class AccountGroups extends Equatable {
-  AccountGroups({
+  const AccountGroups({
     required this.groupId,
     required this.accountGroupCode,
     required this.accountGroupName,

@@ -1,22 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/navigation/app_navigator.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
-import 'package:quikservnew/features/accountGroups/domain/entities/accountGroupResponse.dart';
+import 'package:quikservnew/features/accountGroups/domain/entities/account_group_response.dart';
 import 'package:quikservnew/features/accountGroups/domain/parameters/delete_accountgroup_request.dart';
 import 'package:quikservnew/features/accountGroups/presentation/bloc/account_group_cubit.dart';
+import 'package:quikservnew/features/accountGroups/presentation/helper/account_group_helper.dart';
 
 import 'edit_account_group_screen.dart';
 
 class AccountGroupListingScreen extends StatelessWidget {
   AccountGroupListingScreen({super.key});
 
-  // final _groupNameController = TextEditingController();
   final _groupIdController = TextEditingController();
-  // final _buttontextController = TextEditingController();
   final List<AccountGroups> list1 = [];
 
   @override
@@ -41,14 +39,10 @@ class AccountGroupListingScreen extends StatelessWidget {
       body: BlocConsumer<AccountGroupCubit, AccountGroupState>(
         listener: (context, state) {
           if (state is AccountGroupsLoaded) {
-            //pr.hide();
             list1.clear();
-            list1.addAll(state.account_groups);
-          } // 👇 Add this so list reloads after Add/Update/Delete
-          if (state is DeleteAccountGroupCompleted
-          // state is UpdateAccountGroupFromServerSuccess ||
-          // state is AccountGroupDeleteFromServerSuccess
-          ) {
+            list1.addAll(state.accountGroups);
+          }
+          if (state is DeleteAccountGroupCompleted) {
             context.read<AccountGroupCubit>().fetchAccountGroups();
           }
           if (state is DeleteAccountGroupsError) {
@@ -65,9 +59,6 @@ class AccountGroupListingScreen extends StatelessWidget {
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // SizedBox(
-                    //   height: 150,
-                    // ),
                     CircularProgressIndicator(),
                     Padding(
                       padding: EdgeInsets.all(8.0),
@@ -85,19 +76,16 @@ class AccountGroupListingScreen extends StatelessWidget {
                 itemCount: list1.length,
                 itemBuilder: (context, index) {
                   return SizedBox(
-                    // color: Colors.white,
                     height: 60,
                     child: Card(
                       elevation: 1,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          15,
-                        ), // Rounded corners
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       child: ListTile(
                         tileColor: Colors.white,
                         contentPadding: EdgeInsets.zero,
-                        // Remove default padding for ListTile
+
                         title: Padding(
                           padding: const EdgeInsets.only(left: 8.0),
                           child: Text(
@@ -110,17 +98,6 @@ class AccountGroupListingScreen extends StatelessWidget {
                           children: [
                             IconButton(
                               onPressed: () {
-                                print('Editing group: ${list1[index].groupId}');
-                                print(
-                                  'Group name: ${list1[index].accountGroupName}',
-                                );
-                                print(
-                                  'Group under: ${list1[index].groupUnder}',
-                                ); // Check this value
-                                print(
-                                  'Group under type: ${list1[index].groupUnder.runtimeType}',
-                                ); // Check type
-
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) {
@@ -142,10 +119,9 @@ class AccountGroupListingScreen extends StatelessWidget {
                               onPressed: () async {
                                 _groupIdController.text = list1[index].groupId
                                     .toString();
-                                bool? confirmed = await _showConfirmationDialog(
+                                bool? confirmed = await showConfirmationDialog(
                                   context,
                                 );
-                                print('confirmed $confirmed');
                                 if (confirmed == true) {
                                   context
                                       .read<AccountGroupCubit>()
@@ -165,55 +141,13 @@ class AccountGroupListingScreen extends StatelessWidget {
                     ),
                   );
                 },
-                // separatorBuilder:
-                //     (BuildContext context, int index) {
-                //   return const Padding(
-                //     padding: EdgeInsets.only(top: 17.0),
-                //     child: Divider(),
-                //   );
-                // },
               ),
             );
           }
-          // if (state is GroupDeleteFromServerSuccess ||
-          //     state is ProductGroupToServerSuccess) {
-          //   context.read<GroupCubit>().fetchAllAccountGroupsFromServer(
-          //       CommonParameter(db_name: AppData.dbName!));
-          // }
 
           return Container(color: Colors.white, height: 50);
         },
       ),
-    );
-  }
-
-  Future<bool?> _showConfirmationDialog(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm'),
-          content: const Text('Are you sure you want to delete?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).pop(false); // Return false when Cancel is pressed
-              },
-            ),
-            TextButton(
-              child: const Text('Confirm'),
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).pop(true); // Return true when Confirm is pressed
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }

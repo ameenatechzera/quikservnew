@@ -1,4 +1,3 @@
-/// Model for adding a Product Group
 class AddProductGroupRequestModel {
   final String productGroupName;
   final int branchId;
@@ -10,10 +9,9 @@ class AddProductGroupRequestModel {
     required this.createdUser,
   });
 
-  /// Convert model to JSON for API
   Map<String, dynamic> toJson() {
     return {
-      'group_name': productGroupName, // API expects "group_name"
+      'group_name': productGroupName,
       'branchId': branchId,
       'createdUser': createdUser,
     };

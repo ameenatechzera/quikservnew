@@ -44,18 +44,12 @@ class CategoriesCubit extends Cubit<CategoryState> {
     response.fold((failure) => emit(CategoryError(error: failure.message)), (
       categoryResponse,
     ) async {
-      // ✅ Extract list
       final categoriesList = categoryResponse.categories ?? [];
-
-      // ✅ Save to local DB
       await _categoryLocalRepository.saveCategories(categoriesList);
-
-      // ✅ Emit loaded state
       emit(CategoryLoaded(categories: categoryResponse));
     });
   }
 
-  // 🚀 Load categories from LOCAL DB (offline)
   // --------------------- LOCAL Fetch ---------------------
   Future<void> loadCategoriesFromLocal() async {
     emit(CategoryLoadingFromLocal());
@@ -83,7 +77,6 @@ class CategoriesCubit extends Cubit<CategoryState> {
       (failure) => emit(CategoryAddError(error: failure.message)),
       (response) => emit(CategoryAddSuccess(response: response)),
     );
-
     // refresh list after save
     await fetchCategories();
   }
@@ -97,7 +90,6 @@ class CategoriesCubit extends Cubit<CategoryState> {
       (failure) => emit(CategoryDeleteError(error: failure.message)),
       (response) async {
         emit(CategoryDeleteSuccess(response: response));
-
         // ✅ refresh categories after delete
         await fetchCategories();
       },
@@ -117,7 +109,6 @@ class CategoriesCubit extends Cubit<CategoryState> {
       (failure) => emit(CategoryEditError(error: failure.message)),
       (response) async {
         emit(CategoryEditSuccess(response: response));
-
         // ✅ refresh list after edit
         await fetchCategories();
       },

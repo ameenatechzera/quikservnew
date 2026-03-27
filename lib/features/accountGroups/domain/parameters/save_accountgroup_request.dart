@@ -1,36 +1,31 @@
-/// Model for adding a Account Group
 class SaveAccountGroupRequest {
-  final String AccountGroupCode;
+  final String accountGroupCode;
   final String accountGroupName;
   final String groupUnder;
   final String narration;
-  final String LedgerNextNo;
+  final String ledgerNextNo;
   final String branchId;
-  final String CreatedUser;
-
+  final String createdUser;
 
   SaveAccountGroupRequest({
-    required this.AccountGroupCode,
+    required this.accountGroupCode,
     required this.accountGroupName,
     required this.groupUnder,
     required this.narration,
-    required this.LedgerNextNo,
+    required this.ledgerNextNo,
     required this.branchId,
-    required this.CreatedUser,
-
+    required this.createdUser,
   });
 
-  /// Convert model to JSON for API
   Map<String, dynamic> toJson() {
     return {
-      'AccountGroupCode': AccountGroupCode, // API expects "group_name"
+      'AccountGroupCode': accountGroupCode,
       'accountGroupName': accountGroupName,
       'groupUnder': groupUnder,
       'narration': narration,
-      'LedgerNextNo': LedgerNextNo,
+      'LedgerNextNo': ledgerNextNo,
       'branchId': branchId,
-      'CreatedUser': CreatedUser
-
+      'CreatedUser': createdUser,
     };
   }
 }
