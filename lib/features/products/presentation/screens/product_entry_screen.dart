@@ -1,23 +1,22 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/products/domain/entities/fetch_product_entity.dart';
-import 'package:quikservnew/features/products/domain/parameters/save_product_parameter.dart';
 import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
+import 'package:quikservnew/features/products/presentation/helper/product_share_helper.dart';
 import 'package:quikservnew/features/products/presentation/widgets/category_bottomsheet.dart';
 import 'package:quikservnew/features/products/presentation/widgets/group_bottomsheet.dart';
+import 'package:quikservnew/features/products/presentation/widgets/product_entry_widget.dart';
 import 'package:quikservnew/features/products/presentation/widgets/unit_bottomsheet.dart';
 import 'package:quikservnew/features/products/presentation/widgets/vat_bottomsheet.dart';
 
 class ProductEntryUiOnlyScreen extends StatefulWidget {
-  final String pageFrom; // keep for your navigation later
-  final FetchProductDetails? product; // or ProductEntity
-  // if not empty -> Update button text
+  final String pageFrom;
+  final FetchProductDetails? product;
   const ProductEntryUiOnlyScreen({
     super.key,
     required this.pageFrom,
@@ -30,6 +29,7 @@ class ProductEntryUiOnlyScreen extends StatefulWidget {
 }
 
 class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
+  final ProductShareHelper helper = ProductShareHelper();
   // ---------- CONTROLLERS ----------
   final _productNameController = TextEditingController();
   final _productNameSecondController = TextEditingController();
@@ -50,11 +50,9 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   // ---------- UI STATES ----------
   bool isVegSelected = false;
   bool isNonVegSelected = true;
-
   bool taxEnabled = true; // "Tax" option in your UI
   bool inclusiveSelected = true; // Tax type
   bool exclusiveSelected = false;
-
   bool showMultiBarcode = false;
   File? pickedImage; // UI only (no crop/upload)
   // ✅ active must be bool (as your model)
@@ -75,11 +73,9 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   };
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (widget.product != null) {
       final p = widget.product!;
-
       // ---- TEXT FIELDS ----
       _productNameController.text = p.productName ?? "";
       _productNameSecondController.text = p.productNameFL ?? "";
@@ -87,19 +83,16 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
       _purchaseRateController.text = p.purchaseRate?.toString() ?? "";
       _salesRateController.text = p.salesPrice?.toString() ?? "";
       _mrpController.text = p.mrp?.toString() ?? "";
-
       // ---- SELECTED IDS ----
       categoryId = p.categoryId;
       groupId = p.groupId;
       baseUnitId = p.unitId;
       vatId = p.vatId;
-
       // ---- DISPLAY NAMES ----
       _categoryController.text = p.categoryName ?? "Select Category";
       _groupController.text = p.groupName;
       _unitController.text = p.unitName ?? "Select Unit";
       _taxController.text = p.vatName ?? "Select Tax %";
-
       // ---- FLAGS ----
       taxEnabled = (p.vatId ?? 0) != 0;
       isActive = (p.isActive ?? 1) == 1;
@@ -126,102 +119,6 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   }
 
   Widget get height10 => const SizedBox(height: 10);
-  // void _snack(String msg) {
-  //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  // }
-
-  bool _validate() {
-    final productName = _productNameController.text.trim();
-    if (productName.isEmpty) {
-      showAnimatedToast(
-        context,
-        message: "Product Name is required",
-        isSuccess: false,
-      );
-      return false;
-    }
-
-    if (categoryId == null) {
-      showAnimatedToast(
-        context,
-        message: "Category is required",
-        isSuccess: false,
-      );
-      return false;
-    }
-
-    if (groupId == null) {
-      showAnimatedToast(
-        context,
-        message: "Geoup is required",
-        isSuccess: false,
-      );
-      return false;
-    }
-
-    if (baseUnitId == null) {
-      showAnimatedToast(context, message: "Unit is required", isSuccess: false);
-      return false;
-    }
-
-    if (taxEnabled && (vatId == null)) {
-      showAnimatedToast(context, message: "Vat is required", isSuccess: false);
-      return false;
-    }
-
-    return true;
-  }
-
-  Future<void> _onSavePressed() async {
-    if (!_validate()) return;
-
-    final productName = _productNameController.text.trim();
-    final productSecondName = _productNameSecondController.text.trim();
-
-    final purchaseRate =
-        double.tryParse(_purchaseRateController.text.trim()) ?? 0;
-
-    final conversionRate =
-        double.tryParse(_conversionRateController.text.trim()) ?? 1;
-
-    final salesRate = double.tryParse(_salesRateController.text.trim()) ?? 0;
-    final mrp = double.tryParse(_mrpController.text.trim()) ?? 0;
-
-    final List<ConversionDetail> conversionDetails = [
-      ConversionDetail(
-        unitId: baseUnitId!,
-        barcode: _barcodeController.text.trim(),
-        conversionRate: conversionRate,
-        mrp: mrp,
-        salesPrice: salesRate,
-        branchId: 1,
-      ),
-    ];
-
-    final request = ProductSaveRequest(
-      productName: productName,
-      productNameFL: productSecondName,
-      baseUnitId: baseUnitId!,
-      groupId: groupId!,
-      categoryId: categoryId!,
-      vatId: taxEnabled ? (vatId ?? 0) : 0,
-      purchaseRate: purchaseRate,
-      isActive: isActive,
-      branchId: 1,
-      descriptionStatus: 0,
-      createdUser: 0,
-      conversionDetails: conversionDetails,
-    );
-    final cubit = context.read<ProductCubit>();
-
-    if (widget.isEdit) {
-      cubit.updateProduct(int.parse(widget.product!.productCode!), request);
-    } else {
-      cubit.saveProduct(request);
-    }
-    // context.read<ProductCubit>().saveProduct(request);
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProductCubit, ProductsState>(
@@ -229,7 +126,6 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
         if (state is SaveProductFailure) {
           showAnimatedToast(context, message: state.message, isSuccess: false);
         }
-
         if (state is SaveProductSuccess) {
           showAnimatedToast(
             context,
@@ -274,89 +170,12 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: TextFormField(
-                              controller: _productNameController,
-                              focusNode: _focusNodes['productName'],
-                              textInputAction: TextInputAction.next,
-                              decoration: InputDecoration(
-                                isCollapsed:
-                                    !_focusNodes['productName']!.hasFocus &&
-                                    _productNameController.text.isEmpty,
-                                label: RichText(
-                                  text: const TextSpan(
-                                    text: "Product Name",
-                                    style: TextStyle(color: Colors.black),
-                                    children: [
-                                      TextSpan(
-                                        text: " *",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 4,
-                                  child: TextFormField(
-                                    controller: _productNameSecondController,
-                                    focusNode: _focusNodes['productSecondName'],
-                                    textInputAction: TextInputAction.next,
-                                    decoration: InputDecoration(
-                                      isCollapsed:
-                                          !_focusNodes['productSecondName']!
-                                              .hasFocus &&
-                                          _productNameSecondController
-                                              .text
-                                              .isEmpty,
-                                      labelText: "Product Second Name",
-                                      labelStyle: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.normal,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                Expanded(
-                                  flex: 1,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      // UI ONLY: no translate logic here
-                                    },
-                                    child: Container(
-                                      height: 40,
-                                      width: 30,
-                                      margin: const EdgeInsets.only(left: 8),
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        Icons.text_fields,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          height10,
-                        ],
+                      child: ProductEntryWidget(
+                        productNameController: _productNameController,
+                        focusNodes: _focusNodes,
+                        productNameSecondController:
+                            _productNameSecondController,
+                        height10: height10,
                       ),
                     ),
                   ),
@@ -752,92 +571,18 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
 
                           height10,
 
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _purchaseRateController,
-                                    focusNode: _focusNodes['purchaseRate'],
-                                    keyboardType: TextInputType.number,
-                                    textInputAction: TextInputAction.next,
-                                    decoration: InputDecoration(
-                                      isCollapsed:
-                                          !_focusNodes['purchaseRate']!
-                                              .hasFocus &&
-                                          _purchaseRateController.text.isEmpty,
-                                      labelText: "Purchase Cost",
-                                      labelStyle: const TextStyle(fontSize: 14),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _conversionRateController,
-                                    focusNode: _focusNodes['conversionRate'],
-                                    enabled: false,
-                                    decoration: const InputDecoration(
-                                      labelText: "Conversion Rate",
-                                      labelStyle: TextStyle(fontSize: 14),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          PurchaseRateWidget(
+                            purchaseRateController: _purchaseRateController,
+                            focusNodes: _focusNodes,
+                            conversionRateController: _conversionRateController,
                           ),
 
                           height10,
 
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _salesRateController,
-                                    focusNode: _focusNodes['salesRate'],
-                                    keyboardType: TextInputType.number,
-                                    textInputAction: TextInputAction.next,
-                                    decoration: InputDecoration(
-                                      isCollapsed:
-                                          !_focusNodes['salesRate']!.hasFocus &&
-                                          _salesRateController.text.isEmpty,
-                                      label: RichText(
-                                        text: const TextSpan(
-                                          text: "Sales Rate",
-                                          style: TextStyle(color: Colors.black),
-                                          children: [
-                                            TextSpan(
-                                              text: " *",
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _mrpController,
-                                    focusNode: _focusNodes['mrp'],
-                                    keyboardType: TextInputType.number,
-                                    textInputAction: TextInputAction.next,
-                                    decoration: const InputDecoration(
-                                      labelText: "MRP",
-                                      labelStyle: TextStyle(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          SalesRateWidget(
+                            salesRateController: _salesRateController,
+                            focusNodes: _focusNodes,
+                            mrpController: _mrpController,
                           ),
 
                           // Multi barcodes (UI only)
@@ -1047,7 +792,10 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: _uploaderCard(),
+                        child: ProductImageUploaderWidget(
+                          pickedImage: pickedImage,
+                          onAddTap: () async {},
+                        ),
                       ),
                     ),
                   ),
@@ -1069,7 +817,25 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        onPressed: _onSavePressed,
+                        onPressed: () => helper.onSavePressed(
+                          context: context,
+                          productNameController: _productNameController,
+                          productNameSecondController:
+                              _productNameSecondController,
+                          barcodeController: _barcodeController,
+                          purchaseRateController: _purchaseRateController,
+                          conversionRateController: _conversionRateController,
+                          salesRateController: _salesRateController,
+                          mrpController: _mrpController,
+                          categoryId: categoryId,
+                          groupId: groupId,
+                          baseUnitId: baseUnitId,
+                          vatId: vatId,
+                          taxEnabled: taxEnabled,
+                          isActive: isActive,
+                          isEdit: widget.isEdit,
+                          product: widget.product,
+                        ),
                         child: Text(
                           widget.isEdit ? "Update" : "Add",
                           style: const TextStyle(
@@ -1092,47 +858,6 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _uploaderCard() {
-    return Center(
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: SizedBox(
-              width: kIsWeb ? 380 : 180,
-              height: 190,
-              child: Center(
-                child: pickedImage == null
-                    ? Icon(
-                        Icons.image,
-                        size: 80,
-                        color: Theme.of(context).highlightColor,
-                      )
-                    : Image.file(pickedImage!, fit: BoxFit.cover),
-              ),
-            ),
-          ),
-          Positioned(
-            right: -10,
-            bottom: -5,
-            child: CircleAvatar(
-              radius: 24,
-              backgroundColor: AppColors.primary,
-              child: IconButton(
-                onPressed: () async {},
-                icon: const Icon(Icons.add, color: Colors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

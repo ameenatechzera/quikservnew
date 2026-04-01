@@ -30,10 +30,8 @@ class UserCreationCubit extends Cubit<UserCreationState> {
   // --------------------- API Fetch ---------------------
   Future<void> fetchUserTypes() async {
     emit(FetchUserTypesInitial());
-
     try {
       final result = await _fetchUserTypesUseCase();
-
       result.fold(
         (failure) {
           emit(FetchUserTypesFailure(failure.message));
@@ -42,10 +40,7 @@ class UserCreationCubit extends Cubit<UserCreationState> {
           emit(FetchUserTypesLoaded(userTypes: userTypeResponse.details));
         },
       );
-    } catch (e, stacktrace) {
-      // Handle unexpected exceptions
-      print('❌ Exception during loginUser: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       emit(FetchUserTypesFailure('An unexpected error occurred'));
     }
   }
@@ -53,10 +48,8 @@ class UserCreationCubit extends Cubit<UserCreationState> {
   // --------------------- API Fetch User types---------------------
   Future<void> fetchUserTypesFromUserCreation() async {
     emit(FetchUserTypesInitial());
-
     try {
       final result = await _fetchUserTypesUseCase();
-
       result.fold(
         (failure) {
           emit(FetchUserTypesFailure(failure.message));
@@ -69,10 +62,7 @@ class UserCreationCubit extends Cubit<UserCreationState> {
           );
         },
       );
-    } catch (e, stacktrace) {
-      // Handle unexpected exceptions
-      print('❌ Exception during loginUser: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       emit(FetchUserTypesFailure('An unexpected error occurred'));
     }
   }
@@ -80,7 +70,6 @@ class UserCreationCubit extends Cubit<UserCreationState> {
   // --------------------- API Save User ---------------------
   Future<void> saveUser(SaveUserParameters request) async {
     emit(SaveUserInitial());
-
     try {
       final response = await _saveUserTypesUseCase(request);
 
@@ -89,10 +78,7 @@ class UserCreationCubit extends Cubit<UserCreationState> {
       ) {
         emit(SaveUserCompleted(result: response));
       });
-    } catch (e, stacktrace) {
-      // Handle unexpected exceptions
-      print('❌ Exception during loginUser: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       emit(SaveUserFailure('An unexpected error occurred'));
     }
   }
@@ -100,10 +86,8 @@ class UserCreationCubit extends Cubit<UserCreationState> {
   // --------------------- API Fetch Suppliers ---------------------
   Future<void> fetchSupplierList() async {
     emit(FetchSupplierListInitial());
-
     try {
       final result = await _fetchSupplierListUseCase();
-
       result.fold(
         (failure) {
           emit(FetchSupplierListFailure(failure.message));
@@ -114,10 +98,7 @@ class UserCreationCubit extends Cubit<UserCreationState> {
           );
         },
       );
-    } catch (e, stacktrace) {
-      // Handle unexpected exceptions
-      print('❌ Exception during loginUser: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       emit(FetchSupplierListFailure('An unexpected error occurred'));
     }
   }
@@ -125,10 +106,8 @@ class UserCreationCubit extends Cubit<UserCreationState> {
   // --------------------- API Fetch Cashiers ---------------------
   Future<void> fetchCashierList() async {
     emit(FetchCashierListInitial());
-
     try {
       final result = await _fetchCashierListUseCase();
-
       result.fold(
         (failure) {
           emit(FetchUserTypesFailure(failure.message));
@@ -137,10 +116,7 @@ class UserCreationCubit extends Cubit<UserCreationState> {
           emit(FetchCashierListLoaded(cashierList: cashierResponse.details));
         },
       );
-    } catch (e, stacktrace) {
-      // Handle unexpected exceptions
-      print('❌ Exception during loginUser: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       emit(FetchUserTypesFailure('An unexpected error occurred'));
     }
   }

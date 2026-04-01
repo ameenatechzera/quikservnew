@@ -28,7 +28,7 @@ class UnitCubit extends Cubit<UnitState> {
        _editUnitUseCase = editUnitUseCase,
        super(UnitInitial());
 
-  /// 🔥 Called this method to fetch units
+  ///  to fetch units
   Future<void> fetchUnits() async {
     emit(UnitLoading());
 
@@ -40,7 +40,7 @@ class UnitCubit extends Cubit<UnitState> {
     );
   }
 
-  /// 🔹 Save a new unit with its own loading/error states
+  ///  Save a new unit with its own loading/error states
   Future<void> saveUnit(SaveUnitRequestModel request) async {
     emit(UnitSaveLoading());
     final response = await _saveUnitUseCase(request);
@@ -62,7 +62,6 @@ class UnitCubit extends Cubit<UnitState> {
       (failure) => emit(UnitDeleteError(error: failure.message)),
       (success) => emit(UnitDeleted(response: success)),
     );
-    // await fetchUnits();
   }
 
   /// ================= EDIT =================

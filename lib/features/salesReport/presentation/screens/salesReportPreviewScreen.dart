@@ -7,6 +7,7 @@ import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
+import 'package:quikservnew/features/salesReport/presentation/screens/pdf.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
@@ -66,7 +67,7 @@ final _totalQtyController = TextEditingController();
 String st_custName = '', st_custAddress = '';
 String amPmTime = '', st_billDate = '';
 int clickPdfFlag = 0;
-
+int tokenNo = 0;
 double saleTotal = 0;
 
 class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
@@ -104,357 +105,460 @@ class _salesReportPreviewScreenState extends State<salesReportPreviewScreen> {
     return Scaffold(
       appBar: const CommonAppBar(title: "Bill Preview"),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            /// TOP CARD
-            topBillInfoCard(
-              billDate: dateFormatter.format(now),
-              billTime: timeFormatter.format(now),
-            ),
-
-            /// ITEMS CARD
-            itemsCard(),
-
-            /// TOTAL CARD
-            totalCard(),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 2.0,
-                right: 2.0,
-                top: 0.0,
-                bottom: 6.0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              /// TOP CARD
+              topBillInfoCard(
+                billDate: dateFormatter.format(now),
+                billTime: timeFormatter.format(now),
               ),
-              child: Card(
-                child: Container(
-                  color: Colors.white,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Visibility(
-                        visible: false,
-                        child: Expanded(
-                          flex: 1,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 2.0,
-                              right: 2.0,
-                              bottom: 2.0,
-                              top: 12.0,
-                            ),
-                            child: Container(
-                              width: 150,
-                              height: 40,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                  foregroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                        appBarColor,
-                                      ),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                        appBarColor,
-                                      ),
-                                  shape:
-                                      MaterialStateProperty.all<
-                                        RoundedRectangleBorder
-                                      >(
-                                        RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            18.0,
-                                          ),
-                                          side: BorderSide(color: appBarColor),
-                                        ),
-                                      ),
-                                ),
-                                onPressed: () async {
-                                  print('pressed');
-                                  if (clickPdfFlag == 0) {
-                                    Fluttertoast.showToast(
-                                      msg: "Generate new pdf before share!",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.BOTTOM,
-                                      backgroundColor: Colors.grey,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0,
-                                    );
-                                  } else {
-                                    //await sharePdf();
-                                  }
-                                },
-                                child: const Text(
-                                  'Share',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
+
+              /// ITEMS CARD
+              itemsCard(),
+
+              /// TOTAL CARD
+              totalCard(),
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 2.0,
+                  right: 2.0,
+                  top: 0.0,
+                  bottom: 6.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Visibility(
+                      visible: false,
+                      child: Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 2.0,
+                            right: 2.0,
+                            bottom: 2.0,
+                            top: 12.0,
                           ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: selectPrintStatus,
-                        child: Expanded(
-                          flex: 1,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 2.0,
-                              right: 2.0,
-                              bottom: 2.0,
-                              top: 12.0,
-                            ),
-                            child: Container(
-                              width: double.infinity,
-                              height: 40,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                  foregroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                        appBarColor,
-                                      ),
-                                  backgroundColor: MaterialStateProperty.all(
-                                    appBarColor,
-                                  ),
-                                  shape:
-                                      MaterialStateProperty.all<
-                                        RoundedRectangleBorder
-                                      >(
-                                        RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            18.0,
-                                          ),
-                                          side: BorderSide(color: appBarColor),
+                          child: Container(
+                            width: 150,
+                            height: 40,
+                            child: ElevatedButton(
+                              style: ButtonStyle(
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                      appBarColor,
+                                    ),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                      appBarColor,
+                                    ),
+                                shape:
+                                    MaterialStateProperty.all<
+                                      RoundedRectangleBorder
+                                    >(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          18.0,
                                         ),
-                                      ),
-                                ),
-                                onPressed: () {
-                                  print('pressed');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PrintPage(
-                                        pageFrom: 'SalesReport',
-                                        sales: saleList.first,
+                                        side: BorderSide(color: appBarColor),
                                       ),
                                     ),
+                              ),
+                              onPressed: () async {
+                                print('pressed');
+                                if (clickPdfFlag == 0) {
+                                  Fluttertoast.showToast(
+                                    msg: "Generate new pdf before share!",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    backgroundColor: Colors.grey,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0,
                                   );
-
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder:
-                                  //             (
-                                  //             context) =>
-                                  //             ThermalPrinterScreen(
-                                  //               sales:
-                                  //               saleList
-                                  //                   .first,
-                                  //               pageFrom:
-                                  //               'SalesReport',
-                                  //             )));
-                                },
-                                child: const Text(
-                                  'Print',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                } else {
+                                  //await sharePdf();
+                                }
+                              },
+                              child: const Text(
+                                'Share',
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ),
                         ),
                       ),
-                      // Visibility(
-                      //   visible: true,
-                      //   child: Expanded(
-                      //     flex: 1,
-                      //     child: Padding(
-                      //       padding: const EdgeInsets.only(
-                      //         left: 2.0,
-                      //         right: 2.0,
-                      //         bottom: 2.0,
-                      //       ),
-                      //       child: Container(
-                      //         width: 150,
-                      //         height: 90,
-                      //         child: Column(
-                      //           children: [
-                      //             Visibility(
-                      //               visible: false,
-                      //               child: Padding(
-                      //                 padding: const EdgeInsets.only(left: 8.0),
-                      //                 child: Row(
-                      //                   mainAxisAlignment:
-                      //                       MainAxisAlignment.center,
-                      //                   children: [
-                      //                     Expanded(
-                      //                       flex: 1,
-                      //                       child: Checkbox(
-                      //                         visualDensity:
-                      //                             VisualDensity.compact,
-                      //                         // Reduces the size
-                      //                         materialTapTargetSize:
-                      //                             MaterialTapTargetSize
-                      //                                 .shrinkWrap,
-                      //                         // Shrinks tap area
-                      //                         value: selectedPdfWithBgIndex,
-                      //                         // Check if the current item is selected
-                      //                         onChanged: (bool? newValue) {
-                      //                           setState(() {
-                      //                             // If the current checkbox is clicked, update the selectedIndex
-                      //                             selectedPdfWithBgIndex =
-                      //                                 newValue;
-                      //                           });
-                      //                         },
-                      //                       ),
-                      //                     ),
-                      //                     const Visibility(
-                      //                       visible: true,
-                      //                       child: Expanded(
-                      //                         flex: 6,
-                      //                         child: Padding(
-                      //                           padding: EdgeInsets.only(
-                      //                             left: 2.0,
-                      //                           ),
-                      //                           child: Text(
-                      //                             ' with header',
-                      //                             style: TextStyle(
-                      //                               fontWeight: FontWeight.bold,
-                      //                               fontSize: 11,
-                      //                             ),
-                      //                           ),
-                      //                         ),
-                      //                       ),
-                      //                     ),
-                      //                   ],
-                      //                 ),
-                      //               ),
-                      //             ),
-                      //             Visibility(
-                      //               visible: false,
-                      //               child: Container(
-                      //                 width: 150,
-                      //                 height: 40,
-                      //                 child: ElevatedButton(
-                      //                   style: ButtonStyle(
-                      //                     foregroundColor:
-                      //                         MaterialStateProperty.all<Color>(
-                      //                           appBarColor,
-                      //                         ),
-                      //                     backgroundColor:
-                      //                         MaterialStateProperty.all<Color>(
-                      //                           appBarColor,
-                      //                         ),
-                      //                     shape:
-                      //                         MaterialStateProperty.all<
-                      //                           RoundedRectangleBorder
-                      //                         >(
-                      //                           RoundedRectangleBorder(
-                      //                             borderRadius:
-                      //                                 BorderRadius.circular(
-                      //                                   18.0,
-                      //                                 ),
-                      //                             side: BorderSide(
-                      //                               color: appBarColor,
-                      //                             ),
-                      //                           ),
-                      //                         ),
-                      //                   ),
-                      //                   onPressed: () {
-                      //                     clickPdfFlag = 1;
-                      //                     // if (selectedPdfWithBgIndex == true) {
-                      //                     //   SharedPrefrence().setPdfPrintWithBgStatus('true');
-                      //                     // } else {
-                      //                     //   SharedPrefrence()
-                      //                     //       .setPdfPrintWithBgStatus('false');
-                      //                     // }
-                      //                     //st_pdfTypeSelected ='type_1';
-                      //                     // createPdfNew(saleList.first,st_pdfTypeSelected);
-                      //                   },
-                      //                   child: const Text(
-                      //                     'PDF',
-                      //                     style: TextStyle(color: Colors.white),
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Visibility(
-              visible: false,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 8.0,
-                  right: 8.0,
-                  bottom: 8.0,
-                ),
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        appBarColor,
-                      ),
-                      backgroundColor: MaterialStateProperty.all(appBarColor),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
-                          side: BorderSide(color: appBarColor),
+                    ),
+                    Visibility(
+                      visible: selectPrintStatus,
+                      child: Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 2.0,
+                            right: 2.0,
+                            bottom: 2.0,
+                            top: 12.0,
+                          ),
+
+                          // child: Row(
+                          //   children: [
+                          //     SizedBox(
+                          //       width: double.infinity,
+                          //       height: 40,
+                          //       child: ElevatedButton(
+                          //         style: ElevatedButton.styleFrom(
+                          //           backgroundColor: const Color(0xFFEAB307),
+                          //           shape: RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.circular(10),
+                          //           ),
+                          //           elevation: 0,
+                          //         ),
+                          //         onPressed: () {},
+                          //         child: const Text(
+                          //           'Share',
+                          //           style: TextStyle(
+                          //             fontWeight: FontWeight.w700,
+                          //             fontSize: 16,
+                          //             color: Colors.black,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     SizedBox(
+                          //       width: double.infinity,
+                          //       height: 40,
+                          //       child: ElevatedButton(
+                          //         style: ElevatedButton.styleFrom(
+                          //           backgroundColor: const Color(0xFFEAB307),
+                          //           shape: RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.circular(10),
+                          //           ),
+                          //           elevation: 0,
+                          //         ),
+                          //         onPressed: () {
+                          //           print('pressed');
+                          //           Navigator.push(
+                          //             context,
+                          //             MaterialPageRoute(
+                          //               builder: (context) => PrintPage(
+                          //                 pageFrom: 'SalesReport',
+                          //                 sales: saleList.first,
+                          //               ),
+                          //             ),
+                          //           );
+
+                          //           // Navigator.push(
+                          //           //     context,
+                          //           //     MaterialPageRoute(
+                          //           //         builder:
+                          //           //             (
+                          //           //             context) =>
+                          //           //             ThermalPrinterScreen(
+                          //           //               sales:
+                          //           //               saleList
+                          //           //                   .first,
+                          //           //               pageFrom:
+                          //           //               'SalesReport',
+                          //           //             )));
+                          //         },
+                          //         child: const Text(
+                          //           'Print',
+                          //           style: TextStyle(
+                          //             fontWeight: FontWeight.w700,
+                          //             fontSize: 16,
+                          //             color: Colors.black,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFEAB307),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    onPressed: () async {
+                                      if (saleList.isEmpty) {
+                                        Fluttertoast.showToast(
+                                          msg: "No data available to share",
+                                          backgroundColor: Colors.black87,
+                                          textColor: Colors.white,
+                                        );
+                                        return;
+                                      }
+
+                                      try {
+                                        await SalesPreviewPdfHelper.createPdf(
+                                          saleList.first,
+                                        );
+                                      } catch (e) {
+                                        Fluttertoast.showToast(
+                                          msg: "Failed to generate PDF",
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                        );
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Share',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(
+                                width: 10,
+                              ), // spacing between buttons
+
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFEAB307),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PrintPage(
+                                            pageFrom: 'SalesReport',
+                                            sales: saleList.first,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Print',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    onPressed: () {
-                      // context
-                      //     .read<AppbarCubit>()
-                      //     .salePageSelected();
+                    // Visibility(
+                    //   visible: true,
+                    //   child: Expanded(
+                    //     flex: 1,
+                    //     child: Padding(
+                    //       padding: const EdgeInsets.only(
+                    //         left: 2.0,
+                    //         right: 2.0,
+                    //         bottom: 2.0,
+                    //       ),
+                    //       child: Container(
+                    //         width: 150,
+                    //         height: 90,
+                    //         child: Column(
+                    //           children: [
+                    //             Visibility(
+                    //               visible: false,
+                    //               child: Padding(
+                    //                 padding: const EdgeInsets.only(left: 8.0),
+                    //                 child: Row(
+                    //                   mainAxisAlignment:
+                    //                       MainAxisAlignment.center,
+                    //                   children: [
+                    //                     Expanded(
+                    //                       flex: 1,
+                    //                       child: Checkbox(
+                    //                         visualDensity:
+                    //                             VisualDensity.compact,
+                    //                         // Reduces the size
+                    //                         materialTapTargetSize:
+                    //                             MaterialTapTargetSize
+                    //                                 .shrinkWrap,
+                    //                         // Shrinks tap area
+                    //                         value: selectedPdfWithBgIndex,
+                    //                         // Check if the current item is selected
+                    //                         onChanged: (bool? newValue) {
+                    //                           setState(() {
+                    //                             // If the current checkbox is clicked, update the selectedIndex
+                    //                             selectedPdfWithBgIndex =
+                    //                                 newValue;
+                    //                           });
+                    //                         },
+                    //                       ),
+                    //                     ),
+                    //                     const Visibility(
+                    //                       visible: true,
+                    //                       child: Expanded(
+                    //                         flex: 6,
+                    //                         child: Padding(
+                    //                           padding: EdgeInsets.only(
+                    //                             left: 2.0,
+                    //                           ),
+                    //                           child: Text(
+                    //                             ' with header',
+                    //                             style: TextStyle(
+                    //                               fontWeight: FontWeight.bold,
+                    //                               fontSize: 11,
+                    //                             ),
+                    //                           ),
+                    //                         ),
+                    //                       ),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             Visibility(
+                    //               visible: false,
+                    //               child: Container(
+                    //                 width: 150,
+                    //                 height: 40,
+                    //                 child: ElevatedButton(
+                    //                   style: ButtonStyle(
+                    //                     foregroundColor:
+                    //                         MaterialStateProperty.all<Color>(
+                    //                           appBarColor,
+                    //                         ),
+                    //                     backgroundColor:
+                    //                         MaterialStateProperty.all<Color>(
+                    //                           appBarColor,
+                    //                         ),
+                    //                     shape:
+                    //                         MaterialStateProperty.all<
+                    //                           RoundedRectangleBorder
+                    //                         >(
+                    //                           RoundedRectangleBorder(
+                    //                             borderRadius:
+                    //                                 BorderRadius.circular(
+                    //                                   18.0,
+                    //                                 ),
+                    //                             side: BorderSide(
+                    //                               color: appBarColor,
+                    //                             ),
+                    //                           ),
+                    //                         ),
+                    //                   ),
+                    //                   onPressed: () {
+                    //                     clickPdfFlag = 1;
+                    //                     // if (selectedPdfWithBgIndex == true) {
+                    //                     //   SharedPrefrence().setPdfPrintWithBgStatus('true');
+                    //                     // } else {
+                    //                     //   SharedPrefrence()
+                    //                     //       .setPdfPrintWithBgStatus('false');
+                    //                     // }
+                    //                     //st_pdfTypeSelected ='type_1';
+                    //                     // createPdfNew(saleList.first,st_pdfTypeSelected);
+                    //                   },
+                    //                   child: const Text(
+                    //                     'PDF',
+                    //                     style: TextStyle(color: Colors.white),
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
+              Visibility(
+                visible: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 8.0,
+                    right: 8.0,
+                    bottom: 8.0,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.all<Color>(
+                          appBarColor,
+                        ),
+                        backgroundColor: MaterialStateProperty.all(appBarColor),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: appBarColor),
+                              ),
+                            ),
+                      ),
+                      onPressed: () {
+                        // context
+                        //     .read<AppbarCubit>()
+                        //     .salePageSelected();
 
-                      // Navigator.pushReplacement(
-                      //   context,
-                      //   PageRouteBuilder(
-                      //     pageBuilder: (context,
-                      //         animation,
-                      //         secondaryAnimation) =>
-                      //         SaleScreen(),
-                      //     transitionsBuilder: (context,
-                      //         animation,
-                      //         secondaryAnimation,
-                      //         child) {
-                      //       const begin =
-                      //       Offset(1.0, 0.0);
-                      //       const end = Offset.zero;
-                      //       const curve = Curves.ease;
-                      //
-                      //       var tween = Tween(
-                      //           begin: begin,
-                      //           end: end)
-                      //           .chain(CurveTween(
-                      //           curve: curve));
-                      //
-                      //       return SlideTransition(
-                      //         position: animation
-                      //             .drive(tween),
-                      //         child: child,
-                      //       );
-                      //     },
-                      //   ),
-                      // );
-                    },
-                    child: const Text(
-                      'New Sale',
-                      style: TextStyle(color: Colors.white, fontSize: 15),
-                      textAlign: TextAlign.center,
+                        // Navigator.pushReplacement(
+                        //   context,
+                        //   PageRouteBuilder(
+                        //     pageBuilder: (context,
+                        //         animation,
+                        //         secondaryAnimation) =>
+                        //         SaleScreen(),
+                        //     transitionsBuilder: (context,
+                        //         animation,
+                        //         secondaryAnimation,
+                        //         child) {
+                        //       const begin =
+                        //       Offset(1.0, 0.0);
+                        //       const end = Offset.zero;
+                        //       const curve = Curves.ease;
+                        //
+                        //       var tween = Tween(
+                        //           begin: begin,
+                        //           end: end)
+                        //           .chain(CurveTween(
+                        //           curve: curve));
+                        //
+                        //       return SlideTransition(
+                        //         position: animation
+                        //             .drive(tween),
+                        //         child: child,
+                        //       );
+                        //     },
+                        //   ),
+                        // );
+                      },
+                      child: const Text(
+                        'New Sale',
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -501,7 +605,8 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
       }
       if (state is SalesDetailsSuccess) {
         st_custName = state.response.salesMaster!.ledgerName;
-        //st_custAddress = state.response.salesMaster!.add;
+        tokenNo = state.response.salesMaster!.billTokenNo;
+        print(tokenNo);
         print('BillDate ${state.response.salesMaster!.invoiceDate.toString()}');
 
         st_billDate = _formatDate(
@@ -520,7 +625,7 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
       return Card(
         margin: const EdgeInsets.all(8),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -538,12 +643,30 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                 ],
               ),
               const SizedBox(height: 8),
-              const Text(
-                "Customer Name",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              Row(
+                children: [
+                  const Text(
+                    "Customer Name:",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  Text(st_custName, style: TextStyle(color: Colors.black)),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(st_custName, style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+                  Text(
+                    "TokenNo:",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    tokenNo.toString(),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -566,9 +689,9 @@ Widget itemsCard() {
               Expanded(flex: 1, child: Text("Sl", style: headerStyle)),
               Expanded(flex: 3, child: Text("Barcode", style: headerStyle)),
               Expanded(flex: 1, child: Text("Qty", style: headerStyle)),
-              Expanded(flex: 2, child: Text("Rate", style: headerStyle)),
+              Expanded(flex: 1, child: Text("Rate", style: headerStyle)),
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Text(
                   "Total",
                   style: headerStyle,
@@ -589,9 +712,15 @@ Widget itemsCard() {
             }
           },
           builder: (context, state) {
-            if (state is SalesDetailsSuccess) {
+            if (state is SaleDetailsLoading) {
               return SizedBox(
                 height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (state is SalesDetailsSuccess) {
+              return SizedBox(
+                //height: 200,
                 child: ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -635,16 +764,16 @@ Widget itemsCard() {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              st_qty + '-' + data.unitName.toString(),
+                              '$st_qty-${data.unitName}',
                               style: const TextStyle(
                                 color: Colors.red,
-                                fontSize: 11,
+                                fontSize: 8,
                               ),
                             ),
                           ),
-                          Expanded(flex: 2, child: Text(data.salesRate)),
+                          Expanded(flex: 1, child: Text(data.salesRate)),
                           Expanded(
-                            flex: 2,
+                            flex: 1,
                             child: Text(
                               data.subtotal,
                               textAlign: TextAlign.right,

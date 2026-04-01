@@ -10,7 +10,7 @@ import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cub
 import 'package:quikservnew/features/masters/presentation/widgets/user_widgets.dart';
 
 class UserCreationScreen extends StatefulWidget {
-  UserCreationScreen({super.key});
+  const UserCreationScreen({super.key});
 
   @override
   State<UserCreationScreen> createState() => _UserCreationScreenState();
@@ -174,10 +174,6 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                       ),
                     ),
                     onPressed: () {
-                      print('nameController ${nameController.text.toString()}');
-                      print(
-                        'passwordController ${passwordController.text.toString()}',
-                      );
                       bool saveStatus = saveValidation(context);
                       if (saveStatus) {
                         int userTypeId = int.parse(
@@ -187,12 +183,12 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                           SaveUserParameters(
                             username: nameController.text.toString(),
                             password: passwordController.text.toString(),
-                            user_type: userTypeId,
+                            usertype: userTypeId,
                             isactive: 1,
                             name: nameController.text.toString(),
 
                             branchIds: [],
-                            CreatedUser: '',
+                            createdUser: '',
                           ),
                         );
                       }
@@ -217,8 +213,6 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
 
   bool saveValidation(BuildContext context) {
     bool saveStatus = true;
-    print('nameController ${nameController.text.toString()}');
-    print('passwordController ${passwordController.text.toString()}');
     String stPassword = passwordController.text.toString().trim();
     String stConfirmPassword = confirmPasswordController.text.toString().trim();
     if (nameController.text.toString().isEmpty) {

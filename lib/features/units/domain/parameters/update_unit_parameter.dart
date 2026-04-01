@@ -9,7 +9,6 @@ class EditUnitRequestModel {
     required this.modifiedUser,
   });
 
-  // 🔹 Convert Dart object to JSON
   Map<String, dynamic> toJson() {
     return {
       "unit_name": unitName,
@@ -18,7 +17,6 @@ class EditUnitRequestModel {
     };
   }
 
-  // 🔹 Optional: From JSON (if you receive it back)
   factory EditUnitRequestModel.fromJson(Map<String, dynamic> json) {
     return EditUnitRequestModel(
       unitName: json['unit_name'] ?? '',

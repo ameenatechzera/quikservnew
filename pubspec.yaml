@@ -131,6 +131,12 @@ flutter:
     - assets/icons/salesreporticon.svg
     - assets/icons/itemreporticon.svg
     - assets/icons/dailyclosingicon.svg
+    - assets/icons/salesreporticon1.svg
+    - assets/icons/salesreporticon2.svg
+    - assets/icons/salesreporticon3.svg
+    - assets/icons/salesreporticon4.svg
+    - assets/icons/salesreporticon5.svg
+    - assets/icons/salesreportdeleteicon.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

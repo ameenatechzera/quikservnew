@@ -8,7 +8,7 @@ import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyclo
 import 'package:quikservnew/features/dailyclosingReport/domain/parameters/dailyclosingreport_request.dart';
 import 'package:quikservnew/features/dailyclosingReport/domain/repositories/dailyclosingreport_repository.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwise_report_request.dart';
 
 class DailyclosereportRepositoryImpl implements DailyClosingReportRepository {
   final DailyClosingReportRemoteDataSource remoteDataSource;

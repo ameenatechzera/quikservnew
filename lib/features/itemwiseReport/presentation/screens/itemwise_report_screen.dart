@@ -1,15 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/core/theme/colors.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwise_report_request.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class ItemWiseReportScreen extends StatefulWidget {
-   ItemWiseReportScreen({super.key});
+  const ItemWiseReportScreen({super.key});
 
   @override
   State<ItemWiseReportScreen> createState() => _ItemWiseReportScreenState();
@@ -20,13 +19,12 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
 
   final TextEditingController toDateController = TextEditingController();
 
-   DateTime fromDate = DateTime.now();
+  DateTime fromDate = DateTime.now();
 
-  String st_branchId ='';
+  String st_branchId = '';
 
-   DateTime toDate = DateTime.now();
+  DateTime toDate = DateTime.now();
   final DateFormat formatter = DateFormat('dd MMM yyyy');
-
 
   @override
   void initState() {
@@ -37,7 +35,7 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xffF5F6FA),
+      backgroundColor: const Color(0xffF5F6FA),
       appBar: AppBar(
         toolbarHeight: 40,
         backgroundColor: AppColors.theme,
@@ -53,7 +51,6 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
           Expanded(
             child: BlocBuilder<ItemWiseReportCubit, ItemWiseReportState>(
               builder: (context, state) {
-
                 if (state is ItemWiseReportInitial) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is ItemSaleReportFailure) {
@@ -85,7 +82,10 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
                                   ),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.only(left: 38.0, right: 20),
+                                  padding: const EdgeInsets.only(
+                                    left: 38.0,
+                                    right: 20,
+                                  ),
                                   child: Row(
                                     children: [
                                       Expanded(
@@ -105,58 +105,57 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
                                       Text(
                                         item.totalAmount,
                                         style: const TextStyle(fontSize: 18),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        'Qty',
-                                      ),
+                                      Text('Qty'),
                                       Text(
                                         item.qty.toString(),
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ],
                                   ),
                                   Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      Text('Sub'),
                                       Text(
-                                        'Sub',
+                                        item.subTotal,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                      Text(item.subTotal,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                   Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      Text('Tax'),
                                       Text(
-                                        'Tax',
+                                        item.taxAmount,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                      Text(item.taxAmount,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                 ],
                               ),
-                              SizedBox(
-                                height: 10,
-                              )
+                              SizedBox(height: 10),
                             ],
                           ),
                         ),
@@ -164,8 +163,7 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
                     },
                   );
                 } else {
-                  return const Center(
-                      child: Text("Please select date range"));
+                  return const Center(child: Text("Please select date range"));
                 }
               },
             ),
@@ -175,61 +173,61 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
     );
   }
 
-   Future<void> pickDate({required bool isFrom}) async {
-     print('reached SalesReport');
-     final DateTime? picked = await showDatePicker(
-       context: context,
-       initialDate: isFrom ? fromDate : toDate,
-       firstDate: DateTime(2020),
-       lastDate: DateTime.now(),
-     );
+  Future<void> pickDate({required bool isFrom}) async {
+    print('reached SalesReport');
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isFrom ? fromDate : toDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
 
-     if (picked != null) {
-       setState(() {
-         if (isFrom) {
-           fromDate = picked;
-         } else {
-           toDate = picked;
-         }
-       });
-       fetchSalesReport();
-     }
-   }
+    if (picked != null) {
+      setState(() {
+        if (isFrom) {
+          fromDate = picked;
+        } else {
+          toDate = picked;
+        }
+      });
+      fetchSalesReport();
+    }
+  }
 
-   Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {
-     return Column(
-       crossAxisAlignment: CrossAxisAlignment.start,
-       children: [
-         Text(label, style: const TextStyle(fontSize: 12)),
-         const SizedBox(height: 6),
-         InkWell(
-           onTap: onTap,
-           child: Container(
-             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-             decoration: BoxDecoration(
-               color: Colors.white,
-               borderRadius: BorderRadius.circular(8),
-               border: Border.all(color: Colors.grey.shade300),
-             ),
-             child: Row(
-               children: [
-                 Expanded(
-                   child: Text(
-                     date == null
-                         ? "Select Date"
-                         : "${date.day.toString().padLeft(2, '0')}-"
-                         "${date.month.toString().padLeft(2, '0')}-"
-                         "${date.year}",
-                   ),
-                 ),
-                 const Icon(Icons.calendar_today_outlined, size: 18),
-               ],
-             ),
-           ),
-         ),
-       ],
-     );
-   }
+  Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12)),
+        const SizedBox(height: 6),
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    date == null
+                        ? "Select Date"
+                        : "${date.day.toString().padLeft(2, '0')}-"
+                              "${date.month.toString().padLeft(2, '0')}-"
+                              "${date.year}",
+                  ),
+                ),
+                const Icon(Icons.calendar_today_outlined, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   /// 🔹 API / DB CALL
   Future<void> fetchSalesReport() async {
@@ -238,12 +236,13 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
 
     context.read<ItemWiseReportCubit>().fetchItemWiseReport(
       ItemWiseReportRequest(
-        FromDate: formatter.format(fromDate),
-        ToDate: formatter.format(toDate),
+        fromDate: formatter.format(fromDate),
+        toDate: formatter.format(toDate),
         branchId: st_branchId,
       ),
     );
   }
+
   /// 🔹 Date Filter
   Widget _dateFilter() {
     return Container(
@@ -258,7 +257,7 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
             child: _dateBox(
               "From Date",
               fromDate,
-                  () => pickDate(isFrom: true),
+              () => pickDate(isFrom: true),
             ),
           ),
           const SizedBox(width: 12),
@@ -270,5 +269,3 @@ class _ItemWiseReportScreenState extends State<ItemWiseReportScreen> {
     );
   }
 }
-
-

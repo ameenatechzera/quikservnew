@@ -25,11 +25,11 @@ class SalesReportCubit extends Cubit<SlesReportState> {
     required SalesReportFromServerUseCase salesReportFromServerUseCase,
     required SalesDetailsByMasterIdUseCase salesDetailsByMasterIdUseCase,
     required SalesReportMasterByDateUseCase salesReportMasterByDateUseCase,
-    required DeleteSalesFromServerUseCase deleteSalesFromServerUseCase
+    required DeleteSalesFromServerUseCase deleteSalesFromServerUseCase,
   }) : _salesReportFromServerUseCase = salesReportFromServerUseCase,
        _salesDetailsByMasterIdUseCase = salesDetailsByMasterIdUseCase,
        _salesReportMasterByDateUseCase = salesReportMasterByDateUseCase,
-      _deleteSalesFromServerUseCase = deleteSalesFromServerUseCase,
+       _deleteSalesFromServerUseCase = deleteSalesFromServerUseCase,
        super(SlesReportInitial());
 
   // --------------------- API Fetch SalesReport ---------------------
@@ -53,7 +53,7 @@ class SalesReportCubit extends Cubit<SlesReportState> {
   Future<void> fetchSalesDetailsByMasterId(
     FetchSalesDetailsRequest request,
   ) async {
-    emit(SlesDetailsInitial());
+    emit(SaleDetailsLoading());
 
     try {
       final response = await _salesDetailsByMasterIdUseCase(request);
@@ -118,16 +118,17 @@ class SalesReportCubit extends Cubit<SlesReportState> {
   }
 
   Future<void> deleteSalesFromServer(
-      SalesDeleteByMasterIdRequest salesDeleteRequest) async {
+    SalesDeleteByMasterIdRequest salesDeleteRequest,
+  ) async {
     emit(SalesDeleteLoading());
     try {
       final response = await _deleteSalesFromServerUseCase(salesDeleteRequest);
       response.fold(
-            (failure) async {
+        (failure) async {
           log("failure");
           emit(SalesDeleteFailure(failure.message));
         },
-            (success) {
+        (success) {
           emit(SalesDeleteSuccess());
         },
       );

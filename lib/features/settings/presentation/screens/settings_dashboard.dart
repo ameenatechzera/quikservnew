@@ -19,20 +19,19 @@ import 'package:quikservnew/features/units/presentation/screens/unit_listing_scr
 // import 'package:quikservnew/features/masters/presentation/screens/user_listing_screen.dart';
 import 'package:quikservnew/features/vat/presentation/screens/vat_listing_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/account_settings_screen.dart';
-import 'package:quikservnew/features/settings/presentation/screens/printer_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/sale_settings_screen.dart';
-import 'package:quikservnew/features/settings/presentation/screens/tokenResetScreen.dart';
+import 'package:quikservnew/features/settings/presentation/screens/tokenreset_screen.dart';
 import 'package:quikservnew/features/settings/presentation/widgets/dashboard_listtile.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
-import 'aboutUs_screen.dart';
+import 'aboutus_screen.dart';
 
 String st_companyName = '';
 String vatType = '';
 bool vatStatus = true;
 
 class SettingsScreen extends StatelessWidget {
-  SettingsScreen({super.key});
+  const SettingsScreen({super.key});
 
   Future<String?> _getAppVersion() async {
     vatType = await SharedPreferenceHelper().getVatType();
@@ -208,7 +207,7 @@ class SettingsScreen extends StatelessWidget {
                               context: context,
                               icon: Icons.contact_mail,
                               title: "Contact Us",
-                              page: const AboutScreen(),
+                              page: AboutScreen(),
                             ),
                             InkWell(
                               onTap: () {

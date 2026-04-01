@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
-import 'package:quikservnew/features/settings/domain/parameters/savePrinterSettingsRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/save_printersettings_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PrintSettingsHelper {
   Future<void> initBluetooth({
@@ -283,5 +284,35 @@ class PrintSettingsHelper {
           styles: const PosStyles(align: PosAlign.center),
         ) +
         generator.cut();
+  }
+}
+
+class AboutUsHelper {
+  /// EMAIL
+  Future<void> openEmail() async {
+    final Uri email = Uri(scheme: 'mailto', path: 'support@quikserv.app');
+
+    await launchUrl(email, mode: LaunchMode.externalApplication);
+  }
+
+  /// WHATSAPP
+  Future<void> openWhatsApp() async {
+    final Uri whatsapp = Uri.parse("https://wa.me/917592909990");
+
+    await launchUrl(whatsapp, mode: LaunchMode.externalApplication);
+  }
+
+  /// CALL
+  Future<void> makeCall() async {
+    final Uri phone = Uri.parse("tel:+917592909990");
+
+    await launchUrl(phone, mode: LaunchMode.externalApplication);
+  }
+
+  /// WEBSITE
+  Future<void> openWebsite() async {
+    final Uri website = Uri.parse("https://www.quikserv.app");
+
+    await launchUrl(website, mode: LaunchMode.externalApplication);
   }
 }

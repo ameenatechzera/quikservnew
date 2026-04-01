@@ -4,22 +4,21 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
-import 'package:quikservnew/features/settings/data/models/monthlyGraphModel.dart';
-import 'package:quikservnew/features/settings/data/models/printSaveResultModel.dart';
-import 'package:quikservnew/features/settings/data/models/salesCountGraphModel.dart';
-import 'package:quikservnew/features/settings/data/models/weeklyGraphModel.dart';
-import 'package:quikservnew/features/settings/domain/entities/TokenUpdateResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/commonResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/salesCountGraphResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/tokenDetailsResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/weeklyGraphReportResult.dart';
+import 'package:quikservnew/features/settings/data/models/monthly_graph_model.dart';
+import 'package:quikservnew/features/settings/data/models/print_save_result_model.dart';
+import 'package:quikservnew/features/settings/data/models/sales_count_graph_model.dart';
+import 'package:quikservnew/features/settings/data/models/weekly_graph_model.dart';
+import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/token_details_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/token_update_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/weekly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
-import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
-import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
-import 'package:quikservnew/features/settings/domain/parameters/salesTokenUpdateRequest.dart'
+import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/sales_tokenupdate_request.dart'
     show UpdateSalesTokenRequest;
-import 'package:quikservnew/features/settings/domain/parameters/savePrinterSettingsRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/save_printersettings_request.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 abstract class SettingsRemoteDataSource {
@@ -34,20 +33,20 @@ abstract class SettingsRemoteDataSource {
     AccountSettingsParams accountSettingsParams,
   );
   Future<MonthlyGraphReportResult> fetchMonthlyGraphReport(
-      BarGraphRequest request,
-      );
+    BarGraphRequest request,
+  );
   Future<WeeklyGraphReportResult> fetchWeeklyGraphReport(
-      BarGraphRequest request,
-      );
+    BarGraphRequest request,
+  );
   Future<MonthlyGraphReportResult> fetchSalesCountGraph(
-      BarGraphRequest request,
-      );
+    BarGraphRequest request,
+  );
   Future<MonthlyGraphReportResult> fetchCustomSalesGraph(
-      CustomSalesGraphRequest request,
-      );
+    CustomSalesGraphRequest request,
+  );
   Future<PrinterSettingsResultModel> savePrinterSettings(
-      SavePrinterSettingsRequest savePrinterSettings);
-
+    SavePrinterSettingsRequest savePrinterSettings,
+  );
 }
 
 class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
@@ -56,23 +55,14 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   @override
   Future<FetchSettingsResponseModel> fetchSettings() async {
     try {
-      // Get the base URL from shared preferences
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
-      // Build the full API URL
       final url = ApiConstants.getSettingsPath(baseUrl);
-      print('SetingsUrl ${url}');
-      print('🔹 Fetch Settings URL: $url');
-
-      // Get database name and token
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      // Make GET request
       final response = await dio.get(
         url,
         options: Options(
@@ -84,12 +74,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      // Logging
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 ResponseSettings Data: ${response.data}');
-
-      // Parse response
       if (response.statusCode == 200) {
         return FetchSettingsResponseModel.fromJson(response.data);
       } else {
@@ -97,9 +81,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception during fetchSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }
@@ -107,22 +89,14 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   @override
   Future<CommonResult> refreshSalesToken() async {
     try {
-      // Get the base URL from shared preferences
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
-      // Build the full API URL
       final url = ApiConstants.resetSalesTokenPath(baseUrl);
-      print('🔹 Fetch Settings URL: $url');
-
-      // Get database name and token
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      // Make GET request
       final response = await dio.get(
         url,
         options: Options(
@@ -134,12 +108,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      // Logging
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
-
-      // Parse response
       if (response.statusCode == 200) {
         return CommonResult.fromJson(response.data);
       } else {
@@ -147,29 +115,20 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception during fetchSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }
 
   @override
   Future<TokenDetailsResult> fetchCurrentSalesToken() async {
-    // TODO: implement fetchCurrentSalesToken
-
     final dbName = await SharedPreferenceHelper().getDatabaseName();
     final token = await SharedPreferenceHelper().getToken() ?? "";
-    // Get the base URL from shared preferences
     final baseUrl = await SharedPreferenceHelper().getBaseUrl();
     if (baseUrl == null || baseUrl.isEmpty) {
       throw Exception("Base URL not set");
     }
-
-    // Build API URL
     String refreshTokenUrl = ApiConstants.fetchSalesTokenPath(baseUrl);
-    print("refreshTokenUrl API URL: $refreshTokenUrl");
-
     try {
       final response = await dio.get(
         refreshTokenUrl,
@@ -181,16 +140,10 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🌐 Raw API Response: ${response.data}');
-      print('🔢 Status Code: ${response.statusCode}');
-
       if (response.statusCode == 200) {
         if (response.data == null) {
           throw Exception('Empty response from server');
         }
-
-        // Convert API response to model
         return TokenDetailsResult.fromJson(response.data);
       } else {
         throw ServerException(
@@ -198,7 +151,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
         );
       }
     } catch (e) {
-      print("❌ Error  refreshTokenUrl : $e");
       throw Exception("Failed   refreshTokenUrl ");
     }
   }
@@ -209,16 +161,11 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   ) async {
     final dbName = await SharedPreferenceHelper().getDatabaseName();
     final token = await SharedPreferenceHelper().getToken() ?? "";
-    // Get the base URL from shared preferences
     final baseUrl = await SharedPreferenceHelper().getBaseUrl();
     if (baseUrl == null || baseUrl.isEmpty) {
       throw Exception("Base URL not set");
     }
-
-    // Build API URL
     String refreshTokenUrl = ApiConstants.updateSalesTokenPath(baseUrl);
-    print("refreshTokenUrl API URL: $refreshTokenUrl");
-
     try {
       final response = await dio.post(
         refreshTokenUrl,
@@ -231,16 +178,10 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🌐 Raw API Response: ${response.data}');
-      print('🔢 Status Code: ${response.statusCode}');
-
       if (response.statusCode == 200) {
         if (response.data == null) {
           throw Exception('Empty response from server');
         }
-
-        // Convert API response to model
         return TokenUpdateResult.fromJson(response.data);
       } else {
         throw ServerException(
@@ -248,7 +189,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
         );
       }
     } catch (e) {
-      print("❌ Error  refreshTokenUrl : $e");
       throw Exception("Failed   refreshTokenUrl ");
     }
   }
@@ -262,16 +202,10 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
       final url = ApiConstants.saveAccountSettingsPath(baseUrl, 1);
-      print("🔹 Save Account Settings URL: $url");
-
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      print("📤 Request Body: ${accountSettingsParams.toJson()}");
-
       final response = await dio.post(
         url,
         data: accountSettingsParams.toJson(),
@@ -284,10 +218,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
-
       if (response.statusCode == 200) {
         return MasterResponseModel.fromJson(response.data);
       } else {
@@ -295,30 +225,24 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception in saveAccountSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<MonthlyGraphReportResult> fetchMonthlyGraphReport(BarGraphRequest request) async {
+  Future<MonthlyGraphReportResult> fetchMonthlyGraphReport(
+    BarGraphRequest request,
+  ) async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
       final url = ApiConstants.fetchSalesGraphReportPath(baseUrl);
-      print("🔹 Save Account Settings URL: $url");
-
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      print("📤 Request Body: ${request.toJson()}");
-
       final response = await dio.post(
         url,
         data: request.toJson(),
@@ -331,10 +255,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
-
       if (response.statusCode == 200) {
         return MonthlyGraphModel.fromJson(response.data);
       } else {
@@ -342,30 +262,24 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception in saveAccountSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<WeeklyGraphReportResult> fetchWeeklyGraphReport(BarGraphRequest request) async {
+  Future<WeeklyGraphReportResult> fetchWeeklyGraphReport(
+    BarGraphRequest request,
+  ) async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
       final url = ApiConstants.fetchSalesGraphReportPath(baseUrl);
-      print("🔹 Save Account Settings URL: $url");
-
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      print("📤 Request Body: ${request.toJson()}");
-
       final response = await dio.post(
         url,
         data: request.toJson(),
@@ -378,10 +292,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
-
       if (response.statusCode == 200) {
         return WeeklyGraphReportModel.fromJson(response.data);
       } else {
@@ -389,30 +299,24 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception in saveAccountSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<MonthlyGraphReportResult> fetchSalesCountGraph(BarGraphRequest request) async {
+  Future<MonthlyGraphReportResult> fetchSalesCountGraph(
+    BarGraphRequest request,
+  ) async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
       final url = ApiConstants.fetchSalesCountGraphReportPath(baseUrl);
-      print("🔹 Save Account Settings URL: $url");
-
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      print("📤 Request Body: ${request.toJson()}");
-
       final response = await dio.post(
         url,
         data: request.toJson(),
@@ -425,10 +329,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
-
       if (response.statusCode == 200) {
         return SalesCountGraphModel.fromJson(response.data);
       } else {
@@ -436,33 +336,27 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception in saveAccountSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<MonthlyGraphReportResult> fetchCustomSalesGraph(CustomSalesGraphRequest request) async {
+  Future<MonthlyGraphReportResult> fetchCustomSalesGraph(
+    CustomSalesGraphRequest request,
+  ) async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
       var url = ApiConstants.fetchSalesGraphReportPath(baseUrl);
-      if(request.salesType =='count'){
-         url = ApiConstants.fetchSalesCountGraphReportPath(baseUrl);
+      if (request.salesType == 'count') {
+        url = ApiConstants.fetchSalesCountGraphReportPath(baseUrl);
       }
-
-      print("🔹 Save Account Settings URL: $url");
-
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      print("📤 Request Body: ${request.toJson()}");
-
       final response = await dio.post(
         url,
         data: request.toJson(),
@@ -475,10 +369,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
-
       if (response.statusCode == 200) {
         return MonthlyGraphModel.fromJson(response.data);
       } else {
@@ -486,30 +376,24 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception in saveAccountSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<PrinterSettingsResultModel> savePrinterSettings(SavePrinterSettingsRequest savePrinterSettings) async {
+  Future<PrinterSettingsResultModel> savePrinterSettings(
+    SavePrinterSettingsRequest savePrinterSettings,
+  ) async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
       var url = ApiConstants.fetchSavePrinterSettingsPath(baseUrl);
-
-      print("🔹 Save Account Settings URL: $url");
-
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-      print("📤 Request Body: ${savePrinterSettings.toJson()}");
-
       final response = await dio.post(
         url,
         data: savePrinterSettings.toJson(),
@@ -522,10 +406,6 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Status Code: ${response.statusCode}');
-      print('🔹 Response Data: ${response.data}');
-
       if (response.statusCode == 200) {
         return PrinterSettingsResultModel.fromJson(response.data);
       } else {
@@ -533,9 +413,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, stacktrace) {
-      print('❌ Exception in saveAccountSettings: $e');
-      print('Stacktrace: $stacktrace');
+    } catch (e) {
       rethrow;
     }
   }

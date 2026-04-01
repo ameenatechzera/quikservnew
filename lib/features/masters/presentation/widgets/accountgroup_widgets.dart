@@ -26,15 +26,11 @@ class AccountGroupTile extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.edit, size: 20, color: Colors.black54),
-              onPressed: () {
-                // TODO: Edit action
-              },
+              onPressed: () {},
             ),
             IconButton(
               icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-              onPressed: () {
-                // TODO: Delete action
-              },
+              onPressed: () {},
             ),
           ],
         ),

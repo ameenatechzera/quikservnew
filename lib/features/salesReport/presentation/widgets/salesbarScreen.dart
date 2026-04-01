@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/salesCountGraphResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/weeklyGraphReportResult.dart';
-import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
-import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
+import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/sales_count_graph_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/weekly_graph_report_result.dart';
+import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 
 List<SaleCountGraphList> salesCountList = [];
@@ -41,6 +41,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
     );
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,15 +51,16 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [_buildCustomSelector(),_buildSalesTypeSelector(), _buildSalesChart()],
-
+            children: [
+              _buildCustomSelector(),
+              _buildSalesTypeSelector(),
+              _buildSalesChart(),
+            ],
           ),
         ),
       ),
     );
   }
-
-
 
   Widget _buildSalesChart() {
     return Column(
@@ -83,6 +85,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
       ],
     );
   }
+
   Widget _buildCustomSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +94,6 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-
             Row(
               children: [
                 Checkbox(
@@ -109,68 +111,69 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                     });
                   },
                 ),
-                const Text(
-                  "Custom",
-                  style: TextStyle(fontSize: 14),
-                ),
+                const Text("Custom", style: TextStyle(fontSize: 14)),
               ],
             ),
             if (!isCustomSelected)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    /// 🔹 Dropdown
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButton<SalesPeriod>(
+                        value: selectedPeriod,
+                        underline: const SizedBox(),
+                        onChanged: (SalesPeriod? newValue) {
+                          if (newValue == null) return;
 
-                  /// 🔹 Dropdown
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButton<SalesPeriod>(
-                      value: selectedPeriod,
-                      underline: const SizedBox(),
-                      onChanged: (SalesPeriod? newValue) {
-                        if (newValue == null) return;
+                          setState(() {
+                            selectedPeriod = newValue;
+                          });
 
-                        setState(() {
-                          selectedPeriod = newValue;
-                        });
-
-                        /// 🔥 Call API based on selection
-                        String period = newValue.name; // daily, weekly...
-                        if (selectedView.name == 'count') {
-                          if (period == 'daily') {
-                            period = 'hourly';
+                          /// 🔥 Call API based on selection
+                          String period = newValue.name; // daily, weekly...
+                          if (selectedView.name == 'count') {
+                            if (period == 'daily') {
+                              period = 'hourly';
+                            }
                           }
-                        }
 
-                        // print('Hr ${selectedView.name}');
-                        // print('ClickedHR ${selectedView.name}');
-                       // if (selectedView.name == 'amount') {
-                          context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
-                            BarGraphRequest(period: period, branchId: '1'),
+                          // print('Hr ${selectedView.name}');
+                          // print('ClickedHR ${selectedView.name}');
+                          // if (selectedView.name == 'amount') {
+                          context
+                              .read<SettingsCubit>()
+                              .fetchMonthlyGraphFromServer(
+                                BarGraphRequest(period: period, branchId: '1'),
+                              );
+                          // } else {
+
+                          // }
+                        },
+                        items: SalesPeriod.values.map((period) {
+                          return DropdownMenuItem(
+                            value: period,
+                            child: Text(
+                              period.name.toUpperCase(),
+                              style: const TextStyle(fontSize: 12),
+                            ),
                           );
-                       // } else {
-
-                       // }
-                      },
-                      items: SalesPeriod.values.map((period) {
-                        return DropdownMenuItem(
-                          value: period,
-                          child: Text(
-                            period.name.toUpperCase(),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        );
-                      }).toList(),
+                        }).toList(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
 
@@ -210,32 +213,25 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
       ],
     );
   }
+
   void _onCustomDateChanged() {
     if (!isCustomSelected) return;
 
     if (fromDate != null && toDate != null) {
-
       if (toDate!.isBefore(fromDate!)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("To Date cannot be before From Date"),
-          ),
+          const SnackBar(content: Text("To Date cannot be before From Date")),
         );
         return;
       }
 
-      final fromApi =
-      DateFormat('yyyy-MM-dd').format(fromDate!);
-      final toApi =
-      DateFormat('yyyy-MM-dd').format(toDate!);
+      final fromApi = DateFormat('yyyy-MM-dd').format(fromDate!);
+      final toApi = DateFormat('yyyy-MM-dd').format(toDate!);
 
       print("From: $fromApi");
       print("To: $toApi");
 
-
-      context
-          .read<SettingsCubit>()
-          .fetchCustomSalesGraphFromServer(
+      context.read<SettingsCubit>().fetchCustomSalesGraphFromServer(
         CustomSalesGraphRequest(
           period: 'custom',
           branchId: '1',
@@ -244,11 +240,12 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           month: "",
           year: '2026',
           week: '1',
-          salesType: selectedView.name
+          salesType: selectedView.name,
         ),
       );
     }
   }
+
   Widget _buildSalesTypeSelector() {
     return Row(
       children: [
@@ -262,9 +259,9 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                   selectedView = SalesViewType.amount;
                 });
 
-                  context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
-                    BarGraphRequest(period: selectedPeriod.name, branchId: '1'),
-                  );
+                context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
+                  BarGraphRequest(period: selectedPeriod.name, branchId: '1'),
+                );
 
                 // 🔥 Call API if needed
                 // fetchGraph(viewType: "amount");
@@ -323,7 +320,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           salesCountList.clear();
           salesCountList.addAll(state.graphResult.data);
         }
-        if(state is FetchCustomSalesGraphSuccess){
+        if (state is FetchCustomSalesGraphSuccess) {
           dailyList.clear();
           dailyList.addAll(state.graphResult.data);
         }
@@ -341,192 +338,193 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
             .reduce((a, b) => a > b ? a : b);
 
         maxY = maxY + (maxY * 0.2);
-    if (state is FetchSalesCountGraphSuccess) {
-      return SizedBox(
-        height: 260,
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: maxY,
-            borderData: FlBorderData(show: false),
+        if (state is FetchSalesCountGraphSuccess) {
+          return SizedBox(
+            height: 260,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: maxY,
+                borderData: FlBorderData(show: false),
 
-            /// 🔥 BAR CLICK HANDLER
-            barTouchData: BarTouchData(
-              enabled: true,
-              touchCallback: (event, response) {
-                if (event.isInterestedForInteractions &&
-                    response != null &&
-                    response.spot != null) {
-                  final index = response.spot!.touchedBarGroupIndex;
+                /// 🔥 BAR CLICK HANDLER
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchCallback: (event, response) {
+                    if (event.isInterestedForInteractions &&
+                        response != null &&
+                        response.spot != null) {
+                      final index = response.spot!.touchedBarGroupIndex;
 
-                  final selectedItem = salesCountList[index];
-                  print('period ${selectedPeriod.name}');
+                      final selectedItem = salesCountList[index];
+                      print('period ${selectedPeriod.name}');
 
-                  print("ClickedHere: ${selectedItem.name}");
-                  String? monthNumber = getMonthNumber(selectedItem.name);
-                  context
-                      .read<SettingsCubit>()
-                      .fetchCustomSalesGraphFromServer(
-                    CustomSalesGraphRequest(
-                      period: 'custom',
-                      branchId: '1',
-                      fromDate: "",
-                      toDate: "",
-                      month: monthNumber,
-                      year: '2026',
-                      week: '1',
-                    ),
-                  );
-                  /// 🔥 Drill down logic
-                  if (selectedPeriod == SalesPeriod.yearly) {
-                    selectedPeriod = SalesPeriod.monthly;
-                  } else if (selectedPeriod == SalesPeriod.monthly) {
-                    selectedPeriod = SalesPeriod.daily;
-                  }
+                      print("ClickedHere: ${selectedItem.name}");
+                      String? monthNumber = getMonthNumber(selectedItem.name);
+                      context
+                          .read<SettingsCubit>()
+                          .fetchCustomSalesGraphFromServer(
+                            CustomSalesGraphRequest(
+                              period: 'custom',
+                              branchId: '1',
+                              fromDate: "",
+                              toDate: "",
+                              month: monthNumber,
+                              year: '2026',
+                              week: '1',
+                            ),
+                          );
 
-                  setState(() {});
-                  // _fetchGraph(
-                  //     drillValue: selectedItem.name.toString());
-                }
-              },
-            ),
+                      /// 🔥 Drill down logic
+                      if (selectedPeriod == SalesPeriod.yearly) {
+                        selectedPeriod = SalesPeriod.monthly;
+                      } else if (selectedPeriod == SalesPeriod.monthly) {
+                        selectedPeriod = SalesPeriod.daily;
+                      }
 
-            titlesData: FlTitlesData(
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) {
-                    int index = value.toInt();
-                    if (index >= 0 && index < salesCountList.length) {
-                      return Text(
-                        salesCountList[index].name.toString(),
-                        style: const TextStyle(fontSize: 10),
-                      );
+                      setState(() {});
+                      // _fetchGraph(
+                      //     drillValue: selectedItem.name.toString());
                     }
-                    return const SizedBox();
                   },
                 ),
-              ),
-            ),
 
-            barGroups: List.generate(salesCountList.length, (index) {
-              double yValue =
-                  double.tryParse(salesCountList[index].value.toString()) ?? 0;
-
-              return BarChartGroupData(
-                x: index,
-                barRods: [
-                  BarChartRodData(
-                    toY: yValue,
-                    width: 16,
-                    borderRadius: BorderRadius.circular(4),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: true),
                   ),
-                ],
-              );
-            }),
-          ),
-        ),
-      );
-    }
-    else{
-      return SizedBox(
-        height: 260,
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: maxY,
-            borderData: FlBorderData(show: false),
-
-            /// 🔥 BAR CLICK HANDLER
-            barTouchData: BarTouchData(
-              enabled: true,
-              touchCallback: (event, response) {
-                if (event.isInterestedForInteractions &&
-                    response != null &&
-                    response.spot != null) {
-                  final index = response.spot!.touchedBarGroupIndex;
-
-                  final selectedItem = dailyList[index];
-
-                  print("ClickedBar: ${selectedItem.name}");
-                  print('period ${selectedPeriod.name}');
-                  String? monthNumber = getMonthNumber(selectedItem.name);
-                  print('monthNumber ${monthNumber}');
-                  context
-                      .read<SettingsCubit>()
-                      .fetchCustomSalesGraphFromServer(
-                    CustomSalesGraphRequest(
-                      period: 'custom',
-                      branchId: '1',
-                      fromDate: "",
-                      toDate: "",
-                      month: monthNumber,
-                      year: '2026',
-                      week: '1',
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        int index = value.toInt();
+                        if (index >= 0 && index < salesCountList.length) {
+                          return Text(
+                            salesCountList[index].name.toString(),
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        }
+                        return const SizedBox();
+                      },
                     ),
+                  ),
+                ),
+
+                barGroups: List.generate(salesCountList.length, (index) {
+                  double yValue =
+                      double.tryParse(salesCountList[index].value.toString()) ??
+                      0;
+
+                  return BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        toY: yValue,
+                        width: 16,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ],
                   );
-
-                  /// 🔥 Drill down logic
-                  if (selectedPeriod == SalesPeriod.yearly) {
-                    selectedPeriod = SalesPeriod.monthly;
-                  } else if (selectedPeriod == SalesPeriod.monthly) {
-                    selectedPeriod = SalesPeriod.daily;
-                  }
-
-                  setState(() {});
-                  // _fetchGraph(
-                  //     drillValue: selectedItem.name.toString());
-                }
-              },
-            ),
-
-            titlesData: FlTitlesData(
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true),
+                }),
               ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) {
-                    int index = value.toInt();
-                    if (index >= 0 && index < dailyList.length) {
-                      return Text(
-                        dailyList[index].name.toString(),
-                        style: const TextStyle(fontSize: 10),
-                      );
+            ),
+          );
+        } else {
+          return SizedBox(
+            height: 260,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: maxY,
+                borderData: FlBorderData(show: false),
+
+                /// 🔥 BAR CLICK HANDLER
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchCallback: (event, response) {
+                    if (event.isInterestedForInteractions &&
+                        response != null &&
+                        response.spot != null) {
+                      final index = response.spot!.touchedBarGroupIndex;
+
+                      final selectedItem = dailyList[index];
+
+                      print("ClickedBar: ${selectedItem.name}");
+                      print('period ${selectedPeriod.name}');
+                      String? monthNumber = getMonthNumber(selectedItem.name);
+                      print('monthNumber ${monthNumber}');
+                      context
+                          .read<SettingsCubit>()
+                          .fetchCustomSalesGraphFromServer(
+                            CustomSalesGraphRequest(
+                              period: 'custom',
+                              branchId: '1',
+                              fromDate: "",
+                              toDate: "",
+                              month: monthNumber,
+                              year: '2026',
+                              week: '1',
+                            ),
+                          );
+
+                      /// 🔥 Drill down logic
+                      if (selectedPeriod == SalesPeriod.yearly) {
+                        selectedPeriod = SalesPeriod.monthly;
+                      } else if (selectedPeriod == SalesPeriod.monthly) {
+                        selectedPeriod = SalesPeriod.daily;
+                      }
+
+                      setState(() {});
+                      // _fetchGraph(
+                      //     drillValue: selectedItem.name.toString());
                     }
-                    return const SizedBox();
                   },
                 ),
+
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: true),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        int index = value.toInt();
+                        if (index >= 0 && index < dailyList.length) {
+                          return Text(
+                            dailyList[index].name.toString(),
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                    ),
+                  ),
+                ),
+
+                barGroups: List.generate(dailyList.length, (index) {
+                  double yValue =
+                      double.tryParse(dailyList[index].value.toString()) ?? 0;
+
+                  return BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        toY: yValue,
+                        width: 16,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ],
+                  );
+                }),
               ),
             ),
-
-            barGroups: List.generate(dailyList.length, (index) {
-              double yValue =
-                  double.tryParse(dailyList[index].value.toString()) ?? 0;
-
-              return BarChartGroupData(
-                x: index,
-                barRods: [
-                  BarChartRodData(
-                    toY: yValue,
-                    width: 16,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ],
-              );
-            }),
-          ),
-        ),
-      );
-    }
-
+          );
+        }
       },
     );
   }
+
   String? getMonthNumber(String? monthName) {
     if (monthName == null || monthName.trim().isEmpty) return null;
 
@@ -547,6 +545,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
 
     return monthMap[monthName.toLowerCase()];
   }
+
   Future<void> _pickDate(bool isFrom) async {
     final picked = await showDatePicker(
       context: context,
@@ -559,12 +558,10 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
       setState(() {
         if (isFrom) {
           fromDate = picked;
-          fromController.text =
-              DateFormat('dd-MM-yyyy').format(picked);
+          fromController.text = DateFormat('dd-MM-yyyy').format(picked);
         } else {
           toDate = picked;
-          toController.text =
-              DateFormat('dd-MM-yyyy').format(picked);
+          toController.text = DateFormat('dd-MM-yyyy').format(picked);
         }
       });
     }

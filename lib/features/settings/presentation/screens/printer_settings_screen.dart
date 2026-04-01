@@ -7,7 +7,7 @@ import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
-import 'package:quikservnew/features/settings/domain/parameters/savePrinterSettingsRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/save_printersettings_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,17 +32,16 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   bool deviceListStatus = false;
   bool deviceListKOTStatus = false;
   int selectedSeconds = 2;
-  final List<int> delayOptions = [1, 2, 3, 4, 5,6,7,8];
-   TextEditingController ipController = TextEditingController(
+  final List<int> delayOptions = [1, 2, 3, 4, 5, 6, 7, 8];
+  TextEditingController ipController = TextEditingController(
     text: '192.168.1.40:5000',
   );
 
   final TextEditingController connectedDeviceController = TextEditingController(
     text: 'Not connected',
   );
-  final TextEditingController connectedKOTDeviceController = TextEditingController(
-    text: 'Not connected',
-  );
+  final TextEditingController connectedKOTDeviceController =
+      TextEditingController(text: 'Not connected');
 
   final List<String> printerTypesList = ['Wifi', 'Bluetooth'];
   final List<String> blPrinterTypes = ['2 inch', '3 inch', 'No print'];
@@ -65,9 +64,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   bool bluetoothDeviceChanged = false;
 
   // Dummy WiFi printer lists
-   List<String> printersList = [];
-   List<String> printersKitchenList = [
-  ];
+  List<String> printersList = [];
+  List<String> printersKitchenList = [];
   String? selectedMainPrinter;
   String? selectedKitchenPrinter;
 
@@ -86,7 +84,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
   Future<void> _initBluetooth() async {
     final prefs = await SharedPreferences.getInstance();
     final savedDevice = prefs.getString('bt_device_name') ?? '';
-    final savedSecondDevice = prefs.getString('selectedSecondPrinterName') ?? '';
+    final savedSecondDevice =
+        prefs.getString('selectedSecondPrinterName') ?? '';
     kotStatus = prefs.getString('KOT_status') ?? '';
     printerType = prefs.getString('printerType') ?? '';
 
@@ -104,17 +103,23 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     final devices = await PrintBluetoothThermal.pairedBluetooths;
     setState(() {
       bluetoothDevices = devices;
-      selectedSeconds  = prefs.getInt('print_gap')!;
+      selectedSeconds = prefs.getInt('print_gap')!;
     });
   }
-  Future<void> printToTwoPrinters(String mac1, String name, String printerName) async {
+
+  Future<void> printToTwoPrinters(
+    String mac1,
+    String name,
+    String printerName,
+  ) async {
     final bytes = await _generateTicket();
 
     if (printerName == 'Main') {
       // 🔹 Printer 1
       await PrintBluetoothThermal.disconnect;
       bool connected1 = await PrintBluetoothThermal.connect(
-          macPrinterAddress: mac1);
+        macPrinterAddress: mac1,
+      );
 
       if (connected1) {
         await PrintBluetoothThermal.writeBytes(bytes);
@@ -130,7 +135,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
     if (printerName == 'Kitchen') {
       // 🔹 Printer 2
       bool connected2 = await PrintBluetoothThermal.connect(
-          macPrinterAddress: mac1);
+        macPrinterAddress: mac1,
+      );
 
       if (connected2) {
         await PrintBluetoothThermal.writeBytes(bytes);
@@ -148,65 +154,66 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
       const SnackBar(content: Text('Printer connected successfully')),
     );
   }
-  Future<void> _connectAndPrint(String mac, String name) async {
-    await SharedPreferenceHelper().saveSelectedPrinter(mac);
-    //await SharedPreferenceHelper().saveSelectedSecondPrinter(mac);
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Connecting... Please wait')));
+  // Future<void> _connectAndPrint(String mac, String name) async {
+  //   await SharedPreferenceHelper().saveSelectedPrinter(mac);
+  //   //await SharedPreferenceHelper().saveSelectedSecondPrinter(mac);
 
-    await PrintBluetoothThermal.disconnect;
+  //   ScaffoldMessenger.of(
+  //     context,
+  //   ).showSnackBar(const SnackBar(content: Text('Connecting... Please wait')));
 
-    final connected = await PrintBluetoothThermal.connect(
-      macPrinterAddress: mac,
-    );
+  //   await PrintBluetoothThermal.disconnect;
 
-    if (!connected) {
-      _onBluetoothFailed();
-      return;
-    }
+  //   final connected = await PrintBluetoothThermal.connect(
+  //     macPrinterAddress: mac,
+  //   );
 
-    final bytes = await _generateTicket();
-    final result = await PrintBluetoothThermal.writeBytes(bytes);
+  //   if (!connected) {
+  //     _onBluetoothFailed();
+  //     return;
+  //   }
 
-    if (result) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('bt_device_name', name);
-      await prefs.setString('bt_device_mac', mac);
+  //   final bytes = await _generateTicket();
+  //   final result = await PrintBluetoothThermal.writeBytes(bytes);
 
-      bluetoothDeviceChanged = true;
-      connectedMac = mac;
+  //   if (result) {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     await prefs.setString('bt_device_name', name);
+  //     await prefs.setString('bt_device_mac', mac);
 
-      setState(() {
-        connectedDeviceController.text = name;
-        deviceListStatus = false;
-      });
+  //     bluetoothDeviceChanged = true;
+  //     connectedMac = mac;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Printer connected successfully')),
-      );
-    } else {
-      _onBluetoothFailed();
-    }
-  }
+  //     setState(() {
+  //       connectedDeviceController.text = name;
+  //       deviceListStatus = false;
+  //     });
 
-  void _onBluetoothFailed() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('bt_device_name');
-    await prefs.remove('bt_device_mac');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Printer connected successfully')),
+  //     );
+  //   } else {
+  //     _onBluetoothFailed();
+  //   }
+  // }
 
-    bluetoothDeviceChanged = false;
-    connectedMac = '';
+  // void _onBluetoothFailed() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove('bt_device_name');
+  //   await prefs.remove('bt_device_mac');
 
-    setState(() {
-      connectedDeviceController.text = 'Not connected';
-    });
+  //   bluetoothDeviceChanged = false;
+  //   connectedMac = '';
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Printer connection failed')));
-  }
+  //   setState(() {
+  //     connectedDeviceController.text = 'Not connected';
+  //   });
+
+  //   ScaffoldMessenger.of(
+  //     context,
+  //   ).showSnackBar(const SnackBar(content: Text('Printer connection failed')));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -445,13 +452,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Print Delay",
-                        style: TextStyle(
-                          fontSize: 15,
-
-                        ),
-                      ),
+                      const Text("Print Delay", style: TextStyle(fontSize: 15)),
 
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -517,7 +518,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('Select Main Printer',style: TextStyle(fontWeight: FontWeight.bold),),
+              Text(
+                'Select Main Printer',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           Card(
@@ -553,7 +557,10 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('Select Kitchen Printer',style: TextStyle(fontWeight: FontWeight.bold),),
+              Text(
+                'Select Kitchen Printer',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           Card(
@@ -574,7 +581,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                       const Spacer(),
                       Switch(
                         value: deviceListKOTStatus,
-                        onChanged: (v) => setState(() => deviceListKOTStatus = v),
+                        onChanged: (v) =>
+                            setState(() => deviceListKOTStatus = v),
                       ),
                     ],
                   ),
@@ -623,6 +631,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
       ),
     );
   }
+
   Widget _connectedKOTDeviceBox() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -688,8 +697,8 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                       trailing: IconButton(
                         icon: const Icon(Icons.link, color: Color(0xFFFF8A00)),
                         //onPressed: () => _connectAndPrint(d.macAdress, d.name),
-                        onPressed: (){
-                          printToTwoPrinters(d.macAdress, d.name,printerName);
+                        onPressed: () {
+                          printToTwoPrinters(d.macAdress, d.name, printerName);
                         },
                       ),
                     );
@@ -735,18 +744,13 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
                   icon: const Icon(Icons.refresh),
                   onPressed: () async {
                     try {
-                      final list =
-                          await fetchPrinters(); // get printers
+                      final list = await fetchPrinters(); // get printers
                       setState(() {
-                        printersList =
-                            list; // update state
+                        printersList = list; // update state
                       });
                     } catch (e) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                "Failed to fetch printers: $e")),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to fetch printers: $e")),
                       );
                     }
                   },
@@ -829,9 +833,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           await SharedPreferenceHelper().setKOTStatus(
             _kotStatusController.text.toString(),
           );
-          await SharedPreferenceHelper().setPrintDelayForKot(
-            selectedSeconds,
-          );
+          await SharedPreferenceHelper().setPrintDelayForKot(selectedSeconds);
           await SharedPreferenceHelper().savePrinterType(printerType);
           await SharedPreferenceHelper().saveCompanyAddressInPrintStatus(
             isAddressEnabled,

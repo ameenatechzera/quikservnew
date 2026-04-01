@@ -7,9 +7,8 @@ Future<void> showCategoryBottomSheet({
   required BuildContext context,
   required TextEditingController categoryController,
   required void Function(int id, String name) onSelected,
-  bool includeAllCategory = false, // Add this parameter
+  bool includeAllCategory = false,
 }) async {
-  // Trigger API fetch
   context.read<CategoriesCubit>().fetchCategories();
   final selectedCategory = await showModalBottomSheet<String>(
     context: context,

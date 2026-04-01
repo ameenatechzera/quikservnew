@@ -14,7 +14,6 @@ abstract class PaymentRemoteDataSource {
 
 class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   Dio dio = Dio();
-
   @override
   Future<MasterResponseModel> savePaymentVoucher(
     SavePaymentVoucherParameter params,
@@ -24,21 +23,12 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
       final url = ApiConstants.savePaymentVoucherPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
-
       if (token.isEmpty) {
         throw Exception("Token missing! Please login again.");
       }
-
-      // 🔍 Debug logs
-      print('🔹 Save Payment Voucher URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-      print('🔹 Request Body: ${params.toJson()}');
-
       final response = await dio.post(
         url,
         data: params.toJson(),
@@ -51,10 +41,6 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return MasterResponseModel.fromJson(response.data);
       } else {
@@ -62,9 +48,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in savePaymentVoucher: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }

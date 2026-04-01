@@ -28,7 +28,7 @@ class VatCubit extends Cubit<VatState> {
        _editVatUseCase = editVatUseCase,
        super(VatInitial());
 
-  /// 🔥 Call this method to fetch VAT
+  ///  to fetch VAT
   Future<void> fetchVat() async {
     emit(VatLoading());
 
@@ -40,7 +40,7 @@ class VatCubit extends Cubit<VatState> {
     );
   }
 
-  /// 🔹 Add VAT (same structure as fetchVat)
+  ///  Add VAT
   Future<void> addVat(AddVatRequestModel request) async {
     emit(VatAddLoading());
 
@@ -53,7 +53,7 @@ class VatCubit extends Cubit<VatState> {
     await fetchVat();
   }
 
-  /// 🔹 Delete VAT
+  /// Delete VAT
   Future<void> deleteVat(int vatId) async {
     emit(VatDeleteLoading());
 
@@ -67,7 +67,7 @@ class VatCubit extends Cubit<VatState> {
     await fetchVat(); // refresh after deletion
   }
 
-  /// 🔹 Update VAT
+  ///Update VAT
   Future<void> updateVat(int vatId, EditVatRequestModel request) async {
     emit(VatEditLoading());
 

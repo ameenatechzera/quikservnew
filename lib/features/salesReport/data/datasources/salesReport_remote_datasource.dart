@@ -20,7 +20,8 @@ abstract class SalesReportRemoteDataSource {
     SalesReportMasterByDateRequest request,
   );
   Future<MasterResult> deleteSalesFromServer(
-      SalesDeleteByMasterIdRequest salesDeleteRequest);
+    SalesDeleteByMasterIdRequest salesDeleteRequest,
+  );
 }
 
 class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
@@ -43,6 +44,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       print('🔹 Save Sale URL: $url');
       print('🔹 DB Name: $dbName');
       print('🔹 Token exists: ${token.isNotEmpty}');
+      print(token);
 
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
 
@@ -180,50 +182,54 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
   }
 
   @override
-  Future<MasterResult> deleteSalesFromServer(SalesDeleteByMasterIdRequest salesDeleteRequest) async {
-
-      try {
-        final baseUrl = await SharedPreferenceHelper().getBaseUrl();
-        if (baseUrl == null || baseUrl.isEmpty) {
-          throw Exception("Base URL not set");
-        }
-
-        final url = ApiConstants.deleteSalesByMasterIdPath(baseUrl,salesDeleteRequest.masterId);
-        final dbName = await SharedPreferenceHelper().getDatabaseName();
-        final token = await SharedPreferenceHelper().getToken() ?? "";
-
-        print('🔹 Fetch Sales Report by Date URL: $url');
-        print('🔹 DB Name: $dbName');
-        print('🔹 Token exists: ${token.isNotEmpty}');
-
-        if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
-        final response = await dio.get(
-          url,
-          options: Options(
-            contentType: "application/json",
-            headers: {
-              "Accept": "application/json",
-              "Authorization": "Bearer $token",
-              "X-Database-Name": dbName,
-            },
-          ),
-        );
-
-        print('🔹 Response status: ${response.statusCode}');
-        print('🔹 Response data: ${response.data}');
-
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          return MasterResult.fromJson(response.data);
-        } else {
-          throw ServerException(
-            errorMessageModel: ErrorMessageModel.fromJson(response.data),
-          );
-        }
-      } catch (e, s) {
-        print('❌ Exception in fetchSalesReportMasterByDate: $e');
-        print(s);
-        rethrow;
+  Future<MasterResult> deleteSalesFromServer(
+    SalesDeleteByMasterIdRequest salesDeleteRequest,
+  ) async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
       }
+
+      final url = ApiConstants.deleteSalesByMasterIdPath(
+        baseUrl,
+        salesDeleteRequest.masterId,
+      );
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+
+      print('🔹 Fetch Sales Report by Date URL: $url');
+      print('🔹 DB Name: $dbName');
+      print('🔹 Token exists: ${token.isNotEmpty}');
+
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+
+      final response = await dio.get(
+        url,
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+
+      print('🔹 Response status: ${response.statusCode}');
+      print('🔹 Response data: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return MasterResult.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e, s) {
+      print('❌ Exception in fetchSalesReportMasterByDate: $e');
+      print(s);
+      rethrow;
     }
+  }
 }

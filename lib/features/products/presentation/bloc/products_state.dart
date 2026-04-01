@@ -30,7 +30,7 @@ class ProductsByCategoryEmpty extends ProductsState {}
 
 class ProductsByCategoryLoaded extends ProductsState {
   final List<FetchProductDetails> products;
-  ProductsByCategoryLoaded({required this.products});
+  const ProductsByCategoryLoaded({required this.products});
 }
 
 class ProductLoadingFromLocal extends ProductsState {}
@@ -40,7 +40,7 @@ class ProductsEmptyFromLocal extends ProductsState {}
 class ProductLoadedFromLocal extends ProductsState {
   final List<FetchProductDetails> products;
 
-  ProductLoadedFromLocal(this.products);
+  const ProductLoadedFromLocal(this.products);
 }
 
 class SaveProductLoading extends ProductsState {}

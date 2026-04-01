@@ -18,12 +18,11 @@ Widget usertextField({
   );
 }
 
-
 Widget userDropdownField(
-    List<UserTypes> userTypes,
-    String? selectedValue,
-    ValueChanged<String?> onChanged,
-    ) {
+  List<UserTypes> userTypes,
+  String? selectedValue,
+  ValueChanged<String?> onChanged,
+) {
   return DropdownButtonFormField<String>(
     value: selectedValue,
     decoration: const InputDecoration(
@@ -32,14 +31,13 @@ Widget userDropdownField(
     ),
     items: userTypes.map((type) {
       return DropdownMenuItem<String>(
-        value: type.typeId.toString(),            // stored value
-        child: Text(type.userType),    // visible text
+        value: type.typeId.toString(),
+        child: Text(type.userType),
       );
     }).toList(),
     onChanged: onChanged,
   );
 }
-
 
 Widget sectionTitle(String title) {
   return Text(
@@ -66,7 +64,6 @@ Widget userTile({required String name}) {
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
-
         ],
       ),
     ),

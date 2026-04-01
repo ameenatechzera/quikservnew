@@ -56,13 +56,13 @@ import 'package:quikservnew/features/groups/domain/usecases/delete_productgroupf
 import 'package:quikservnew/features/groups/domain/usecases/fetch_groups_usecase.dart';
 import 'package:quikservnew/features/groups/domain/usecases/update_productgroups_usecase.dart';
 import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
-import 'package:quikservnew/features/itemwiseReport/data/datasources/itemwiseReport_remote_datasource.dart';
-import 'package:quikservnew/features/itemwiseReport/data/repositories/itemwiseReport_repository_impl.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/repositories/ItemWiseReportRepository.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetchItemWiseReportNewUseCase.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetchItemwiseReportUseCase.dart';
+import 'package:quikservnew/features/itemwiseReport/data/datasources/itemwise_remote_data_source.dart';
+import 'package:quikservnew/features/itemwiseReport/data/repositories/itemwise_repository_impl.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/repositories/itemwisereport_repository.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetch_itemwisereportnew_usecase.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/usecases/fetch_itemwisereport_usecase.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/bloc/item_wise_report_cubit.dart';
-import 'package:quikservnew/features/masters/data/datasources/userCreationRemoteDataSource.dart';
+import 'package:quikservnew/features/masters/data/datasources/usercreation_remote_data_source.dart';
 import 'package:quikservnew/features/masters/data/repositories/user_creation_repository_impl.dart';
 import 'package:quikservnew/features/masters/domain/repositories/user_creation_repository.dart';
 import 'package:quikservnew/features/masters/domain/usecase/fetch_cashierlist_usecase.dart';
@@ -71,9 +71,9 @@ import 'package:quikservnew/features/masters/domain/usecase/fetch_usertypes_usec
 import 'package:quikservnew/features/masters/domain/usecase/save_usertypes_usecase.dart';
 import 'package:quikservnew/features/masters/presentation/bloc/user_creation_cubit.dart';
 import 'package:quikservnew/features/paymentVoucher/data/datasources/payment_remote_data_source.dart';
-import 'package:quikservnew/features/paymentVoucher/data/repositories/paymentRepositories_impl.dart';
+import 'package:quikservnew/features/paymentVoucher/data/repositories/payment_repositories_impl.dart';
 import 'package:quikservnew/features/paymentVoucher/domain/repositories/payment_repository.dart';
-import 'package:quikservnew/features/paymentVoucher/domain/usecases/savePaymentVoucherUseCase.dart';
+import 'package:quikservnew/features/paymentVoucher/domain/usecases/save_payment_voucher_usecase.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/bloc/payment_cubit.dart';
 import 'package:quikservnew/features/products/data/datasources/product_remote_data_source.dart';
 import 'package:quikservnew/features/products/data/repositories/product_repositories_local_impl.dart';
@@ -103,11 +103,10 @@ import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_c
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';
 import 'package:quikservnew/features/settings/data/repositories/settings_repository_impl.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetchCurrenSalesTokenUseCase.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetchCustomSalesAmountGraphUseCase.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetchMonthlyGraphReportUseCase.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetchSalesCountGraphUseCase.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetchWeeklyGraphReportUseCase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_currentsalestoken_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_customsalesamountgraph_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_monthlygraphreport_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_salescountgraph_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/savePrinterSettingsUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
@@ -313,7 +312,7 @@ class ServiceLocator {
         updateSalesTokenUseCase: sl(),
         saveAccountSettingsUseCase: sl(),
         fetchMonthlyGraphReportUseCase: sl(),
-        fetchSalesCountGraphReportUseCase: sl(),
+        //fetchSalesCountGraphReportUseCase: sl(),
         fetchCustomSalesAmountGraphReportUseCase: sl(),
         savePrinterSettingsUseCase: sl(),
       ),

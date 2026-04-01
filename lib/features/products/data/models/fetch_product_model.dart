@@ -62,44 +62,6 @@ class FetchProductDetailsModel extends FetchProductDetails {
     required super.groupName,
   });
 
-  // factory FetchProductDetailsModel.fromJson(Map<String, dynamic> json) {
-  //   return FetchProductDetailsModel(
-  //     productCode: json['ProductCode'],
-  //     productName: json['ProductName'],
-  //     productNameFL: json['ProductNameFL'],
-  //     baseUnitId: json['BaseUnitId'],
-  //     groupId: json['GroupId'],
-  //     categoryId: json['CategoryId'],
-  //     vatId: json['VatId'],
-  //     purchaseRate: json['PurchaseRate'],
-  //     productImage: json['ProductImage'],
-  //     isActive: json['isActive'],
-  //     branchId: json['branchId'],
-  //     descriptionStatus: json['descriptionStatus'],
-  //     createdDate: json['CreatedDate'],
-  //     createdUser: json['CreatedUser'],
-  //     modifiedDate: json['ModifiedDate'],
-  //     modifiedUser: json['ModifiedUser'],
-  //     barcode: json['barcode'],
-  //     mrp: json['MRP'],
-  //     salesPrice: json['salesPrice'],
-  //     conversionRate: json['conversionRate'],
-  //     unitId: json['unit_id'],
-  //     unitName: json['unit_name'],
-  //     categoryId2: json['category_id'],
-  //     categoryName: json['category_name'],
-  //     vatName: json['vatName'],
-  //     vatPercentage: json['vatPercentage'],
-  //     productImageByte: json['ProductImageByte'],
-  //     qty: json['qty'],
-  //     cartStatus: json['cart_status'],
-  //     cartQty: json['cartQty'],
-  //     vegStatus: json['vegStatus'],
-  //     originalPrice: json['OriginalPrice'],
-  //     group_id: json['group_id'],
-  //     groupName: json['group_name'],
-  //   );
-  // }
   factory FetchProductDetailsModel.fromJson(Map<String, dynamic> json) {
     String? s(dynamic v) => v == null ? null : v.toString();
 

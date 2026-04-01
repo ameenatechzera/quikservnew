@@ -40,70 +40,19 @@ class ProductCubit extends Cubit<ProductsState> {
 
        super(ProductsInitial());
 
-  // --------------------- API Fetch ---------------------
-  // Future<void> fetchProducts() async {
-  //   emit(ProductLoading());
-
-  //   final response = await fetchProductsUseCase();
-
-  //   response.fold((failure) => emit(ProductFailure(failure.message)), (
-  //     productResponse,
-  //   ) async {
-  //     final productsList = productResponse.productDetails ?? [];
-  //     print("📤 Saving ${productsList.length} products to local DB");
-  //     for (var p in productsList) {
-  //       print("Product: ${p.productName}, Code: ${p.productCode}");
-  //     }
-  //     if (productsList.isEmpty) {
-  //       print("⚠️ No products returned from API for this branch/company!");
-  //     }
-
-  //     // ✅ Save to local DB
-  //     await _productLocalRepository.saveProducts(productsList);
-
-  //     // ✅ Emit loaded state
-  //     emit(ProductSuccess(productResponse));
-  //   });
-  // }
   Future<void> fetchProducts() async {
-    print("🔥 fetchProducts() CALLED");
     emit(ProductLoading());
-
     final response = await fetchProductsUseCase();
-
-    print("🟡 fetchProductsUseCase returned: $response");
-
     response.fold(
       (failure) {
-        print("❌ fetchProducts FAILURE: ${failure.message}");
         emit(ProductFailure(failure.message));
       },
       (productResponse) async {
-        print("✅ fetchProducts SUCCESS: got response");
-
         final productsList = productResponse.productDetails ?? [];
-        print("🧪 productsList length = ${productsList.length}");
-
         try {
-          print("🧪 About to save ${productsList.length} products...");
-
-          final missingCode = productsList
-              .where((e) => (e.productCode ?? '').isEmpty)
-              .length;
-          print("🧪 Missing productCode count: $missingCode");
-
-          final bigImgs = productsList
-              .where((e) => (e.productImageByte?.length ?? 0) > 200000)
-              .length;
-          print("🧪 Big images (>200k chars) count: $bigImgs");
-
           await _productLocalRepository.saveProducts(productsList);
-
-          print("✅ saveProducts completed without throwing");
-          // ✅ IMPORTANT: emit local state so Sale/Home always shows
-        } catch (e, st) {
-          print("❌ saveProducts FAILED: $e");
-          print(st);
+        } catch (e) {
+          emit(ProductFailure(e.toString()));
         }
 
         emit(ProductSuccess(productResponse));
@@ -112,8 +61,6 @@ class ProductCubit extends Cubit<ProductsState> {
   }
 
   Future<void> clearProducts() async {
-    print("🔥 fetchProducts() CALLED");
-
     await _productLocalRepository.clearProducts();
   }
 
@@ -163,7 +110,6 @@ class ProductCubit extends Cubit<ProductsState> {
       (_) async {
         emit(SaveProductSuccess());
 
-        // OPTIONAL: refresh product list after save
         await fetchProducts();
       },
     );

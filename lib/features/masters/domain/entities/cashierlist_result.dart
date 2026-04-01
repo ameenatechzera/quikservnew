@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class CashierListResponse extends Equatable {
-  CashierListResponse({
+  const CashierListResponse({
     required this.status,
     required this.error,
     required this.message,
@@ -64,7 +64,7 @@ class CashierListResponse extends Equatable {
 }
 
 class CashierList extends Equatable {
-  CashierList({
+  const CashierList({
     required this.id,
     required this.userType,
     required this.username,

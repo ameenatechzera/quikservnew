@@ -13,7 +13,7 @@ import 'package:quikservnew/features/dailyclosingReport/presentation/helper/dail
 import 'package:quikservnew/features/dailyclosingReport/presentation/widgets/dayclose_report_widget.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/widgets/report_pdf.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwise_report_request.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
 
 final helper = DailyclosingreportHelper();
@@ -627,8 +627,8 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
 
       context.read<ItemCubit>().fetchItemWiseReports(
         ItemWiseReportRequest(
-          FromDate: selectedDate,
-          ToDate: selectedDate,
+          fromDate: selectedDate,
+          toDate: selectedDate,
           branchId: "1",
         ),
       );

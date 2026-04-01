@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/features/dailyclosingReport/domain/parameters/dailyclosingreport_request.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/dayclose_report_cubit.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/bloc/item_bloc/item_cubit.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwise_report_request.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesReportScreen.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
@@ -27,8 +27,8 @@ class DailyclosingreportHelper {
 
     context.read<ItemCubit>().fetchItemWiseReports(
       ItemWiseReportRequest(
-        FromDate: formatter.format(fromDate),
-        ToDate: formatter.format(toDate),
+        fromDate: formatter.format(fromDate),
+        toDate: formatter.format(toDate),
         branchId: st_branchId,
       ),
     );

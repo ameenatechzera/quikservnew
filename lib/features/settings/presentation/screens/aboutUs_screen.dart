@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:quikservnew/features/settings/presentation/helper/print_settings_helper.dart';
+import 'package:quikservnew/features/settings/presentation/widgets/aboutus_widgets.dart';
 
 class AboutScreen extends StatelessWidget {
-  const AboutScreen({super.key});
-
+  AboutScreen({super.key});
+  final AboutUsHelper helper = AboutUsHelper();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   title: const Text(""),
-      //   centerTitle: true,
-      //   elevation: 0,
-      //   backgroundColor: Colors.white,
-      //   foregroundColor: Colors.black,
-      // ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -22,9 +16,7 @@ class AboutScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image.asset('assets/icons/quikserv_icon.png', height: 90),
-
               const SizedBox(height: 12),
-
               const Text(
                 "QUIKSERV",
                 style: TextStyle(
@@ -33,9 +25,7 @@ class AboutScreen extends StatelessWidget {
                   letterSpacing: 1,
                 ),
               ),
-
               const SizedBox(height: 4),
-
               const Text(
                 "Developed By Techzera Infologics Pvt Ltd",
                 style: TextStyle(
@@ -43,56 +33,48 @@ class AboutScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 24),
-
               infoCard(
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: _infoTile(
+                  child: infoTile(
                     icon: Icons.chat_bubble_outline,
                     title: "support@quikserv.app",
-                    onTap: _openEmail,
+                    onTap: helper.openEmail,
                   ),
                 ),
               ),
-
-              /// ✅ WhatsApp asset icon
               infoCard(
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: _infoTile(
+                  child: infoTile(
                     assetIcon: 'assets/icons/whatsapp_icon.png',
                     title: "+91-7592909990",
-                    onTap: _openWhatsApp,
+                    onTap: helper.openWhatsApp,
                   ),
                 ),
               ),
-
               infoCard(
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: _infoTile(
+                  child: infoTile(
                     icon: Icons.call,
                     title: "+91-7592909990",
-                    onTap: _makeCall,
+                    onTap: helper.makeCall,
                   ),
                 ),
               ),
-
               infoCard(
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: _infoTile(
+                  child: infoTile(
                     icon: Icons.language,
                     title: "www.quikserv.app",
-                    onTap: _openWebsite,
+                    onTap: AboutUsHelper().openWebsite,
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -134,91 +116,6 @@ class AboutScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  /// EMAIL
-  Future<void> _openEmail() async {
-    final Uri email = Uri(scheme: 'mailto', path: 'support@quikserv.app');
-
-    await launchUrl(email, mode: LaunchMode.externalApplication);
-  }
-
-  /// WHATSAPP
-  Future<void> _openWhatsApp() async {
-    final Uri whatsapp = Uri.parse("https://wa.me/917592909990");
-
-    await launchUrl(whatsapp, mode: LaunchMode.externalApplication);
-  }
-
-  /// CALL
-  Future<void> _makeCall() async {
-    final Uri phone = Uri.parse("tel:+917592909990");
-
-    await launchUrl(phone, mode: LaunchMode.externalApplication);
-  }
-
-  /// WEBSITE
-  Future<void> _openWebsite() async {
-    final Uri website = Uri.parse("https://www.quikserv.app");
-
-    await launchUrl(website, mode: LaunchMode.externalApplication);
-  }
-
-  /// REUSABLE INFO TILE
-  //   static Widget _infoTile({
-  //     required IconData icon,
-  //     required String title,
-  //     Color iconColor = Colors.black,
-  //   }) {
-  //     return ListTile(
-  //       contentPadding: EdgeInsets.zero,
-  //       leading: Icon(icon, color: iconColor),
-  //       title: Text(title),
-  //       trailing: const Icon(Icons.chevron_right),
-  //       onTap: () {},
-  //     );
-  //   }
-  // }
-  Widget _infoTile({
-    IconData? icon,
-    String? assetIcon,
-    required String title,
-    required VoidCallback onTap,
-    //Color iconColor = Colors.black,
-  }) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: assetIcon != null
-          ? Image.asset(
-              assetIcon,
-              width: 22,
-              height: 22,
-              //color: iconColor,
-            )
-          : Icon(
-              icon,
-              //color: iconColor,
-            ),
-      title: Text(title, style: const TextStyle(fontSize: 15)),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-  }
-
-  Widget infoCard(Widget child) {
-    return Card(
-      color: Colors.white, // ✅ white background
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(
-          color: Colors.grey, // ✅ black border
-          width: 1,
-        ),
-      ),
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: child,
     );
   }
 }

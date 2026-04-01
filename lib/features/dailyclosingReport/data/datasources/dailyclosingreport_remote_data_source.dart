@@ -4,8 +4,8 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/dailyclosingReport/data/models/fetch_dailyclosingreport_model.dart';
 import 'package:quikservnew/features/dailyclosingReport/domain/parameters/dailyclosingreport_request.dart';
-import 'package:quikservnew/features/itemwiseReport/data/models/itemwiseReportModel.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
+import 'package:quikservnew/features/itemwiseReport/data/models/itemwise_report_model.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwise_report_request.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 abstract class DailyClosingReportRemoteDataSource {

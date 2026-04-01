@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/paymentVoucher/domain/parameters/save_paymentvoucher_parameter.dart';
-import 'package:quikservnew/features/paymentVoucher/domain/usecases/savePaymentVoucherUseCase.dart';
+import 'package:quikservnew/features/paymentVoucher/domain/usecases/save_payment_voucher_usecase.dart';
 
 part 'payment_state.dart';
 

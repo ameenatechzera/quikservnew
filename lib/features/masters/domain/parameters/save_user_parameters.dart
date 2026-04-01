@@ -1,21 +1,20 @@
 class SaveUserParameters {
   final String username;
   final String password;
-  final int user_type;
+  final int usertype;
   final int isactive;
   final String name;
   final List<int> branchIds;
-  final String CreatedUser;
+  final String createdUser;
 
   SaveUserParameters({
     required this.username,
     required this.password,
-    required this.user_type,
+    required this.usertype,
     required this.isactive,
     required this.name,
     required this.branchIds,
-    required this.CreatedUser,
-
+    required this.createdUser,
   });
 
   /// Convert model to JSON for API
@@ -23,13 +22,11 @@ class SaveUserParameters {
     return {
       'username': username, // API expects "group_name"
       'password': password,
-      'user_type': user_type,
+      'user_type': usertype,
       'isactive': isactive,
       'name': name,
       'branchIds': branchIds,
-      'CreatedUser': CreatedUser,
-
-
+      'CreatedUser': createdUser,
     };
   }
 }

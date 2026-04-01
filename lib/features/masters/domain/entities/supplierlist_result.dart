@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class SupplierListResponse extends Equatable {
-  SupplierListResponse({
+  const SupplierListResponse({
     required this.status,
     required this.error,
     required this.message,
@@ -64,7 +64,7 @@ class SupplierListResponse extends Equatable {
 }
 
 class SupplierList extends Equatable {
-  SupplierList({
+  const SupplierList({
     required this.id,
     required this.userType,
     required this.username,

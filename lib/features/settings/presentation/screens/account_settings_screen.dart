@@ -8,18 +8,21 @@ import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.d
 import 'package:quikservnew/features/settings/presentation/widgets/accountsettings_widget.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
-class AccountSettingsScreen extends StatelessWidget {
-  AccountSettingsScreen({super.key});
-  // 🔹 Controllers to hold selected ledger names
+class AccountSettingsScreen extends StatefulWidget {
+  const AccountSettingsScreen({super.key});
+
+  @override
+  State<AccountSettingsScreen> createState() => _AccountSettingsScreenState();
+}
+
+class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   final TextEditingController cashLedgerController = TextEditingController();
   final TextEditingController cardLedgerController = TextEditingController();
   final TextEditingController bankLedgerController = TextEditingController();
-  // 🔹 Store selected ledger IDs
   int? selectedCashLedgerId;
   int? selectedCardLedgerId;
   int? selectedBankLedgerId;
-  bool isUpdate = false; // 👈 flag to decide Save / Update
-
+  bool isUpdate = false;
   Future<void> _loadSavedLedgers() async {
     final helper = SharedPreferenceHelper();
     final data = await helper.getLedgers();
@@ -32,7 +35,7 @@ class AccountSettingsScreen extends StatelessWidget {
     cardLedgerController.text = data['cardLedgerName'] ?? '';
     bankLedgerController.text = data['bankLedgerName'] ?? '';
 
-    // 👇 If all ledgers exist, switch to UPDATE mode
+    //  If all ledgers exist, switch to UPDATE mode
     if (selectedCashLedgerId != null &&
         selectedCardLedgerId != null &&
         selectedBankLedgerId != null) {

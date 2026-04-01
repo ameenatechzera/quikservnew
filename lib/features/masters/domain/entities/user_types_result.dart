@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class UserTypesResult extends Equatable {
-  UserTypesResult({
+  const UserTypesResult({
     required this.status,
     required this.error,
     required this.message,
@@ -64,7 +64,7 @@ class UserTypesResult extends Equatable {
 }
 
 class UserTypes extends Equatable {
-  UserTypes({
+  const UserTypes({
     required this.typeId,
     required this.userType,
     required this.activeStatus,

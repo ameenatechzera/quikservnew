@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class ItemwiseReportResponse extends Equatable {
-  ItemwiseReportResponse({
+  const ItemwiseReportResponse({
     required this.status,
     required this.error,
     required this.message,
@@ -64,7 +64,7 @@ class ItemwiseReportResponse extends Equatable {
 }
 
 class SummaryReport extends Equatable {
-  SummaryReport({
+  const SummaryReport({
     required this.productCode,
     required this.productName,
     required this.qty,

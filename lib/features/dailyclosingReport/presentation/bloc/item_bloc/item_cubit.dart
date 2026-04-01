@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import 'package:quikservnew/features/dailyclosingReport/domain/usecases/fetch_itemwisedetails_usecase.dart';
 
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
-import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwiseReportRequest.dart';
+import 'package:quikservnew/features/itemwiseReport/domain/parameters/itemwise_report_request.dart';
 
 part 'item_state.dart';
 

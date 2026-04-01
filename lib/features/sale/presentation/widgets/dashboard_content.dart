@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
-import 'package:quikservnew/features/itemwiseReport/presentation/screens/itemWiseReportScreen.dart';
+import 'package:quikservnew/features/itemwiseReport/presentation/screens/item_wise_reportscreen.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
@@ -16,11 +16,11 @@ import 'package:quikservnew/features/salesReport/presentation/screens/salesRepor
 // ✅ add this (same used in HomeScreen)
 import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/salesbarScreen.dart';
-import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/salesCountGraphResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/sales_count_graph_result.dart';
 
-import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
-import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';

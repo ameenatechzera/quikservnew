@@ -1,38 +1,39 @@
 import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:quikservnew/features/settings/domain/entities/monthlyGraphReportResult.dart';
-import 'package:quikservnew/features/settings/domain/entities/salesCountGraphResult.dart';
-import 'package:quikservnew/features/settings/domain/parameters/barGraphRequest.dart';
-import 'package:quikservnew/features/settings/domain/parameters/customSalesGraphRequest.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetchCustomSalesAmountGraphUseCase.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetchSalesCountGraphUseCase.dart';
+import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
+import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_customsalesamountgraph_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_salescountgraph_usecase.dart';
 
 part 'sales_count_state.dart';
 
 class SalesCountCubit extends Cubit<SalesCountState> {
   final FetchSalesCountGraphReportUseCase _fetchSalesCountGraphReportUseCase;
-  final FetchCustomSalesAmountGraphReportUseCase _fetchCustomSalesAmountGraphReportUseCase;
+  final FetchCustomSalesAmountGraphReportUseCase
+  _fetchCustomSalesAmountGraphReportUseCase;
 
-  SalesCountCubit({required FetchSalesCountGraphReportUseCase fetchSalesCountGraphReportUseCase ,
-    required FetchCustomSalesAmountGraphReportUseCase fetchCustomSalesAmountGraphReportUseCase}) :
-        _fetchSalesCountGraphReportUseCase = fetchSalesCountGraphReportUseCase,_fetchCustomSalesAmountGraphReportUseCase = fetchCustomSalesAmountGraphReportUseCase,super(SalesCountInitial());
+  SalesCountCubit({
+    required FetchSalesCountGraphReportUseCase
+    fetchSalesCountGraphReportUseCase,
+    required FetchCustomSalesAmountGraphReportUseCase
+    fetchCustomSalesAmountGraphReportUseCase,
+  }) : _fetchSalesCountGraphReportUseCase = fetchSalesCountGraphReportUseCase,
+       _fetchCustomSalesAmountGraphReportUseCase =
+           fetchCustomSalesAmountGraphReportUseCase,
+       super(SalesCountInitial());
 
   Future<void> fetchSalesCountFromServer(BarGraphRequest request) async {
-    print('SalesCountRequese ${request.toJson()}');
     emit(FetchSales_CountGraphLoading());
     try {
-      print('reached cubit');
       final response = await _fetchSalesCountGraphReportUseCase(request);
-      log(response.toString(), name: 'result_settings');
-
       response.fold(
-            (failure) async {
+        (failure) async {
           log("failure");
           emit(FetchSales_CountGraphError(failure.message));
         },
-            (success) {
+        (success) {
           emit(FetchSales_CountGraphSuccess(success));
         },
       );
@@ -41,20 +42,18 @@ class SalesCountCubit extends Cubit<SalesCountState> {
     }
   }
 
-  Future<void> fetchCustomSalesGraphFromServer(CustomSalesGraphRequest request) async {
-    print('CustomSalesGraphRequest ${request.toString()}');
+  Future<void> fetchCustomSalesGraphFromServer(
+    CustomSalesGraphRequest request,
+  ) async {
     emit(FetchCustom_SalesGraphLoading());
     try {
-      print('reached cubit');
       final response = await _fetchCustomSalesAmountGraphReportUseCase(request);
-      log(response.toString(), name: 'result_settings');
-
       response.fold(
-            (failure) async {
+        (failure) async {
           log("failure");
           emit(FetchCustom_SalesGraphError(failure.message));
         },
-            (success) {
+        (success) {
           emit(FetchCustom_SalesGraphSuccess(success));
         },
       );

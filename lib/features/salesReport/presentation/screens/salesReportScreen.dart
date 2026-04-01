@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
@@ -79,66 +80,124 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           children: [
             _dateFilter(),
             const SizedBox(height: 16),
-            BlocConsumer<SalesReportCubit, SlesReportState>(
-              listener: (context, state) {
-                if (state is SalesDeleteSuccess) {
-                  Fluttertoast.showToast(
-                    msg: "Sales details deleted successfully..!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.black87,
-                    textColor: Colors.white,
-                    fontSize: 14,
-                  );
-                  context.read<SalesReportCubit>().fetchSalesReport(
-                    FetchReportRequest(
-                      from_date: formatter.format(fromDate),
-                      to_date: formatter.format(toDate),
-                      user_id: '1',
-                      branchId: st_branchId,
+            Expanded(
+              child: BlocConsumer<SalesReportCubit, SlesReportState>(
+                listener: (context, state) {
+                  if (state is SalesDeleteSuccess) {
+                    Fluttertoast.showToast(
+                      msg: "Sales details deleted successfully..!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.black87,
+                      textColor: Colors.white,
+                      fontSize: 14,
+                    );
+                    context.read<SalesReportCubit>().fetchSalesReport(
+                      FetchReportRequest(
+                        from_date: formatter.format(fromDate),
+                        to_date: formatter.format(toDate),
+                        user_id: '1',
+                        branchId: st_branchId,
+                      ),
+                    );
+                  }
+                  if (state is SalesDeleteFailure) {
+                    Fluttertoast.showToast(
+                      msg: "Sales details deletion failed..!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.black87,
+                      textColor: Colors.white,
+                      fontSize: 14,
+                    );
+                  }
+                  if (state is SalesReportSuccess) {
+                    //setState(() {
+                    salesList.clear();
+                    salesList = state.response.salesMaster;
+                    print('salesList ${salesList}');
+                    _calculateTotals(salesList);
+                    //});
+                  }
+                },
+                builder: (context, state) {
+                  if (state is SlesReportInitial) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (salesList.isEmpty) {
+                    return const Center(child: Text("No data found"));
+                  }
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: salesList.length,
+                      itemBuilder: (context, index) {
+                        final sale = salesList[index];
+                        return _salesCard(sale);
+                      },
                     ),
                   );
-                }
-                if (state is SalesDeleteFailure) {
-                  Fluttertoast.showToast(
-                    msg: "Sales details deletion failed..!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.black87,
-                    textColor: Colors.white,
-                    fontSize: 14,
-                  );
-                }
-                if (state is SalesReportSuccess) {
-                  //setState(() {
-                  salesList.clear();
-                  salesList = state.response.salesMaster;
-                  print('salesList ${salesList}');
-                  _calculateTotals(salesList);
-                  //});
-                }
-              },
-              builder: (context, state) {
-                if (state is SlesReportInitial) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (salesList.isEmpty) {
-                  return const Center(child: Text("No data found"));
-                }
-                return Expanded(
-                  child: ListView.builder(
-                    itemCount: salesList.length,
-                    itemBuilder: (context, index) {
-                      final sale = salesList[index];
-                      return _salesCard(sale);
-                    },
-                  ),
-                );
-              },
+                },
+              ),
             ),
+            _footerTotalSection(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _footerTotalSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Total Records",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              Text(
+                _totalRecordsController.text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const Text(
+                "Total Sales",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              Text(
+                _totalSalesController.text,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -147,7 +206,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   Widget _dateFilter() {
     return Container(
       color: AppColors.theme,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
 
       // margin: EdgeInsets.zero,
       //height: 70,
@@ -182,7 +241,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 30),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -257,6 +316,12 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     if (picked != null) {
       final formatted = DateFormat('dd-MM-yyyy').format(picked);
       controller.text = formatted;
+      // 🔥 FIX: update actual variables
+      if (controller == fromDateController) {
+        fromDate = picked;
+      } else {
+        toDate = picked;
+      }
       _onDateChanged(context);
     }
   }
@@ -300,115 +365,128 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   Widget _salesCard(SalesMaster sale) {
     // final DateFormat formatter = DateFormat('dd MMM yyyy');
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => salesReportPreviewScreen(
-                pagefrom: 'SalesReport',
-                masterId: sale.salesMasterId.toString(),
-              ),
-            ),
-          );
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Top Row
-            Row(
-              children: [
-                Image.asset('assets/icons/reporticon(1).png'),
-
-                // const Icon(Icons.receipt_long, size: 18),
-                const SizedBox(width: 6),
-                Text(
-                  "#${sale.billTokenNo}",
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                Image.asset('assets/icons/reporticon(2).png'),
-                const SizedBox(width: 6),
-
-                Text(
-                  DateFormat(
-                    'dd-MM-yyyy',
-                  ).format(DateTime.parse(sale.invoiceDate!)),
-                ),
-
-                const SizedBox(width: 12),
-                Visibility(
-                  visible: false,
-                  child: Checkbox(
-                    value: false,
-                    onChanged: (_) {},
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: true,
-                  child: _deleteButton(sale.salesMasterId),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            /// Invoice & Time
-            Row(
-              children: [
-                Image.asset('assets/icons/reporticon(4).png'),
-                SizedBox(width: 6),
-                Text(sale.invoiceNo.toString()),
-                SizedBox(width: 16),
-                Icon(Icons.access_time, size: 16),
-                SizedBox(width: 6),
-                Text(sale.invoiceTime.toString()),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            /// Payment & Amount
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Image.asset('assets/icons/reporticon(3).png'),
-                    SizedBox(width: 6),
-                    Text(sale.salesType.toString()),
-                  ],
-                ),
-                Text(
-                  sale.grandTotal.toString(),
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => salesReportPreviewScreen(
+                  pagefrom: 'SalesReport',
+                  masterId: sale.salesMasterId.toString(),
+                ),
+              ),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  SvgPicture.asset('assets/icons/salesreporticon1.svg'),
+
+                  // const Icon(Icons.receipt_long, size: 18),
+                  const SizedBox(width: 6),
+                  Text(
+                    "#${sale.billTokenNo}",
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  SvgPicture.asset('assets/icons/salesreporticon4.svg'),
+                  const SizedBox(width: 6),
+
+                  Text(
+                    DateFormat(
+                      'dd-MM-yyyy',
+                    ).format(DateTime.parse(sale.invoiceDate!)),
+                  ),
+
+                  const SizedBox(width: 12),
+                  Visibility(
+                    visible: false,
+                    child: Checkbox(
+                      value: false,
+                      onChanged: (_) {},
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                  Visibility(
+                    visible: true,
+                    child: _deleteButton(sale.salesMasterId),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              /// Invoice & Time
+              Row(
+                children: [
+                  SvgPicture.asset('assets/icons/salesreporticon2.svg'),
+                  SizedBox(width: 6),
+                  Text(sale.invoiceNo.toString()),
+                  SizedBox(width: 68),
+                  Icon(Icons.access_time, size: 16),
+                  SizedBox(width: 6),
+                  Text(formatTime(sale.invoiceTime.toString())),
+
+                  // Text(sale.invoiceTime.toString()),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              /// Payment & Amount
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      SvgPicture.asset('assets/icons/salesreporticon3.svg'),
+                      SizedBox(width: 6),
+                      Text(sale.salesType.toString()),
+                    ],
+                  ),
+                  Text(
+                    sale.grandTotal.toString(),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  String formatTime(String time) {
+    try {
+      return DateFormat('hh:mm a').format(DateFormat('HH:mm:ss').parse(time));
+    } catch (_) {
+      return time;
+    }
   }
 
   Widget _deleteButton(int salesMasterId) {
@@ -426,7 +504,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       child: CircleAvatar(
         radius: 16,
         backgroundColor: const Color(0xffFFE08A),
-        child: Image.asset('assets/icons/reporticon(5).png'),
+        child: SvgPicture.asset('assets/icons/salesreportdeleteicon.svg'),
       ),
     );
   }

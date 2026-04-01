@@ -28,10 +28,11 @@ class SettingsLoaded extends SettingsState {
 
   const SettingsLoaded({required this.settings});
 }
-class savePrinterSettingsError extends SettingsState {
+
+class SavePrinterSettingsError extends SettingsState {
   final String error;
 
-  savePrinterSettingsError(this.error);
+  const SavePrinterSettingsError(this.error);
 
   @override
   List<Object> get props => [error];
@@ -40,11 +41,12 @@ class savePrinterSettingsError extends SettingsState {
 class PrinterSettingsSaved extends SettingsState {
   final PrinterSettingsSaveResult printersSaveResult;
 
-  PrinterSettingsSaved(this.printersSaveResult);
+  const PrinterSettingsSaved(this.printersSaveResult);
 
   @override
   List<Object> get props => [printersSaveResult];
 }
+
 class SettingsError extends SettingsState {
   final String error;
 
@@ -53,7 +55,7 @@ class SettingsError extends SettingsState {
 
 class FetchSalesTokenError extends SettingsState {
   final String message;
-  FetchSalesTokenError(this.message);
+  const FetchSalesTokenError(this.message);
 
   @override
   List<Object> get props => [message];
@@ -61,7 +63,7 @@ class FetchSalesTokenError extends SettingsState {
 
 class FetchMonthlyGraphError extends SettingsState {
   final String message;
-  FetchMonthlyGraphError(this.message);
+  const FetchMonthlyGraphError(this.message);
 
   @override
   List<Object> get props => [message];
@@ -69,7 +71,7 @@ class FetchMonthlyGraphError extends SettingsState {
 
 class FetchSalesCountGraphError extends SettingsState {
   final String message;
-  FetchSalesCountGraphError(this.message);
+  const FetchSalesCountGraphError(this.message);
 
   @override
   List<Object> get props => [message];
@@ -77,7 +79,7 @@ class FetchSalesCountGraphError extends SettingsState {
 
 class FetchCustomSalesGraphError extends SettingsState {
   final String message;
-  FetchCustomSalesGraphError(this.message);
+  const FetchCustomSalesGraphError(this.message);
 
   @override
   List<Object> get props => [message];
@@ -85,7 +87,7 @@ class FetchCustomSalesGraphError extends SettingsState {
 
 class FetchSalesTokenSuccess extends SettingsState {
   final TokenDetailsResult tokenResult;
-  FetchSalesTokenSuccess(this.tokenResult);
+  const FetchSalesTokenSuccess(this.tokenResult);
 
   @override
   List<Object> get props => [tokenResult];
@@ -93,7 +95,7 @@ class FetchSalesTokenSuccess extends SettingsState {
 
 class FetchMonthlyGraphSuccess extends SettingsState {
   final MonthlyGraphReportResult graphResult;
-  FetchMonthlyGraphSuccess(this.graphResult);
+  const FetchMonthlyGraphSuccess(this.graphResult);
 
   @override
   List<Object> get props => [graphResult];
@@ -101,7 +103,7 @@ class FetchMonthlyGraphSuccess extends SettingsState {
 
 class FetchYearlyGraphSuccess extends SettingsState {
   final MonthlyGraphReportResult graphResult;
-  FetchYearlyGraphSuccess(this.graphResult);
+  const FetchYearlyGraphSuccess(this.graphResult);
 
   @override
   List<Object> get props => [graphResult];
@@ -109,14 +111,15 @@ class FetchYearlyGraphSuccess extends SettingsState {
 
 class FetchWeeklyGraphSuccess extends SettingsState {
   final MonthlyGraphReportResult graphResult;
-  FetchWeeklyGraphSuccess(this.graphResult);
+  const FetchWeeklyGraphSuccess(this.graphResult);
 
   @override
   List<Object> get props => [graphResult];
 }
+
 class FetchDailyGraphSuccess extends SettingsState {
   final MonthlyGraphReportResult graphResult;
-  FetchDailyGraphSuccess(this.graphResult);
+  const FetchDailyGraphSuccess(this.graphResult);
 
   @override
   List<Object> get props => [graphResult];
@@ -124,7 +127,7 @@ class FetchDailyGraphSuccess extends SettingsState {
 
 class FetchSalesCountGraphSuccess extends SettingsState {
   final SalesCountGraphResult graphResult;
-  FetchSalesCountGraphSuccess(this.graphResult);
+  const FetchSalesCountGraphSuccess(this.graphResult);
 
   @override
   List<Object> get props => [graphResult];
@@ -132,7 +135,7 @@ class FetchSalesCountGraphSuccess extends SettingsState {
 
 class FetchCustomSalesGraphSuccess extends SettingsState {
   final MonthlyGraphReportResult graphResult;
-  FetchCustomSalesGraphSuccess(this.graphResult);
+  const FetchCustomSalesGraphSuccess(this.graphResult);
 
   @override
   List<Object> get props => [graphResult];
@@ -149,7 +152,7 @@ class PrintTypeSelected extends SettingsState {
 
 class UpdateSalesTokenError extends SettingsState {
   final String message;
-  UpdateSalesTokenError(this.message);
+  const UpdateSalesTokenError(this.message);
 
   @override
   List<Object> get props => [message];
@@ -157,7 +160,7 @@ class UpdateSalesTokenError extends SettingsState {
 
 class UpdateSalesTokenSuccess extends SettingsState {
   final TokenUpdateResult commonResult;
-  UpdateSalesTokenSuccess(this.commonResult);
+  const UpdateSalesTokenSuccess(this.commonResult);
 
   @override
   List<Object> get props => [commonResult];

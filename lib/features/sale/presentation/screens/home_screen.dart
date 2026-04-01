@@ -383,7 +383,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Method to handle menu toggle with fade animation
   void _toggleMenuModeWithAnimation() {
-
     final saleCubit = context.read<SaleCubit>();
     final wasMenuMode = saleCubit.isMenuMode;
 
@@ -780,7 +779,6 @@ class _HomeScreenState extends State<HomeScreen>
                     child: isMenuMode
                         ? BlocBuilder<ProductCubit, ProductsState>(
                             builder: (context, state) {
-
                               int count = 0;
                               List<FetchProductDetails> products = [];
 
@@ -2338,11 +2336,9 @@ class _HomeScreenState extends State<HomeScreen>
           body: SafeArea(
             child: BlocListener<ProductCubit, ProductsState>(
               listener: (context, state) {
-                if (state is SaveProductSuccess || state is ProductSuccess ) {
-
+                if (state is SaveProductSuccess || state is ProductSuccess) {
                   context.read<ProductCubit>().loadProductsFromLocal();
                 }
-
               },
               child: Stack(
                 children: [
