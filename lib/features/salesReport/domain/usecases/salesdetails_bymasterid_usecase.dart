@@ -1,6 +1,6 @@
 import 'package:quikservnew/core/usecases/general_usecases.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/repositories/salesReport_repository.dart';
 

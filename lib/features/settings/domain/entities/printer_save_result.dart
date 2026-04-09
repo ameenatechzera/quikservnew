@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class PrinterSettingsSaveResult extends Equatable {
-  PrinterSettingsSaveResult({
+  const PrinterSettingsSaveResult({
     required this.status,
     required this.error,
     required this.message,
@@ -16,7 +16,6 @@ class PrinterSettingsSaveResult extends Equatable {
   final String message;
   static const String messageKey = "message";
 
-
   PrinterSettingsSaveResult copyWith({
     int? status,
     bool? error,
@@ -29,7 +28,7 @@ class PrinterSettingsSaveResult extends Equatable {
     );
   }
 
-  factory PrinterSettingsSaveResult.fromJson(Map<String, dynamic> json){
+  factory PrinterSettingsSaveResult.fromJson(Map<String, dynamic> json) {
     return PrinterSettingsSaveResult(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
@@ -44,11 +43,10 @@ class PrinterSettingsSaveResult extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$status, $error, $message, ";
   }
 
   @override
-  List<Object?> get props => [
-    status, error, message, ];
+  List<Object?> get props => [status, error, message];
 }

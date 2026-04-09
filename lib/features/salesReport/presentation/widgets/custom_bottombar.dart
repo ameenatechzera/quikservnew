@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomBottomBar extends StatelessWidget {
@@ -13,7 +12,10 @@ class CustomBottomBar extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
           ],
         ),
         child: Row(
@@ -22,14 +24,17 @@ class CustomBottomBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                  color: Colors.pink.shade600,
-                  borderRadius: BorderRadius.circular(20)),
+                color: Colors.pink.shade600,
+                borderRadius: BorderRadius.circular(20),
+              ),
               child: const Row(
                 children: [
                   Icon(Icons.home, color: Colors.white, size: 18),
                   SizedBox(width: 6),
-                  Text("home",
-                      style: TextStyle(color: Colors.white, fontSize: 14))
+                  Text(
+                    "home",
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
                 ],
               ),
             ),

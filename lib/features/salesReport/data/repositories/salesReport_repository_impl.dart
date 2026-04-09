@@ -3,10 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
-import 'package:quikservnew/features/salesReport/data/datasources/salesReport_remote_datasource.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/masterResult.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
+import 'package:quikservnew/features/salesReport/data/datasources/salesreport_remote_data_source.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/master_result.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/delete_salesparameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
@@ -65,10 +65,13 @@ class SalesReportRepositoryImpl implements SalesReportRepository {
   }
 
   @override
-  ResultFuture<MasterResult> deleteSalesFromServer(SalesDeleteByMasterIdRequest SalesDeleteRequest) async {
+  ResultFuture<MasterResult> deleteSalesFromServer(
+    SalesDeleteByMasterIdRequest SalesDeleteRequest,
+  ) async {
     try {
-      final result =
-          await remoteDataSource.deleteSalesFromServer(SalesDeleteRequest);
+      final result = await remoteDataSource.deleteSalesFromServer(
+        SalesDeleteRequest,
+      );
 
       return Right(result);
     } on ServerException catch (failure) {

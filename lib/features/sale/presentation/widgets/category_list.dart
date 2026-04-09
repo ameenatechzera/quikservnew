@@ -15,7 +15,6 @@ class CategoryListWidget extends StatelessWidget {
     required this.controller,
     this.bottomPadding = 0,
   });
-
   @override
   Widget build(BuildContext context) {
     final List<FetchCategoryDetailsEntity> displayCategories = [
@@ -31,36 +30,26 @@ class CategoryListWidget extends StatelessWidget {
       ),
       ...categories,
     ];
-
     return BlocBuilder<SaleCubit, SaleState>(
       builder: (context, saleState) {
         final selectedId = context.read<SaleCubit>().selectedCategoryId;
-
         return ListView.builder(
           controller: controller,
           physics: const SoftBounceScrollPhysics(
             parent: AlwaysScrollableScrollPhysics(),
           ),
           padding: EdgeInsets.only(bottom: bottomPadding),
-
           itemCount: displayCategories.length,
           itemBuilder: (context, index) {
             final category = displayCategories[index];
             final bool isSelected = category.categoryId == selectedId;
-
             return GestureDetector(
               onTap: () {
                 final productCubit = context.read<ProductCubit>();
                 final saleCubit = context.read<SaleCubit>();
-
                 final id = category.categoryId ?? 0;
                 final name = category.categoryName ?? "All";
-
-                // ✅ update cubit (instead of ValueNotifier)
                 saleCubit.selectCategory(id, name);
-                // selectedCategoryId.value = category.categoryId!;
-                // selectedCategoryName.value = category.categoryName ?? "All";
-
                 if (category.categoryId == 0) {
                   productCubit.loadProductsFromLocal();
                 } else {

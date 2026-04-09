@@ -13,9 +13,7 @@ class CommomBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(
-        textScaleFactor: 1.0, // 🔑 LOCK font scaling
-      ),
+      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Container(
@@ -81,11 +79,7 @@ class CommomBottomBar extends StatelessWidget {
               height: 25,
               color: isSelected ? Colors.white : Colors.black, // optional
             ),
-            // Icon(
-            //   icon,
-            //   color: isSelected ? Colors.white : Colors.black,
-            //   size: 20,
-            // ),
+
             if (isSelected) ...[
               const SizedBox(width: 6),
               Text(

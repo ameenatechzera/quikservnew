@@ -39,7 +39,7 @@ class _ResetTokenScreenState extends State<ResetTokenScreen> {
     //final userId = await SharedPreferenceHelper().getU();
     context.read<SettingsCubit>().updateSalesTokenFromServer(
       UpdateSalesTokenRequest(
-        db_name: dbName!,
+        dbname: dbName!,
         branchId: branchId,
         tokenNo: _tokenController.text.toString(),
         userId: '1',

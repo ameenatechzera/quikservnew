@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HeaderSection extends StatelessWidget {
@@ -12,22 +11,22 @@ class HeaderSection extends StatelessWidget {
         children: [
           const CircleAvatar(
             radius: 24,
-            backgroundImage: NetworkImage(
-              "https://i.pravatar.cc/150?img=3",
-            ),
+            backgroundImage: NetworkImage("https://i.pravatar.cc/150?img=3"),
           ),
           const SizedBox(width: 12),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Welcome",
-                    style: TextStyle(
-                        fontSize: 14, color: Colors.black54)),
+                Text(
+                  "Welcome",
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                ),
                 SizedBox(height: 2),
-                Text("Serin Johnson",
-                    style:
-                    TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  "Serin Johnson",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
@@ -41,11 +40,13 @@ class HeaderSection extends StatelessWidget {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                      color: Colors.pink, shape: BoxShape.circle),
+                    color: Colors.pink,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );

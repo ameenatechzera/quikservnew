@@ -8,16 +8,17 @@ sealed class CartState extends Equatable {
 }
 
 final class CartInitial extends CartState {}
+
 final class SlesDetailsFromCartInitial extends CartState {}
 
 class SalesReportFromCartError extends CartState {
   final String error;
 
-  SalesReportFromCartError({required this.error});
+  const SalesReportFromCartError({required this.error});
 }
 
 class SalesDetailsFromCartSuccess extends CartState {
   final SalesDetailsByMasterIdResult response;
 
-  SalesDetailsFromCartSuccess({required this.response});
+  const SalesDetailsFromCartSuccess({required this.response});
 }

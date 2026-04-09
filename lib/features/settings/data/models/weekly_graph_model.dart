@@ -1,7 +1,7 @@
 import 'package:quikservnew/features/settings/domain/entities/weekly_graph_report_result.dart';
 
 class WeeklyGraphReportModel extends WeeklyGraphReportResult {
-  WeeklyGraphReportModel({required super.period, required super.data});
+  const WeeklyGraphReportModel({required super.period, required super.data});
   factory WeeklyGraphReportModel.fromJson(Map<String, dynamic> json) {
     return WeeklyGraphReportModel(
       period: json["period"] ?? "",

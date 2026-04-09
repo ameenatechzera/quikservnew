@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PostCard extends StatelessWidget {
@@ -12,9 +11,10 @@ class PostCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -27,18 +27,21 @@ class PostCard extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 16,
-                  backgroundImage:
-                  NetworkImage("https://i.pravatar.cc/150?img=5"),
+                  backgroundImage: NetworkImage(
+                    "https://i.pravatar.cc/150?img=5",
+                  ),
                 ),
                 const SizedBox(width: 8),
                 const Expanded(
-                  child: Text("Anna T",
-                      style:
-                      TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  child: Text(
+                    "Anna T",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
                 ),
-                Text("12 Minutes Ago",
-                    style:
-                    TextStyle(fontSize: 12, color: Colors.grey.shade600))
+                Text(
+                  "12 Minutes Ago",
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
               ],
             ),
           ),
@@ -62,14 +65,13 @@ class PostCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     "Annual Cultural Program",
-                    style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
-                Icon(Icons.favorite_border)
+                Icon(Icons.favorite_border),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

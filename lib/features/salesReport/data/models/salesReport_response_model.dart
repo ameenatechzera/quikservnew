@@ -1,7 +1,7 @@
-import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
 
 class SalesReportModel extends SalesReportResult {
-  SalesReportModel({
+  const SalesReportModel({
     required super.status,
     required super.error,
     required super.message,

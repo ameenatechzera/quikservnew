@@ -4,12 +4,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
-
-import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
-import 'package:quikservnew/features/salesReport/presentation/screens/salesReportPreviewScreen.dart';
-import 'package:quikservnew/features/salesReport/presentation/widgets/deleteConfirmationDialogue.dart';
+import 'package:quikservnew/features/salesReport/presentation/screens/salesreport_preview_screen.dart';
+import 'package:quikservnew/features/salesReport/presentation/widgets/delete_confirmation_dialogue.dart';
+import 'package:quikservnew/features/salesReport/presentation/widgets/salesreport_widgets.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class SalesReportPage extends StatefulWidget {
@@ -35,9 +35,9 @@ void _onDateChanged(BuildContext context) {
   if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
-        from_date: formatter.format(fromDate),
-        to_date: formatter.format(toDate),
-        user_id: '1',
+        fromDate: formatter.format(fromDate),
+        toDate: formatter.format(toDate),
+        userId: '1',
         branchId: st_branchId,
       ),
     );
@@ -56,8 +56,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   @override
   void dispose() {
-    //  _totalRecordsController.dispose();
-    // _totalSalesController.dispose();
     super.dispose();
   }
 
@@ -94,9 +92,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                     );
                     context.read<SalesReportCubit>().fetchSalesReport(
                       FetchReportRequest(
-                        from_date: formatter.format(fromDate),
-                        to_date: formatter.format(toDate),
-                        user_id: '1',
+                        fromDate: formatter.format(fromDate),
+                        toDate: formatter.format(toDate),
+                        userId: '1',
                         branchId: st_branchId,
                       ),
                     );
@@ -112,12 +110,10 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                     );
                   }
                   if (state is SalesReportSuccess) {
-                    //setState(() {
                     salesList.clear();
                     salesList = state.response.salesMaster;
                     print('salesList ${salesList}');
                     _calculateTotals(salesList);
-                    //});
                   }
                 },
                 builder: (context, state) {
@@ -140,64 +136,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                 },
               ),
             ),
-            _footerTotalSection(),
+            footerTotalSection(_totalRecordsController),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _footerTotalSection() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Total Records",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              Text(
-                _totalRecordsController.text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Text(
-                "Total Sales",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              Text(
-                _totalSalesController.text,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -207,9 +148,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     return Container(
       color: AppColors.theme,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-
-      // margin: EdgeInsets.zero,
-      //height: 70,
       child: Row(
         children: [
           Expanded(
@@ -278,28 +216,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
         ],
       ),
     );
-    // return Container(
-    //   padding: const EdgeInsets.all(12),
-    //   decoration: BoxDecoration(
-    //     color: const Color(0xffFFF4CC),
-    //     borderRadius: BorderRadius.circular(12),
-    //   ),
-    //   child: Row(
-    //     children: [
-    //       Expanded(
-    //         child: _dateBox(
-    //           "From Date",
-    //           fromDate,
-    //           () => pickDate(isFrom: true),
-    //         ),
-    //       ),
-    //       const SizedBox(width: 12),
-    //       Expanded(
-    //         child: _dateBox("To Date", toDate, () => pickDate(isFrom: false)),
-    //       ),
-    //     ],
-    //   ),
-    // );
   }
 
   Future<void> _selectDate(
@@ -326,45 +242,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     }
   }
 
-  // Widget _dateBox(String label, DateTime? date, VoidCallback onTap) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Text(label, style: const TextStyle(fontSize: 12)),
-  //       const SizedBox(height: 6),
-  //       InkWell(
-  //         onTap: onTap,
-  //         child: Container(
-  //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-  //           decoration: BoxDecoration(
-  //             color: Colors.white,
-  //             borderRadius: BorderRadius.circular(8),
-  //             border: Border.all(color: Colors.grey.shade300),
-  //           ),
-  //           child: Row(
-  //             children: [
-  //               Expanded(
-  //                 child: Text(
-  //                   date == null
-  //                       ? "Select Date"
-  //                       : "${date.day.toString().padLeft(2, '0')}-"
-  //                             "${date.month.toString().padLeft(2, '0')}-"
-  //                             "${date.year}",
-  //                 ),
-  //               ),
-  //               const Icon(Icons.calendar_today_outlined, size: 18),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
-    // final DateFormat formatter = DateFormat('dd MMM yyyy');
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
@@ -386,7 +265,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => salesReportPreviewScreen(
+                builder: (context) => SalesReportPreviewScreen(
                   pagefrom: 'SalesReport',
                   masterId: sale.salesMasterId.toString(),
                 ),
@@ -481,14 +360,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     );
   }
 
-  String formatTime(String time) {
-    try {
-      return DateFormat('hh:mm a').format(DateFormat('HH:mm:ss').parse(time));
-    } catch (_) {
-      return time;
-    }
-  }
-
   Widget _deleteButton(int salesMasterId) {
     return InkWell(
       onTap: () async {
@@ -528,9 +399,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     print('expiryDate $expiryDate');
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
-        from_date: formatter.format(fromDate),
-        to_date: formatter.format(toDate),
-        user_id: '1',
+        fromDate: formatter.format(fromDate),
+        toDate: formatter.format(toDate),
+        userId: '1',
         branchId: st_branchId,
       ),
     );
@@ -555,35 +426,5 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       });
       fetchSalesReport();
     }
-  }
-
-  /// 🔹 DATE CARD
-  Widget dateCard(String title, DateTime date, VoidCallback onTap) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(4),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                formatter.format(date),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

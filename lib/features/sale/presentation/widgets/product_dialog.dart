@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
@@ -234,175 +233,6 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
                       ),
 
                       const SizedBox(height: 12),
-
-                      // Row(
-                      //   children: [
-                      //     // ---------------- QTY CONTROLLER ----------------
-                      //     ValueListenableBuilder<List<CartItem>>(
-                      //       valueListenable: widget.cartManager.cartItems,
-                      //       builder: (context, cartItems, _) {
-                      //         CartItem? cartItem;
-
-                      //         try {
-                      //           cartItem = cartItems.firstWhere(
-                      //             (item) => item.productCode == productCode,
-                      //           );
-                      //         } catch (_) {
-                      //           cartItem = null;
-                      //         }
-
-                      //         final int qty = cartItem?.qty.toInt() ?? 0;
-
-                      //         return Container(
-                      //           height: 40,
-                      //           padding: const EdgeInsets.symmetric(
-                      //             horizontal: 8,
-                      //           ),
-                      //           decoration: BoxDecoration(
-                      //             color: Colors.white,
-                      //             borderRadius: BorderRadius.circular(10),
-                      //             border: Border.all(
-                      //               color: Colors.grey.shade300,
-                      //               width: 1.5,
-                      //             ),
-                      //           ),
-                      //           child: Row(
-                      //             mainAxisSize: MainAxisSize.min,
-                      //             children: [
-                      //               const SizedBox(width: 4),
-
-                      //               // ➖ MINUS
-                      //               InkWell(
-                      //                 onTap: qty > 0
-                      //                     ? () {
-                      //                         widget.cartManager
-                      //                             .decrementQuantity(
-                      //                               productCode,
-                      //                             );
-                      //                       }
-                      //                     : null,
-                      //                 child: Icon(
-                      //                   Icons.remove,
-                      //                   size: 18,
-                      //                   color: qty > 0
-                      //                       ? Colors.black
-                      //                       : Colors.grey,
-                      //                 ),
-                      //               ),
-
-                      //               const SizedBox(width: 12),
-
-                      //               // Text(
-                      //               //   qty.toString().padLeft(2, '0'),
-                      //               //   style: const TextStyle(
-                      //               //     fontSize: 16,
-                      //               //     fontWeight: FontWeight.w600,
-                      //               //   ),
-                      //               // ),
-                      //               // ✅ TYPE QTY (LOCAL ONLY)
-                      //               SizedBox(
-                      //                 width: 44,
-                      //                 height: 34,
-                      //                 child: isEditingQty
-                      //                     ? Focus(
-                      //                         onFocusChange: (hasFocus) {
-                      //                           if (!hasFocus) {
-                      //                             final typed =
-                      //                                 int.tryParse(
-                      //                                   qtyController.text
-                      //                                       .trim(),
-                      //                                 ) ??
-                      //                                 localQty;
-                      //                             setState(() {
-                      //                               localQty = typed < 0
-                      //                                   ? 0
-                      //                                   : typed;
-                      //                               qtyController.text =
-                      //                                   localQty.toString();
-                      //                               isEditingQty = false;
-                      //                             });
-                      //                           }
-                      //                         },
-                      //                         child: TextField(
-                      //                           controller: qtyController,
-                      //                           autofocus: true,
-                      //                           textAlign: TextAlign.center,
-                      //                           keyboardType:
-                      //                               TextInputType.number,
-                      //                           decoration:
-                      //                               const InputDecoration(
-                      //                                 isDense: true,
-                      //                                 contentPadding:
-                      //                                     EdgeInsets.symmetric(
-                      //                                       vertical: 8,
-                      //                                       horizontal: 6,
-                      //                                     ),
-                      //                                 border:
-                      //                                     OutlineInputBorder(),
-                      //                               ),
-                      //                           onSubmitted: (_) {
-                      //                             FocusScope.of(
-                      //                               context,
-                      //                             ).unfocus();
-                      //                           },
-                      //                         ),
-                      //                       )
-                      //                     : InkWell(
-                      //                         onTap: () {
-                      //                           setState(() {
-                      //                             isEditingQty = true;
-                      //                             qtyController.selection =
-                      //                                 TextSelection(
-                      //                                   baseOffset: 0,
-                      //                                   extentOffset:
-                      //                                       qtyController
-                      //                                           .text
-                      //                                           .length,
-                      //                                 );
-                      //                           });
-                      //                         },
-                      //                         child: Center(
-                      //                           child: Text(
-                      //                             localQty.toString().padLeft(
-                      //                               2,
-                      //                               '0',
-                      //                             ),
-                      //                             style: const TextStyle(
-                      //                               fontSize: 16,
-                      //                               fontWeight: FontWeight.w600,
-                      //                             ),
-                      //                           ),
-                      //                         ),
-                      //                       ),
-                      //               ),
-                      //               const SizedBox(width: 12),
-
-                      //               // ➕ PLUS
-                      //               InkWell(
-                      //                 onTap: () {
-                      //                   if (cartItem == null) {
-                      //                     widget.cartManager.addToCart(
-                      //                       _buildCartItem(
-                      //                         qty: 1,
-                      //                         productCode: productCode,
-                      //                       ),
-                      //                     );
-                      //                   } else {
-                      //                     widget.cartManager.incrementQuantity(
-                      //                       productCode,
-                      //                     );
-                      //                   }
-                      //                 },
-                      //                 child: const Icon(Icons.add, size: 18),
-                      //               ),
-
-                      //               const SizedBox(width: 4),
-                      //             ],
-                      //           ),
-                      //         );
-                      //       },
-                      //     ),
-
                       //     const SizedBox(width: 12),
                       Row(
                         children: [
@@ -596,51 +426,10 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
                                       price: editedPrice,
                                     ),
                                   );
-
-                                  // // ✅ adjust ONLY on button click
-                                  // final currentQty = cartItem.qty.toInt();
-
-                                  // if (localQty > currentQty) {
-                                  //   for (
-                                  //     int i = 0;
-                                  //     i < (localQty - currentQty);
-                                  //     i++
-                                  //   ) {
-                                  //     widget.cartManager.incrementQuantity(
-                                  //       productCode,
-                                  //     );
-                                  //   }
-                                  // } else if (localQty < currentQty) {
-                                  //   for (
-                                  //     int i = 0;
-                                  //     i < (currentQty - localQty);
-                                  //     i++
-                                  //   ) {
-                                  //     widget.cartManager.decrementQuantity(
-                                  //       productCode,
-                                  //     );
-                                  //   }
-                                  // }
-
-                                  // If you also need to update price for existing cart item,
-                                  // do it in your cartManager (if you have a method).
-                                  // Right now we keep your existing API.
                                 }
-
                                 showCartBar.value = true;
                                 Navigator.of(context).pop();
                               },
-
-                              // onTap: () {
-                              //   widget.cartManager.addToCart(
-                              //     _buildCartItem(
-                              //       qty: 1,
-                              //       productCode: productCode,
-                              //     ),
-                              //   );
-                              //   showCartBar.value = true;
-                              //   Navigator.of(context).pop();
-                              // },
                               borderRadius: BorderRadius.circular(12),
                               child: Container(
                                 height: 40,

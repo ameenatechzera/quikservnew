@@ -1,7 +1,7 @@
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 
 class SalesCountGraphModel extends MonthlyGraphReportResult {
-  SalesCountGraphModel({required super.period, required super.data});
+  const SalesCountGraphModel({required super.period, required super.data});
   factory SalesCountGraphModel.fromJson(Map<String, dynamic> json) {
     return SalesCountGraphModel(
       period: json["period"] ?? "",

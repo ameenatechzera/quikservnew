@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
-import 'package:quikservnew/features/salesReport/domain/usecases/salesDetailsByMasterIdUseCase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesdetails_bymasterid_usecase.dart';
 
 part 'cart_state.dart';
 

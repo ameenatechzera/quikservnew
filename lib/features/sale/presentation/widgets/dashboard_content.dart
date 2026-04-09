@@ -11,20 +11,16 @@ import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
-import 'package:quikservnew/features/salesReport/presentation/screens/salesReportScreen.dart';
-
-// ✅ add this (same used in HomeScreen)
+import 'package:quikservnew/features/salesReport/presentation/screens/salesreport_screen.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
-import 'package:quikservnew/features/salesReport/presentation/widgets/salesbarScreen.dart';
+import 'package:quikservnew/features/salesReport/presentation/widgets/salesbar_screen.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/sales_count_graph_result.dart';
-
 import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
 import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 final DateFormat formatter = DateFormat('dd MMM yyyy');
 List<SaleCountGraphList> salesCountList = [];
@@ -66,12 +62,8 @@ class _DashboardContentState extends State<DashboardContent> {
     currentYear = DateTime.now().year;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // SubscriptionService.validateSubscription(context);
       _fetchReport();
     });
-
-    // WidgetsBinding.instance.addObserver(this);
-
     fromDateNotifier.addListener(_fetchReport);
     toDateNotifier.addListener(_fetchReport);
   }
@@ -92,9 +84,8 @@ class _DashboardContentState extends State<DashboardContent> {
   Future<void> _fetchReport() async {
     final fromDate = DateFormat('yyyy-MM-dd').format(fromDateNotifier.value);
     final toDate = DateFormat('yyyy-MM-dd').format(toDateNotifier.value);
-    final prefs = await SharedPreferences.getInstance();
+    //final prefs = await SharedPreferences.getInstance();
     stBranchId = await SharedPreferenceHelper().getBranchId();
-    print('stBranchId $stBranchId');
     context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
       BarGraphRequest(period: 'daily', branchId: '1'),
     );
@@ -128,7 +119,7 @@ class _DashboardContentState extends State<DashboardContent> {
 
   @override
   Widget build(BuildContext context) {
-    // ⭐⭐⭐ KEY FIX: Set status bar BEFORE anything else
+    // Set status bar BEFORE anything else
     WidgetsBinding.instance.addPostFrameCallback((_) {
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
@@ -185,14 +176,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       bool isLoading = true;
                       String totalCountText = '--';
                       String totalAmountText = '--';
-                      // if (state is SalesReportMasterByDateSuccess) {
-                      //   final list = state.response.salesMaster;
 
-                      //   final totalCount = list.length;
-                      //   final totalAmount = list.fold<double>(
-                      //     0.0,
-                      //     (sum, item) => sum + _toDouble(item.grandTotal),
-                      //   );
                       if (state is SalesReportMasterByDateSuccess) {
                         final list = state.response.salesMaster;
                         totalCountText = list.length.toString();
@@ -229,13 +213,6 @@ class _DashboardContentState extends State<DashboardContent> {
                     },
                   ),
 
-                  //     if (state is SalesReportMasterByDateError) {
-                  //       return const Text('Failed to load sales data');
-                  //     }
-
-                  //     return const Center(child: CircularProgressIndicator());
-                  //   },
-                  // ),
                   const SizedBox(height: 14),
 
                   /// CASH BALANCE
@@ -243,13 +220,7 @@ class _DashboardContentState extends State<DashboardContent> {
                     builder: (context, state) {
                       bool isLoading = true;
                       String cashText = '--';
-                      // if (state is SalesReportMasterByDateSuccess) {
-                      //   final list = state.response.salesMaster;
 
-                      //   final cashBalance = list.fold<double>(
-                      //     0.0,
-                      //     (sum, item) => sum + _toDouble(item.cashAmount),
-                      //   );
                       if (state is SalesReportMasterByDateSuccess) {
                         final list = state.response.salesMaster;
 
@@ -589,157 +560,157 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
 
-  Widget _buildCustomCountSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        /// 🔹 Heading + Dropdown Row
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Sales Graph",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
+  // Widget _buildCustomCountSelector() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       /// 🔹 Heading + Dropdown Row
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+  //         child: Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: [
+  //             const Text(
+  //               "Sales Graph",
+  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
 
-        /// 🔹 Only One Checkbox
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Checkbox(
-                  value: isCustomSelected,
-                  onChanged: (value) {
-                    setState(() {
-                      isCustomSelected = value ?? false;
+  //       /// 🔹 Only One Checkbox
+  //       Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Checkbox(
+  //                 value: isCustomSelected,
+  //                 onChanged: (value) {
+  //                   setState(() {
+  //                     isCustomSelected = value ?? false;
 
-                      if (!isCustomSelected) {
-                        fromDate = null;
-                        toDate = null;
-                        fromController.clear();
-                        toController.clear();
-                      }
-                    });
-                  },
-                ),
-                const Text("Custom", style: TextStyle(fontSize: 14)),
-              ],
-            ),
-            if (!isCustomSelected)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    /// 🔹 Dropdown
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade400),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: DropdownButton<SalesPeriod>(
-                        value: selectedPeriod,
-                        underline: const SizedBox(),
-                        onChanged: (SalesPeriod? newValue) {
-                          if (newValue == null) return;
+  //                     if (!isCustomSelected) {
+  //                       fromDate = null;
+  //                       toDate = null;
+  //                       fromController.clear();
+  //                       toController.clear();
+  //                     }
+  //                   });
+  //                 },
+  //               ),
+  //               const Text("Custom", style: TextStyle(fontSize: 14)),
+  //             ],
+  //           ),
+  //           if (!isCustomSelected)
+  //             Padding(
+  //               padding: const EdgeInsets.symmetric(
+  //                 horizontal: 12,
+  //                 vertical: 8,
+  //               ),
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   /// 🔹 Dropdown
+  //                   Container(
+  //                     padding: const EdgeInsets.symmetric(horizontal: 12),
+  //                     decoration: BoxDecoration(
+  //                       border: Border.all(color: Colors.grey.shade400),
+  //                       borderRadius: BorderRadius.circular(8),
+  //                     ),
+  //                     child: DropdownButton<SalesPeriod>(
+  //                       value: selectedPeriod,
+  //                       underline: const SizedBox(),
+  //                       onChanged: (SalesPeriod? newValue) {
+  //                         if (newValue == null) return;
 
-                          setState(() {
-                            selectedPeriod = newValue;
-                          });
+  //                         setState(() {
+  //                           selectedPeriod = newValue;
+  //                         });
 
-                          /// 🔥 Call API based on selection
-                          String period = newValue.name; // daily, weekly...
-                          if (selectedView.name == 'count') {
-                            if (period == 'daily') {
-                              period = 'hourly';
-                            }
-                          }
+  //                         /// 🔥 Call API based on selection
+  //                         String period = newValue.name; // daily, weekly...
+  //                         if (selectedView.name == 'count') {
+  //                           if (period == 'daily') {
+  //                             period = 'hourly';
+  //                           }
+  //                         }
 
-                          print('Hr ${selectedView.name}');
-                          print('ClickedHR ${selectedView.name}');
-                          if (selectedView.name == 'amount') {
-                            context
-                                .read<SettingsCubit>()
-                                .fetchMonthlyGraphFromServer(
-                                  BarGraphRequest(
-                                    period: period,
-                                    branchId: stBranchId,
-                                  ),
-                                );
-                          } else {
-                            context
-                                .read<SalesCountCubit>()
-                                .fetchSalesCountFromServer(
-                                  BarGraphRequest(
-                                    period: period,
-                                    branchId: stBranchId,
-                                  ),
-                                );
-                          }
-                        },
-                        items: SalesPeriod.values.map((period) {
-                          return DropdownMenuItem(
-                            value: period,
-                            child: Text(
-                              period.name.toUpperCase(),
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
+  //                         print('Hr ${selectedView.name}');
+  //                         print('ClickedHR ${selectedView.name}');
+  //                         if (selectedView.name == 'amount') {
+  //                           context
+  //                               .read<SettingsCubit>()
+  //                               .fetchMonthlyGraphFromServer(
+  //                                 BarGraphRequest(
+  //                                   period: period,
+  //                                   branchId: stBranchId,
+  //                                 ),
+  //                               );
+  //                         } else {
+  //                           context
+  //                               .read<SalesCountCubit>()
+  //                               .fetchSalesCountFromServer(
+  //                                 BarGraphRequest(
+  //                                   period: period,
+  //                                   branchId: stBranchId,
+  //                                 ),
+  //                               );
+  //                         }
+  //                       },
+  //                       items: SalesPeriod.values.map((period) {
+  //                         return DropdownMenuItem(
+  //                           value: period,
+  //                           child: Text(
+  //                             period.name.toUpperCase(),
+  //                             style: const TextStyle(fontSize: 12),
+  //                           ),
+  //                         );
+  //                       }).toList(),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //         ],
+  //       ),
 
-        const SizedBox(height: 10),
+  //       const SizedBox(height: 10),
 
-        /// 🔹 Show Date Fields Only When Checked
-        if (isCustomSelected)
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: fromController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    hintText: "From (dd-MM-yyyy)",
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  onTap: () => _pickDate2(true),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: toController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    hintText: "To (dd-MM-yyyy)",
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  onTap: () => _pickDate2(false),
-                ),
-              ),
-            ],
-          ),
-      ],
-    );
-  }
+  //       /// 🔹 Show Date Fields Only When Checked
+  //       if (isCustomSelected)
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               child: TextField(
+  //                 controller: fromController,
+  //                 readOnly: true,
+  //                 decoration: const InputDecoration(
+  //                   hintText: "From (dd-MM-yyyy)",
+  //                   border: OutlineInputBorder(),
+  //                   isDense: true,
+  //                 ),
+  //                 onTap: () => _pickDate2(true),
+  //               ),
+  //             ),
+  //             const SizedBox(width: 10),
+  //             Expanded(
+  //               child: TextField(
+  //                 controller: toController,
+  //                 readOnly: true,
+  //                 decoration: const InputDecoration(
+  //                   hintText: "To (dd-MM-yyyy)",
+  //                   border: OutlineInputBorder(),
+  //                   isDense: true,
+  //                 ),
+  //                 onTap: () => _pickDate2(false),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //     ],
+  //   );
+  // }
 
   void _onCustomDateChanged() {
     if (!isCustomSelected) return;

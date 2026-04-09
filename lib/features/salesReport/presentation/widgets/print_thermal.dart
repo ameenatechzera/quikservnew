@@ -16,7 +16,7 @@ import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyclo
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,7 +34,6 @@ class PrintPage extends StatefulWidget {
   final String? salesTotal;
   final String? itemWiseSalesTotal;
   final String? dailyCloseReportDate;
-
   final String pageFrom;
   bool oneLineProductFlag = false;
   bool doubleLineProductFlag = false;

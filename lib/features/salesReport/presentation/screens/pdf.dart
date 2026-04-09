@@ -1,274 +1,14 @@
-// import 'dart:io';
-// import 'package:intl/intl.dart';
-// import 'package:path_provider/path_provider.dart';
-// import 'package:pdf/pdf.dart';
-// import 'package:pdf/widgets.dart' as pw;
-// import 'package:share_plus/share_plus.dart';
-// import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
-// import 'package:quikservnew/services/shared_preference_helper.dart';
-
-// Future<void> createSalesPreviewPdf(SalesDetailsByMasterIdResult sales) async {
-//   final pdf = pw.Document();
-
-//   String billDate = '';
-//   String billTime = '';
-//   String customerName = '';
-//   String tokenNumber = '';
-
-//   try {
-//     billDate = _formatDate(sales.salesMaster?.invoiceDate.toString() ?? '');
-//   } catch (_) {}
-
-//   try {
-//     billTime = formatBillTime(sales.salesMaster?.invoiceTime.toString() ?? '');
-//   } catch (_) {}
-
-//   customerName = sales.salesMaster?.ledgerName?.toString() ?? '';
-//   tokenNumber = sales.salesMaster?.billTokenNo?.toString() ?? '';
-
-//   double totalQty = 0;
-//   for (final item in sales.salesDetails) {
-//     totalQty += double.tryParse(item.qty.toString()) ?? 0;
-//   }
-
-//   final subTotal =
-//       double.tryParse(sales.salesMaster?.subTotal?.toString() ?? '0') ?? 0;
-//   final totalTax =
-//       double.tryParse(sales.salesMaster?.vatAmount?.toString() ?? '0') ?? 0;
-//   final discount =
-//       double.tryParse(sales.salesMaster?.discountAmount?.toString() ?? '0') ??
-//       0;
-//   final grandTotal =
-//       double.tryParse(sales.salesMaster?.grandTotal?.toString() ?? '0') ?? 0;
-
-//   final vatEnabled = await SharedPreferenceHelper().getVatStatus();
-//   final vatType = (await SharedPreferenceHelper().getVatType() ?? '')
-//       .toLowerCase();
-
-//   double sgst = 0;
-//   double cgst = 0;
-
-//   if (vatEnabled == true && vatType == 'gst') {
-//     sgst = totalTax / 2;
-//     cgst = totalTax / 2;
-//   }
-
-//   pdf.addPage(
-//     pw.MultiPage(
-//       pageFormat: PdfPageFormat.a4,
-//       margin: const pw.EdgeInsets.all(20),
-//       build: (context) => [
-//         pw.Center(
-//           child: pw.Text(
-//             'Bill Preview',
-//             style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
-//           ),
-//         ),
-//         pw.SizedBox(height: 12),
-
-//         pw.Container(
-//           width: double.infinity,
-//           padding: const pw.EdgeInsets.all(12),
-//           decoration: pw.BoxDecoration(
-//             border: pw.Border.all(color: PdfColors.grey400),
-//             borderRadius: pw.BorderRadius.circular(8),
-//           ),
-//           child: pw.Column(
-//             children: [
-//               pw.Row(
-//                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   pw.Text(
-//                     'Bill Date: $billDate',
-//                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-//                   ),
-//                   pw.Text(
-//                     'Time: $billTime',
-//                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-//                   ),
-//                 ],
-//               ),
-//               pw.SizedBox(height: 8),
-//               pw.Row(
-//                 children: [
-//                   pw.Text(
-//                     'Customer Name: ',
-//                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-//                   ),
-//                   pw.Expanded(child: pw.Text(customerName)),
-//                 ],
-//               ),
-//               pw.SizedBox(height: 8),
-//               pw.Row(
-//                 children: [
-//                   pw.Text(
-//                     'Token No: ',
-//                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-//                   ),
-//                   pw.Text(tokenNumber),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-
-//         pw.SizedBox(height: 12),
-
-//         pw.Table(
-//           border: pw.TableBorder.all(color: PdfColors.grey400, width: 0.5),
-//           columnWidths: {
-//             0: const pw.FlexColumnWidth(1),
-//             1: const pw.FlexColumnWidth(4),
-//             2: const pw.FlexColumnWidth(2),
-//             3: const pw.FlexColumnWidth(2),
-//             4: const pw.FlexColumnWidth(2),
-//           },
-//           children: [
-//             pw.TableRow(
-//               decoration: const pw.BoxDecoration(color: PdfColors.grey200),
-//               children: [
-//                 _pdfCell('Sl', isHeader: true),
-//                 _pdfCell('Barcode', isHeader: true),
-//                 _pdfCell('Qty', isHeader: true),
-//                 _pdfCell('Rate', isHeader: true),
-//                 _pdfCell('Total', isHeader: true, alignRight: true),
-//               ],
-//             ),
-//             ...List.generate(sales.salesDetails.length, (index) {
-//               final item = sales.salesDetails[index];
-//               final qty = double.tryParse(item.qty.toString()) ?? 0;
-//               final rate = double.tryParse(item.salesRate.toString()) ?? 0;
-//               final total = qty * rate;
-
-//               return pw.TableRow(
-//                 children: [
-//                   _pdfCell('${index + 1}'),
-//                   _pdfCell(item.productName.toString()),
-//                   _pdfCell('${qty.toStringAsFixed(2)}-${item.unitName}'),
-//                   _pdfCell(rate.toStringAsFixed(2)),
-//                   _pdfCell(total.toStringAsFixed(2), alignRight: true),
-//                 ],
-//               );
-//             }),
-//           ],
-//         ),
-
-//         pw.SizedBox(height: 12),
-
-//         pw.Container(
-//           width: double.infinity,
-//           padding: const pw.EdgeInsets.all(12),
-//           decoration: pw.BoxDecoration(
-//             border: pw.Border.all(color: PdfColors.grey400),
-//             borderRadius: pw.BorderRadius.circular(8),
-//           ),
-//           child: pw.Column(
-//             children: [
-//               _pdfTotalRow('Total Qty', totalQty.toStringAsFixed(2)),
-//               _pdfTotalRow('Sub Total', subTotal.toStringAsFixed(2)),
-//               if (vatEnabled == true && vatType == 'gst') ...[
-//                 _pdfTotalRow('SGST', sgst.toStringAsFixed(2)),
-//                 _pdfTotalRow('CGST', cgst.toStringAsFixed(2)),
-//               ] else if (vatEnabled == true && vatType.isNotEmpty)
-//                 _pdfTotalRow('Tax Amount', totalTax.toStringAsFixed(2)),
-//               _pdfTotalRow('Discount', discount.toStringAsFixed(2)),
-//               pw.Divider(),
-//               _pdfTotalRow(
-//                 'Grand Total',
-//                 grandTotal.toStringAsFixed(2),
-//                 isBold: true,
-//               ),
-//             ],
-//           ),
-//         ),
-//       ],
-//     ),
-//   );
-
-//   final dir = await getTemporaryDirectory();
-//   final file = File(
-//     '${dir.path}/sales_preview_${tokenNumber.isEmpty ? 'bill' : tokenNumber}.pdf',
-//   );
-//   await file.writeAsBytes(await pdf.save());
-
-//   await Share.shareXFiles([XFile(file.path)], text: 'Sales Preview PDF');
-// }
-
-// pw.Widget _pdfCell(
-//   String text, {
-//   bool isHeader = false,
-//   bool alignRight = false,
-// }) {
-//   return pw.Padding(
-//     padding: const pw.EdgeInsets.all(6),
-//     child: pw.Text(
-//       text,
-//       textAlign: alignRight ? pw.TextAlign.right : pw.TextAlign.left,
-//       style: pw.TextStyle(
-//         fontSize: 10,
-//         fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
-//       ),
-//     ),
-//   );
-// }
-
-// pw.Widget _pdfTotalRow(String label, String value, {bool isBold = false}) {
-//   return pw.Padding(
-//     padding: const pw.EdgeInsets.symmetric(vertical: 4),
-//     child: pw.Row(
-//       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-//       children: [
-//         pw.Text(
-//           label,
-//           style: pw.TextStyle(
-//             fontSize: 11,
-//             fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
-//           ),
-//         ),
-//         pw.Text(
-//           value,
-//           style: pw.TextStyle(
-//             fontSize: 11,
-//             fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
-//           ),
-//         ),
-//       ],
-//     ),
-//   );
-// }
-
-// String formatBillTime(String rawTime) {
-//   try {
-//     return DateFormat('hh:mm a').format(DateFormat('HH:mm:ss').parse(rawTime));
-//   } catch (_) {
-//     try {
-//       return DateFormat('hh:mm a').format(DateFormat('HH:mm').parse(rawTime));
-//     } catch (_) {
-//       return rawTime;
-//     }
-//   }
-// }
-
-// String _formatDate(String dateStr) {
-//   if (dateStr.isEmpty) return '';
-//   try {
-//     final dateTime = DateTime.parse(dateStr);
-//     return DateFormat('dd-MM-yyyy').format(dateTime);
-//   } catch (_) {
-//     return dateStr;
-//   }
-// }
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class SalesPreviewPdfHelper {
-  /// 🔥 MAIN METHOD
+  ///  MAIN METHOD
   static Future<void> createPdf(SalesDetailsByMasterIdResult sales) async {
     final pdf = pw.Document();
 
@@ -277,7 +17,7 @@ class SalesPreviewPdfHelper {
 
     final billTime = _formatBillTime(sales.salesMaster!.invoiceTime.toString());
 
-    final customerName = sales.salesMaster!.ledgerName ?? '';
+    final customerName = sales.salesMaster!.ledgerName;
     final tokenNo = sales.salesMaster!.billTokenNo.toString();
 
     double totalQty = 0;
@@ -298,8 +38,7 @@ class SalesPreviewPdfHelper {
 
     final vatEnabled = await SharedPreferenceHelper().getVatStatus();
 
-    final vatType = (await SharedPreferenceHelper().getVatType() ?? '')
-        .toLowerCase();
+    final vatType = (await SharedPreferenceHelper().getVatType()).toLowerCase();
 
     double sgst = 0;
     double cgst = 0;
@@ -314,7 +53,7 @@ class SalesPreviewPdfHelper {
       pw.MultiPage(
         margin: const pw.EdgeInsets.all(8), // same as UI
         build: (context) => [
-          /// 🔶 TOP CARD
+          ///  TOP CARD
           _card(
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -413,7 +152,7 @@ class SalesPreviewPdfHelper {
             ),
           ),
 
-          /// 🔶 TOTAL CARD
+          ///  TOTAL CARD
           _card(
             pw.Column(
               children: [

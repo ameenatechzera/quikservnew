@@ -2,9 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/error_message_model.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
-import 'package:quikservnew/features/salesReport/data/models/salesDetailsByMasterIdModel.dart';
-import 'package:quikservnew/features/salesReport/data/models/salesReport_response_model.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/masterResult.dart';
+import 'package:quikservnew/features/salesReport/data/models/salesdetails_bymasterid_model.dart';
+import 'package:quikservnew/features/salesReport/data/models/salesreport_response_model.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/master_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/delete_salesparameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
@@ -13,7 +13,7 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 
 abstract class SalesReportRemoteDataSource {
   Future<SalesReportModel> fetchSalesReport(FetchReportRequest request);
-  Future<salesDetailsByMasterIdModel> fetchSalesDetailsByMasterId(
+  Future<SalesDetailsByMasterIdModel> fetchSalesDetailsByMasterId(
     FetchSalesDetailsRequest request,
   );
   Future<SalesReportModel> fetchSalesReportMasterByDate(
@@ -34,20 +34,10 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
-      final url = ApiConstants.getFetchSalesReportPath(
-        baseUrl,
-      ); // implement in ApiConstants
+      final url = ApiConstants.getFetchSalesReportPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
-
-      print('🔹 Save Sale URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-      print(token);
-
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
       final response = await dio.post(
         url,
         data: request.toJson(),
@@ -60,9 +50,6 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           },
         ),
       );
-      print('🔹 ResponseSalesReport status: ${response.statusCode}');
-      print('🔹 ResponseSalesReport data: ${response.data}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return SalesReportModel.fromJson(response.data);
       } else {
@@ -70,15 +57,13 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in saveSale: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<salesDetailsByMasterIdModel> fetchSalesDetailsByMasterId(
+  Future<SalesDetailsByMasterIdModel> fetchSalesDetailsByMasterId(
     FetchSalesDetailsRequest request,
   ) async {
     try {
@@ -86,19 +71,10 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
-      final url = ApiConstants.getFetchSalesDetailsReportPath(
-        baseUrl,
-      ); // implement in ApiConstants
+      final url = ApiConstants.getFetchSalesDetailsReportPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
-
-      print('🔹 Save Sale URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
       final response = await dio.post(
         url,
         data: request.toJson(),
@@ -111,20 +87,14 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return salesDetailsByMasterIdModel.fromJson(response.data);
+        return SalesDetailsByMasterIdModel.fromJson(response.data);
       } else {
         throw ServerException(
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in saveSale: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -138,19 +108,10 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
       final url = ApiConstants.getFetchSalesReportPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
-
-      print('🔹 Fetch Sales Report by Date URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('SalesReportMasterByDateRequest ${request.toJson()}');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-      print('🔹 Token : ${token}');
-
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
       final response = await dio.post(
         url,
         data: request.toJson(),
@@ -163,10 +124,6 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return SalesReportModel.fromJson(response.data);
       } else {
@@ -174,9 +131,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in fetchSalesReportMasterByDate: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -190,20 +145,13 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-
       final url = ApiConstants.deleteSalesByMasterIdPath(
         baseUrl,
         salesDeleteRequest.masterId,
       );
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
-
-      print('🔹 Fetch Sales Report by Date URL: $url');
-      print('🔹 DB Name: $dbName');
-      print('🔹 Token exists: ${token.isNotEmpty}');
-
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
-
       final response = await dio.get(
         url,
         options: Options(
@@ -215,10 +163,6 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           },
         ),
       );
-
-      print('🔹 Response status: ${response.statusCode}');
-      print('🔹 Response data: ${response.data}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return MasterResult.fromJson(response.data);
       } else {
@@ -226,9 +170,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           errorMessageModel: ErrorMessageModel.fromJson(response.data),
         );
       }
-    } catch (e, s) {
-      print('❌ Exception in fetchSalesReportMasterByDate: $e');
-      print(s);
+    } catch (e) {
       rethrow;
     }
   }

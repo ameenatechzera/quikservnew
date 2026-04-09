@@ -291,4 +291,164 @@ class ValueListenableBuilder2<A, B> extends StatelessWidget {
       },
     );
   }
+
+  Widget dashedLine() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        const dashWidth = 4.0;
+        const dashSpace = 3.0;
+        final dashCount = (width / (dashWidth + dashSpace)).floor();
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(dashCount, (_) {
+            return const SizedBox(
+              width: dashWidth,
+              height: 1.2,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Colors.black54),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+
+  Widget billRow({
+    required String no,
+    required String item,
+    required String qty,
+    required String rate,
+    required String total,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 4,
+          child: Text(
+            no,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+          ),
+        ),
+        Expanded(
+          flex: 9,
+          child: Text(
+            item,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            qty,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+          ),
+        ),
+        Expanded(
+          flex: 5,
+          child: Text(
+            rate,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+          ),
+        ),
+        Expanded(
+          flex: 6,
+          child: Text(
+            total,
+            textAlign: TextAlign.right,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Widget dashedLine() {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      const dashWidth = 4.0;
+      const dashSpace = 3.0;
+      final dashCount = (width / (dashWidth + dashSpace)).floor();
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(dashCount, (_) {
+          return const SizedBox(
+            width: dashWidth,
+            height: 1.2,
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: Colors.black54),
+            ),
+          );
+        }),
+      );
+    },
+  );
+}
+
+Widget billRow({
+  required String no,
+  required String item,
+  required String qty,
+  required String rate,
+  required String total,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        flex: 4,
+        child: Text(
+          no,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+        ),
+      ),
+      Expanded(
+        flex: 9,
+        child: Text(
+          item,
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            height: 1.4,
+          ),
+        ),
+      ),
+      Expanded(
+        flex: 4,
+        child: Text(
+          qty,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+        ),
+      ),
+      Expanded(
+        flex: 5,
+        child: Text(
+          rate,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+        ),
+      ),
+      Expanded(
+        flex: 6,
+        child: Text(
+          total,
+          textAlign: TextAlign.right,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+        ),
+      ),
+    ],
+  );
 }

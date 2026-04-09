@@ -8,28 +8,24 @@ sealed class SaleState extends Equatable {
 }
 
 final class SaleInitial extends SaleState {}
+
 final class SlesDetailsFetchInitial extends SaleState {}
+
 class SaleLoading extends SaleState {}
 
 class SaleSuccess extends SaleState {
   final SalesResponseEntity response;
 
-  SaleSuccess({required this.response});
+  const SaleSuccess({required this.response});
 }
 
 class SaleError extends SaleState {
   final String error;
 
-  SaleError({required this.error});
+  const SaleError({required this.error});
 }
 
-// class SaleTabChanged extends SaleState {
-//   final int selectedIndex;
-
-//   const SaleTabChanged(this.selectedIndex);
-// }
-
-// ✅ NEW: Add SearchBarState
+// SearchBarState
 class SearchBarState extends SaleState {
   final bool isVisible;
 
@@ -39,7 +35,7 @@ class SearchBarState extends SaleState {
   List<Object> get props => [isVisible];
 }
 
-// ✅ NEW: Add MenuModeState
+//  MenuModeState
 class MenuModeState extends SaleState {
   final bool isMenuMode;
 
@@ -49,7 +45,7 @@ class MenuModeState extends SaleState {
   List<Object> get props => [isMenuMode];
 }
 
-// ✅ NEW: Add SearchQueryState
+// SearchQueryState
 class SearchQueryState extends SaleState {
   final String query;
 
@@ -59,7 +55,7 @@ class SearchQueryState extends SaleState {
   List<Object> get props => [query];
 }
 
-// ✅ NEW: SelectedCategoryState
+// SelectedCategoryState
 class SelectedCategoryState extends SaleState {
   final int id;
   final String name;
@@ -69,14 +65,15 @@ class SelectedCategoryState extends SaleState {
   @override
   List<Object> get props => [id, name];
 }
+
 class SalesReportFetchError extends SaleState {
   final String error;
 
-  SalesReportFetchError({required this.error});
+  const SalesReportFetchError({required this.error});
 }
 
 class SalesDetailsFetchSuccess extends SaleState {
   final SalesDetailsByMasterIdResult response;
 
-  SalesDetailsFetchSuccess({required this.response});
+  const SalesDetailsFetchSuccess({required this.response});
 }

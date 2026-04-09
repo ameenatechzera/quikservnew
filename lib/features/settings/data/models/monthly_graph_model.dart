@@ -1,7 +1,7 @@
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 
 class MonthlyGraphModel extends MonthlyGraphReportResult {
-  MonthlyGraphModel({required super.period, required super.data});
+  const MonthlyGraphModel({required super.period, required super.data});
   factory MonthlyGraphModel.fromJson(Map<String, dynamic> json) {
     return MonthlyGraphModel(
       period: json["period"] ?? "",

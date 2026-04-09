@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// ✅ Reduced bounce (soft “drop & settle”)
+/// Reduced bounce (soft “drop & settle”)
 class SoftBounceScrollPhysics extends BouncingScrollPhysics {
   const SoftBounceScrollPhysics({ScrollPhysics? parent})
     : super(parent: parent);
 
   @override
   double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
-    // 🔽 smaller = less bounce (0.25 very subtle, 0.35 mild)
+    //  smaller = less bounce (0.25 very subtle, 0.35 mild)
     return offset * 0.30;
   }
 
@@ -15,7 +15,7 @@ class SoftBounceScrollPhysics extends BouncingScrollPhysics {
   double get minFlingVelocity => 1200;
 }
 
-/// ✅ Apply physics globally + remove Android glow
+///  Apply physics globally + remove Android glow
 class AppScrollBehavior extends MaterialScrollBehavior {
   const AppScrollBehavior();
 

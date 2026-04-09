@@ -1,7 +1,7 @@
 import 'package:quikservnew/core/utils/typedef.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/masterResult.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/master_result.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/delete_salesparameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
@@ -13,7 +13,8 @@ abstract class SalesReportRepository {
     FetchSalesDetailsRequest request,
   );
   ResultFuture<MasterResult> deleteSalesFromServer(
-      SalesDeleteByMasterIdRequest SalesDeleteRequest);
+    SalesDeleteByMasterIdRequest SalesDeleteRequest,
+  );
   ResultFuture<SalesReportResult> fetchSalesReportMasterByDate(
     SalesReportMasterByDateRequest request,
   );

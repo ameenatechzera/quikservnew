@@ -60,30 +60,6 @@ Widget itemTapBehaviorSection({
   );
 }
 
-// Widget paymentOptionsSection() {
-//   return ValueListenableBuilder<int>(
-//     valueListenable: paymentOption,
-//     builder: (_, value, __) {
-//       return settingsCard(
-//         title: "Payment Options",
-//         children: [
-//           radioTile(
-//             label: "CASH",
-//             value: 0,
-//             groupValue: value,
-//             onChanged: (v) => paymentOption.value = v,
-//           ),
-//           radioTile(
-//             label: "CARD",
-//             value: 1,
-//             groupValue: value,
-//             onChanged: (v) => paymentOption.value = v,
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }
 Widget paymentOptionsSection({
   required int selectedValue,
   required ValueChanged<int> onChanged,

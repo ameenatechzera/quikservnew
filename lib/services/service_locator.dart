@@ -92,12 +92,12 @@ import 'package:quikservnew/features/sale/data/repositories/sale_repository_impl
 import 'package:quikservnew/features/sale/domain/repositories/sale_repository.dart';
 import 'package:quikservnew/features/sale/domain/usecases/save_sale_toserver_usecase.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
-import 'package:quikservnew/features/salesReport/data/datasources/salesReport_remote_datasource.dart';
-import 'package:quikservnew/features/salesReport/data/repositories/salesReport_repository_impl.dart';
+import 'package:quikservnew/features/salesReport/data/datasources/salesreport_remote_data_source.dart';
+import 'package:quikservnew/features/salesReport/data/repositories/salesreport_repository_impl.dart';
 import 'package:quikservnew/features/salesReport/domain/repositories/salesReport_repository.dart';
-import 'package:quikservnew/features/salesReport/domain/usecases/salesDetailsByMasterIdUseCase.dart';
-import 'package:quikservnew/features/salesReport/domain/usecases/salesReportDeleteByMasterIdUseCase.dart';
-import 'package:quikservnew/features/salesReport/domain/usecases/salesReportFromServerUseCase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesdetails_bymasterid_usecase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesreport_deletebymasterid_usecase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesreport_fromserver_usecase.dart';
 import 'package:quikservnew/features/salesReport/domain/usecases/sales_masterreport_bydate_usecase.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';

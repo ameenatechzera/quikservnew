@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DottedLinePainter extends CustomPainter {
@@ -15,8 +14,7 @@ class DottedLinePainter extends CustomPainter {
 
     double startX = 0;
     while (startX < size.width) {
-      canvas.drawLine(
-          Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
+      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
       startX += dashWidth + dashSpace;
     }
   }

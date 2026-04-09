@@ -1,16 +1,14 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesDetailsByMasterIdResult.dart';
-import 'package:quikservnew/features/salesReport/domain/entities/salesReportResult.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
+import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/delete_salesparameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
-import 'package:quikservnew/features/salesReport/domain/usecases/salesDetailsByMasterIdUseCase.dart';
-import 'package:quikservnew/features/salesReport/domain/usecases/salesReportDeleteByMasterIdUseCase.dart';
-import 'package:quikservnew/features/salesReport/domain/usecases/salesReportFromServerUseCase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesdetails_bymasterid_usecase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesreport_deletebymasterid_usecase.dart';
+import 'package:quikservnew/features/salesReport/domain/usecases/salesreport_fromserver_usecase.dart';
 import 'package:quikservnew/features/salesReport/domain/usecases/sales_masterreport_bydate_usecase.dart';
 
 part 'sles_report_state.dart';
@@ -34,9 +32,7 @@ class SalesReportCubit extends Cubit<SlesReportState> {
 
   // --------------------- API Fetch SalesReport ---------------------
   Future<void> fetchSalesReport(FetchReportRequest request) async {
-    print('FetchReportRequest ${request.toJson()}');
     emit(SlesReportInitial());
-
     try {
       final response = await _salesReportFromServerUseCase(request);
 
@@ -54,7 +50,6 @@ class SalesReportCubit extends Cubit<SlesReportState> {
     FetchSalesDetailsRequest request,
   ) async {
     emit(SaleDetailsLoading());
-
     try {
       final response = await _salesDetailsByMasterIdUseCase(request);
 
@@ -68,8 +63,8 @@ class SalesReportCubit extends Cubit<SlesReportState> {
   }
 
   // --------------------- API Fetch Bill Save_finished ---------------------
-  Future<void> saleSaveFinished(int seconds_timer) async {
-    await Future.delayed(Duration(seconds: seconds_timer));
+  Future<void> saleSaveFinished(int secondsTimer) async {
+    await Future.delayed(Duration(seconds: secondsTimer));
     emit(SaleFinishSuccess(response: 'success'));
   }
   // --------------------- API Fetch SalesReport Master By Date ---------------------
@@ -77,12 +72,9 @@ class SalesReportCubit extends Cubit<SlesReportState> {
   Future<void> fetchSalesReportMasterByDate(
     SalesReportMasterByDateRequest request,
   ) async {
-    print('SalesReportMasterByDateRequest ${request.toJson()}');
     emit(SalesReportMasterByDateInitial());
-
     try {
       final response = await _salesReportMasterByDateUseCase(request);
-
       response.fold(
         (failure) => emit(SalesReportMasterByDateError(error: failure.message)),
         (saleResponse) {
@@ -125,7 +117,6 @@ class SalesReportCubit extends Cubit<SlesReportState> {
       final response = await _deleteSalesFromServerUseCase(salesDeleteRequest);
       response.fold(
         (failure) async {
-          log("failure");
           emit(SalesDeleteFailure(failure.message));
         },
         (success) {

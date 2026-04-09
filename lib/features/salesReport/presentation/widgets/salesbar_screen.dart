@@ -1,11 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/sales_count_graph_result.dart';
-import 'package:quikservnew/features/settings/domain/entities/weekly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
 import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
