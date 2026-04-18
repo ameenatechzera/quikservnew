@@ -32,15 +32,21 @@ class ProductEntryWidget extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.only(left: 10, right: 10),
           child: TextFormField(
             controller: _productNameController,
             focusNode: _focusNodes['productName'],
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-              isCollapsed:
-                  !_focusNodes['productName']!.hasFocus &&
-                  _productNameController.text.isEmpty,
+              isDense: true,
+              //     !_focusNodes['productName']!.hasFocus &&
+              //     _productNameController.text.isEmpty,
+              // contentPadding: EdgeInsets.symmetric(vertical: 18),
+
+              // floatingLabelBehavior: FloatingLabelBehavior.never,
+              // isCollapsed:
+              //     !_focusNodes['productName']!.hasFocus &&
+              //     _productNameController.text.isEmpty,
               label: RichText(
                 text: const TextSpan(
                   text: "Product Name",
@@ -58,7 +64,7 @@ class ProductEntryWidget extends StatelessWidget {
         ),
 
         Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.only(left: 10, right: 10),
           child: Row(
             children: [
               Expanded(
@@ -68,12 +74,14 @@ class ProductEntryWidget extends StatelessWidget {
                   focusNode: _focusNodes['productSecondName'],
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                    isCollapsed:
-                        !_focusNodes['productSecondName']!.hasFocus &&
-                        _productNameSecondController.text.isEmpty,
+                    isDense: true,
+                    // contentPadding: EdgeInsets.symmetric(vertical: 18),
+                    // isCollapsed: false,
+                    // !_focusNodes['productSecondName']!.hasFocus &&
+                    // _productNameSecondController.text.isEmpty,
                     labelText: "Product Second Name",
                     labelStyle: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.normal,
                       color: Colors.black,
                     ),
@@ -127,7 +135,7 @@ class SalesRateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8),
+      padding: const EdgeInsets.only(left: 10, right: 10),
       child: Row(
         children: [
           Expanded(
@@ -137,9 +145,10 @@ class SalesRateWidget extends StatelessWidget {
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
-                isCollapsed:
-                    !_focusNodes['salesRate']!.hasFocus &&
-                    _salesRateController.text.isEmpty,
+                isDense: true,
+                // isCollapsed:
+                //     !_focusNodes['salesRate']!.hasFocus &&
+                //     _salesRateController.text.isEmpty,
                 label: RichText(
                   text: const TextSpan(
                     text: "Sales Rate",
@@ -163,6 +172,7 @@ class SalesRateWidget extends StatelessWidget {
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
+                isDense: true,
                 labelText: "MRP",
                 labelStyle: TextStyle(color: Colors.black),
               ),
@@ -201,9 +211,10 @@ class PurchaseRateWidget extends StatelessWidget {
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
-                isCollapsed:
-                    !_focusNodes['purchaseRate']!.hasFocus &&
-                    _purchaseRateController.text.isEmpty,
+                isDense: true,
+                // isCollapsed:
+                //     !_focusNodes['purchaseRate']!.hasFocus &&
+                //     _purchaseRateController.text.isEmpty,
                 labelText: "Purchase Cost",
                 labelStyle: const TextStyle(fontSize: 14),
               ),
@@ -216,6 +227,7 @@ class PurchaseRateWidget extends StatelessWidget {
               focusNode: _focusNodes['conversionRate'],
               enabled: false,
               decoration: const InputDecoration(
+                isDense: true,
                 labelText: "Conversion Rate",
                 labelStyle: TextStyle(fontSize: 14),
               ),

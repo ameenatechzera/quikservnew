@@ -35,6 +35,7 @@ class CategoryCreationScreen extends StatelessWidget {
               message: "Category added successfully",
               isSuccess: true,
             );
+            Navigator.pop(context, true);
           }
           if (state is CategoryEditSuccess) {
             showAnimatedToast(

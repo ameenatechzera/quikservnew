@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/features/products/domain/parameters/save_product_parameter.dart';
@@ -105,6 +107,7 @@ class ProductShareHelper {
     required bool isActive,
     required bool isEdit,
     required FetchProductDetails? product,
+    File? productImageFile,
   }) async {
     if (!validate(
       context: context,
@@ -143,15 +146,16 @@ class ProductShareHelper {
     final request = ProductSaveRequest(
       productName: productName,
       productNameFL: productSecondName,
-      baseUnitId: baseUnitId,
+      baseUnitId: 1,
       groupId: groupId!,
       categoryId: categoryId!,
-      vatId: taxEnabled ? (vatId ?? 0) : 0,
+      vatId: taxEnabled ? vatId : null,
       purchaseRate: purchaseRate,
       isActive: isActive,
       branchId: 1,
       descriptionStatus: 0,
       createdUser: 0,
+      productImage: productImageFile,
       conversionDetails: conversionDetails,
     );
     final cubit = context.read<ProductCubit>();

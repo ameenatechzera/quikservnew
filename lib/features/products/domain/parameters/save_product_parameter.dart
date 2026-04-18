@@ -1,15 +1,18 @@
+import 'dart:io';
+
 class ProductSaveRequest {
   final String productName;
   final String productNameFL;
   final int baseUnitId;
   final int groupId;
   final int categoryId;
-  final int vatId;
+  final int? vatId;
   final double purchaseRate;
   final bool isActive;
   final int branchId;
   final int descriptionStatus;
   final int createdUser;
+  final File? productImage;
   final List<ConversionDetail> conversionDetails;
 
   ProductSaveRequest({
@@ -24,6 +27,7 @@ class ProductSaveRequest {
     required this.branchId,
     required this.descriptionStatus,
     required this.createdUser,
+    required this.productImage,
     required this.conversionDetails,
   });
 
@@ -40,6 +44,7 @@ class ProductSaveRequest {
       branchId: json['branchId'],
       descriptionStatus: json['descriptionStatus'],
       createdUser: json['CreatedUser'],
+      productImage: json['productimage'],
       conversionDetails: (json['conversionDetails'] as List)
           .map((e) => ConversionDetail.fromJson(e))
           .toList(),
@@ -59,6 +64,7 @@ class ProductSaveRequest {
       "branchId": branchId,
       "descriptionStatus": descriptionStatus,
       "CreatedUser": createdUser,
+      "productimage": productImage,
       "conversionDetails": conversionDetails.map((e) => e.toJson()).toList(),
     };
   }

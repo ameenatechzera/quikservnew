@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
@@ -119,6 +121,47 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   }
 
   Widget get height10 => const SizedBox(height: 10);
+  final ImagePicker _picker = ImagePicker();
+
+  // Future<void> _pickImage() async {
+  //   final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+  //   if (image != null) {
+  //     setState(() {
+  //       pickedImage = File(image.path);
+  //     });
+  //   }
+  // }
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+
+    final CroppedFile? cropped = await ImageCropper().cropImage(
+      sourcePath: image.path,
+      // aspectRatioPresets: [
+      //   CropAspectRatioPreset.square,
+      //   CropAspectRatioPreset.ratio4x3,
+      //   CropAspectRatioPreset.original,
+      // ],
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Image',
+          toolbarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(title: 'Crop Image'),
+      ],
+    );
+
+    if (cropped != null) {
+      setState(() {
+        pickedImage = File(cropped.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProductCubit, ProductsState>(
@@ -132,7 +175,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
             message: 'Saved Successfully',
             isSuccess: true,
           );
-          Navigator.pop(context, true); // ✅ go back after success
+          Navigator.pop(context, true);
         }
         if (state is UpdateProductFailure) {
           showAnimatedToast(context, message: state.message, isSuccess: false);
@@ -191,7 +234,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                       ),
                       child: Column(
                         children: [
-                          height10,
+                          //  height10,
 
                           // Category with + icon
                           Padding(
@@ -274,7 +317,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                             ),
                           ),
 
-                          height10,
+                          //height10,
 
                           // Group with + icon
                           Padding(
@@ -544,10 +587,11 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                                     focusNode: _focusNodes['productBarcode'],
                                     textInputAction: TextInputAction.next,
                                     decoration: InputDecoration(
-                                      isCollapsed:
-                                          !_focusNodes['productBarcode']!
-                                              .hasFocus &&
-                                          _barcodeController.text.isEmpty,
+                                      // isDense: true,
+                                      // isCollapsed:
+                                      //     !_focusNodes['productBarcode']!
+                                      //         .hasFocus &&
+                                      //     _barcodeController.text.isEmpty,
                                       label: RichText(
                                         text: const TextSpan(
                                           text: "Barcode",
@@ -569,16 +613,14 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                             ),
                           ),
 
-                          height10,
-
+                          // height10,
                           PurchaseRateWidget(
                             purchaseRateController: _purchaseRateController,
                             focusNodes: _focusNodes,
                             conversionRateController: _conversionRateController,
                           ),
 
-                          height10,
-
+                          // height10,
                           SalesRateWidget(
                             salesRateController: _salesRateController,
                             focusNodes: _focusNodes,
@@ -791,10 +833,10 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(8),
                         child: ProductImageUploaderWidget(
                           pickedImage: pickedImage,
-                          onAddTap: () async {},
+                          onAddTap: _pickImage,
                         ),
                       ),
                     ),
@@ -835,6 +877,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                           isActive: isActive,
                           isEdit: widget.isEdit,
                           product: widget.product,
+                          productImageFile: pickedImage,
                         ),
                         child: Text(
                           widget.isEdit ? "Update" : "Add",
