@@ -59,7 +59,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   File? pickedImage; // UI only (no crop/upload)
   // ✅ active must be bool (as your model)
   bool isActive = true;
-
+  String? existingImageUrl;
   final Map<String, FocusNode> _focusNodes = {
     'productName': FocusNode(),
     'productSecondName': FocusNode(),
@@ -98,6 +98,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
       // ---- FLAGS ----
       taxEnabled = (p.vatId ?? 0) != 0;
       isActive = (p.isActive ?? 1) == 1;
+      existingImageUrl = p.productImage;
     }
   }
 
@@ -836,6 +837,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                         padding: EdgeInsets.all(8),
                         child: ProductImageUploaderWidget(
                           pickedImage: pickedImage,
+                          existingImageUrl: existingImageUrl,
                           onAddTap: _pickImage,
                         ),
                       ),

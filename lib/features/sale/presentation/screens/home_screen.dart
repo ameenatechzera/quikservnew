@@ -393,11 +393,274 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // Added this method to build the Sales content
+  // // Added this method to build the Sales content
+  // Widget _buildSalesContent() {
+  //   return Column(
+  //     children: [
+  //       // Top Tabs
+  //       Container(
+  //         height: 40,
+  //         color: const Color(0xFFFFE38A),
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(5),
+  //           child: ValueListenableBuilder<int>(
+  //             valueListenable: selectedSaleTab,
+  //             builder: (context, selectedIndex, _) {
+  //               return Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   buildTab(
+  //                     context,
+  //                     "Dine-In",
+  //                     selectedIndex == 0,
+  //                     () => selectedSaleTab.value = 0,
+  //                   ),
+  //                   buildTab(
+  //                     context,
+  //                     "Takeaway",
+  //                     selectedIndex == 1,
+  //                     () => selectedSaleTab.value = 1,
+  //                   ),
+  //                   buildTab(
+  //                     context,
+  //                     "Delivery",
+  //                     selectedIndex == 2,
+  //                     () => selectedSaleTab.value = 2,
+  //                   ),
+  //                 ],
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //       ),
+
+  //       // Top row (menu/search/close) – same row works for both modes
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 12),
+  //         child: BlocBuilder<SaleCubit, SaleState>(
+  //           builder: (context, state) {
+  //             final saleCubit = context.read<SaleCubit>();
+  //             final isMenuMode = context.read<SaleCubit>().isMenuMode;
+  //             return Row(
+  //               children: [
+  //                 Container(
+  //                   height: 30,
+  //                   width: 30,
+  //                   decoration: BoxDecoration(
+  //                     color: AppColors.black,
+  //                     borderRadius: BorderRadius.circular(20),
+  //                   ),
+  //                   child: InkWell(
+  //                     borderRadius: BorderRadius.circular(20),
+  //                     onTap: () {
+  //                       toggleMenuModeWithAnimation(
+  //                         context: context,
+  //                         menuAnimationController: _menuAnimationController,
+  //                         searchController: _searchController,
+  //                       );
+  //                     },
+  //                     child: Center(
+  //                       child: SvgPicture.asset(
+  //                         'assets/icons/menuicon.svg',
+  //                         color: AppColors.white,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 8),
+
+  //                 // ✅ Title changes based on mode
+  //                 Expanded(
+  //                   child: isMenuMode
+  //                       ? BlocBuilder<ProductCubit, ProductsState>(
+  //                           builder: (context, state) {
+  //                             int count = 0;
+  //                             List<FetchProductDetails> products = [];
+
+  //                             if (state is ProductSuccess) {
+  //                               products = state.products.productDetails ?? [];
+  //                             } else if (state is ProductsByCategoryLoaded) {
+  //                               products = state.products;
+  //                             } else if (state is ProductLoadedFromLocal) {
+  //                               products = state
+  //                                   .products; // ✅ PRELOAD IMAGES ONLY ONCE (FIRST LOAD)
+  //                               if (!_imagesPreloaded) {
+  //                                 preloadProductImages(products);
+  //                                 _imagesPreloaded = true;
+  //                               }
+  //                             }
+  //                             // Apply search filter
+  //                             // ✅ Get query from cubit
+  //                             final query = context
+  //                                 .read<SaleCubit>()
+  //                                 .searchQuery;
+  //                             products = searchProducts(products, query);
+  //                             count = products.length;
+  //                             final catName = saleCubit.selectedCategoryName;
+  //                             return Text("$catName ($count)");
+  //                           },
+  //                         )
+  //                       : BlocBuilder<SaleCubit, SaleState>(
+  //                           builder: (context, state) {
+  //                             // ✅ Get query from cubit
+  //                             final query = context
+  //                                 .read<SaleCubit>()
+  //                                 .searchQuery;
+  //                             return BlocBuilder<ProductCubit, ProductsState>(
+  //                               builder: (context, state) {
+  //                                 int count = 0;
+  //                                 if (state is ProductLoadedFromLocal) {
+  //                                   final filteredProducts = searchProducts(
+  //                                     state.products,
+  //                                     query,
+  //                                   );
+  //                                   count = filteredProducts.length;
+  //                                 }
+  //                                 final saleCubit = context.watch<SaleCubit>();
+  //                                 final selectedCategoryId =
+  //                                     saleCubit.selectedCategoryId;
+  //                                 final selectedCategoryName =
+  //                                     saleCubit.selectedCategoryName;
+
+  //                                 String title;
+
+  //                                 if (query.isNotEmpty) {
+  //                                   title = "Search Results ($count)";
+  //                                 } else if (selectedCategoryId != 0) {
+  //                                   title = "$selectedCategoryName ($count)";
+  //                                 } else {
+  //                                   title = "All ($count)";
+  //                                 }
+
+  //                                 return Text(
+  //                                   title,
+  //                                   maxLines: 1,
+  //                                   overflow: TextOverflow.ellipsis,
+  //                                 );
+  //                                 // return Text(
+  //                                 //   query.isEmpty
+  //                                 //       ? "All ($count)"
+  //                                 //       : "Search Results ($count)",
+  //                                 //   maxLines: 1,
+  //                                 //   overflow: TextOverflow.ellipsis,
+  //                                 // );
+  //                               },
+  //                             );
+  //                           },
+  //                         ),
+  //                 ),
+
+  //                 // ✅ Search Icon Button - Now using SaleCubit
+  //                 BlocBuilder<SaleCubit, SaleState>(
+  //                   builder: (context, state) {
+  //                     return IconButton(
+  //                       icon: CustomSearchIcon(
+  //                         size: 22,
+  //                         color: AppColors.black,
+  //                       ),
+  //                       onPressed: () {
+  //                         // ✅ Using SaleCubit toggle method instead of ValueNotifier
+  //                         context.read<SaleCubit>().toggleSearchBar();
+
+  //                         // Clear search when closing search bar
+  //                         if (!context.read<SaleCubit>().isSearchBarVisible) {
+  //                           _searchController.clear();
+  //                           context.read<SaleCubit>().clearSearchQuery();
+  //                         }
+  //                       },
+  //                     );
+  //                   },
+  //                 ),
+
+  //                 // ✅ Close button - Now using SaleCubit
+  //                 BlocBuilder<SaleCubit, SaleState>(
+  //                   builder: (context, state) {
+  //                     return IconButton(
+  //                       icon: const Icon(
+  //                         Icons.close,
+  //                         color: AppColors.red,
+  //                         size: 20,
+  //                       ),
+  //                       onPressed: () {
+  //                         cartManager.clearCart();
+  //                         showCartBar.value = false;
+  //                       },
+  //                     );
+  //                   },
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         ),
+  //       ),
+
+  //       // ✅ Search bar - Now using SaleCubit
+  //       BlocBuilder<SaleCubit, SaleState>(
+  //         builder: (context, state) {
+  //           final isSearchVisible = context
+  //               .read<SaleCubit>()
+  //               .isSearchBarVisible;
+  //           final searchQuery = context
+  //               .read<SaleCubit>()
+  //               .searchQuery; // ✅ Get query from cubit
+
+  //           if (!isSearchVisible) return const SizedBox();
+
+  //           return Padding(
+  //             padding: const EdgeInsets.symmetric(horizontal: 12),
+  //             child: TextField(
+  //               controller: _searchController,
+  //               autofocus: true,
+  //               decoration: InputDecoration(
+  //                 hintText: "Search by product name",
+  //                 prefixIcon: Padding(
+  //                   padding: const EdgeInsets.all(10.0),
+  //                   child: CustomSearchIcon(size: 22, color: Colors.grey),
+  //                 ),
+  //                 suffixIcon: searchQuery.isNotEmpty
+  //                     ? IconButton(
+  //                         icon: const Icon(Icons.clear, color: Colors.grey),
+  //                         onPressed: () {
+  //                           _searchController.clear();
+  //                           context.read<SaleCubit>().clearSearchQuery();
+  //                         },
+  //                       )
+  //                     : null,
+  //                 border: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(12),
+  //                   borderSide: BorderSide.none,
+  //                 ),
+  //                 fillColor: Colors.grey[200],
+  //                 filled: true,
+  //               ),
+  //               onChanged: (value) {},
+  //             ),
+  //           );
+  //         },
+  //       ),
+  //       // ✅ MAIN BODY SWITCH (NO ANIMATION / NO PAGE)
+  //       Expanded(
+  //         child: _buildSwipeDetector(
+  //           BlocBuilder<SaleCubit, SaleState>(
+  //             builder: (context, state) {
+  //               final isMenuMode = context.read<SaleCubit>().isMenuMode;
+  //               return FadeTransition(
+  //                 opacity: _menuFadeAnimation,
+  //                 child: isMenuMode
+  //                     ? _buildMenuModeContent()
+  //                     : _buildNormalModeContent(),
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
   Widget _buildSalesContent() {
     return Column(
       children: [
-        // Top Tabs
+        // ================= TOP TABS =================
         Container(
           height: 40,
           color: const Color(0xFFFFE38A),
@@ -434,15 +697,64 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
 
-        // Top row (menu/search/close) – same row works for both modes
+        // ================= TOP BAR =================
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: BlocBuilder<SaleCubit, SaleState>(
-            builder: (context, state) {
-              final saleCubit = context.read<SaleCubit>();
-              final isMenuMode = context.read<SaleCubit>().isMenuMode;
+          child: BlocBuilder<ProductCubit, ProductsState>(
+            builder: (context, productState) {
+              final saleCubit = context.watch<SaleCubit>(); // ✅ FIX
+              final isMenuMode = saleCubit.isMenuMode;
+              final query = saleCubit.searchQuery;
+              final selectedCategoryId = saleCubit.selectedCategoryId;
+              final selectedCategoryName = saleCubit.selectedCategoryName;
+
+              int count = 0;
+              List<FetchProductDetails> products = [];
+
+              // ✅ GET PRODUCTS
+              if (productState is ProductSuccess) {
+                products = productState.products.productDetails ?? [];
+              } else if (productState is ProductsByCategoryLoaded) {
+                products = productState.products;
+              } else if (productState is ProductLoadedFromLocal) {
+                products = productState.products;
+
+                if (!_imagesPreloaded) {
+                  preloadProductImages(products);
+                  _imagesPreloaded = true;
+                }
+              }
+
+              // ================= FILTER LOGIC =================
+
+              if (!isMenuMode) {
+                // ✅ NORMAL MODE → APPLY CATEGORY
+                if (selectedCategoryId != 0) {
+                  products = products
+                      .where((p) => p.categoryId == selectedCategoryId)
+                      .toList();
+                }
+              }
+
+              // ✅ APPLY SEARCH
+              products = searchProducts(products, query);
+
+              count = products.length;
+
+              // ================= TITLE =================
+              String title;
+
+              if (query.isNotEmpty) {
+                title = "Search Results ($count)";
+              } else if (selectedCategoryId != 0) {
+                title = "$selectedCategoryName ($count)";
+              } else {
+                title = "All ($count)";
+              }
+
               return Row(
                 children: [
+                  // MENU BUTTON
                   Container(
                     height: 30,
                     width: 30,
@@ -467,104 +779,41 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 8),
 
-                  // ✅ Title changes based on mode
+                  // TITLE
                   Expanded(
-                    child: isMenuMode
-                        ? BlocBuilder<ProductCubit, ProductsState>(
-                            builder: (context, state) {
-                              int count = 0;
-                              List<FetchProductDetails> products = [];
-
-                              if (state is ProductSuccess) {
-                                products = state.products.productDetails ?? [];
-                              } else if (state is ProductsByCategoryLoaded) {
-                                products = state.products;
-                              } else if (state is ProductLoadedFromLocal) {
-                                products = state
-                                    .products; // ✅ PRELOAD IMAGES ONLY ONCE (FIRST LOAD)
-                                if (!_imagesPreloaded) {
-                                  preloadProductImages(products);
-                                  _imagesPreloaded = true;
-                                }
-                              }
-                              // Apply search filter
-                              // ✅ Get query from cubit
-                              final query = context
-                                  .read<SaleCubit>()
-                                  .searchQuery;
-                              products = searchProducts(products, query);
-                              count = products.length;
-                              final catName = saleCubit.selectedCategoryName;
-                              return Text("$catName ($count)");
-                            },
-                          )
-                        : BlocBuilder<SaleCubit, SaleState>(
-                            builder: (context, state) {
-                              // ✅ Get query from cubit
-                              final query = context
-                                  .read<SaleCubit>()
-                                  .searchQuery;
-                              return BlocBuilder<ProductCubit, ProductsState>(
-                                builder: (context, state) {
-                                  int count = 0;
-                                  if (state is ProductLoadedFromLocal) {
-                                    final filteredProducts = searchProducts(
-                                      state.products,
-                                      query,
-                                    );
-                                    count = filteredProducts.length;
-                                  }
-                                  return Text(
-                                    query.isEmpty
-                                        ? "All ($count)"
-                                        : "Search Results ($count)",
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  );
-                                },
-                              );
-                            },
-                          ),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
 
-                  // ✅ Search Icon Button - Now using SaleCubit
-                  BlocBuilder<SaleCubit, SaleState>(
-                    builder: (context, state) {
-                      return IconButton(
-                        icon: CustomSearchIcon(
-                          size: 22,
-                          color: AppColors.black,
-                        ),
-                        onPressed: () {
-                          // ✅ Using SaleCubit toggle method instead of ValueNotifier
-                          context.read<SaleCubit>().toggleSearchBar();
+                  // SEARCH BUTTON
+                  IconButton(
+                    icon: CustomSearchIcon(size: 22, color: AppColors.black),
+                    onPressed: () {
+                      saleCubit.toggleSearchBar();
 
-                          // Clear search when closing search bar
-                          if (!context.read<SaleCubit>().isSearchBarVisible) {
-                            _searchController.clear();
-                            context.read<SaleCubit>().clearSearchQuery();
-                          }
-                        },
-                      );
+                      if (!saleCubit.isSearchBarVisible) {
+                        _searchController.clear();
+                        saleCubit.clearSearchQuery();
+                      }
                     },
                   ),
 
-                  // ✅ Close button - Now using SaleCubit
-                  BlocBuilder<SaleCubit, SaleState>(
-                    builder: (context, state) {
-                      return IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          color: AppColors.red,
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          cartManager.clearCart();
-                          showCartBar.value = false;
-                        },
-                      );
+                  // CLOSE BUTTON
+                  IconButton(
+                    icon: const Icon(
+                      Icons.close,
+                      color: AppColors.red,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      cartManager.clearCart();
+                      showCartBar.value = false;
                     },
                   ),
                 ],
@@ -573,17 +822,14 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
 
-        // ✅ Search bar - Now using SaleCubit
+        // ================= SEARCH BAR =================
         BlocBuilder<SaleCubit, SaleState>(
           builder: (context, state) {
-            final isSearchVisible = context
-                .read<SaleCubit>()
-                .isSearchBarVisible;
-            final searchQuery = context
-                .read<SaleCubit>()
-                .searchQuery; // ✅ Get query from cubit
+            final saleCubit = context.watch<SaleCubit>();
 
-            if (!isSearchVisible) return const SizedBox();
+            if (!saleCubit.isSearchBarVisible) {
+              return const SizedBox();
+            }
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -596,12 +842,12 @@ class _HomeScreenState extends State<HomeScreen>
                     padding: const EdgeInsets.all(10.0),
                     child: CustomSearchIcon(size: 22, color: Colors.grey),
                   ),
-                  suffixIcon: searchQuery.isNotEmpty
+                  suffixIcon: saleCubit.searchQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear, color: Colors.grey),
                           onPressed: () {
                             _searchController.clear();
-                            context.read<SaleCubit>().clearSearchQuery();
+                            saleCubit.clearSearchQuery();
                           },
                         )
                       : null,
@@ -612,12 +858,13 @@ class _HomeScreenState extends State<HomeScreen>
                   fillColor: Colors.grey[200],
                   filled: true,
                 ),
-                onChanged: (value) {},
+                onChanged: (value) {
+                  context.read<SaleCubit>().updateSearchQuery(value); // ✅ FIX
+                },
               ),
             );
           },
         ),
-        // ✅ MAIN BODY SWITCH (NO ANIMATION / NO PAGE)
         Expanded(
           child: _buildSwipeDetector(
             BlocBuilder<SaleCubit, SaleState>(
@@ -633,6 +880,22 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
         ),
+        //       ),
+        // ================= BODY =================
+        // Expanded(
+        //   child: BlocBuilder<SaleCubit, SaleState>(
+        //     builder: (context, state) {
+        //       final isMenuMode = context.watch<SaleCubit>().isMenuMode;
+
+        //       return FadeTransition(
+        //         opacity: _menuFadeAnimation,
+        //         child: isMenuMode
+        //             ? _buildMenuModeContent()
+        //             : _buildNormalModeContent(),
+        //       );
+        //     },
+        //   ),
+        // ),
       ],
     );
   }
@@ -643,110 +906,442 @@ class _HomeScreenState extends State<HomeScreen>
         if (state is ProductLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is ProductLoadedFromLocal) {
+          final saleCubit = context.watch<SaleCubit>(); // ✅ IMPORTANT
+          final selectedCategoryId = saleCubit.selectedCategoryId;
+          final query = saleCubit.searchQuery;
           final allProducts = state.products;
 
           if (allProducts.isEmpty) {
             return const Center(child: Text("No products available"));
-          }
-          return BlocBuilder<SaleCubit, SaleState>(
-            builder: (context, state) {
-              // ✅ Get query from cubit
-              final query = context.read<SaleCubit>().searchQuery;
+          } // ================= ✅ CATEGORY FILTER =================
+          final categoryFilteredProducts = selectedCategoryId == 0
+              ? allProducts
+              : allProducts
+                    .where((p) => p.categoryId == selectedCategoryId)
+                    .toList();
 
-              final filteredProducts = searchProducts(allProducts, query);
+          // ================= ✅ SEARCH FILTER =================
+          final filteredProducts = searchProducts(
+            categoryFilteredProducts,
+            query,
+          );
 
-              if (filteredProducts.isEmpty && query.isNotEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.search_off,
-                        size: 60,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No products found",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (query.isNotEmpty)
-                        Text(
-                          "Search: '$query'",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                    ],
+          // ================= EMPTY SEARCH UI =================
+          if (filteredProducts.isEmpty && query.isNotEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.search_off, size: 60, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No products found",
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
-                );
-              }
+                  const SizedBox(height: 8),
+                  Text(
+                    "Search: '$query'",
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
+          }
 
-              final products = filteredProducts;
+          // return BlocBuilder<SaleCubit, SaleState>(
+          //   builder: (context, state) {
+          //     // ✅ Get query from cubit
+          //     final query = context.read<SaleCubit>().searchQuery;
 
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final screenWidth = MediaQuery.of(context).size.width;
-                    final textScale = MediaQuery.of(context).textScaleFactor;
+          //     final filteredProducts = searchProducts(allProducts, query);
 
-                    double maxWidthPerItem = screenWidth > 600 ? 180 : 160;
-                    if (textScale > 1.2) maxWidthPerItem += 30;
+          //     if (filteredProducts.isEmpty && query.isNotEmpty) {
+          //       return Center(
+          //         child: Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             const Icon(
+          //               Icons.search_off,
+          //               size: 60,
+          //               color: Colors.grey,
+          //             ),
+          //             const SizedBox(height: 16),
+          //             Text(
+          //               "No products found",
+          //               style: const TextStyle(
+          //                 fontSize: 16,
+          //                 color: Colors.grey,
+          //               ),
+          //             ),
+          //             const SizedBox(height: 8),
+          //             if (query.isNotEmpty)
+          //               Text(
+          //                 "Search: '$query'",
+          //                 style: const TextStyle(
+          //                   fontSize: 14,
+          //                   color: Colors.grey,
+          //                 ),
+          //               ),
+          //           ],
+          //         ),
+          //       );
+          //     }
 
-                    double baseAspectRatio = screenWidth > 600 ? 0.8 : 0.71;
-                    final childAspectRatio =
-                        baseAspectRatio / textScale.clamp(1.08, 1.7);
+          final products = filteredProducts;
 
-                    double imageHeight = 120;
-                    if (textScale > 1.0) {
-                      imageHeight = 120 * textScale.clamp(1.0, 1.2);
-                    }
-                    return ValueListenableBuilder<bool>(
-                      valueListenable: showCartBar,
-                      builder: (context, cartVisible, _) {
-                        final bottomPad = contentBottomPadding(
-                          cartVisible: cartVisible,
-                          bottomBarHeight: _bottomBarHeight,
-                          cartBarHeight: _cartBarHeight,
-                          extraGap: _extraGap,
-                        );
-                        return GridView.builder(
-                          physics: const SoftBounceScrollPhysics(
-                            parent: AlwaysScrollableScrollPhysics(),
-                          ),
-                          padding: EdgeInsets.only(bottom: bottomPad),
-                          itemCount: products.length,
-                          gridDelegate:
-                              SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: maxWidthPerItem,
-                                childAspectRatio: childAspectRatio,
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
-                              ),
-                          itemBuilder: (context, index) {
-                            final product = products[index];
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final screenWidth = MediaQuery.of(context).size.width;
+                final textScale = MediaQuery.of(context).textScaleFactor;
 
-                            return ValueListenableBuilder<List<CartItem>>(
-                              valueListenable: cartManager.cartItems,
-                              builder: (context, cartItems, _) {
-                                bool isSelected = cartItems.any(
-                                  (item) =>
-                                      item.productCode == product.productCode,
-                                );
-                                final Uint8List? imageBytes = getProductImage(
-                                  productCode: product.productCode!,
-                                  imageString: product.productImageByte,
-                                );
-                                return Stack(
-                                  children: [
-                                    // ================= MAIN CARD =================
-                                    GestureDetector(
+                double maxWidthPerItem = screenWidth > 600 ? 180 : 160;
+                if (textScale > 1.2) maxWidthPerItem += 30;
+
+                double baseAspectRatio = screenWidth > 600 ? 0.8 : 0.71;
+                final childAspectRatio =
+                    baseAspectRatio / textScale.clamp(1.08, 1.7);
+
+                double imageHeight = 120;
+                if (textScale > 1.0) {
+                  imageHeight = 120 * textScale.clamp(1.0, 1.2);
+                }
+                return ValueListenableBuilder<bool>(
+                  valueListenable: showCartBar,
+                  builder: (context, cartVisible, _) {
+                    final bottomPad = contentBottomPadding(
+                      cartVisible: cartVisible,
+                      bottomBarHeight: _bottomBarHeight,
+                      cartBarHeight: _cartBarHeight,
+                      extraGap: _extraGap,
+                    );
+                    return GridView.builder(
+                      physics: const SoftBounceScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      padding: EdgeInsets.only(bottom: bottomPad),
+                      itemCount: products.length,
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: maxWidthPerItem,
+                        childAspectRatio: childAspectRatio,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                      ),
+                      itemBuilder: (context, index) {
+                        final product = products[index];
+
+                        return ValueListenableBuilder<List<CartItem>>(
+                          valueListenable: cartManager.cartItems,
+                          builder: (context, cartItems, _) {
+                            bool isSelected = cartItems.any(
+                              (item) => item.productCode == product.productCode,
+                            );
+                            final Uint8List? imageBytes = getProductImage(
+                              productCode: product.productCode!,
+                              imageString: product.productImageByte,
+                            );
+                            return Stack(
+                              children: [
+                                // ================= MAIN CARD =================
+                                GestureDetector(
+                                  onTap: () => handleGridTap(
+                                    context: context,
+                                    itemTapBehavior: _itemTapBehavior,
+                                    product: product,
+                                    cartManager: cartManager,
+                                    showCartBar: showCartBar,
+                                  ),
+                                  onLongPress: () => showProductDialog(
+                                    context,
+                                    product,
+                                    cartManager,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      color: _getProductGridColor(isSelected),
+
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              child: SizedBox(
+                                                height: imageHeight,
+                                                child: imageBytes != null
+                                                    ? RepaintBoundary(
+                                                        child: Image.memory(
+                                                          imageBytes,
+                                                          key: ValueKey(
+                                                            product.productCode,
+                                                          ),
+                                                          fit: BoxFit.cover,
+                                                          gaplessPlayback: true,
+                                                          frameBuilder:
+                                                              (
+                                                                context,
+                                                                child,
+                                                                frame,
+                                                                _,
+                                                              ) {
+                                                                return AnimatedOpacity(
+                                                                  opacity:
+                                                                      frame ==
+                                                                          null
+                                                                      ? 0
+                                                                      : 1,
+                                                                  duration:
+                                                                      const Duration(
+                                                                        milliseconds:
+                                                                            500,
+                                                                      ),
+                                                                  child: child,
+                                                                );
+                                                              },
+                                                        ),
+                                                      )
+                                                    : Image.asset(
+                                                        "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Expanded(
+                                                  flex: 5,
+                                                  child: Text(
+                                                    product.productName!,
+                                                    maxLines: 2,
+                                                    softWrap: true,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 11,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: productGroupBagde(
+                                                    context,
+                                                    product.groupName,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                // ================= ADD / QTY OVERLAY =================
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 90,
+                                    left: 10,
+                                    right: 10,
+                                  ),
+                                  child: ValueListenableBuilder<List<CartItem>>(
+                                    valueListenable: cartManager.cartItems,
+                                    builder: (context, cartItems, _) {
+                                      CartItem? cartItem;
+
+                                      try {
+                                        cartItem = cartItems.firstWhere(
+                                          (item) =>
+                                              item.productCode ==
+                                              product.productCode,
+                                        );
+                                      } catch (e) {
+                                        cartItem = null;
+                                      }
+
+                                      // ---------- ADD BUTTON ----------
+                                      if (cartItem == null) {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            cartManager.addToCart(
+                                              CartItem(
+                                                lineNo: 0,
+                                                customerId: 1,
+                                                productCode:
+                                                    product.productCode!,
+                                                productName:
+                                                    product.productName!,
+                                                qty: 1,
+                                                oldQty: 0,
+                                                salesRate:
+                                                    double.tryParse(
+                                                      product.salesPrice ?? '0',
+                                                    ) ??
+                                                    0.0,
+                                                unitId: product.unitId
+                                                    .toString(),
+                                                purchaseCost:
+                                                    product.purchaseRate ?? '0',
+                                                groupId: product.group_id,
+                                                categoryId: product.categoryId!,
+                                                productImage:
+                                                    product.productImageByte!,
+                                                excludeRate: '',
+                                                subtotal: '0.0',
+                                                vatId: product.vatId!
+                                                    .toString(),
+                                                vatAmount: '0.0',
+                                                totalAmount: '0.00',
+                                                conversion_rate:
+                                                    product.conversionRate!,
+                                                category: product.categoryName!,
+                                                groupName: product.groupName,
+                                                product_description: '',
+                                              ),
+                                            );
+                                            showCartBar.value = true;
+                                          },
+                                          child: Container(
+                                            height: 30,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.add, size: 15),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'Add',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }
+
+                                      // ---------- QTY CONTROLLER ----------
+                                      return Container(
+                                        height: 30,
+                                        width: 120,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                          border: Border.all(
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                cartManager.decrementQuantity(
+                                                  cartItem!.productCode,
+                                                );
+                                              },
+                                              child: const SizedBox(
+                                                width: 30,
+                                                child: Center(
+                                                  child: Icon(
+                                                    Icons.remove,
+                                                    size: 20,
+                                                    color: AppColors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            MediaQuery(
+                                              data: MediaQuery.of(
+                                                context,
+                                              ).copyWith(textScaleFactor: 1.0),
+                                              child: Text(
+                                                (cartItem.qty % 1 == 0)
+                                                    ? cartItem.qty
+                                                          .toInt()
+                                                          .toString()
+                                                    : cartItem.qty.toString(),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                cartManager.incrementQuantity(
+                                                  cartItem!.productCode,
+                                                );
+                                              },
+                                              child: Container(
+                                                width: 30,
+                                                color: const Color(0xFFffeeb7),
+                                                child: const Center(
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    size: 20,
+                                                    color: AppColors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+
+                                // ================= PRICE BADGE =================
+                                // TopPriceContainer(
+                                //   price: product.salesPrice,
+                                // ),
+                                ValueListenableBuilder<List<CartItem>>(
+                                  valueListenable: cartManager.cartItems,
+                                  builder: (context, cartItems, _) {
+                                    CartItem? cartItem;
+                                    try {
+                                      cartItem = cartItems.firstWhere(
+                                        (item) =>
+                                            item.productCode ==
+                                            product.productCode,
+                                      );
+                                    } catch (_) {
+                                      cartItem = null;
+                                    }
+
+                                    final String priceToShow = cartItem != null
+                                        ? cartItem.salesRate.toStringAsFixed(2)
+                                        : (product.salesPrice ?? '0');
+
+                                    return TopPriceContainer(
+                                      price: priceToShow,
+
                                       onTap: () => handleGridTap(
                                         context: context,
                                         itemTapBehavior: _itemTapBehavior,
@@ -754,346 +1349,355 @@ class _HomeScreenState extends State<HomeScreen>
                                         cartManager: cartManager,
                                         showCartBar: showCartBar,
                                       ),
-                                      onLongPress: () => showProductDialog(
-                                        context,
-                                        product,
-                                        cartManager,
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: Container(
-                                          color: _getProductGridColor(
-                                            isSelected,
-                                          ),
-
-                                          child: Column(
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.all(
-                                                  5.0,
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                  child: SizedBox(
-                                                    height: imageHeight,
-                                                    child: imageBytes != null
-                                                        ? RepaintBoundary(
-                                                            child: Image.memory(
-                                                              imageBytes,
-                                                              key: ValueKey(
-                                                                product
-                                                                    .productCode,
-                                                              ),
-                                                              fit: BoxFit.cover,
-                                                              gaplessPlayback:
-                                                                  true,
-                                                              frameBuilder:
-                                                                  (
-                                                                    context,
-                                                                    child,
-                                                                    frame,
-                                                                    _,
-                                                                  ) {
-                                                                    return AnimatedOpacity(
-                                                                      opacity:
-                                                                          frame ==
-                                                                              null
-                                                                          ? 0
-                                                                          : 1,
-                                                                      duration: const Duration(
-                                                                        milliseconds:
-                                                                            500,
-                                                                      ),
-                                                                      child:
-                                                                          child,
-                                                                    );
-                                                                  },
-                                                            ),
-                                                          )
-                                                        : Image.asset(
-                                                            "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4,
-                                                    ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(
-                                                        product.productName!,
-                                                        maxLines: 2,
-                                                        softWrap: true,
-                                                        style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 11,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 1,
-                                                      child: productGroupBagde(
-                                                        context,
-                                                        product.groupName,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // ================= ADD / QTY OVERLAY =================
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 90,
-                                        left: 10,
-                                        right: 10,
-                                      ),
-                                      child: ValueListenableBuilder<List<CartItem>>(
-                                        valueListenable: cartManager.cartItems,
-                                        builder: (context, cartItems, _) {
-                                          CartItem? cartItem;
-
-                                          try {
-                                            cartItem = cartItems.firstWhere(
-                                              (item) =>
-                                                  item.productCode ==
-                                                  product.productCode,
-                                            );
-                                          } catch (e) {
-                                            cartItem = null;
-                                          }
-
-                                          // ---------- ADD BUTTON ----------
-                                          if (cartItem == null) {
-                                            return GestureDetector(
-                                              onTap: () {
-                                                cartManager.addToCart(
-                                                  CartItem(
-                                                    lineNo: 0,
-                                                    customerId: 1,
-                                                    productCode:
-                                                        product.productCode!,
-                                                    productName:
-                                                        product.productName!,
-                                                    qty: 1,
-                                                    oldQty: 0,
-                                                    salesRate:
-                                                        double.tryParse(
-                                                          product.salesPrice ??
-                                                              '0',
-                                                        ) ??
-                                                        0.0,
-                                                    unitId: product.unitId
-                                                        .toString(),
-                                                    purchaseCost:
-                                                        product.purchaseRate ??
-                                                        '0',
-                                                    groupId: product.group_id,
-                                                    categoryId:
-                                                        product.categoryId!,
-                                                    productImage: product
-                                                        .productImageByte!,
-                                                    excludeRate: '',
-                                                    subtotal: '0.0',
-                                                    vatId: product.vatId!
-                                                        .toString(),
-                                                    vatAmount: '0.0',
-                                                    totalAmount: '0.00',
-                                                    conversion_rate:
-                                                        product.conversionRate!,
-                                                    category:
-                                                        product.categoryName!,
-                                                    groupName:
-                                                        product.groupName,
-                                                    product_description: '',
-                                                  ),
-                                                );
-                                                showCartBar.value = true;
-                                              },
-                                              child: Container(
-                                                height: 30,
-                                                width: 200,
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.primary,
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                ),
-                                                child: const Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(Icons.add, size: 15),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      'Add',
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          }
-
-                                          // ---------- QTY CONTROLLER ----------
-                                          return Container(
-                                            height: 30,
-                                            width: 120,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              border: Border.all(
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                InkWell(
-                                                  onTap: () {
-                                                    cartManager
-                                                        .decrementQuantity(
-                                                          cartItem!.productCode,
-                                                        );
-                                                  },
-                                                  child: const SizedBox(
-                                                    width: 30,
-                                                    child: Center(
-                                                      child: Icon(
-                                                        Icons.remove,
-                                                        size: 20,
-                                                        color: AppColors.black,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                MediaQuery(
-                                                  data: MediaQuery.of(context)
-                                                      .copyWith(
-                                                        textScaleFactor: 1.0,
-                                                      ),
-                                                  child: Text(
-                                                    (cartItem.qty % 1 == 0)
-                                                        ? cartItem.qty
-                                                              .toInt()
-                                                              .toString()
-                                                        : cartItem.qty
-                                                              .toString(),
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                InkWell(
-                                                  onTap: () {
-                                                    cartManager
-                                                        .incrementQuantity(
-                                                          cartItem!.productCode,
-                                                        );
-                                                  },
-                                                  child: Container(
-                                                    width: 30,
-                                                    color: const Color(
-                                                      0xFFffeeb7,
-                                                    ),
-                                                    child: const Center(
-                                                      child: Icon(
-                                                        Icons.add,
-                                                        size: 20,
-                                                        color: AppColors.black,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-
-                                    // ================= PRICE BADGE =================
-                                    // TopPriceContainer(
-                                    //   price: product.salesPrice,
-                                    // ),
-                                    ValueListenableBuilder<List<CartItem>>(
-                                      valueListenable: cartManager.cartItems,
-                                      builder: (context, cartItems, _) {
-                                        CartItem? cartItem;
-                                        try {
-                                          cartItem = cartItems.firstWhere(
-                                            (item) =>
-                                                item.productCode ==
-                                                product.productCode,
-                                          );
-                                        } catch (_) {
-                                          cartItem = null;
-                                        }
-
-                                        final String priceToShow =
-                                            cartItem != null
-                                            ? cartItem.salesRate
-                                                  .toStringAsFixed(2)
-                                            : (product.salesPrice ?? '0');
-
-                                        return TopPriceContainer(
-                                          price: priceToShow,
-
-                                          onTap: () => handleGridTap(
-                                            context: context,
-                                            itemTapBehavior: _itemTapBehavior,
-                                            product: product,
-                                            cartManager: cartManager,
-                                            showCartBar: showCartBar,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
+                                    );
+                                  },
+                                ),
+                              ],
                             );
                           },
                         );
                       },
                     );
                   },
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
+          // },
+          // );
         }
         return const SizedBox();
       },
     );
   }
+  // Widget _buildNormalModeContent() {
+  //   return BlocBuilder<ProductCubit, ProductsState>(
+  //     builder: (context, state) {
+  //       if (state is ProductLoading) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       } else if (state is ProductLoadedFromLocal) {
+  //         final saleCubit = context.watch<SaleCubit>(); // ✅ IMPORTANT
+  //         final selectedCategoryId = saleCubit.selectedCategoryId;
+  //         final query = saleCubit.searchQuery;
+
+  //         final allProducts = state.products;
+
+  //         if (allProducts.isEmpty) {
+  //           return const Center(child: Text("No products available"));
+  //         }
+
+  //         // ================= ✅ CATEGORY FILTER =================
+  //         final categoryFilteredProducts = selectedCategoryId == 0
+  //             ? allProducts
+  //             : allProducts
+  //                   .where((p) => p.categoryId == selectedCategoryId)
+  //                   .toList();
+
+  //         // ================= ✅ SEARCH FILTER =================
+  //         final filteredProducts = searchProducts(
+  //           categoryFilteredProducts,
+  //           query,
+  //         );
+
+  //         // ================= EMPTY SEARCH UI =================
+  //         if (filteredProducts.isEmpty && query.isNotEmpty) {
+  //           return Center(
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 const Icon(Icons.search_off, size: 60, color: Colors.grey),
+  //                 const SizedBox(height: 16),
+  //                 const Text(
+  //                   "No products found",
+  //                   style: TextStyle(fontSize: 16, color: Colors.grey),
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 Text(
+  //                   "Search: '$query'",
+  //                   style: const TextStyle(fontSize: 14, color: Colors.grey),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         }
+
+  //         final products = filteredProducts;
+
+  //         return Padding(
+  //           padding: const EdgeInsets.all(8.0),
+  //           child: LayoutBuilder(
+  //             builder: (context, constraints) {
+  //               final screenWidth = MediaQuery.of(context).size.width;
+  //               final textScale = MediaQuery.of(context).textScaleFactor;
+
+  //               double maxWidthPerItem = screenWidth > 600 ? 180 : 160;
+  //               if (textScale > 1.2) maxWidthPerItem += 30;
+
+  //               double baseAspectRatio = screenWidth > 600 ? 0.8 : 0.71;
+  //               final childAspectRatio =
+  //                   baseAspectRatio / textScale.clamp(1.08, 1.7);
+
+  //               double imageHeight = 120;
+  //               if (textScale > 1.0) {
+  //                 imageHeight = 120 * textScale.clamp(1.0, 1.2);
+  //               }
+
+  //               return ValueListenableBuilder<bool>(
+  //                 valueListenable: showCartBar,
+  //                 builder: (context, cartVisible, _) {
+  //                   final bottomPad = contentBottomPadding(
+  //                     cartVisible: cartVisible,
+  //                     bottomBarHeight: _bottomBarHeight,
+  //                     cartBarHeight: _cartBarHeight,
+  //                     extraGap: _extraGap,
+  //                   );
+
+  //                   return GridView.builder(
+  //                     physics: const SoftBounceScrollPhysics(
+  //                       parent: AlwaysScrollableScrollPhysics(),
+  //                     ),
+  //                     padding: EdgeInsets.only(bottom: bottomPad),
+  //                     itemCount: products.length,
+  //                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+  //                       maxCrossAxisExtent: maxWidthPerItem,
+  //                       childAspectRatio: childAspectRatio,
+  //                       crossAxisSpacing: 5,
+  //                       mainAxisSpacing: 5,
+  //                     ),
+  //                     itemBuilder: (context, index) {
+  //                       final product = products[index];
+
+  //                       return ValueListenableBuilder<List<CartItem>>(
+  //                         valueListenable: cartManager.cartItems,
+  //                         builder: (context, cartItems, _) {
+  //                           bool isSelected = cartItems.any(
+  //                             (item) => item.productCode == product.productCode,
+  //                           );
+
+  //                           final Uint8List? imageBytes = getProductImage(
+  //                             productCode: product.productCode!,
+  //                             imageString: product.productImageByte,
+  //                           );
+
+  //                           return Stack(
+  //                             children: [
+  //                               // ================= MAIN CARD =================
+  //                               GestureDetector(
+  //                                 onTap: () => handleGridTap(
+  //                                   context: context,
+  //                                   itemTapBehavior: _itemTapBehavior,
+  //                                   product: product,
+  //                                   cartManager: cartManager,
+  //                                   showCartBar: showCartBar,
+  //                                 ),
+  //                                 onLongPress: () => showProductDialog(
+  //                                   context,
+  //                                   product,
+  //                                   cartManager,
+  //                                 ),
+  //                                 child: ClipRRect(
+  //                                   borderRadius: BorderRadius.circular(12),
+  //                                   child: Container(
+  //                                     color: _getProductGridColor(isSelected),
+  //                                     child: Column(
+  //                                       children: [
+  //                                         Padding(
+  //                                           padding: const EdgeInsets.all(5.0),
+  //                                           child: ClipRRect(
+  //                                             borderRadius:
+  //                                                 BorderRadius.circular(12),
+  //                                             child: SizedBox(
+  //                                               height: imageHeight,
+  //                                               child: imageBytes != null
+  //                                                   ? Image.memory(
+  //                                                       imageBytes,
+  //                                                       key: ValueKey(
+  //                                                         product.productCode,
+  //                                                       ),
+  //                                                       fit: BoxFit.cover,
+  //                                                       gaplessPlayback: true,
+  //                                                     )
+  //                                                   : Image.asset(
+  //                                                       "assets/images/freepik__the-style-is-candid-image-photography-with-natural__16410.jpeg",
+  //                                                       fit: BoxFit.cover,
+  //                                                     ),
+  //                                             ),
+  //                                           ),
+  //                                         ),
+  //                                         Padding(
+  //                                           padding: const EdgeInsets.symmetric(
+  //                                             horizontal: 8,
+  //                                             vertical: 4,
+  //                                           ),
+  //                                           child: Row(
+  //                                             mainAxisAlignment:
+  //                                                 MainAxisAlignment
+  //                                                     .spaceBetween,
+  //                                             crossAxisAlignment:
+  //                                                 CrossAxisAlignment.start,
+  //                                             children: [
+  //                                               Expanded(
+  //                                                 flex: 5,
+  //                                                 child: Text(
+  //                                                   product.productName!,
+  //                                                   maxLines: 2,
+  //                                                   overflow:
+  //                                                       TextOverflow.ellipsis,
+  //                                                   style: const TextStyle(
+  //                                                     fontWeight:
+  //                                                         FontWeight.w600,
+  //                                                     fontSize: 11,
+  //                                                   ),
+  //                                                 ),
+  //                                               ),
+  //                                               Expanded(
+  //                                                 flex: 1,
+  //                                                 child: productGroupBagde(
+  //                                                   context,
+  //                                                   product.groupName,
+  //                                                 ),
+  //                                               ),
+  //                                             ],
+  //                                           ),
+  //                                         ),
+  //                                       ],
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ),
+
+  //                               // ================= ADD / QTY =================
+  //                               Positioned(
+  //                                 top: 90,
+  //                                 left: 10,
+  //                                 right: 10,
+  //                                 child: ValueListenableBuilder<List<CartItem>>(
+  //                                   valueListenable: cartManager.cartItems,
+  //                                   builder: (context, cartItems, _) {
+  //                                     CartItem? cartItem;
+  //                                     try {
+  //                                       cartItem = cartItems.firstWhere(
+  //                                         (item) =>
+  //                                             item.productCode ==
+  //                                             product.productCode,
+  //                                       );
+  //                                     } catch (_) {}
+
+  //                                     if (cartItem == null) {
+  //                                       return GestureDetector(
+  //                                         onTap: () {
+  //                                           cartManager.addToCart(
+  //                                             CartItem(
+  //                                               lineNo: 0,
+  //                                               customerId: 1,
+  //                                               productCode:
+  //                                                   product.productCode!,
+  //                                               productName:
+  //                                                   product.productName!,
+  //                                               qty: 1,
+  //                                               oldQty: 0,
+  //                                               salesRate:
+  //                                                   double.tryParse(
+  //                                                     product.salesPrice ?? '0',
+  //                                                   ) ??
+  //                                                   0.0,
+  //                                               unitId: product.unitId
+  //                                                   .toString(),
+  //                                               purchaseCost:
+  //                                                   product.purchaseRate ?? '0',
+  //                                               groupId: product.group_id,
+  //                                               categoryId: product.categoryId!,
+  //                                               productImage:
+  //                                                   product.productImageByte!,
+  //                                               excludeRate: '',
+  //                                               subtotal: '0.0',
+  //                                               vatId: product.vatId!
+  //                                                   .toString(),
+  //                                               vatAmount: '0.0',
+  //                                               totalAmount: '0.00',
+  //                                               conversion_rate:
+  //                                                   product.conversionRate!,
+  //                                               category: product.categoryName!,
+  //                                               groupName: product.groupName,
+  //                                               product_description: '',
+  //                                             ),
+  //                                           );
+  //                                           showCartBar.value = true;
+  //                                         },
+  //                                         child: Container(
+  //                                           height: 30,
+  //                                           decoration: BoxDecoration(
+  //                                             color: AppColors.primary,
+  //                                             borderRadius:
+  //                                                 BorderRadius.circular(5),
+  //                                           ),
+  //                                           child: const Center(
+  //                                             child: Text(
+  //                                               'Add',
+  //                                               style: TextStyle(
+  //                                                 fontWeight: FontWeight.bold,
+  //                                               ),
+  //                                             ),
+  //                                           ),
+  //                                         ),
+  //                                       );
+  //                                     }
+
+  //                                     return Row(
+  //                                       mainAxisAlignment:
+  //                                           MainAxisAlignment.spaceBetween,
+  //                                       children: [
+  //                                         IconButton(
+  //                                           onPressed: () {
+  //                                             cartManager.decrementQuantity(
+  //                                               cartItem!.productCode,
+  //                                             );
+  //                                           },
+  //                                           icon: const Icon(Icons.remove),
+  //                                         ),
+  //                                         Text(cartItem.qty.toString()),
+  //                                         IconButton(
+  //                                           onPressed: () {
+  //                                             cartManager.incrementQuantity(
+  //                                               cartItem!.productCode,
+  //                                             );
+  //                                           },
+  //                                           icon: const Icon(Icons.add),
+  //                                         ),
+  //                                       ],
+  //                                     );
+  //                                   },
+  //                                 ),
+  //                               ),
+
+  //                               // ================= PRICE =================
+  //                               TopPriceContainer(
+  //                                 price: product.salesPrice ?? '0',
+  //                                 onTap: () => handleGridTap(
+  //                                   context: context,
+  //                                   itemTapBehavior: _itemTapBehavior,
+  //                                   product: product,
+  //                                   cartManager: cartManager,
+  //                                   showCartBar: showCartBar,
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           );
+  //                         },
+  //                       );
+  //                     },
+  //                   );
+  //                 },
+  //               );
+  //             },
+  //           ),
+  //         );
+  //       }
+
+  //       return const SizedBox();
+  //     },
+  //   );
+  // }
 
   Widget _buildMenuModeContent() {
     return Row(

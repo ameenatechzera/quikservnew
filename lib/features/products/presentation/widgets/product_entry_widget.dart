@@ -239,18 +239,100 @@ class PurchaseRateWidget extends StatelessWidget {
   }
 }
 
+// class ProductImageUploaderWidget extends StatelessWidget {
+//   final File? pickedImage;
+//   final VoidCallback onAddTap;
+
+//   const ProductImageUploaderWidget({
+//     super.key,
+//     required this.pickedImage,
+//     required this.onAddTap,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Stack(
+//         clipBehavior: Clip.none,
+//         children: [
+//           Card(
+//             elevation: 4,
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(16),
+//             ),
+//             child: SizedBox(
+//               width: kIsWeb ? 380 : 180,
+//               height: 190,
+//               child: Center(
+//                 child: pickedImage == null
+//                     ? Icon(
+//                         Icons.image,
+//                         size: 80,
+//                         color: Theme.of(context).highlightColor,
+//                       )
+//                     : Image.file(pickedImage!, fit: BoxFit.cover),
+//               ),
+//             ),
+//           ),
+//           Positioned(
+//             right: -10,
+//             bottom: -5,
+//             child: CircleAvatar(
+//               radius: 24,
+//               backgroundColor: AppColors.primary,
+//               child: IconButton(
+//                 onPressed: onAddTap,
+//                 icon: const Icon(Icons.add, color: Colors.white),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//}
 class ProductImageUploaderWidget extends StatelessWidget {
   final File? pickedImage;
+  final String? existingImageUrl; // ✅ NEW
   final VoidCallback onAddTap;
 
   const ProductImageUploaderWidget({
     super.key,
     required this.pickedImage,
     required this.onAddTap,
+    this.existingImageUrl, // ✅ NEW
   });
 
   @override
   Widget build(BuildContext context) {
+    Widget imageWidget;
+
+    if (pickedImage != null) {
+      // ✅ New selected image
+      imageWidget = Image.file(
+        pickedImage!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    } else if (existingImageUrl != null && existingImageUrl!.isNotEmpty) {
+      // ✅ Existing image from API
+      imageWidget = Image.network(
+        existingImageUrl!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (_, __, ___) => Icon(Icons.broken_image, size: 80),
+      );
+    } else {
+      // ❌ No image
+      imageWidget = Icon(
+        Icons.image,
+        size: 80,
+        color: Theme.of(context).highlightColor,
+      );
+    }
+
     return Center(
       child: Stack(
         clipBehavior: Clip.none,
@@ -263,17 +345,13 @@ class ProductImageUploaderWidget extends StatelessWidget {
             child: SizedBox(
               width: kIsWeb ? 380 : 180,
               height: 190,
-              child: Center(
-                child: pickedImage == null
-                    ? Icon(
-                        Icons.image,
-                        size: 80,
-                        color: Theme.of(context).highlightColor,
-                      )
-                    : Image.file(pickedImage!, fit: BoxFit.cover),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: imageWidget,
               ),
             ),
           ),
+
           Positioned(
             right: -10,
             bottom: -5,

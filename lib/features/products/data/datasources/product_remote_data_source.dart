@@ -186,27 +186,119 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
     }
   }
 
+  // @override
+  // Future<MasterResponseModel> updateProduct(
+  //   int productCode,
+  //   ProductSaveRequest request,
+  // ) async {
+  //   try {
+  //     final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+  //     final dbName = await SharedPreferenceHelper().getDatabaseName();
+  //     final token = await SharedPreferenceHelper().getToken() ?? "";
+  //     if (baseUrl == null || baseUrl.isEmpty) {
+  //       throw Exception("Base URL not set");
+  //     }
+  //     if (token.isEmpty) {
+  //       throw Exception("Token missing! Please login again.");
+  //     }
+  //     final url = ApiConstants.updateProductPath(baseUrl, productCode);
+  //     final response = await dio.post(
+  //       url,
+  //       data: request.toJson(),
+  //       options: Options(
+  //         contentType: "application/json",
+  //         headers: {
+  //           "Accept": "application/json",
+  //           "Authorization": "Bearer $token",
+  //           "X-Database-Name": dbName,
+  //         },
+  //       ),
+  //     );
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       return MasterResponseModel.fromJson(response.data);
+  //     } else {
+  //       throw ServerException(
+  //         errorMessageModel: ErrorMessageModel.fromJson(response.data),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     throw Exception("Error updating product: $e");
+  //   }
+  // }
   @override
   Future<MasterResponseModel> updateProduct(
     int productCode,
     ProductSaveRequest request,
   ) async {
     try {
+      print("🟢 ===== UPDATE PRODUCT START =====");
+
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
+
+      print("🟢 Base URL: $baseUrl");
+      print("🟢 DB Name: $dbName");
+      print("🟢 Token: $token");
+
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
+
       if (token.isEmpty) {
         throw Exception("Token missing! Please login again.");
       }
+
       final url = ApiConstants.updateProductPath(baseUrl, productCode);
+      print("🟢 API URL: $url");
+
+      /// 🔥 Convert request to map
+      final Map<String, dynamic> data = request.toJson()
+        ..removeWhere((key, value) => value == null);
+
+      /// 🚨 remove wrong image keys
+      data.remove("productimage");
+      data.remove("ProductImage");
+
+      print("🟢 ===== CLEANED DATA =====");
+      data.forEach((key, value) {
+        print("🟢 $key : $value");
+      });
+
+      /// 🔥 IMAGE HANDLING
+      if (request.productImage != null) {
+        print("🟡 Image Found: ${request.productImage!.path}");
+
+        data["ProductImage"] = await MultipartFile.fromFile(
+          request.productImage!.path,
+          filename: request.productImage!.path.split('/').last,
+        );
+
+        print("🟡 Image added to FormData as ProductImage");
+      } else {
+        print("🔴 No Image Found (keeping existing image)");
+      }
+
+      /// 🔥 Convert to FormData
+      final formData = FormData.fromMap(data);
+
+      /// 🔥 DEBUG FORMDATA
+      print("🟢 ===== FORMDATA BODY =====");
+
+      for (var field in formData.fields) {
+        print("🟢 FIELD => ${field.key} : ${field.value}");
+      }
+
+      for (var file in formData.files) {
+        print("🟡 FILE => ${file.key} : ${file.value.filename}");
+      }
+
+      /// 🔥 API CALL
       final response = await dio.post(
         url,
-        data: request.toJson(),
+        data: formData,
         options: Options(
-          contentType: "application/json",
+          contentType: "multipart/form-data",
           headers: {
             "Accept": "application/json",
             "Authorization": "Bearer $token",
@@ -214,6 +306,11 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
           },
         ),
       );
+
+      print("🟢 ===== RESPONSE =====");
+      print("🟢 Status Code: ${response.statusCode}");
+      print("🟢 Response Data: ${response.data}");
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return MasterResponseModel.fromJson(response.data);
       } else {
@@ -222,6 +319,7 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
         );
       }
     } catch (e) {
+      print("🔴 ERROR: $e");
       throw Exception("Error updating product: $e");
     }
   }

@@ -404,7 +404,7 @@ void toggleMenuModeWithAnimation({
   required TextEditingController searchController,
 }) {
   final saleCubit = context.read<SaleCubit>();
-  final wasMenuMode = saleCubit.isMenuMode;
+  //final wasMenuMode = saleCubit.isMenuMode;
 
   // Start fade out animation
   menuAnimationController.reverse().then((_) {
@@ -420,9 +420,9 @@ void toggleMenuModeWithAnimation({
     }
 
     // ✅ IMPORTANT: when coming BACK from menu/category to home grid
-    if (wasMenuMode) {
-      saleCubit.resetCategory(); // set "All"
-    }
+    // if (wasMenuMode) {
+    //   saleCubit.resetCategory(); // set "All"
+    // }
 
     // FIX: Always ensure products are loaded for current mode
     context.read<ProductCubit>().loadProductsFromLocal();
