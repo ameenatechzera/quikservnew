@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
@@ -60,6 +62,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   // ✅ active must be bool (as your model)
   bool isActive = true;
   String? existingImageUrl;
+  bool isCompressing = false;
   final Map<String, FocusNode> _focusNodes = {
     'productName': FocusNode(),
     'productSecondName': FocusNode(),
@@ -133,18 +136,41 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   //     });
   //   }
   // }
+
+  // Future<void> _pickImage() async {
+  //   final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  //
+  //   if (image == null) return;
+  //
+  //   final CroppedFile? cropped = await ImageCropper().cropImage(
+  //     sourcePath: image.path,
+  //     uiSettings: [
+  //       AndroidUiSettings(
+  //         toolbarTitle: 'Crop Image',
+  //         toolbarColor: Colors.black,
+  //         toolbarWidgetColor: Colors.white,
+  //         lockAspectRatio: false,
+  //       ),
+  //       IOSUiSettings(title: 'Crop Image'),
+  //     ],
+  //   );
+  //
+  //   if (cropped != null) {
+  //     setState(() {
+  //       pickedImage = File(cropped.path);
+  //     });
+  //   }
+  // }
+
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
 
     if (image == null) return;
 
     final CroppedFile? cropped = await ImageCropper().cropImage(
       sourcePath: image.path,
-      // aspectRatioPresets: [
-      //   CropAspectRatioPreset.square,
-      //   CropAspectRatioPreset.ratio4x3,
-      //   CropAspectRatioPreset.original,
-      // ],
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Crop Image',
@@ -156,11 +182,65 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
       ],
     );
 
-    if (cropped != null) {
+    if (cropped == null) return;
+
+    setState(() {
+      isCompressing = true;
+    });
+
+    try {
+      // Compress image below 200 KB
+      File compressedImage =
+      await compressImageToTargetSize(File(cropped.path), 200);
+
       setState(() {
-        pickedImage = File(cropped.path);
+        pickedImage = compressedImage;
+      });
+
+      print(
+        "Final Size: ${(await compressedImage.length() / 1024).toStringAsFixed(2)} KB",
+      );
+    } finally {
+      setState(() {
+        isCompressing = false;
       });
     }
+  }
+
+
+  Future<File> compressImageToTargetSize(
+      File file,
+      int targetKb,
+      ) async {
+    int quality = 90;
+
+    final dir = await getTemporaryDirectory();
+    File? resultFile;
+
+    do {
+      final targetPath =
+          '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final XFile? compressed = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        targetPath,
+        quality: quality,
+      );
+
+      if (compressed == null) break;
+
+      resultFile = File(compressed.path);
+
+      int sizeInKb = await resultFile.length() ~/ 1024;
+
+      if (sizeInKb <= targetKb) {
+        return resultFile;
+      }
+
+      quality -= 10;
+    } while (quality > 10);
+
+    return resultFile ?? file;
   }
 
   @override
@@ -839,6 +919,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
                           pickedImage: pickedImage,
                           existingImageUrl: existingImageUrl,
                           onAddTap: _pickImage,
+                          isCompressing: isCompressing,
                         ),
                       ),
                     ),
