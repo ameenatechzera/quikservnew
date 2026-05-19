@@ -105,11 +105,14 @@ import 'package:quikservnew/features/settings/data/repositories/settings_reposit
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_currentsalestoken_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_customsalesamountgraph_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_loyalty_list_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_monthlygraphreport_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_salescountgraph_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/savePrinterSettingsUseCase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/save_accountsettings_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/save_loyalty_customer_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/save_loyaltycard_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/updatesalesTokenUseCase.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
@@ -315,6 +318,7 @@ class ServiceLocator {
         //fetchSalesCountGraphReportUseCase: sl(),
         fetchCustomSalesAmountGraphReportUseCase: sl(),
         savePrinterSettingsUseCase: sl(),
+        fetchLoyaltyListUseCase: sl(), saveLoyaltyCustomerUseCase: sl(), saveLoyaltyCardUseCase: sl(),
       ),
     );
 
@@ -399,6 +403,13 @@ class ServiceLocator {
     // -------------- Item Cubit in day close report -----------------
 
     sl.registerFactory(() => ItemCubit(fetchItemWiseDetailsUseCase: sl()));
+
+
+//Loyalty Card
+    sl.registerLazySingleton(() => FetchLoyaltyListUseCase(sl()));
+    sl.registerLazySingleton(() => SaveLoyaltyCustomerUseCase(sl()));
+    sl.registerLazySingleton(() => SaveLoyaltyCardUseCase(sl()));
+
 
     // ------------------- CreateUSer Cubit -------------------
     sl.registerFactory(

@@ -7,6 +7,8 @@ import 'package:quikservnew/features/masters/domain/entities/master_result_respo
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyaltyCardSaveResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyaltyListResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/printer_save_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/token_details_result.dart';
@@ -15,6 +17,8 @@ import 'package:quikservnew/features/settings/domain/entities/weekly_graph_repor
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
 import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
 import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/loyaltyCardSaveRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/loyaltyCustomerSaveRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/sales_tokenupdate_request.dart';
 import 'package:quikservnew/features/settings/domain/parameters/save_printersettings_request.dart';
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
@@ -158,6 +162,42 @@ class SettingsRepositoryImpl implements SettingsRepository {
       final result = await remoteDataSource.savePrinterSettings(
         savePrinterSettingsRequest,
       );
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<LoyaltyCardListResult> fetchLoyaltyList() async {
+    try {
+      final result = await remoteDataSource.fetchLoyaltyList();
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request) async {
+    try {
+      final result = await remoteDataSource.saveLoyaltyCard(request);
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request) async {
+    try {
+      final result = await remoteDataSource.saveLoyaltyCustomer(request);
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(failure.errorMessageModel.statusMessage));

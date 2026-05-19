@@ -259,5 +259,17 @@ class ApiConstants {
     return '$baseUrl/settings/save-printerSettings';
   }
 
+  static String fetchLoyaltyListPath(String baseUrl) {
+    return '$baseUrl/loyality';
+  }
+
+  static String fetchSaveLoyaltyCardsPath(String baseUrl) {
+    return '$baseUrl/loyality/save';
+  }
+
+  static String fetchSaveLoyaltyCustomerPath(String baseUrl) {
+    return '$baseUrl/loyality-customer/save';
+  }
+
 
 }

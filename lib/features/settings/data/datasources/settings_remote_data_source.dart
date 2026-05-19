@@ -4,11 +4,13 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
+import 'package:quikservnew/features/settings/data/models/loyaltylist_model.dart';
 import 'package:quikservnew/features/settings/data/models/monthly_graph_model.dart';
 import 'package:quikservnew/features/settings/data/models/print_save_result_model.dart';
 import 'package:quikservnew/features/settings/data/models/sales_count_graph_model.dart';
 import 'package:quikservnew/features/settings/data/models/weekly_graph_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyaltyCardSaveResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/token_details_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/token_update_result.dart';
@@ -16,6 +18,8 @@ import 'package:quikservnew/features/settings/domain/entities/weekly_graph_repor
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
 import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
 import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/loyaltyCardSaveRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/loyaltyCustomerSaveRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/sales_tokenupdate_request.dart'
     show UpdateSalesTokenRequest;
 import 'package:quikservnew/features/settings/domain/parameters/save_printersettings_request.dart';
@@ -47,6 +51,15 @@ abstract class SettingsRemoteDataSource {
   Future<PrinterSettingsResultModel> savePrinterSettings(
     SavePrinterSettingsRequest savePrinterSettings,
   );
+  Future<LoyaltyListModel> fetchLoyaltyList();
+  Future<LoyaltyCardSaveResult> saveLoyaltyCard(
+      LoyaltyCardSaveRequest request,
+      );
+  Future<CommonResult> saveLoyaltyCustomer(
+      LoyaltyCustomerSaveRequest request,
+      );
+
+
 }
 
 class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
@@ -408,6 +421,111 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
       );
       if (response.statusCode == 200) {
         return PrinterSettingsResultModel.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<LoyaltyListModel> fetchLoyaltyList() async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
+      }
+      var url = ApiConstants.fetchLoyaltyListPath(baseUrl);
+      print('fetchLoyaltyListPath $url');
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+      final response = await dio.get(
+        url,
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return LoyaltyListModel.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request) async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
+      }
+      var url = ApiConstants.fetchSavePrinterSettingsPath(baseUrl);
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+      final response = await dio.post(
+        url,
+        data: request.toJson(),
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return LoyaltyCardSaveResult.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request) async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
+      }
+      var url = ApiConstants.fetchSavePrinterSettingsPath(baseUrl);
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+      final response = await dio.post(
+        url,
+        data: request.toJson(),
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return CommonResult.fromJson(response.data);
       } else {
         throw ServerException(
           errorMessageModel: ErrorMessageModel.fromJson(response.data),

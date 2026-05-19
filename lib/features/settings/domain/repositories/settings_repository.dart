@@ -2,6 +2,8 @@ import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyaltyCardSaveResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyaltyListResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/printer_save_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/token_details_result.dart';
@@ -10,6 +12,8 @@ import 'package:quikservnew/features/settings/domain/entities/weekly_graph_repor
 import 'package:quikservnew/features/settings/domain/parameters/account_settings_parameter.dart';
 import 'package:quikservnew/features/settings/domain/parameters/bargraph_request.dart';
 import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
+import 'package:quikservnew/features/settings/domain/parameters/loyaltyCardSaveRequest.dart';
+import 'package:quikservnew/features/settings/domain/parameters/loyaltyCustomerSaveRequest.dart';
 import 'package:quikservnew/features/settings/domain/parameters/sales_tokenupdate_request.dart';
 import 'package:quikservnew/features/settings/domain/parameters/save_printersettings_request.dart';
 
@@ -17,6 +21,10 @@ abstract class SettingsRepository {
   ResultFuture<FetchSettingsResponseModel> fetchSettings();
   ResultFuture<CommonResult> refreshSalesToken();
   ResultFuture<TokenDetailsResult> fetchCurrentSalesTokenDetails();
+  ResultFuture<LoyaltyCardListResult> fetchLoyaltyList();
+  ResultFuture<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request);
+  ResultFuture<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request);
+
   ResultFuture<TokenUpdateResult> updateSalesTokenToServer(
     UpdateSalesTokenRequest updateSalesTokenRequest,
   );

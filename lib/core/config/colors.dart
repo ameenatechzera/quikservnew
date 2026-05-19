@@ -18,6 +18,8 @@ const SizedBox height10 = SizedBox(height: 10);
 const SizedBox height5 = SizedBox(height: 5);
 const Color appThemeLightOrange = Color(0xFFfeeda3);
 final Color darkGreen = Color(0xFF134E0C);
+final Color appThemeYellow = Color(0xFFEAB307);
+
 
 class TechzeraColors {
   static const Color greyLight = Color(0xFFE0E9FF);

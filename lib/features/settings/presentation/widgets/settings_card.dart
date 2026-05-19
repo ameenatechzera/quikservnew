@@ -8,6 +8,9 @@ import 'package:quikservnew/features/masters/presentation/screens/user_listing_s
 import 'package:quikservnew/features/products/presentation/screens/product_listing_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/aboutUs_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/account_settings_screen.dart';
+import 'package:quikservnew/features/settings/presentation/screens/loyalty_customer_creation.dart';
+import 'package:quikservnew/features/settings/presentation/screens/loyalty_list_screen.dart';
+import 'package:quikservnew/features/settings/presentation/screens/loyalty_save_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/print_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/sale_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/settings_dashboard.dart';
@@ -16,12 +19,17 @@ import 'package:quikservnew/features/settings/presentation/widgets/dashboard_lis
 import 'package:quikservnew/features/settings/presentation/widgets/subscription_infocard.dart';
 import 'package:quikservnew/features/units/presentation/screens/unit_listing_screen.dart';
 import 'package:quikservnew/features/vat/presentation/screens/vat_listing_screen.dart';
-
-class SettingsCard extends StatelessWidget {
+bool _loyaltyEnabled = false;
+class SettingsCard extends StatefulWidget {
   const SettingsCard({super.key, required this.isBasic});
 
   final bool isBasic;
 
+  @override
+  State<SettingsCard> createState() => _SettingsCardState();
+}
+
+class _SettingsCardState extends State<SettingsCard> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -40,7 +48,7 @@ class SettingsCard extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
-                  if (!isBasic)
+                  if (!widget.isBasic)
                     buildTile(
                       context: context,
                       icon: Icons.person_outline,
@@ -71,6 +79,71 @@ class SettingsCard extends StatelessWidget {
                 ],
               ),
             ),
+            //Loyalty
+            Card(
+              child: Column(
+                children: [
+                  const ListTile(
+                    title: Text(
+                      "Loyalty Card",
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  // After the header card SizedBox(height: 24), add:
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      children: [
+
+                        Text(
+                          'Enable Loyalty Card',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: _loyaltyEnabled
+                                ? const Color(0xFF1565C0)
+                                : const Color(0xFF546E7A),
+                          ),
+                        ),
+                        const Spacer(),
+                        Switch(
+                          value: _loyaltyEnabled,
+                          onChanged: (val) => setState(() => _loyaltyEnabled = val),
+                          activeColor: const Color(0xFF1565C0),
+                        ),
+
+
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                    buildTile(
+                      context: context,
+                      icon: Icons.card_giftcard,
+                      title: "Add Loyalty Card",
+                      page: LoyaltyListPage(),
+                    ),
+                  buildTile(
+                    context: context,
+                    icon: Icons.person_outline,
+                    title: "Add Loyalty Customer",
+                    page: AddLoyaltyCustomer(),
+                    // page: PrinterSettingsContent(
+                    //   companyName: st_companyName,
+                    // ),
+                  ),
+                ],
+              ),
+            ),
 
             const SizedBox(height: 16),
 
@@ -90,21 +163,21 @@ class SettingsCard extends StatelessWidget {
                     title: "Change Password",
                     page: PasswordChangeScreen(),
                   ),
-                  if (!isBasic)
+                  if (!widget.isBasic)
                     buildTile(
                       context: context,
                       icon: Icons.group_add_outlined,
                       title: "User Creation",
                       page: UsersListScreen(),
                     ),
-                  if (!isBasic)
+                  if (!widget.isBasic)
                     buildTile(
                       context: context,
                       icon: Icons.account_box,
                       title: "Account Group",
                       page: AccountGroupListingScreen(),
                     ),
-                  if (!isBasic)
+                  if (!widget.isBasic)
                     buildTile(
                       context: context,
                       icon: Icons.account_box,

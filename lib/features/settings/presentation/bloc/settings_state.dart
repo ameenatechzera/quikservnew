@@ -21,6 +21,8 @@ final class FetchSalesCountGraphLoading extends SettingsState {}
 
 final class FetchCustomSalesGraphLoading extends SettingsState {}
 
+final class FetchLoyaltyCardListLoading extends SettingsState {}
+
 class SavePrinterSettingsInitial extends SettingsState {}
 
 class SettingsLoaded extends SettingsState {
@@ -168,6 +170,10 @@ class UpdateSalesTokenSuccess extends SettingsState {
 
 class SaveAccountSettingsLoading extends SettingsState {}
 
+class SaveLoyaltyCardLoading extends SettingsState {}
+
+class SaveLoyaltyCustomerLoading extends SettingsState {}
+
 class SaveAccountSettingsSuccess extends SettingsState {
   final MasterResponseModel response;
 
@@ -178,4 +184,50 @@ class SaveAccountSettingsError extends SettingsState {
   final String error;
 
   const SaveAccountSettingsError({required this.error});
+}
+
+class FetchLoyaltyCardError extends SettingsState {
+  final String message;
+  const FetchLoyaltyCardError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class SaveLoyaltyCardError extends SettingsState {
+  final String message;
+  const SaveLoyaltyCardError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class SaveLoyaltyCustomerError extends SettingsState {
+  final String message;
+  const SaveLoyaltyCustomerError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+class FetchLoyaltyCardSuccess extends SettingsState {
+  final LoyaltyCardListResult cardListResult;
+  const FetchLoyaltyCardSuccess(this.cardListResult);
+
+  @override
+  List<Object> get props => [cardListResult];
+}
+
+class SaveLoyaltyCustomerSuccess extends SettingsState {
+  final CommonResult commonResult;
+  const SaveLoyaltyCustomerSuccess(this.commonResult);
+
+  @override
+  List<Object> get props => [commonResult];
+}
+class SaveLoyaltyCardSuccess extends SettingsState {
+  final LoyaltyCardSaveResult cardListResult;
+  const SaveLoyaltyCardSuccess(this.cardListResult);
+
+  @override
+  List<Object> get props => [cardListResult];
 }
