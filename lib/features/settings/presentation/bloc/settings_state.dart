@@ -23,6 +23,8 @@ final class FetchCustomSalesGraphLoading extends SettingsState {}
 
 final class FetchLoyaltyCardListLoading extends SettingsState {}
 
+final class FetchLoyaltyCustomersLoading extends SettingsState {}
+
 class SavePrinterSettingsInitial extends SettingsState {}
 
 class SettingsLoaded extends SettingsState {
@@ -194,6 +196,14 @@ class FetchLoyaltyCardError extends SettingsState {
   List<Object> get props => [message];
 }
 
+class FetchLoyaltyCustomersError extends SettingsState {
+  final String message;
+  const FetchLoyaltyCustomersError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
 class SaveLoyaltyCardError extends SettingsState {
   final String message;
   const SaveLoyaltyCardError(this.message);
@@ -215,6 +225,14 @@ class FetchLoyaltyCardSuccess extends SettingsState {
 
   @override
   List<Object> get props => [cardListResult];
+}
+
+class FetchLoyaltyCustomersSuccess extends SettingsState {
+  final LoyaltyCustomerListResult customerListResult;
+  const FetchLoyaltyCustomersSuccess(this.customerListResult);
+
+  @override
+  List<Object> get props => [customerListResult];
 }
 
 class SaveLoyaltyCustomerSuccess extends SettingsState {

@@ -9,6 +9,7 @@ import 'package:quikservnew/features/settings/data/models/fetch_settings_model.d
 import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/loyaltyCardSaveResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/loyaltyListResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyalty_customer_entity.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/printer_save_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/token_details_result.dart';
@@ -198,6 +199,18 @@ class SettingsRepositoryImpl implements SettingsRepository {
   ResultFuture<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request) async {
     try {
       final result = await remoteDataSource.saveLoyaltyCustomer(request);
+      return Right(result);
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<LoyaltyCustomerListResult> fetchLoyaltyCustomerList() async {
+    try {
+      final result = await remoteDataSource.fetchLoyaltyCustomers();
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(failure.errorMessageModel.statusMessage));

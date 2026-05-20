@@ -4,6 +4,7 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
+import 'package:quikservnew/features/settings/data/models/loyalty_cutomer_model.dart';
 import 'package:quikservnew/features/settings/data/models/loyaltylist_model.dart';
 import 'package:quikservnew/features/settings/data/models/monthly_graph_model.dart';
 import 'package:quikservnew/features/settings/data/models/print_save_result_model.dart';
@@ -52,6 +53,8 @@ abstract class SettingsRemoteDataSource {
     SavePrinterSettingsRequest savePrinterSettings,
   );
   Future<LoyaltyListModel> fetchLoyaltyList();
+  Future<Loyalty_Customer_Model> fetchLoyaltyCustomers();
+
   Future<LoyaltyCardSaveResult> saveLoyaltyCard(
       LoyaltyCardSaveRequest request,
       );
@@ -473,7 +476,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-      var url = ApiConstants.fetchSavePrinterSettingsPath(baseUrl);
+      var url = ApiConstants.fetchSaveLoyaltyCardsPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
@@ -503,12 +506,13 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
 
   @override
   Future<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request) async {
+    print('LoyaltyCustomerSaveRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
-      var url = ApiConstants.fetchSavePrinterSettingsPath(baseUrl);
+      var url = ApiConstants.fetchSaveLoyaltyCustomerPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
@@ -526,6 +530,41 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
       );
       if (response.statusCode == 200) {
         return CommonResult.fromJson(response.data);
+      } else {
+        throw ServerException(
+          errorMessageModel: ErrorMessageModel.fromJson(response.data),
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Loyalty_Customer_Model> fetchLoyaltyCustomers() async {
+    try {
+      final baseUrl = await SharedPreferenceHelper().getBaseUrl();
+      if (baseUrl == null || baseUrl.isEmpty) {
+        throw Exception("Base URL not set");
+      }
+      var url = ApiConstants.fetchLoyaltyCustomersPath(baseUrl);
+      print('fetchLoyaltyListPath $url');
+      final dbName = await SharedPreferenceHelper().getDatabaseName();
+      final token = await SharedPreferenceHelper().getToken() ?? "";
+      if (token.isEmpty) throw Exception("Token missing! Please login again.");
+      final response = await dio.get(
+        url,
+        options: Options(
+          contentType: "application/json",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            "X-Database-Name": dbName,
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return Loyalty_Customer_Model.fromJson(response.data);
       } else {
         throw ServerException(
           errorMessageModel: ErrorMessageModel.fromJson(response.data),

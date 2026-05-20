@@ -9,6 +9,7 @@ import 'package:quikservnew/features/products/presentation/screens/product_listi
 import 'package:quikservnew/features/settings/presentation/screens/aboutUs_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/account_settings_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/loyalty_customer_creation.dart';
+import 'package:quikservnew/features/settings/presentation/screens/loyalty_customers.dart';
 import 'package:quikservnew/features/settings/presentation/screens/loyalty_list_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/loyalty_save_screen.dart';
 import 'package:quikservnew/features/settings/presentation/screens/print_settings_screen.dart';
@@ -129,14 +130,14 @@ class _SettingsCardState extends State<SettingsCard> {
                     buildTile(
                       context: context,
                       icon: Icons.card_giftcard,
-                      title: "Add Loyalty Card",
+                      title: "Loyalty Card",
                       page: LoyaltyListPage(),
                     ),
                   buildTile(
                     context: context,
                     icon: Icons.person_outline,
-                    title: "Add Loyalty Customer",
-                    page: AddLoyaltyCustomer(),
+                    title: "Loyalty Customer",
+                    page: CustomerListPage(),
                     // page: PrinterSettingsContent(
                     //   companyName: st_companyName,
                     // ),

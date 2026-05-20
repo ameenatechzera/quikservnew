@@ -11,6 +11,8 @@ final class SaleInitial extends SaleState {}
 
 final class SlesDetailsFetchInitial extends SaleState {}
 
+final class LoyaltyDetailsBySearchInitial extends SaleState {}
+
 class SaleLoading extends SaleState {}
 
 class SaleSuccess extends SaleState {
@@ -72,8 +74,19 @@ class SalesReportFetchError extends SaleState {
   const SalesReportFetchError({required this.error});
 }
 
+class LoyaltyBySearchError extends SaleState {
+  final String error;
+
+  const LoyaltyBySearchError({required this.error});
+}
+
 class SalesDetailsFetchSuccess extends SaleState {
   final SalesDetailsByMasterIdResult response;
 
   const SalesDetailsFetchSuccess({required this.response});
+}
+class LoyaltyBySearchFetchSuccess extends SaleState {
+  final LoyaltySearchResult response;
+
+  const LoyaltyBySearchFetchSuccess({required this.response});
 }

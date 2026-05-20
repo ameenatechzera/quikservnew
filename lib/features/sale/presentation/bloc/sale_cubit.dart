@@ -1,8 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:quikservnew/features/sale/domain/entities/loyalty_search_result.dart';
 import 'package:quikservnew/features/sale/domain/entities/sale_save_response_entity.dart';
+import 'package:quikservnew/features/sale/domain/parameters/loyalty_search_request.dart';
 import 'package:quikservnew/features/sale/domain/parameters/sale_save_request_parameter.dart';
 import 'package:quikservnew/features/sale/domain/repositories/sale_repository.dart';
+import 'package:quikservnew/features/sale/domain/usecases/fetch_loyaltydetailsby_search_usecase.dart';
 import 'package:quikservnew/features/sale/domain/usecases/save_sale_toserver_usecase.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
@@ -13,6 +16,7 @@ part 'sale_state.dart';
 class SaleCubit extends Cubit<SaleState> {
   final SaveSaleUseCase _saveSaleUseCase;
   final SalesDetailsByMasterIdUseCase _salesDetailsByMasterIdUseCase;
+  final FetchLoyaltyDetailsBySearchUseCase _fetchLoyaltyDetailsBySearchUseCase;
   bool _isSearchBarVisible = false;
   bool _isMenuMode = false;
   String _searchQuery = '';
@@ -26,8 +30,10 @@ class SaleCubit extends Cubit<SaleState> {
     required SaveSaleUseCase saveSaleUseCase,
     required SalesRepository salesRepository,
     required SalesDetailsByMasterIdUseCase salesDetailsByMasterIdUseCase,
+    required FetchLoyaltyDetailsBySearchUseCase fetchLoyaltyDetailsBySearchUseCase
   }) : _saveSaleUseCase = saveSaleUseCase,
        _salesDetailsByMasterIdUseCase = salesDetailsByMasterIdUseCase,
+  _fetchLoyaltyDetailsBySearchUseCase = fetchLoyaltyDetailsBySearchUseCase,
        super(SaleInitial());
   void showSearchBar() {
     _isSearchBarVisible = true;
@@ -125,6 +131,25 @@ class SaleCubit extends Cubit<SaleState> {
       );
     } catch (e) {
       emit(SalesReportFetchError(error: e.toString()));
+    }
+  }
+
+  // --------------------- API  fetchLoyaltyDetailsBySearch  ---------------------
+  Future<void> fetchLoyaltyDetailsBySearch(
+      LoyaltySearchRequest request,
+      ) async {
+    print('FetchSalesDetailsBySearchRequest ${request.toJson()}');
+    emit(LoyaltyDetailsBySearchInitial());
+    try {
+      final response = await _fetchLoyaltyDetailsBySearchUseCase(request);
+
+      response.fold(
+            (failure) => emit(LoyaltyBySearchError(error: failure.message)),
+            (saleResponse) =>
+            emit(LoyaltyBySearchFetchSuccess(response: saleResponse)),
+      );
+    } catch (e) {
+      emit(LoyaltyBySearchError(error: e.toString()));
     }
   }
 }

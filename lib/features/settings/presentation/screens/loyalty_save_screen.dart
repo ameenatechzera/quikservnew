@@ -25,13 +25,8 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
 
   bool _isLoading = false;
 
-  // ── API ───────────────────────────────────────────────────────────────────
-  static const String _apiUrl = 'https://online.cristaledu.com/api/loyalty';
 
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-
-   // setState(() => _isLoading = true);
 
     final dbName = await SharedPreferenceHelper().getDatabaseName();
     final branchId = await SharedPreferenceHelper().getBranchId();
@@ -48,33 +43,6 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
 
     }
 
-
-  void _showResult({required bool success, required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              success ? Icons.check_circle_outline : Icons.error_outline,
-              color: Colors.white,
-              size: 20,
-            ),
-            const SizedBox(width: 10),
-            Expanded(child: Text(message,
-                style: const TextStyle(fontSize: 13))),
-          ],
-        ),
-        backgroundColor: success
-            ? const Color(0xFF2E7D32)
-            : const Color(0xFFC62828),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 4),
-      ),
-    );
-  }
 
   @override
   void dispose() {
@@ -252,13 +220,16 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
    if(state is SaveLoyaltyCardSuccess){
     Navigator.pop(context);
    }
+   if(state is SaveLoyaltyCardError){
+    print('error while save');
+   }
   },
   builder: (context, state) {
     return SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _save,
+                  onPressed:  _save,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: appThemeYellow,
                     foregroundColor: Colors.black,

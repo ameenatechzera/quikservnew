@@ -4,7 +4,9 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/sale/data/datasources/sales_remote_datasource.dart';
+import 'package:quikservnew/features/sale/domain/entities/loyalty_search_result.dart';
 import 'package:quikservnew/features/sale/domain/entities/sale_save_response_entity.dart';
+import 'package:quikservnew/features/sale/domain/parameters/loyalty_search_request.dart';
 import 'package:quikservnew/features/sale/domain/parameters/sale_save_request_parameter.dart';
 import 'package:quikservnew/features/sale/domain/repositories/sale_repository.dart';
 
@@ -18,6 +20,18 @@ class SalesRepositoryImpl implements SalesRepository {
     try {
       final result = await remoteDataSource.saveSale(request);
       return Right(result.toEntity());
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(failure.errorMessageModel.statusMessage));
+    } on DioError catch (failure) {
+      return Left(ServerFailure(failure.message.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<LoyaltySearchResult> fetchLoyaltyDetailsBySearch(LoyaltySearchRequest request) async {
+    try {
+      final result = await remoteDataSource.fetchLoyaltyDetailsBySearch(request);
+      return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(failure.errorMessageModel.statusMessage));
     } on DioError catch (failure) {

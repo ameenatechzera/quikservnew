@@ -23,6 +23,8 @@ import 'package:quikservnew/features/salesReport/presentation/widgets/print_ther
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'CustomerListBySearch.dart';
+
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -72,7 +74,40 @@ class _CartScreenState extends State<CartScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
-        appBar: const CommonAppBar(title: "Cart"),
+       // appBar: const CommonAppBar(title: "Cart"),
+        appBar: AppBar(
+          title: const Text(
+            'Cart',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: const Color(0xFF1565C0),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Search Customers'),
+                IconButton(
+                    icon: const Icon(Icons.search),
+                    tooltip: 'Search Loyalty',
+                    onPressed: (){
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return CustomerListBySearchPage();
+                          },
+                        ),
+                      );
+                    }
+                ),
+              ],
+            ),
+          ],
+        ),
         body: SafeArea(
           child: BlocListener<RegisterCubit, RegisterState>(
             listener: (context, state) async {

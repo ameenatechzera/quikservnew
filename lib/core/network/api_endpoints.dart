@@ -263,6 +263,10 @@ class ApiConstants {
     return '$baseUrl/loyality';
   }
 
+  static String fetchLoyaltyCustomersPath(String baseUrl) {
+    return '$baseUrl/loyality-customer';
+  }
+
   static String fetchSaveLoyaltyCardsPath(String baseUrl) {
     return '$baseUrl/loyality/save';
   }
@@ -271,5 +275,7 @@ class ApiConstants {
     return '$baseUrl/loyality-customer/save';
   }
 
-
+  static String fetchLoyaltySearchCustomerPath(String baseUrl) {
+    return '$baseUrl/loyality-customer/search';
+  }
 }

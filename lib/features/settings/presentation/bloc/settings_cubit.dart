@@ -6,6 +6,7 @@ import 'package:quikservnew/features/settings/data/models/fetch_settings_model.d
 import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/loyaltyCardSaveResult.dart';
 import 'package:quikservnew/features/settings/domain/entities/loyaltyListResult.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyalty_customer_entity.dart';
 import 'package:quikservnew/features/settings/domain/entities/printer_save_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/monthly_graph_report_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/sales_count_graph_result.dart';
@@ -20,6 +21,7 @@ import 'package:quikservnew/features/settings/domain/parameters/sales_tokenupdat
 import 'package:quikservnew/features/settings/domain/parameters/save_printersettings_request.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_currentsalestoken_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_customsalesamountgraph_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_loyalty_customers_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_loyalty_list_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_monthlygraphreport_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
@@ -45,6 +47,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final FetchLoyaltyListUseCase _fetchLoyaltyListUseCase;
   final SaveLoyaltyCustomerUseCase _saveLoyaltyCustomerUseCase;
   final SaveLoyaltyCardUseCase _saveLoyaltyCardUseCase;
+  final FetchLoyaltyCustomersUseCase _fetchLoyaltyCustomersUseCase;
 
   SettingsCubit({
     required FetchSettingsUseCase fetchSettingsUseCase,
@@ -60,6 +63,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     required SaveLoyaltyCustomerUseCase saveLoyaltyCustomerUseCase,
     required SaveLoyaltyCardUseCase saveLoyaltyCardUseCase,
     required SavePrinterSettingsUseCase savePrinterSettingsUseCase,
+    required FetchLoyaltyCustomersUseCase fetchLoyaltyCustomersUseCase,
   }) : _fetchSettingsUseCase = fetchSettingsUseCase,
        _fetchCurrentSalesTokenUseCase = fetchCurrentSalesTokenUseCase,
        _updateSalesTokenUseCase = updateSalesTokenUseCase,
@@ -73,6 +77,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         _fetchLoyaltyListUseCase = fetchLoyaltyListUseCase,
         _saveLoyaltyCustomerUseCase = saveLoyaltyCustomerUseCase,
         _saveLoyaltyCardUseCase = saveLoyaltyCardUseCase,
+  _fetchLoyaltyCustomersUseCase = fetchLoyaltyCustomersUseCase,
        super(SettingsInitial());
 
   Future<void> fetchSettings() async {
@@ -255,6 +260,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   Future<void> saveLoyaltyCard(LoyaltyCardSaveRequest params) async {
+    print('LoyaltyCardSaveRequest ${params.toJson()}');
     emit(SaveLoyaltyCardLoading());
 
     try {
@@ -289,5 +295,21 @@ class SettingsCubit extends Cubit<SettingsState> {
       emit(SaveLoyaltyCustomerError('An error occurred: $e'));
     }
   }
-
+  Future<void> fetchLoyaltyCustomersFromServer(
+      ) async {
+    emit(FetchLoyaltyCustomersLoading());
+    try {
+      final response = await _fetchLoyaltyCustomersUseCase();
+      response.fold(
+            (failure) async {
+          emit(FetchLoyaltyCardError(failure.message));
+        },
+            (success) {
+          emit(FetchLoyaltyCustomersSuccess(success));
+        },
+      );
+    } catch (e) {
+      emit(FetchLoyaltyCustomersError('An error occurred: $e'));
+    }
+  }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quikservnew/features/settings/domain/entities/loyaltyListResult.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 
+import 'loyalty_save_screen.dart';
+
 class LoyaltyListPage extends StatefulWidget {
   const LoyaltyListPage({super.key});
 
@@ -40,9 +42,17 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.add),
             tooltip: 'Refresh',
-            onPressed: _fetchCards,
+            onPressed: (){
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return CreateLoyaltyPage();
+                  },
+                ),
+              );
+            }
           ),
         ],
       ),

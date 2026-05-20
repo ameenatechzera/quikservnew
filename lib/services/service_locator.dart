@@ -90,6 +90,7 @@ import 'package:quikservnew/features/products/presentation/bloc/products_cubit.d
 import 'package:quikservnew/features/sale/data/datasources/sales_remote_datasource.dart';
 import 'package:quikservnew/features/sale/data/repositories/sale_repository_impl.dart';
 import 'package:quikservnew/features/sale/domain/repositories/sale_repository.dart';
+import 'package:quikservnew/features/sale/domain/usecases/fetch_loyaltydetailsby_search_usecase.dart';
 import 'package:quikservnew/features/sale/domain/usecases/save_sale_toserver_usecase.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/salesReport/data/datasources/salesreport_remote_data_source.dart';
@@ -105,6 +106,7 @@ import 'package:quikservnew/features/settings/data/repositories/settings_reposit
 import 'package:quikservnew/features/settings/domain/repositories/settings_repository.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_currentsalestoken_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_customsalesamountgraph_usecase.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_loyalty_customers_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_loyalty_list_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_monthlygraphreport_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_salescountgraph_usecase.dart';
@@ -319,6 +321,7 @@ class ServiceLocator {
         fetchCustomSalesAmountGraphReportUseCase: sl(),
         savePrinterSettingsUseCase: sl(),
         fetchLoyaltyListUseCase: sl(), saveLoyaltyCustomerUseCase: sl(), saveLoyaltyCardUseCase: sl(),
+        fetchLoyaltyCustomersUseCase: sl(),
       ),
     );
 
@@ -389,7 +392,7 @@ class ServiceLocator {
       () => SaleCubit(
         saveSaleUseCase: sl(),
         salesRepository: sl(),
-        salesDetailsByMasterIdUseCase: sl(),
+        salesDetailsByMasterIdUseCase: sl(), fetchLoyaltyDetailsBySearchUseCase: sl(),
       ),
     );
     sl.registerLazySingleton(() => SaveSaleUseCase(sl()));
@@ -409,6 +412,8 @@ class ServiceLocator {
     sl.registerLazySingleton(() => FetchLoyaltyListUseCase(sl()));
     sl.registerLazySingleton(() => SaveLoyaltyCustomerUseCase(sl()));
     sl.registerLazySingleton(() => SaveLoyaltyCardUseCase(sl()));
+    sl.registerLazySingleton(() => FetchLoyaltyCustomersUseCase(sl()));
+
 
 
     // ------------------- CreateUSer Cubit -------------------
@@ -506,6 +511,8 @@ class ServiceLocator {
     sl.registerLazySingleton(() => SaveAccountGroupUseCase(sl()));
     sl.registerLazySingleton(() => DeleteAccountGroupUseCase(sl()));
     sl.registerLazySingleton(() => UpdateAccountGroupUseCase(sl()));
+    sl.registerLazySingleton(() => FetchLoyaltyDetailsBySearchUseCase(sl()));
+
 
     sl.registerLazySingleton<AccountGroupsRemoteDataSource>(
       () => AccountGroupsRemoteDataSourceImpl(),
