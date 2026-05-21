@@ -101,6 +101,7 @@ class SaleCubit extends Cubit<SaleState> {
   String get selectedCategoryName => _selectedCategoryName;
   // --------------------- API Save Sale ---------------------
   Future<void> saveSale(SaveSaleRequest request) async {
+    print('SaveSaleRequest ${request.toJson()}');
     emit(SaleLoading());
 
     try {

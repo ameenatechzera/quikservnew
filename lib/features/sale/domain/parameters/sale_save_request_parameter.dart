@@ -21,6 +21,7 @@ class SaveSaleRequest {
   final int createdUser;
   final int branchId;
   final double totalTax;
+  final double redeemAmount;
   final List<SaleDetail> salesDetails;
 
   SaveSaleRequest({
@@ -46,6 +47,7 @@ class SaveSaleRequest {
     required this.createdUser,
     required this.branchId,
     required this.totalTax,
+    required this.redeemAmount,
     required this.salesDetails,
   });
 
@@ -73,6 +75,7 @@ class SaveSaleRequest {
       "CreatedUser": createdUser,
       "branchId": branchId,
       "totalTax": totalTax,
+      "redeemAmount":redeemAmount,
       "SalesDetails": salesDetails.map((e) => e.toJson()).toList(),
     };
   }

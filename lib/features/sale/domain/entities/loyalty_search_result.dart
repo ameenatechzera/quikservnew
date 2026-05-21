@@ -13,14 +13,14 @@ class LoyaltySearchResult extends Equatable {
   final bool error;
   static const String errorKey = "error";
 
-  final List<Datum> data;
+  final List<LoyaltyCustomer> data;
   static const String dataKey = "data";
 
 
   LoyaltySearchResult copyWith({
     int? status,
     bool? error,
-    List<Datum>? data,
+    List<LoyaltyCustomer>? data,
   }) {
     return LoyaltySearchResult(
       status: status ?? this.status,
@@ -33,7 +33,7 @@ class LoyaltySearchResult extends Equatable {
     return LoyaltySearchResult(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      data: json["data"] == null ? [] : List<LoyaltyCustomer>.from(json["data"]!.map((x) => LoyaltyCustomer.fromJson(x))),
     );
   }
 
@@ -53,8 +53,8 @@ class LoyaltySearchResult extends Equatable {
     status, error, data, ];
 }
 
-class Datum extends Equatable {
-  Datum({
+class LoyaltyCustomer extends Equatable {
+  LoyaltyCustomer({
     required this.customerName,
     required this.totalPointsEarned,
     required this.totalEarnedAmount,
@@ -94,7 +94,7 @@ class Datum extends Equatable {
   static const String redeemValidityDaysKey = "redeem_validity_days";
 
 
-  Datum copyWith({
+  LoyaltyCustomer copyWith({
     String? customerName,
     String? totalPointsEarned,
     String? totalEarnedAmount,
@@ -105,7 +105,7 @@ class Datum extends Equatable {
     String? minRedeemAmount,
     int? redeemValidityDays,
   }) {
-    return Datum(
+    return LoyaltyCustomer(
       customerName: customerName ?? this.customerName,
       totalPointsEarned: totalPointsEarned ?? this.totalPointsEarned,
       totalEarnedAmount: totalEarnedAmount ?? this.totalEarnedAmount,
@@ -118,8 +118,8 @@ class Datum extends Equatable {
     );
   }
 
-  factory Datum.fromJson(Map<String, dynamic> json){
-    return Datum(
+  factory LoyaltyCustomer.fromJson(Map<String, dynamic> json){
+    return LoyaltyCustomer(
       customerName: json["customer_name"] ?? "",
       totalPointsEarned: json["total_points_earned"] ?? "",
       totalEarnedAmount: json["total_earned_amount"] ?? "",

@@ -7,7 +7,7 @@ class LoyaltySearchModel extends LoyaltySearchResult{
     return LoyaltySearchModel(
       status: json["status"] ?? 0,
       error: json["error"] ?? false,
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      data: json["data"] == null ? [] : List<LoyaltyCustomer>.from(json["data"]!.map((x) => LoyaltyCustomer.fromJson(x))),
     );
   }
 
