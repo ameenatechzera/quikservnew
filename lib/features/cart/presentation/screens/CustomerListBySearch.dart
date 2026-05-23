@@ -175,7 +175,7 @@ class CustomerListBySearchPage extends StatelessWidget {
                                 ),
 
                                 Text(
-                                  "Min Redeem Amount: ₹${customer.minRedeemAmount ?? "0.00"}",
+                                  "Min Redeem Amount: ₹${customer.minRedeemPoint ?? "0.00"}",
                                 ),
 
                                 Text(

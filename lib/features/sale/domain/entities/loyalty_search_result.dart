@@ -55,6 +55,8 @@ class LoyaltySearchResult extends Equatable {
 
 class LoyaltyCustomer extends Equatable {
   LoyaltyCustomer({
+    required this.loyalityId,
+    required this.custId,
     required this.customerName,
     required this.totalPointsEarned,
     required this.totalEarnedAmount,
@@ -62,9 +64,16 @@ class LoyaltyCustomer extends Equatable {
     required this.email,
     required this.loyaltyName,
     required this.amountPerPoint,
-    required this.minRedeemAmount,
+    required this.pointValue,
+    required this.minRedeemPoint,
     required this.redeemValidityDays,
   });
+
+  final int loyalityId;
+  static const String loyalityIdKey = "loyality_id";
+
+  final int custId;
+  static const String custIdKey = "cust_id";
 
   final String customerName;
   static const String customerNameKey = "customer_name";
@@ -87,14 +96,19 @@ class LoyaltyCustomer extends Equatable {
   final String amountPerPoint;
   static const String amountPerPointKey = "amount_per_point";
 
-  final String minRedeemAmount;
-  static const String minRedeemAmountKey = "min_redeem_amount";
+  final String pointValue;
+  static const String pointPerAmountKey = "pointvalue";
+
+  final String minRedeemPoint;
+  static const String minRedeemPointKey = "min_redeem_point";
 
   final int redeemValidityDays;
   static const String redeemValidityDaysKey = "redeem_validity_days";
 
 
   LoyaltyCustomer copyWith({
+    int? loyalityId,
+    int? custId,
     String? customerName,
     String? totalPointsEarned,
     String? totalEarnedAmount,
@@ -102,10 +116,13 @@ class LoyaltyCustomer extends Equatable {
     String? email,
     String? loyaltyName,
     String? amountPerPoint,
-    String? minRedeemAmount,
+    String? pointValue,
+    String? minRedeemPoint,
     int? redeemValidityDays,
   }) {
     return LoyaltyCustomer(
+      loyalityId: loyalityId ?? this.loyalityId,
+      custId: custId ?? this.custId,
       customerName: customerName ?? this.customerName,
       totalPointsEarned: totalPointsEarned ?? this.totalPointsEarned,
       totalEarnedAmount: totalEarnedAmount ?? this.totalEarnedAmount,
@@ -113,13 +130,16 @@ class LoyaltyCustomer extends Equatable {
       email: email ?? this.email,
       loyaltyName: loyaltyName ?? this.loyaltyName,
       amountPerPoint: amountPerPoint ?? this.amountPerPoint,
-      minRedeemAmount: minRedeemAmount ?? this.minRedeemAmount,
+      pointValue: pointValue ?? this.pointValue,
+      minRedeemPoint: minRedeemPoint ?? this.minRedeemPoint,
       redeemValidityDays: redeemValidityDays ?? this.redeemValidityDays,
     );
   }
 
   factory LoyaltyCustomer.fromJson(Map<String, dynamic> json){
     return LoyaltyCustomer(
+      loyalityId: json["loyality_id"] ?? 0,
+      custId: json["cust_id"] ?? 0,
       customerName: json["customer_name"] ?? "",
       totalPointsEarned: json["total_points_earned"] ?? "",
       totalEarnedAmount: json["total_earned_amount"] ?? "",
@@ -127,12 +147,16 @@ class LoyaltyCustomer extends Equatable {
       email: json["email"] ?? "",
       loyaltyName: json["loyalty_name"] ?? "",
       amountPerPoint: json["amount_per_point"] ?? "",
-      minRedeemAmount: json["min_redeem_amount"] ?? "",
+      pointValue: json["pointvalue"] ?? "",
+      minRedeemPoint: json["min_redeem_point"] ?? "",
       redeemValidityDays: json["redeem_validity_days"] ?? 0,
+
     );
   }
 
   Map<String, dynamic> toJson() => {
+    "loyality_id": loyalityId,
+    "cust_id": custId,
     "customer_name": customerName,
     "total_points_earned": totalPointsEarned,
     "total_earned_amount": totalEarnedAmount,
@@ -140,16 +164,17 @@ class LoyaltyCustomer extends Equatable {
     "email": email,
     "loyalty_name": loyaltyName,
     "amount_per_point": amountPerPoint,
-    "min_redeem_amount": minRedeemAmount,
+    "pointvalue": pointValue,
+    "min_redeem_point": minRedeemPoint,
     "redeem_validity_days": redeemValidityDays,
   };
 
   @override
   String toString(){
-    return "$customerName, $totalPointsEarned, $totalEarnedAmount, $phoneNo, $email, $loyaltyName, $amountPerPoint, $minRedeemAmount, $redeemValidityDays, ";
+    return "$loyalityId, $custId, $customerName, $totalPointsEarned, $totalEarnedAmount, $phoneNo, $email, $loyaltyName, $amountPerPoint, $pointValue, $minRedeemPoint, $redeemValidityDays, ";
   }
 
   @override
   List<Object?> get props => [
-    customerName, totalPointsEarned, totalEarnedAmount, phoneNo, email, loyaltyName, amountPerPoint, minRedeemAmount, redeemValidityDays, ];
+    loyalityId, custId, customerName, totalPointsEarned, totalEarnedAmount, phoneNo, email, loyaltyName, amountPerPoint, pointValue, minRedeemPoint, redeemValidityDays, ];
 }

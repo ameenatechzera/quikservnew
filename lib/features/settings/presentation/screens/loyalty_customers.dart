@@ -89,9 +89,17 @@ class _CustomerListPageState extends State<CustomerListPage> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+
       
                                 const SizedBox(height: 6),
-      
+                                Text(
+                                  customer.loyalityName ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
                                 Row(
                                   children: [
                                     const Icon(

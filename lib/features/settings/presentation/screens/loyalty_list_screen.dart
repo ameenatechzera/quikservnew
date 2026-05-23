@@ -228,7 +228,7 @@ class _LoyaltyCard extends StatelessWidget {
                 _StatCell(
                   icon: Icons.redeem,
                   label: 'Min Redeem',
-                  value: '₹${card.minRedeemAmt ?? '-'}',
+                  value: '₹${card.minRedeemPoint ?? '-'}',
                   accent: accent,
                 ),
 

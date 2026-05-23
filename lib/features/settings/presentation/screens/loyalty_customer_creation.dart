@@ -275,7 +275,7 @@ class _AssignLoyaltyPageState extends State<AddLoyaltyCustomer> {
                                 ),
                                 _previewChip(
                                   Icons.redeem,
-                                  'Min ₹${_selectedCard!.minRedeemAmt}',
+                                  'Min ₹${_selectedCard!.minRedeemPoint}',
                                 ),
                                 _previewChip(
                                   Icons.calendar_today,

@@ -21,7 +21,13 @@ class SaveSaleRequest {
   final int createdUser;
   final int branchId;
   final double totalTax;
-  final double redeemAmount;
+
+  final int loyalCardId;
+  final int customerId;
+  final double redeemedAmount;
+  final String pointRedeemed;
+  final String pointEarned;
+
   final List<SaleDetail> salesDetails;
 
   SaveSaleRequest({
@@ -47,8 +53,14 @@ class SaveSaleRequest {
     required this.createdUser,
     required this.branchId,
     required this.totalTax,
-    required this.redeemAmount,
     required this.salesDetails,
+
+
+    required this.loyalCardId,
+    required this.customerId,
+    required this.redeemedAmount,
+    required this.pointRedeemed,
+    required this.pointEarned,
   });
 
   Map<String, dynamic> toJson() {
@@ -75,7 +87,13 @@ class SaveSaleRequest {
       "CreatedUser": createdUser,
       "branchId": branchId,
       "totalTax": totalTax,
-      "redeemAmount":redeemAmount,
+      "redeemedAmount":redeemedAmount,
+
+      "loyalCardId":loyalCardId,
+      "customerId":customerId,
+      "pointRedeemed":pointRedeemed,
+      "pointEarned":pointEarned,
+
       "SalesDetails": salesDetails.map((e) => e.toJson()).toList(),
     };
   }
@@ -94,6 +112,8 @@ class SaleDetail {
   final double vatAmount;
   final double totalAmount;
   final double conversionRate;
+
+
 
   SaleDetail({
     required this.productCode,

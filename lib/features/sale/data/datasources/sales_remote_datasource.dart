@@ -61,6 +61,7 @@ class SalesRemoteDataSourceImpl implements SalesRemoteDataSource {
         throw Exception("Base URL not set");
       }
       final url = ApiConstants.fetchLoyaltySearchCustomerPath(baseUrl);
+      print('url $url');
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");

@@ -6,9 +6,10 @@ class LoyaltyCardSaveRequest extends Equatable {
   final String tokenNo;
   final String loyaltyName;
   final String amountPerPoint;
-  final String minRedeemAmt;
+  final String minRedeemPoint;
   final String redeemValidityDays;
   final String activeStatus;
+  final String pointValue;
 
 
 
@@ -18,15 +19,16 @@ class LoyaltyCardSaveRequest extends Equatable {
     required this.tokenNo,
     required this.loyaltyName,
     required this.amountPerPoint,
-    required this.minRedeemAmt,
+    required this.minRedeemPoint,
     required this.redeemValidityDays,
     required this.activeStatus,
+    required this.pointValue
 
   });
 
   @override
   List<Object?> get props => [dbname, branchId, tokenNo, loyaltyName ,
-    amountPerPoint ,minRedeemAmt , redeemValidityDays ,activeStatus];
+    amountPerPoint ,minRedeemPoint , redeemValidityDays ,activeStatus, pointValue];
 
   Map<String, dynamic> toJson() => {
     "db_name": dbname,
@@ -34,9 +36,10 @@ class LoyaltyCardSaveRequest extends Equatable {
     "billTokenNo": tokenNo,
     "loyalityName": loyaltyName,
     "amountPerPoint": amountPerPoint,
-    "minRedeemAmt": minRedeemAmt,
+    "minRedeemPoint": minRedeemPoint,
     "redeemValidityDays": redeemValidityDays,
     "activeStatus": activeStatus,
+    "pointValue":pointValue
 
   };
 

@@ -51,6 +51,7 @@ class Datum extends Equatable {
     required this.createdUser,
     required this.modifiedDate,
     required this.modifiedUser,
+    required this.loyalityName
   });
 
   final int custId;
@@ -61,6 +62,9 @@ class Datum extends Equatable {
 
   final String phoneNo;
   static const String phoneNoKey = "phoneNo";
+
+  final String loyalityName;
+  static const String loyalityNameKey = "loyalityName";
 
   final String email;
   static const String emailKey = "email";
@@ -89,6 +93,7 @@ class Datum extends Equatable {
     int? loyalityId,
     DateTime? createdDate,
     String? createdUser,
+    String? loyalityName,
     dynamic? modifiedDate,
     dynamic? modifiedUser,
   }) {
@@ -102,6 +107,7 @@ class Datum extends Equatable {
       createdUser: createdUser ?? this.createdUser,
       modifiedDate: modifiedDate ?? this.modifiedDate,
       modifiedUser: modifiedUser ?? this.modifiedUser,
+        loyalityName : loyalityName ?? this.loyalityName
     );
   }
 
@@ -116,6 +122,7 @@ class Datum extends Equatable {
       createdUser: json["createdUser"] ?? "",
       modifiedDate: json["modifiedDate"],
       modifiedUser: json["modifiedUser"],
+        loyalityName : json["loyalityName"]
     );
   }
 
@@ -129,14 +136,15 @@ class Datum extends Equatable {
     "createdUser": createdUser,
     "modifiedDate": modifiedDate,
     "modifiedUser": modifiedUser,
+    "loyalityName": loyalityName
   };
 
   @override
   String toString(){
-    return "$custId, $customerName, $phoneNo, $email, $loyalityId, $createdDate, $createdUser, $modifiedDate, $modifiedUser, ";
+    return "$custId, $customerName, $phoneNo, $email, $loyalityId, $createdDate, $createdUser, $modifiedDate, $modifiedUser, $loyalityName";
   }
 
   @override
   List<Object?> get props => [
-    custId, customerName, phoneNo, email, loyalityId, createdDate, createdUser, modifiedDate, modifiedUser, ];
+    custId, customerName, phoneNo, email, loyalityId, createdDate, createdUser, modifiedDate, modifiedUser, loyalityName];
 }

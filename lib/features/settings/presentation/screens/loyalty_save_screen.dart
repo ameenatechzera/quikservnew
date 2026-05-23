@@ -21,6 +21,7 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
   final _nameController         = TextEditingController();
   final _amountPerPointController = TextEditingController();
   final _minRedeemController    = TextEditingController();
+  final _pointValueController    = TextEditingController();
   final _validityDaysController = TextEditingController();
 
   bool _isLoading = false;
@@ -33,12 +34,12 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
     context.read<SettingsCubit>().saveLoyaltyCard(LoyaltyCardSaveRequest(
       loyaltyName: _nameController.text.trim(),
       amountPerPoint: _amountPerPointController.text.trim().toString(),
-      minRedeemAmt: _minRedeemController.text.trim(),
+      minRedeemPoint: _minRedeemController.text.trim(),
       redeemValidityDays: _validityDaysController.text.trim(),
       activeStatus: '1',
       dbname: dbName!,
       branchId: branchId,
-      tokenNo: '',
+      tokenNo: '', pointValue: _pointValueController.text.toString(),
     ),);
 
     }
@@ -136,8 +137,8 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
               const SizedBox(height: 16),
 
               _buildField(
-                controller: _amountPerPointController,
-                label: 'Amount per Point (₹)',
+                controller: _pointValueController,
+                label: 'Point Value(₹)',
                 hint: 'e.g. 10.00',
                 icon: Icons.currency_rupee,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -148,7 +149,33 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                 ],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
-                    return 'Amount per point is required';
+                    return 'Point Value is required';
+                  }
+                  if (double.tryParse(v.trim()) == null) {
+                    return 'Enter a valid amount';
+                  }
+                  if (double.parse(v.trim()) <= 0) {
+                    return 'Point must be greater than 0';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 16),
+              _buildField(
+                controller: _amountPerPointController,
+                label: 'Amount per Point for redeem amount',
+                hint: 'e.g. 1',
+                icon: Icons.currency_rupee,
+                keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d*\.?\d{0,2}'))
+                ],
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Amount Per Point is required';
                   }
                   if (double.tryParse(v.trim()) == null) {
                     return 'Enter a valid amount';
@@ -159,9 +186,7 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                   return null;
                 },
               ),
-
               const SizedBox(height: 16),
-
               _buildField(
                 controller: _minRedeemController,
                 label: 'Minimum Redeem Amount (₹)',
@@ -187,8 +212,8 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                 },
               ),
 
-              const SizedBox(height: 16),
 
+              const SizedBox(height: 16),
               _buildField(
                 controller: _validityDaysController,
                 label: 'Redeem Validity (Days)',

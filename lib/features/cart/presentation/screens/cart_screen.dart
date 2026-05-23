@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
@@ -201,7 +202,7 @@ class _CartScreenState extends State<CartScreen> {
                         final tax = totals['tax'] as double;
                         var total = totals['total'] as double;
                         final vatType = totals['vatType'] as String?;
-                        double redeemAmount = 0;
+                        double redeemAmount = 0 , pointsEarned =0;
                         totalSalesController.text= total.toString();
 
                         // double totalSalesAmount = double.parse(totalSalesController.text.toString());
@@ -215,15 +216,25 @@ class _CartScreenState extends State<CartScreen> {
                         // if(totalSalesAmount>=totalEarnedAmount){
                         //   _redeemEligible = true;
                         // }
+
                         // ── apply redeem deduction once here ──
                         if (_redeemPoints && _selectedCustomer != null) {
                           final dbl_redeemLimit = double.tryParse(
                               _selectedCustomer!.totalEarnedAmount ?? '0') ??
                               0;
+
                           if (total >= dbl_redeemLimit && dbl_redeemLimit > 0) {
-                            total = total - dbl_redeemLimit;
-                            discount = dbl_redeemLimit;
-                            redeemAmount = dbl_redeemLimit;
+                            redeemAmount = double.parse(_selectedCustomer!.totalPointsEarned  ?? '0') * double.parse(_selectedCustomer!.amountPerPoint  ?? '0');
+                            total = total - redeemAmount;
+                            discount = redeemAmount;
+                          }
+                        }
+
+                        else{
+                          if(_selectedCustomer !=null){
+                            double amountPerPoint = double.parse(_selectedCustomer!.amountPerPoint  ?? '0');
+                            double dbl_billTotal = total;
+                            pointsEarned =  dbl_billTotal / amountPerPoint;
                           }
                         }
 
@@ -725,6 +736,14 @@ class _CartScreenState extends State<CartScreen> {
                                             return;
                                           }
                                         }
+                                        print('_selectedCustomer!.loyalityId ${_selectedCustomer!.loyalityId}');
+                                        String st_pointsRedeemed ='' ,st_points_earned ='';
+                                        if(redeemAmount>0){
+                                           st_pointsRedeemed = _selectedCustomer!.totalPointsEarned;
+                                        }
+                                        else{
+                                           st_points_earned = pointsEarned.toString();
+                                        }
                                         final ledgerData =
                                         await SharedPreferenceHelper()
                                             .getLedgers();
@@ -798,7 +817,9 @@ class _CartScreenState extends State<CartScreen> {
                                             conversionRate: 1,
                                           ))
                                               .toList(),
-                                          redeemAmount: redeemAmount,
+
+                                          loyalCardId: _selectedCustomer!.loyalityId, customerId: _selectedCustomer!.custId,
+                                          pointRedeemed:st_pointsRedeemed, pointEarned: st_points_earned, redeemedAmount: redeemAmount,
                                         );
                                         if (expiredStatusController
                                             .text ==
@@ -1083,8 +1104,29 @@ class _CartScreenState extends State<CartScreen> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   onChanged: (val) {
-                    setState(() => _redeemPoints = val ?? false);
+                    double _salesTotal = double.parse(totalSalesController.text.toString() ?? '0');
+                    print('_salesTotal $_salesTotal');
+                    print('_selectedCustomer!.totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount.toString()}');
+                    print('pointLimit ${_selectedCustomer!.minRedeemPoint}');
+                    double dbl_pointLimit = double.parse(_selectedCustomer!.minRedeemPoint.toString()?? '0');
+                    double dbl_pointEarned = double.parse(_selectedCustomer!.totalPointsEarned.toString()?? '0');
+                    if(dbl_pointEarned>=dbl_pointLimit) {
+                      if (_salesTotal >= double.parse(
+                          _selectedCustomer!.totalEarnedAmount.toString() ??
+                              '')) {
+                        setState(() => _redeemPoints = val ?? false);
+                      }
+                    }
+                    else{
 
+                      Fluttertoast.showToast(
+                        msg: "Point Limit not reached !",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,   // TOP, CENTER, BOTTOM
+                        backgroundColor: Colors.black87,
+                        textColor: Colors.white,
+                      );
+                    }
                   },
                 ),
                 const SizedBox(width: 8),

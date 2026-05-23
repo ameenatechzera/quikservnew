@@ -50,7 +50,7 @@ class LoyaltyList extends Equatable {
     required this.loyalityId,
     required this.loyalityName,
     required this.amountPerPoint,
-    required this.minRedeemAmt,
+    required this.minRedeemPoint,
     required this.redeemValidityDays,
     required this.activeStatus,
     required this.createdUser,
@@ -68,8 +68,8 @@ class LoyaltyList extends Equatable {
   final String amountPerPoint;
   static const String amountPerPointKey = "amountPerPoint";
 
-  final String minRedeemAmt;
-  static const String minRedeemAmtKey = "minRedeemAmt";
+  final String minRedeemPoint;
+  static const String minRedeemPointKey = "minRedeemPoint";
 
   final int redeemValidityDays;
   static const String redeemValidityDaysKey = "redeemValidityDays";
@@ -106,7 +106,7 @@ class LoyaltyList extends Equatable {
       loyalityId: loyalityId ?? this.loyalityId,
       loyalityName: loyalityName ?? this.loyalityName,
       amountPerPoint: amountPerPoint ?? this.amountPerPoint,
-      minRedeemAmt: minRedeemAmt ?? this.minRedeemAmt,
+      minRedeemPoint: minRedeemAmt ?? this.minRedeemPoint,
       redeemValidityDays: redeemValidityDays ?? this.redeemValidityDays,
       activeStatus: activeStatus ?? this.activeStatus,
       createdUser: createdUser ?? this.createdUser,
@@ -121,7 +121,7 @@ class LoyaltyList extends Equatable {
       loyalityId: json["loyalityId"] ?? 0,
       loyalityName: json["loyalityName"] ?? "",
       amountPerPoint: json["amountPerPoint"] ?? "",
-      minRedeemAmt: json["minRedeemAmt"] ?? "",
+      minRedeemPoint: json["minRedeemPoint"] ?? "",
       redeemValidityDays: json["redeemValidityDays"] ?? 0,
       activeStatus: json["activeStatus"] ?? false,
       createdUser: json["createdUser"] ?? "",
@@ -135,7 +135,7 @@ class LoyaltyList extends Equatable {
     "loyalityId": loyalityId,
     "loyalityName": loyalityName,
     "amountPerPoint": amountPerPoint,
-    "minRedeemAmt": minRedeemAmt,
+    "minRedeemPoint": minRedeemPoint,
     "redeemValidityDays": redeemValidityDays,
     "activeStatus": activeStatus,
     "createdUser": createdUser,
@@ -146,10 +146,10 @@ class LoyaltyList extends Equatable {
 
   @override
   String toString(){
-    return "$loyalityId, $loyalityName, $amountPerPoint, $minRedeemAmt, $redeemValidityDays, $activeStatus, $createdUser, $createdDate, $modifiedUser, $modifiedDate, ";
+    return "$loyalityId, $loyalityName, $amountPerPoint, $minRedeemPoint, $redeemValidityDays, $activeStatus, $createdUser, $createdDate, $modifiedUser, $modifiedDate, ";
   }
 
   @override
   List<Object?> get props => [
-    loyalityId, loyalityName, amountPerPoint, minRedeemAmt, redeemValidityDays, activeStatus, createdUser, createdDate, modifiedUser, modifiedDate, ];
+    loyalityId, loyalityName, amountPerPoint, minRedeemPoint, redeemValidityDays, activeStatus, createdUser, createdDate, modifiedUser, modifiedDate, ];
 }
