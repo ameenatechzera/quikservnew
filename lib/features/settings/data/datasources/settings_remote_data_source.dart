@@ -471,6 +471,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
 
   @override
   Future<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request) async {
+    print('LoyaltyCardSaveRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {

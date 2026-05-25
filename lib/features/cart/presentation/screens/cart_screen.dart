@@ -49,6 +49,8 @@ class _CartScreenState extends State<CartScreen> {
   LoyaltyCustomer? _selectedCustomer;
   bool _redeemPoints = false;
   bool _redeemEligible = false;
+  String st_RedeemAmount = '' , st_points_earned ='';
+
   @override
   void initState() {
     expiredStatusController.text = 'false';
@@ -107,13 +109,17 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     );
                     print('selectedCustomer $_selectedCustomer');
-                    print('totalSalesController ${totalSalesController.text.toString()}');
-                    print('_selectedCustomer ${_selectedCustomer!.totalEarnedAmount}');
-                    double totalSalesAmount = double.parse(totalSalesController.text.toString());
-                    double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
-                    if(totalSalesAmount>=totalEarnedAmount){
-                      _redeemEligible = true;
-                    }
+                    print(
+                      'totalSalesController ${totalSalesController.text.toString()}',
+                    );
+                    print(
+                      'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
+                    );
+                    // double totalSalesAmount = double.parse(totalSalesController.text.toString());
+                    // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
+                    // if(totalSalesAmount>=totalEarnedAmount){
+                    //   _redeemEligible = true;
+                    // }
                     setState(() {});
                   },
                 ),
@@ -132,7 +138,8 @@ class _CartScreenState extends State<CartScreen> {
               }
               if (state is DeviceRegisterSuccess) {
                 if (state.registerResponse.data?.result == true) {
-                  final code = await SharedPreferenceHelper().getSubscriptionCode();
+                  final code = await SharedPreferenceHelper()
+                      .getSubscriptionCode();
                   await context.read<RegisterCubit>().registerServer(
                     RegisterServerRequest(slno: code),
                   );
@@ -146,36 +153,47 @@ class _CartScreenState extends State<CartScreen> {
                 if (state is SalesDetailsFetchSuccess) {
                   Navigator.pop(context);
                   CartManager().clearCart();
-                  String selectedPrinter =
-                  (await SharedPreferenceHelper().loadSelectedPrinterSize())!;
+                  String selectedPrinter = (await SharedPreferenceHelper()
+                      .loadSelectedPrinterSize())!;
+                  print('selectedPrinter $selectedPrinter');
                   if (selectedPrinter.length > 1) {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => PrintPage(
-                        pageFrom: 'SalesReport',
-                        sales: state.response,
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PrintPage(
+                          pageFrom: 'SalesReport',
+                          sales: state.response,
+                        ),
                       ),
-                    ));
+                    );
                   } else {
                     Navigator.pop(context);
                   }
                 }
                 if (state is SaleSuccess) {
-                  showAnimatedToast(context,
-                      message: 'Sale Saved! Invoice: ${state.response.details?.invoiceNo}',
-                      isSuccess: true);
-                  await SharedPreferenceHelper()
-                      .setCurrentDate(state.response.details?.currentDate);
+                  showAnimatedToast(
+                    context,
+                    message:
+                        'Sale Saved! Invoice: ${state.response.details?.invoiceNo}',
+                    isSuccess: true,
+                  );
+                  await SharedPreferenceHelper().setCurrentDate(
+                    state.response.details?.currentDate,
+                  );
                   final branchId = await SharedPreferenceHelper().getBranchId();
                   context.read<SaleCubit>().fetchSalesDetailsByMasterId(
                     FetchSalesDetailsRequest(
                       branchId: branchId,
-                      SalesMasterId:
-                      state.response.details!.salesMasterId.toString(),
+                      SalesMasterId: state.response.details!.salesMasterId
+                          .toString(),
                     ),
                   );
                 } else if (state is SaleError) {
-                  showAnimatedToast(context,
-                      message: 'Error: ${state.error}', isSuccess: false);
+                  showAnimatedToast(
+                    context,
+                    message: 'Error: ${state.error}',
+                    isSuccess: false,
+                  );
                 }
               },
               builder: (context, state) {
@@ -202,8 +220,8 @@ class _CartScreenState extends State<CartScreen> {
                         final tax = totals['tax'] as double;
                         var total = totals['total'] as double;
                         final vatType = totals['vatType'] as String?;
-                        double redeemAmount = 0 , pointsEarned =0;
-                        totalSalesController.text= total.toString();
+                        double redeemAmount = 0, pointsEarned = 0;
+                        totalSalesController.text = total.toString();
 
                         // double totalSalesAmount = double.parse(totalSalesController.text.toString());
                         // double totalEarnedAmount = 0;
@@ -219,42 +237,57 @@ class _CartScreenState extends State<CartScreen> {
 
                         // ── apply redeem deduction once here ──
                         if (_redeemPoints && _selectedCustomer != null) {
-                          final dbl_redeemLimit = double.tryParse(
-                              _selectedCustomer!.totalEarnedAmount ?? '0') ??
+                          final dbl_redeemLimit =
+                              double.tryParse(
+                                _selectedCustomer!.totalEarnedAmount ?? '0',
+                              ) ??
                               0;
 
                           if (total >= dbl_redeemLimit && dbl_redeemLimit > 0) {
-                            redeemAmount = double.parse(_selectedCustomer!.totalPointsEarned  ?? '0') * double.parse(_selectedCustomer!.amountPerPoint  ?? '0');
+                            redeemAmount =
+                                double.parse(
+                                  _selectedCustomer!.totalPointsEarned ?? '0',
+                                ) *
+                                double.parse(
+                                  _selectedCustomer!.pointValue ?? '0',
+                                );
                             total = total - redeemAmount;
                             discount = redeemAmount;
                           }
-                        }
 
-                        else{
-                          if(_selectedCustomer !=null){
-                            double amountPerPoint = double.parse(_selectedCustomer!.amountPerPoint  ?? '0');
+                        } else {
+                          if (_selectedCustomer != null) {
+                            double amountPerPoint = double.parse(
+                              _selectedCustomer!.amountPerPoint ?? '0',
+                            );
                             double dbl_billTotal = total;
-                            pointsEarned =  dbl_billTotal / amountPerPoint;
+                            pointsEarned = dbl_billTotal / amountPerPoint;
+                            st_points_earned =
+                                pointsEarned
+                                    .toString();
                           }
                         }
 
-                        return Column(                          // ← outer Column
+                        return Column(
+                          // ← outer Column
                           children: [
-
                             /// ── TOP: scrollable area ──
-                            Expanded(                           // ← takes all space above bottom bar
+                            Expanded(
+                              // ← takes all space above bottom bar
                               child: SingleChildScrollView(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-
                                     /// Cart items
                                     ListView.builder(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 5),
+                                        horizontal: 12,
+                                        vertical: 5,
+                                      ),
                                       itemCount: cartItems.length,
                                       itemBuilder: (context, index) {
                                         return CartItemRow(
@@ -267,16 +300,18 @@ class _CartScreenState extends State<CartScreen> {
                                     /// Summary box
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 12),
+                                        horizontal: 12,
+                                      ),
                                       child: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             'Payment',
                                             style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                           const SizedBox(height: 12),
                                           Container(
@@ -285,15 +320,19 @@ class _CartScreenState extends State<CartScreen> {
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFFFF4D7),
                                               borderRadius:
-                                              BorderRadius.circular(12),
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: Column(
                                               children: [
-                                                summaryRow('Sub Total :',
-                                                    subTotal.toStringAsFixed(2)),
+                                                summaryRow(
+                                                  'Sub Total :',
+                                                  subTotal.toStringAsFixed(2),
+                                                ),
                                                 const SizedBox(height: 4),
-                                                summaryRow('Discount :',
-                                                    discount.toStringAsFixed(2)),
+                                                summaryRow(
+                                                  'Discount :',
+                                                  discount.toStringAsFixed(2),
+                                                ),
                                                 const SizedBox(height: 4),
                                                 if (tax > 0)
                                                   summaryRow(
@@ -301,9 +340,11 @@ class _CartScreenState extends State<CartScreen> {
                                                     tax.toStringAsFixed(2),
                                                   ),
                                                 const Divider(height: 16),
-                                                summaryRow('Total :',
-                                                    total.toStringAsFixed(2),
-                                                    isBold: true),
+                                                summaryRow(
+                                                  'Total :',
+                                                  total.toStringAsFixed(2),
+                                                  isBold: true,
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -311,7 +352,9 @@ class _CartScreenState extends State<CartScreen> {
 
                                           /// Loyalty card
                                           if (_selectedCustomer != null)
-                                            _buildLoyaltyCard(_selectedCustomer!),
+                                            _buildLoyaltyCard(
+                                              _selectedCustomer!,
+                                            ),
                                         ],
                                       ),
                                     ),
@@ -322,7 +365,12 @@ class _CartScreenState extends State<CartScreen> {
 
                             /// ── BOTTOM: fixed, never scrolls ──
                             Container(
-                              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                              padding: const EdgeInsets.fromLTRB(
+                                12,
+                                10,
+                                12,
+                                12,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 boxShadow: [
@@ -336,7 +384,6 @@ class _CartScreenState extends State<CartScreen> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-
                                   /// Payment options — Cash / Card / Multi
                                   ValueListenableBuilder(
                                     valueListenable: selectedPayment,
@@ -355,9 +402,10 @@ class _CartScreenState extends State<CartScreen> {
                                                 subtitle: '',
                                                 selected: payment == 'Cash',
                                                 iconPath:
-                                                'assets/icons/cashicon.svg',
-                                                amount:
-                                                payment == 'Cash' ? total : 0,
+                                                    'assets/icons/cashicon.svg',
+                                                amount: payment == 'Cash'
+                                                    ? total
+                                                    : 0,
                                               ),
                                             ),
                                           ),
@@ -374,9 +422,10 @@ class _CartScreenState extends State<CartScreen> {
                                                 subtitle: '',
                                                 selected: payment == 'Card',
                                                 iconPath:
-                                                'assets/icons/cardicon.svg',
-                                                amount:
-                                                payment == 'Card' ? total : 0,
+                                                    'assets/icons/cardicon.svg',
+                                                amount: payment == 'Card'
+                                                    ? total
+                                                    : 0,
                                               ),
                                             ),
                                           ),
@@ -391,81 +440,100 @@ class _CartScreenState extends State<CartScreen> {
                                                       prevPayment;
                                                 };
                                                 var onOk = () {
-                                                  selectedPayment.value = 'Multi';
+                                                  selectedPayment.value =
+                                                      'Multi';
                                                 };
                                                 final bool wasMulti =
                                                     prevPayment == 'Multi';
-                                                final double initialCash = wasMulti
+                                                final double initialCash =
+                                                    wasMulti
                                                     ? multiCashAmount.value
                                                     : (prevPayment == 'Cash'
-                                                    ? total
-                                                    : 0);
-                                                final double initialCard = wasMulti
+                                                          ? total
+                                                          : 0);
+                                                final double initialCard =
+                                                    wasMulti
                                                     ? multiCardAmount.value
                                                     : (prevPayment == 'Card'
-                                                    ? total
-                                                    : 0);
+                                                          ? total
+                                                          : 0);
                                                 double tempCash = initialCash;
                                                 double tempCard = initialCard;
                                                 final cashCtrl =
-                                                TextEditingController(
-                                                    text: initialCash == 0
-                                                        ? ''
-                                                        : initialCash
-                                                        .toStringAsFixed(
-                                                        2));
+                                                    TextEditingController(
+                                                      text: initialCash == 0
+                                                          ? ''
+                                                          : initialCash
+                                                                .toStringAsFixed(
+                                                                  2,
+                                                                ),
+                                                    );
                                                 final cardCtrl =
-                                                TextEditingController(
-                                                    text: initialCard == 0
-                                                        ? ''
-                                                        : initialCard
-                                                        .toStringAsFixed(
-                                                        2));
+                                                    TextEditingController(
+                                                      text: initialCard == 0
+                                                          ? ''
+                                                          : initialCard
+                                                                .toStringAsFixed(
+                                                                  2,
+                                                                ),
+                                                    );
                                                 bool isAutoUpdating = false;
                                                 bool closedByButton = false;
                                                 double _parse(String v) =>
-                                                    double.tryParse(v.trim()) ?? 0;
+                                                    double.tryParse(v.trim()) ??
+                                                    0;
                                                 void _setText(
-                                                    TextEditingController c,
-                                                    double value) {
+                                                  TextEditingController c,
+                                                  double value,
+                                                ) {
                                                   final t = value == 0
                                                       ? ''
-                                                      : value.toStringAsFixed(2);
+                                                      : value.toStringAsFixed(
+                                                          2,
+                                                        );
                                                   c.value = TextEditingValue(
-                                                      text: t,
-                                                      selection:
-                                                      TextSelection.collapsed(
-                                                          offset: t.length));
+                                                    text: t,
+                                                    selection:
+                                                        TextSelection.collapsed(
+                                                          offset: t.length,
+                                                        ),
+                                                  );
                                                 }
+
                                                 TextInputFormatter
                                                 _maxTotalFormatter(
-                                                    double total) {
-                                                  return TextInputFormatter
-                                                      .withFunction(
-                                                          (oldValue, newValue) {
-                                                        final t =
-                                                        newValue.text.trim();
-                                                        if (t.isEmpty) return newValue;
-                                                        if (t == '.') return newValue;
-                                                        final v =
-                                                        double.tryParse(t);
-                                                        if (v == null)
-                                                          return oldValue;
-                                                        if (v > total)
-                                                          return oldValue;
+                                                  double total,
+                                                ) {
+                                                  return TextInputFormatter.withFunction(
+                                                    (oldValue, newValue) {
+                                                      final t = newValue.text
+                                                          .trim();
+                                                      if (t.isEmpty)
                                                         return newValue;
-                                                      });
+                                                      if (t == '.')
+                                                        return newValue;
+                                                      final v = double.tryParse(
+                                                        t,
+                                                      );
+                                                      if (v == null)
+                                                        return oldValue;
+                                                      if (v > total)
+                                                        return oldValue;
+                                                      return newValue;
+                                                    },
+                                                  );
                                                 }
 
                                                 showModalBottomSheet(
                                                   context: context,
                                                   isScrollControlled: true,
-                                                  shape:
-                                                  const RoundedRectangleBorder(
+                                                  shape: const RoundedRectangleBorder(
                                                     borderRadius:
-                                                    BorderRadius.vertical(
-                                                        top:
-                                                        Radius.circular(16)),
+                                                        BorderRadius.vertical(
+                                                          top: Radius.circular(
+                                                            16,
+                                                          ),
+                                                        ),
                                                   ),
                                                   builder: (context) {
                                                     return WillPopScope(
@@ -480,199 +548,268 @@ class _CartScreenState extends State<CartScreen> {
                                                           right: 16,
                                                           top: 16,
                                                           bottom:
-                                                          MediaQuery.of(context)
-                                                              .viewInsets
-                                                              .bottom +
+                                                              MediaQuery.of(
+                                                                    context,
+                                                                  )
+                                                                  .viewInsets
+                                                                  .bottom +
                                                               16,
                                                         ),
                                                         child: Column(
                                                           mainAxisSize:
-                                                          MainAxisSize.min,
+                                                              MainAxisSize.min,
                                                           children: [
                                                             const Text(
-                                                                'Multi Payment',
-                                                                style: TextStyle(
-                                                                    fontSize: 16,
-                                                                    fontWeight:
+                                                              'Multi Payment',
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
                                                                     FontWeight
-                                                                        .w600)),
+                                                                        .w600,
+                                                              ),
+                                                            ),
                                                             const SizedBox(
-                                                                height: 8),
+                                                              height: 8,
+                                                            ),
                                                             Align(
                                                               alignment: Alignment
                                                                   .centerLeft,
                                                               child: Text(
-                                                                  'Total: ${total.toStringAsFixed(2)}',
-                                                                  style: const TextStyle(
-                                                                      fontWeight:
+                                                                'Total: ${total.toStringAsFixed(2)}',
+                                                                style: const TextStyle(
+                                                                  fontWeight:
                                                                       FontWeight
-                                                                          .w600)),
+                                                                          .w600,
+                                                                ),
+                                                              ),
                                                             ),
                                                             const SizedBox(
-                                                                height: 16),
-                                                            Row(children: [
-                                                              const SizedBox(
+                                                              height: 16,
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                const SizedBox(
                                                                   width: 160,
-                                                                  child:
-                                                                  Text('Cash')),
-                                                              Expanded(
+                                                                  child: Text(
+                                                                    'Cash',
+                                                                  ),
+                                                                ),
+                                                                Expanded(
                                                                   child: TextField(
-                                                                    controller: cashCtrl,
-                                                                    keyboardType: const TextInputType
-                                                                        .numberWithOptions(
-                                                                        decimal: true),
+                                                                    controller:
+                                                                        cashCtrl,
+                                                                    keyboardType:
+                                                                        const TextInputType.numberWithOptions(
+                                                                          decimal:
+                                                                              true,
+                                                                        ),
                                                                     inputFormatters: [
-                                                                      FilteringTextInputFormatter
-                                                                          .allow(RegExp(
-                                                                          r'^\d*\.?\d{0,2}$')),
+                                                                      FilteringTextInputFormatter.allow(
+                                                                        RegExp(
+                                                                          r'^\d*\.?\d{0,2}$',
+                                                                        ),
+                                                                      ),
                                                                       _maxTotalFormatter(
-                                                                          total),
+                                                                        total,
+                                                                      ),
                                                                     ],
                                                                     decoration: InputDecoration(
-                                                                        hintText:
-                                                                        'Amount',
-                                                                        border: OutlineInputBorder(
-                                                                            borderRadius:
-                                                                            BorderRadius
-                                                                                .circular(8))),
+                                                                      hintText:
+                                                                          'Amount',
+                                                                      border: OutlineInputBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                              8,
+                                                                            ),
+                                                                      ),
+                                                                    ),
                                                                     onChanged: (v) {
                                                                       if (isAutoUpdating)
                                                                         return;
                                                                       isAutoUpdating =
-                                                                      true;
+                                                                          true;
                                                                       tempCash =
-                                                                          _parse(v);
-                                                                      tempCard = total -
+                                                                          _parse(
+                                                                            v,
+                                                                          );
+                                                                      tempCard =
+                                                                          total -
                                                                           tempCash;
-                                                                      _setText(cardCtrl,
-                                                                          tempCard);
+                                                                      _setText(
+                                                                        cardCtrl,
+                                                                        tempCard,
+                                                                      );
                                                                       isAutoUpdating =
-                                                                      false;
+                                                                          false;
                                                                     },
-                                                                  )),
-                                                            ]),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
                                                             const SizedBox(
-                                                                height: 12),
-                                                            Row(children: [
-                                                              const SizedBox(
+                                                              height: 12,
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                const SizedBox(
                                                                   width: 160,
-                                                                  child:
-                                                                  Text('Card')),
-                                                              Expanded(
+                                                                  child: Text(
+                                                                    'Card',
+                                                                  ),
+                                                                ),
+                                                                Expanded(
                                                                   child: TextField(
-                                                                    controller: cardCtrl,
-                                                                    keyboardType: const TextInputType
-                                                                        .numberWithOptions(
-                                                                        decimal: true),
+                                                                    controller:
+                                                                        cardCtrl,
+                                                                    keyboardType:
+                                                                        const TextInputType.numberWithOptions(
+                                                                          decimal:
+                                                                              true,
+                                                                        ),
                                                                     inputFormatters: [
-                                                                      FilteringTextInputFormatter
-                                                                          .allow(RegExp(
-                                                                          r'^\d*\.?\d{0,2}$')),
+                                                                      FilteringTextInputFormatter.allow(
+                                                                        RegExp(
+                                                                          r'^\d*\.?\d{0,2}$',
+                                                                        ),
+                                                                      ),
                                                                       _maxTotalFormatter(
-                                                                          total),
+                                                                        total,
+                                                                      ),
                                                                     ],
                                                                     decoration: InputDecoration(
-                                                                        hintText:
-                                                                        'Amount',
-                                                                        border: OutlineInputBorder(
-                                                                            borderRadius:
-                                                                            BorderRadius
-                                                                                .circular(8))),
+                                                                      hintText:
+                                                                          'Amount',
+                                                                      border: OutlineInputBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                              8,
+                                                                            ),
+                                                                      ),
+                                                                    ),
                                                                     onChanged: (v) {
                                                                       if (isAutoUpdating)
                                                                         return;
                                                                       isAutoUpdating =
-                                                                      true;
+                                                                          true;
                                                                       tempCard =
-                                                                          _parse(v);
-                                                                      tempCash = total -
+                                                                          _parse(
+                                                                            v,
+                                                                          );
+                                                                      tempCash =
+                                                                          total -
                                                                           tempCard;
-                                                                      _setText(cashCtrl,
-                                                                          tempCash);
+                                                                      _setText(
+                                                                        cashCtrl,
+                                                                        tempCash,
+                                                                      );
                                                                       isAutoUpdating =
-                                                                      false;
+                                                                          false;
                                                                     },
-                                                                  )),
-                                                            ]),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
                                                             const SizedBox(
-                                                                height: 20),
-                                                            Row(children: [
-                                                              Expanded(
+                                                              height: 20,
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                Expanded(
                                                                   child: OutlinedButton(
                                                                     onPressed: () {
                                                                       closedByButton =
-                                                                      true;
+                                                                          true;
                                                                       onCancel();
                                                                       Navigator.pop(
-                                                                          context);
+                                                                        context,
+                                                                      );
                                                                     },
                                                                     child: const Text(
-                                                                        'Cancel'),
-                                                                  )),
-                                                              const SizedBox(
-                                                                  width: 12),
-                                                              Expanded(
+                                                                      'Cancel',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 12,
+                                                                ),
+                                                                Expanded(
                                                                   child: ElevatedButton(
                                                                     style: ElevatedButton.styleFrom(
-                                                                        backgroundColor:
-                                                                        const Color(
-                                                                            0xFFEAB307),
-                                                                        foregroundColor:
-                                                                        Colors.black),
+                                                                      backgroundColor:
+                                                                          const Color(
+                                                                            0xFFEAB307,
+                                                                          ),
+                                                                      foregroundColor:
+                                                                          Colors
+                                                                              .black,
+                                                                    ),
                                                                     onPressed: () {
                                                                       if ((tempCash +
-                                                                          tempCard -
-                                                                          total)
-                                                                          .abs() >
+                                                                                  tempCard -
+                                                                                  total)
+                                                                              .abs() >
                                                                           0.01) {
                                                                         ScaffoldMessenger.of(
-                                                                            context)
-                                                                            .showSnackBar(const SnackBar(
+                                                                          context,
+                                                                        ).showSnackBar(
+                                                                          const SnackBar(
                                                                             content: Text(
-                                                                                'Cash + Card must equal Total')));
+                                                                              'Cash + Card must equal Total',
+                                                                            ),
+                                                                          ),
+                                                                        );
                                                                         return;
                                                                       }
                                                                       closedByButton =
-                                                                      true;
+                                                                          true;
                                                                       multiCashAmount
-                                                                          .value =
+                                                                              .value =
                                                                           tempCash;
                                                                       multiCardAmount
-                                                                          .value =
+                                                                              .value =
                                                                           tempCard;
                                                                       onOk();
                                                                       Navigator.pop(
-                                                                          context);
+                                                                        context,
+                                                                      );
                                                                     },
-                                                                    child: const Text(
-                                                                        'OK'),
-                                                                  )),
-                                                            ]),
+                                                                    child:
+                                                                        const Text(
+                                                                          'OK',
+                                                                        ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ],
                                                         ),
                                                       ),
                                                     );
                                                   },
                                                 ).whenComplete(() {
-                                                  if (!closedByButton) onCancel();
+                                                  if (!closedByButton)
+                                                    onCancel();
                                                 });
                                               },
                                               child: ValueListenableBuilder(
-                                                valueListenable: multiCashAmount,
+                                                valueListenable:
+                                                    multiCashAmount,
                                                 builder: (context, cash, _) {
                                                   return ValueListenableBuilder(
-                                                    valueListenable: multiCardAmount,
+                                                    valueListenable:
+                                                        multiCardAmount,
                                                     builder: (context, card, __) {
                                                       return PaymentOption(
                                                         title: 'Multi',
-                                                        subtitle: cash == 0 &&
-                                                            card == 0
+                                                        subtitle:
+                                                            cash == 0 &&
+                                                                card == 0
                                                             ? ''
                                                             : 'Cash ${cash.toStringAsFixed(0)} | Card ${card.toStringAsFixed(0)}',
                                                         selected:
-                                                        payment == 'Multi',
+                                                            payment == 'Multi',
                                                         iconPath:
-                                                        'assets/icons/multiicon.svg',
+                                                            'assets/icons/multiicon.svg',
                                                         amount: cash + card,
                                                       );
                                                     },
@@ -693,150 +830,191 @@ class _CartScreenState extends State<CartScreen> {
                                     height: 48,
                                     child: state is SaleLoading
                                         ? const Center(
-                                        child: CircularProgressIndicator())
+                                            child: CircularProgressIndicator(),
+                                          )
                                         : ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                        const Color(0xFFEAB307),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(10)),
-                                        elevation: 0,
-                                      ),
-                                      onPressed: _isButtonDisabled
-                                          ? null
-                                          : () async {
-                                        setState(() =>
-                                        _isButtonDisabled = true);
-                                        final payment =
-                                            selectedPayment.value;
-                                        double cashAmt = 0;
-                                        double cardAmt = 0;
-                                        if (payment == 'Cash') {
-                                          cashAmt = total;
-                                          cardAmt = 0;
-                                        } else if (payment == 'Card') {
-                                          cashAmt = 0;
-                                          cardAmt = total;
-                                        } else if (payment == 'Multi') {
-                                          cashAmt =
-                                              multiCashAmount.value;
-                                          cardAmt =
-                                              multiCardAmount.value;
-                                          if ((cashAmt +
-                                              cardAmt -
-                                              total)
-                                              .abs() >
-                                              0.01) {
-                                            ScaffoldMessenger.of(
-                                                context)
-                                                .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    'Multi payment amount mismatch')));
-                                            return;
-                                          }
-                                        }
-                                        print('_selectedCustomer!.loyalityId ${_selectedCustomer!.loyalityId}');
-                                        String st_pointsRedeemed ='' ,st_points_earned ='';
-                                        if(redeemAmount>0){
-                                           st_pointsRedeemed = _selectedCustomer!.totalPointsEarned;
-                                        }
-                                        else{
-                                           st_points_earned = pointsEarned.toString();
-                                        }
-                                        final ledgerData =
-                                        await SharedPreferenceHelper()
-                                            .getLedgers();
-                                        final int cashLedgerId =
-                                            ledgerData['cashLedgerId'] ??
-                                                0;
-                                        final int cardLedgerId =
-                                            ledgerData['cardLedgerId'] ??
-                                                0;
-                                        final items = CartManager()
-                                            .cartItems
-                                            .value;
-                                        final request = SaveSaleRequest(
-                                          invoiceDate: DateTime.now()
-                                              .toIso8601String()
-                                              .split('T')
-                                              .first,
-                                          invoiceTime: DateTime.now()
-                                              .toIso8601String()
-                                              .split('T')
-                                              .last
-                                              .split('.')
-                                              .first,
-                                          ledgerId: 0,
-                                          subTotal: subTotal,
-                                          discountAmount: discount,
-                                          vatAmount: tax,
-                                          grandTotal: total,
-                                          cashLedgerId: cashLedgerId,
-                                          cashAmount: cashAmt,
-                                          cardLedgerId: cardLedgerId,
-                                          cardAmount: cardAmt,
-                                          creditAmount: 0,
-                                          tableId: 1,
-                                          supplierId: 1,
-                                          cashierId: 1,
-                                          orderMasterId: 10,
-                                          billStatus: 'Completed',
-                                          salesType: '',
-                                          billTokenNo: 22,
-                                          createdUser: 1,
-                                          branchId: 1,
-                                          totalTax: tax,
-                                          salesDetails: items
-                                              .map((e) => SaleDetail(
-                                            productCode:
-                                            e.productCode,
-                                            productName:
-                                            e.productName,
-                                            qty: (e.qty as num)
-                                                .toInt(),
-                                            unitId: double.parse(
-                                                e.unitId)
-                                                .toInt(),
-                                            purchaseCost:
-                                            double.parse(
-                                                e.purchaseCost),
-                                            salesRate:
-                                            e.salesRate,
-                                            excludeRate:
-                                            e.salesRate,
-                                            subtotal:
-                                            e.totalPrice,
-                                            vatId: 1,
-                                            vatAmount: tax /
-                                                items.length,
-                                            totalAmount: e
-                                                .totalPrice +
-                                                (tax /
-                                                    items.length),
-                                            conversionRate: 1,
-                                          ))
-                                              .toList(),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(
+                                                0xFFEAB307,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              elevation: 0,
+                                            ),
+                                            onPressed: _isButtonDisabled
+                                                ? null
+                                                : () async {
+                                                    setState(
+                                                      () => _isButtonDisabled =
+                                                          true,
+                                                    );
+                                                    final payment =
+                                                        selectedPayment.value;
+                                                    double cashAmt = 0;
+                                                    double cardAmt = 0;
+                                                    if (payment == 'Cash') {
+                                                      cashAmt = total;
+                                                      cardAmt = 0;
+                                                    } else if (payment ==
+                                                        'Card') {
+                                                      cashAmt = 0;
+                                                      cardAmt = total;
+                                                    } else if (payment ==
+                                                        'Multi') {
+                                                      cashAmt =
+                                                          multiCashAmount.value;
+                                                      cardAmt =
+                                                          multiCardAmount.value;
+                                                      if ((cashAmt +
+                                                                  cardAmt -
+                                                                  total)
+                                                              .abs() >
+                                                          0.01) {
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        ).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text(
+                                                              'Multi payment amount mismatch',
+                                                            ),
+                                                          ),
+                                                        );
+                                                        return;
+                                                      }
+                                                    }
+                                                    //print('_selectedCustomer!.loyalityId ${_selectedCustomer!.loyalityId}');
+                                                    String st_pointsRedeemed =
+                                                            '';
+                                                    if (redeemAmount > 0) {
+                                                      st_pointsRedeemed =
+                                                          _selectedCustomer!
+                                                              .totalPointsEarned;
+                                                    }
 
-                                          loyalCardId: _selectedCustomer!.loyalityId, customerId: _selectedCustomer!.custId,
-                                          pointRedeemed:st_pointsRedeemed, pointEarned: st_points_earned, redeemedAmount: redeemAmount,
-                                        );
-                                        if (expiredStatusController
-                                            .text ==
-                                            'true') {
-                                          context
-                                              .read<SaleCubit>()
-                                              .saveSale(request);
-                                        }
-                                      },
-                                      child: const Text(
-                                        'Confirm Sale',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16,
-                                            color: Colors.black),
-                                      ),
-                                    ),
+
+                                                    final customer =
+                                                        _selectedCustomer;
+                                                    int st_LoyaltyId = 0;
+                                                    int loyaltyCustId = 0;
+                                                    if (customer != null ) {
+                                                      st_LoyaltyId =
+                                                          customer!.loyalityId;
+                                                      loyaltyCustId =
+                                                          customer.custId;
+                                                    }
+                                                    final ledgerData =
+                                                        await SharedPreferenceHelper()
+                                                            .getLedgers();
+                                                    final int cashLedgerId =
+                                                        ledgerData['cashLedgerId'] ??
+                                                        0;
+                                                    final int cardLedgerId =
+                                                        ledgerData['cardLedgerId'] ??
+                                                        0;
+                                                    final items = CartManager()
+                                                        .cartItems
+                                                        .value;
+                                                    final request = SaveSaleRequest(
+                                                      invoiceDate:
+                                                          DateTime.now()
+                                                              .toIso8601String()
+                                                              .split('T')
+                                                              .first,
+                                                      invoiceTime:
+                                                          DateTime.now()
+                                                              .toIso8601String()
+                                                              .split('T')
+                                                              .last
+                                                              .split('.')
+                                                              .first,
+                                                      ledgerId: 0,
+                                                      subTotal: subTotal,
+                                                      discountAmount: discount,
+                                                      vatAmount: tax,
+                                                      grandTotal: total,
+                                                      cashLedgerId:
+                                                          cashLedgerId,
+                                                      cashAmount: cashAmt,
+                                                      cardLedgerId:
+                                                          cardLedgerId,
+                                                      cardAmount: cardAmt,
+                                                      creditAmount: 0,
+                                                      tableId: 1,
+                                                      supplierId: 1,
+                                                      cashierId: 1,
+                                                      orderMasterId: 10,
+                                                      billStatus: 'Completed',
+                                                      salesType: '',
+                                                      billTokenNo: 22,
+                                                      createdUser: 1,
+                                                      branchId: 1,
+                                                      totalTax: tax,
+                                                      salesDetails: items
+                                                          .map(
+                                                            (e) => SaleDetail(
+                                                              productCode:
+                                                                  e.productCode,
+                                                              productName:
+                                                                  e.productName,
+                                                              qty:
+                                                                  (e.qty as num)
+                                                                      .toInt(),
+                                                              unitId:
+                                                                  double.parse(
+                                                                    e.unitId,
+                                                                  ).toInt(),
+                                                              purchaseCost:
+                                                                  double.parse(
+                                                                    e.purchaseCost,
+                                                                  ),
+                                                              salesRate:
+                                                                  e.salesRate,
+                                                              excludeRate:
+                                                                  e.salesRate,
+                                                              subtotal:
+                                                                  e.totalPrice,
+                                                              vatId: 1,
+                                                              vatAmount:
+                                                                  tax /
+                                                                  items.length,
+                                                              totalAmount:
+                                                                  e.totalPrice +
+                                                                  (tax /
+                                                                      items
+                                                                          .length),
+                                                              conversionRate: 1,
+                                                            ),
+                                                          )
+                                                          .toList(),
+
+                                                      loyalCardId: st_LoyaltyId,
+                                                      customerId: loyaltyCustId,
+                                                      pointRedeemed:
+                                                          st_pointsRedeemed,
+                                                      pointEarned:
+                                                          st_points_earned,
+                                                      redeemedAmount:
+                                                          redeemAmount,
+                                                    );
+                                                    if (expiredStatusController
+                                                            .text ==
+                                                        'true') {
+                                                      context
+                                                          .read<SaleCubit>()
+                                                          .saveSale(request);
+                                                    }
+                                                  },
+                                            child: const Text(
+                                              'Confirm Sale',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
                                   ),
                                 ],
                               ),
@@ -855,6 +1033,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
+
   Future<String> getDeviceId() async {
     final deviceInfo = DeviceInfoPlugin();
 
@@ -926,9 +1105,11 @@ class _CartScreenState extends State<CartScreen> {
           child: Stack(
             children: [
               Positioned(
-                top: -30, right: -30,
+                top: -30,
+                right: -30,
                 child: Container(
-                  width: 140, height: 140,
+                  width: 140,
+                  height: 140,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white.withOpacity(0.04),
@@ -946,7 +1127,8 @@ class _CartScreenState extends State<CartScreen> {
                         children: [
                           /// Chip
                           Container(
-                            width: 34, height: 26,
+                            width: 34,
+                            height: 26,
                             decoration: BoxDecoration(
                               color: const Color(0xFFD4A843),
                               borderRadius: BorderRadius.circular(4),
@@ -957,12 +1139,15 @@ class _CartScreenState extends State<CartScreen> {
                               mainAxisSpacing: 2,
                               crossAxisSpacing: 2,
                               physics: const NeverScrollableScrollPhysics(),
-                              children: List.generate(4, (_) => Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.18),
-                                  borderRadius: BorderRadius.circular(1),
+                              children: List.generate(
+                                4,
+                                (_) => Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.18),
+                                    borderRadius: BorderRadius.circular(1),
+                                  ),
                                 ),
-                              )),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -989,13 +1174,16 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ],
                       ),
+
                       /// Logo circles
                       SizedBox(
-                        width: 38, height: 24,
+                        width: 38,
+                        height: 24,
                         child: Stack(
                           children: [
                             Container(
-                              width: 24, height: 24,
+                              width: 24,
+                              height: 24,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: const Color(0xFFE8B84B).withOpacity(0.9),
@@ -1004,10 +1192,13 @@ class _CartScreenState extends State<CartScreen> {
                             Positioned(
                               left: 14,
                               child: Container(
-                                width: 24, height: 24,
+                                width: 24,
+                                height: 24,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: const Color(0xFFE8B84B).withOpacity(0.5),
+                                  color: const Color(
+                                    0xFFE8B84B,
+                                  ).withOpacity(0.5),
                                 ),
                               ),
                             ),
@@ -1087,7 +1278,7 @@ class _CartScreenState extends State<CartScreen> {
 
         /// Redeem Checkbox
         Visibility(
-          visible: _redeemEligible,
+          visible: true,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -1104,25 +1295,61 @@ class _CartScreenState extends State<CartScreen> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   onChanged: (val) {
-                    double _salesTotal = double.parse(totalSalesController.text.toString() ?? '0');
+                    double _salesTotal = double.parse(
+                      totalSalesController.text.toString() ?? '0',
+                    );
                     print('_salesTotal $_salesTotal');
-                    print('_selectedCustomer!.totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount.toString()}');
+                    print(
+                      '_selectedCustomer!.totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount.toString()}',
+                    );
                     print('pointLimit ${_selectedCustomer!.minRedeemPoint}');
-                    double dbl_pointLimit = double.parse(_selectedCustomer!.minRedeemPoint.toString()?? '0');
-                    double dbl_pointEarned = double.parse(_selectedCustomer!.totalPointsEarned.toString()?? '0');
-                    if(dbl_pointEarned>=dbl_pointLimit) {
-                      if (_salesTotal >= double.parse(
-                          _selectedCustomer!.totalEarnedAmount.toString() ??
-                              '')) {
+                    print('PointValue ${_selectedCustomer!.pointValue}');
+                    double dbl_pointLimit = double.parse(
+                      _selectedCustomer!.minRedeemPoint.toString() ?? '0',
+                    );
+                    double dbl_pointEarned = double.parse(
+                      _selectedCustomer!.totalPointsEarned.toString() ?? '0',
+                    );
+                    double totalSalesAmount = double.parse(
+                      totalSalesController.text.toString(),
+                    );
+                    double totalEarnedAmount = double.parse(
+                      _selectedCustomer!.totalEarnedAmount.toString(),
+                    );
+                    double pointValue = double.parse(
+                      _selectedCustomer!.pointValue.toString() ?? '0',
+                    ); //return Discount
+                    dbl_pointEarned = dbl_pointEarned * pointValue;
+                    st_RedeemAmount = dbl_pointEarned.toStringAsFixed(
+                      get_decimalpoints(),
+                    );
+
+                    if (dbl_pointEarned >= dbl_pointLimit) {
+                      if (totalSalesAmount >= totalEarnedAmount) {
+                        _redeemPoints = true;
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: "Point Limit not reached !!!",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          // TOP, CENTER, BOTTOM
+                          backgroundColor: Colors.black87,
+                          textColor: Colors.white,
+                        );
+                      }
+                      if (_salesTotal >=
+                          double.parse(
+                            _selectedCustomer!.totalEarnedAmount.toString() ??
+                                '',
+                          )) {
                         setState(() => _redeemPoints = val ?? false);
                       }
-                    }
-                    else{
-
+                    } else {
                       Fluttertoast.showToast(
                         msg: "Point Limit not reached !",
                         toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,   // TOP, CENTER, BOTTOM
+                        gravity: ToastGravity.BOTTOM,
+                        // TOP, CENTER, BOTTOM
                         backgroundColor: Colors.black87,
                         textColor: Colors.white,
                       );
@@ -1136,26 +1363,39 @@ class _CartScreenState extends State<CartScreen> {
                     children: [
                       const Text(
                         "Redeem points",
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       Text(
-                        "${customer.totalPointsEarned ?? "0"} pts → ₹${customer.totalEarnedAmount ?? "0.00"} off",
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                        "${customer.totalPointsEarned ?? "0"} pts → ₹${st_RedeemAmount ?? "0.00"} off",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
-                    color: _redeemPoints ? Colors.green.shade50 : Colors.grey.shade100,
+                    color: _redeemPoints
+                        ? Colors.green.shade50
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     _redeemPoints ? "Applied" : "Off",
                     style: TextStyle(
                       fontSize: 11,
-                      color: _redeemPoints ? Colors.green.shade700 : Colors.grey.shade500,
+                      color: _redeemPoints
+                          ? Colors.green.shade700
+                          : Colors.grey.shade500,
                     ),
                   ),
                 ),

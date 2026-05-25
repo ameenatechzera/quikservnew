@@ -5,17 +5,34 @@ import 'package:quikservnew/features/sale/domain/entities/loyalty_search_result.
 import 'package:quikservnew/features/sale/domain/parameters/loyalty_search_request.dart';
 import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 
-class CustomerListBySearchPage extends StatelessWidget {
-  CustomerListBySearchPage({super.key});
+class CustomerListBySearchPage extends StatefulWidget {
+  const CustomerListBySearchPage({super.key});
 
+  @override
+  State<CustomerListBySearchPage> createState() =>
+      _CustomerListBySearchPageState();
+}
+
+class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
   final TextEditingController searchController = TextEditingController();
   List<LoyaltyCustomer> customers = [];
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     context.read<SaleCubit>().fetchLoyaltyDetailsBySearch(
       LoyaltySearchRequest(search: ""),
     );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -29,9 +46,7 @@ class CustomerListBySearchPage extends StatelessWidget {
         backgroundColor: AppColors.theme,
         foregroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ), // ← back arrow color
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Column(
         children: [
@@ -41,13 +56,11 @@ class CustomerListBySearchPage extends StatelessWidget {
             child: TextField(
               controller: searchController,
               onChanged: (value) {
-                if (value.length > 3) {
-                  print('searchController $value');
+                if (value.length >= 2) {
                   context.read<SaleCubit>().fetchLoyaltyDetailsBySearch(
                     LoyaltySearchRequest(search: value),
                   );
-                }
-                if (value.length <=1) {
+                } else if (value.isEmpty) {
                   context.read<SaleCubit>().fetchLoyaltyDetailsBySearch(
                     LoyaltySearchRequest(search: ""),
                   );
@@ -72,20 +85,22 @@ class CustomerListBySearchPage extends StatelessWidget {
                 if (state is LoyaltyBySearchError) {
                   print('LoyaltyBySearchError ${state.error}');
                 }
-                if (state is LoyaltyBySearchFetchSuccess) {
-                  print('LoyaltyBySearchFetchSuccess ${state.response}');
-                }
               },
               builder: (context, state) {
-                /// Loading
-                if (state is LoyaltyDetailsBySearchInitial) {
+                /// Loading — clear list and show spinner
+                if (state is LoyaltyDetailsBySearchInitial
+                   ) {
+                  customers = [];
                   return const Center(child: CircularProgressIndicator());
+                }
+
+                /// Error
+                if (state is LoyaltyBySearchError) {
+                  return Center(child: Text("Error: ${state.error}"));
                 }
 
                 /// Success
                 if (state is LoyaltyBySearchFetchSuccess) {
-                  print('ResponseSearch ${state.response.data}');
-                  customers.clear();
                   customers = state.response.data ?? [];
 
                   if (customers.isEmpty) {
@@ -99,13 +114,9 @@ class CustomerListBySearchPage extends StatelessWidget {
                       final customer = customers[index];
 
                       return GestureDetector(
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).pop(customer); // ← returns selected customer
-                        },
+                        onTap: () => Navigator.of(context).pop(customer),
                         child: Card(
-                          color: Color(0xFFFFF4D7),
+                          color: const Color(0xFFFFF4D7),
                           elevation: 4,
                           margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(
@@ -116,7 +127,6 @@ class CustomerListBySearchPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                /// Name
                                 Row(
                                   children: [
                                     const CircleAvatar(
@@ -134,10 +144,7 @@ class CustomerListBySearchPage extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                                 const SizedBox(height: 12),
-
-                                /// Phone
                                 Row(
                                   children: [
                                     const Icon(Icons.phone, size: 18),
@@ -145,39 +152,30 @@ class CustomerListBySearchPage extends StatelessWidget {
                                     Text(customer.phoneNo ?? ""),
                                   ],
                                 ),
-
                                 const SizedBox(height: 6),
-
-                                /// Email
                                 Row(
                                   children: [
                                     const Icon(Icons.email, size: 18),
                                     const SizedBox(width: 8),
-                                    Expanded(child: Text(customer.email ?? "")),
+                                    Expanded(
+                                      child: Text(customer.email ?? ""),
+                                    ),
                                   ],
                                 ),
-
                                 const Divider(),
-
-                                /// Loyalty Info
                                 Text("Loyalty: ${customer.loyaltyName ?? ""}"),
-
                                 Text(
                                   "Points Earned: ${customer.totalPointsEarned ?? "0"}",
                                 ),
-
                                 Text(
                                   "Earned Amount: ₹${customer.totalEarnedAmount ?? "0.00"}",
                                 ),
-
                                 Text(
                                   "Amount Per Point: ₹${customer.amountPerPoint ?? "0.00"}",
                                 ),
-
                                 Text(
-                                  "Min Redeem Amount: ₹${customer.minRedeemPoint ?? "0.00"}",
+                                  "Min Redeem Point: ₹${customer.minRedeemPoint ?? "0.00"}",
                                 ),
-
                                 Text(
                                   "Validity Days: ${customer.redeemValidityDays ?? 0}",
                                 ),
@@ -190,7 +188,6 @@ class CustomerListBySearchPage extends StatelessWidget {
                   );
                 }
 
-                /// Default State
                 return const Center(child: Text("Search customer"));
               },
             ),

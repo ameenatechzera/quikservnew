@@ -97,7 +97,7 @@ class LoyaltyCustomer extends Equatable {
   static const String amountPerPointKey = "amount_per_point";
 
   final String pointValue;
-  static const String pointPerAmountKey = "pointvalue";
+  static const String pointPerAmountKey = "point_value";
 
   final String minRedeemPoint;
   static const String minRedeemPointKey = "min_redeem_point";
@@ -147,7 +147,7 @@ class LoyaltyCustomer extends Equatable {
       email: json["email"] ?? "",
       loyaltyName: json["loyalty_name"] ?? "",
       amountPerPoint: json["amount_per_point"] ?? "",
-      pointValue: json["pointvalue"] ?? "",
+      pointValue: json["point_value"] ?? "",
       minRedeemPoint: json["min_redeem_point"] ?? "",
       redeemValidityDays: json["redeem_validity_days"] ?? 0,
 
@@ -164,7 +164,7 @@ class LoyaltyCustomer extends Equatable {
     "email": email,
     "loyalty_name": loyaltyName,
     "amount_per_point": amountPerPoint,
-    "pointvalue": pointValue,
+    "point_value": pointValue,
     "min_redeem_point": minRedeemPoint,
     "redeem_validity_days": redeemValidityDays,
   };

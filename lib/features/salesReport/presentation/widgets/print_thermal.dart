@@ -1,4 +1,5 @@
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -126,7 +127,7 @@ class _PrintPageState extends State<PrintPage> {
     String line;
     print('selectedPrinter $selectedPrinter');
 
-    if (selectedPrinter == '2 inch') {
+    if (selectedPrinter == '2inch') {
       generator = Generator(PaperSize.mm58, profile);
       line = '-------------------------------';
     } else {
@@ -141,7 +142,7 @@ class _PrintPageState extends State<PrintPage> {
 
     // bytes.addAll(generator.text(st_OrderNo,
     //     styles: PosStyles(align: PosAlign.center), linesAfter: 0));
-    if (selectedPrinter == '2 inch') {
+    if (selectedPrinter == '2inch') {
       bytes += generator.row([
         PosColumn(
           text: 'Token No',
@@ -642,7 +643,7 @@ class _PrintPageState extends State<PrintPage> {
 
     String line = '-----------------------------------------------';
 
-    if (selectedPrinter == '2 inch') {
+    if (selectedPrinter == '2inch') {
       generator = Generator(PaperSize.mm58, profile);
       line = '-------------------------------';
     } else {
@@ -655,13 +656,39 @@ class _PrintPageState extends State<PrintPage> {
     /// 🔹 TOP LOGO (CENTER)
     /// =======================
 
-    // final ByteData data = await rootBundle.load('assets/icons/quikserv_icon.png');
+    // final ByteData data = await rootBundle.load('assets/images/bw_printlogo.png');
     // final Uint8List logoBytes = data.buffer.asUint8List();
     // final image = img.decodeImage(logoBytes);
     //
     // if (image != null) {
     //   bytes += generator.image(image, align: PosAlign.center);
     // }
+    try {
+      debugPrint('Step 1: Loading asset...');
+      final ByteData data = await rootBundle.load('assets/images/bw_printlogo.png');
+      debugPrint('Step 2: Asset loaded, size: ${data.lengthInBytes}');
+
+      final Uint8List logoBytes = data.buffer.asUint8List();
+      debugPrint('Step 3: Bytes converted, length: ${logoBytes.length}');
+
+      final image = await compute(img.decodeImage, logoBytes);
+      debugPrint('Step 4: Image decoded: $image');
+
+      if (image != null) {
+        debugPrint('Step 5: Image size: ${image.width}x${image.height}');
+
+        final resized = img.copyResize(image, width: 380);
+        debugPrint('Step 6: Resized to: ${resized.width}x${resized.height}');
+
+        bytes += generator.image(resized, align: PosAlign.center);
+        debugPrint('Step 7: Image added to bytes ✓');
+      } else {
+        debugPrint('ERROR: decodeImage returned null');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('CRASH at: $e');
+      debugPrint('Stack: $stackTrace');
+    }
 
     bytes += generator.feed(1);
 
@@ -727,21 +754,21 @@ class _PrintPageState extends State<PrintPage> {
 
     //  bytes += generator.feed(1);
 
-    // Print QR Code (Model 2 recommended)
-    bytes += generator.qrcode(
-      upiLink,
-      size: selectedPrinter == '2 inch'
-          ? QRSize
-                .size6 // was size4 → increased
-          : QRSize.size8, // was size6 → increased
-      cor: QRCorrection.M,
-    );
-    // Optional: print UPI ID below QR (small text)
-    bytes += generator.feed(1);
-    bytes += generator.text(
-      'Scan & Pay',
-      styles: PosStyles(align: PosAlign.center, bold: true),
-    );
+    // Print QR Code (Model 2 recommended) Scan and pay
+    // bytes += generator.qrcode(
+    //   upiLink,
+    //   size: selectedPrinter == '2 inch'
+    //       ? QRSize
+    //             .size6 // was size4 → increased
+    //       : QRSize.size8, // was size6 → increased
+    //   cor: QRCorrection.M,
+    // );
+    // // Optional: print UPI ID below QR (small text)
+    // bytes += generator.feed(1);
+    // bytes += generator.text(
+    //   'Scan & Pay',
+    //   styles: PosStyles(align: PosAlign.center, bold: true),
+    // );
 
     bytes += generator.feed(2);
 
@@ -1050,8 +1077,8 @@ class _PrintPageState extends State<PrintPage> {
 
     st_connectedDevicePref = (await SharedPreferenceHelper()
         .loadSelectedPrinter())!;
-    st_connectedSecondPrinter = (await SharedPreferenceHelper()
-        .loadSelectedSecondPrinter())!;
+    // st_connectedSecondPrinter = (await SharedPreferenceHelper()
+    //     .loadSelectedSecondPrinter())!;
     selectedPrinter = (await SharedPreferenceHelper()
         .loadSelectedPrinterSize())!;
     companyNameFontSize = (await (SharedPreferenceHelper()
@@ -1141,9 +1168,9 @@ class _PrintPageState extends State<PrintPage> {
       deviceListStatus = false;
       print('reachedHere');
 
-      printToTwoPrinters(st_connectedDevicePref, st_connectedSecondPrinter);
+      // printToTwoPrinters(st_connectedDevicePref, st_connectedSecondPrinter);
 
-      // _connectAndPrint(st_connectedDevicePref);
+       _connectAndPrint(st_connectedDevicePref);
     }
   }
 
@@ -1165,19 +1192,19 @@ class _PrintPageState extends State<PrintPage> {
     double dblPayCard = 0, dblPayCash = 0;
 
     ////////////////////////////////////////
-    String line = '-----------------------------------------------';
+    String line = '--------------------------';
     print('selectedPrinterHARIS $selectedPrinter');
     int logoWidthInt = 0;
     int logoHeightInt = 0;
 
-    if (selectedPrinter == '2 inch') {
+    if (selectedPrinter == '2inch') {
       print('if $selectedPrinter');
       if (logoHeight > 100) {}
       if (logoWidth > 100) {}
 
       line = '-------------------------------';
     }
-    if (selectedPrinter == '3 inch') {
+    if (selectedPrinter == '3inch') {
       print('secondIf $selectedPrinter');
       // Case 1
       if (logoHeight > 100 && logoHeight < 150) {
@@ -1215,7 +1242,7 @@ class _PrintPageState extends State<PrintPage> {
     // Decode image using `image` package
     final img.Image? image = img.decodeImage(imageBytes);
 
-    if (selectedPrinter == '2 inch') {
+    if (selectedPrinter == '2inch') {
       final paperWidth = 384; // 58mm printer safe width
 
       final logoBytes = await loadLogoFromUrl(imageURL);
@@ -1292,16 +1319,16 @@ class _PrintPageState extends State<PrintPage> {
 
     final textSize = _getTextSize(compnyFontSize);
     String st_OrderNo = '${widget.sales?.salesMaster?.billTokenNo ?? ''}';
-    bytes += generator.text(
-      st_company,
-      styles: PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: textSize,
-        width: textSize,
-      ),
-      linesAfter: 0,
-    );
+    // bytes += generator.text(
+    //   st_company,
+    //   styles: PosStyles(
+    //     align: PosAlign.center,
+    //     bold: true,
+    //     height: textSize,
+    //     width: textSize,
+    //   ),
+    //   linesAfter: 0,
+    // );
     bytes += generator.text(
       'Token No: ' + st_OrderNo,
       styles: PosStyles(
@@ -1633,7 +1660,7 @@ class _PrintPageState extends State<PrintPage> {
 
   Future<List<int>> printHeading(Generator generator) async {
     List<int> bytes = [];
-    if (selectedPrinter == '3 inch') {
+    if (selectedPrinter == '3inch') {
       bytes += generator.row([
         PosColumn(text: 'No', width: 1),
         PosColumn(
@@ -1668,7 +1695,7 @@ class _PrintPageState extends State<PrintPage> {
         bytes += generator.image(decoded, align: PosAlign.center);
       }
     }
-    if (selectedPrinter == '2 inch') {
+    if (selectedPrinter == '2inch') {
       bytes += generator.row([
         PosColumn(text: 'No', width: 1),
         PosColumn(
@@ -2085,7 +2112,7 @@ class _PrintPageState extends State<PrintPage> {
           st_total = st_total.toString() + ' ';
         }
       }
-      if (selectedPrinter == '3 inch') {
+      if (selectedPrinter == '3inch') {
         bytes += generator.row([
           PosColumn(
             text: srlNo.toString(),
@@ -2114,7 +2141,7 @@ class _PrintPageState extends State<PrintPage> {
           ),
         ]);
       }
-      if (selectedPrinter == '2 inch') {
+      if (selectedPrinter == '2inch') {
         bool malayalamWordStatus = containsMalayalam(st_prodName!);
         print('malayalamWordStatus $malayalamWordStatus');
         if (malayalamWordStatus) {
@@ -2210,12 +2237,12 @@ class _PrintPageState extends State<PrintPage> {
   ) async {
     List<int> bytes = [];
     String line = '-----------------------------------------------';
-    if (selectedPrinter == '2 inch') {
+    if (selectedPrinter == '2inch') {
       print('if $selectedPrinter');
 
       line = '-------------------------------';
     }
-    if (selectedPrinter == '3 inch') {
+    if (selectedPrinter == '3inch') {
       print('secondIf $selectedPrinter');
       line = '-----------------------------------------------';
     }

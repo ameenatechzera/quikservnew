@@ -20,6 +20,7 @@ class SalesRemoteDataSourceImpl implements SalesRemoteDataSource {
 
   @override
   Future<SalesResponseModel> saveSale(SaveSaleRequest request) async {
+    print('SaveSaleRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {

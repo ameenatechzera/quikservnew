@@ -99,6 +99,7 @@ class ProductCubit extends Cubit<ProductsState> {
   } // --------------------- SAVE PRODUCT ---------------------
 
   Future<void> saveProduct(ProductSaveRequest request) async {
+    print('ProductSaveRequest ${request.toJson()}');
     emit(SaveProductLoading());
 
     final response = await _saveProductUseCase(request);
