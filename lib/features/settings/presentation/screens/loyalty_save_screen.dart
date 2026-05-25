@@ -18,32 +18,31 @@ class CreateLoyaltyPage extends StatefulWidget {
 class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final _nameController         = TextEditingController();
+  final _nameController = TextEditingController();
   final _amountPerPointController = TextEditingController();
-  final _minRedeemController    = TextEditingController();
-  final _pointValueController    = TextEditingController();
+  final _minRedeemController = TextEditingController();
+  final _pointValueController = TextEditingController();
   final _validityDaysController = TextEditingController();
 
   bool _isLoading = false;
 
-
   Future<void> _save() async {
-
     final dbName = await SharedPreferenceHelper().getDatabaseName();
     final branchId = await SharedPreferenceHelper().getBranchId();
-    context.read<SettingsCubit>().saveLoyaltyCard(LoyaltyCardSaveRequest(
-      loyaltyName: _nameController.text.trim(),
-      amountPerPoint: _amountPerPointController.text.trim().toString(),
-      minRedeemPoint: _minRedeemController.text.trim(),
-      redeemValidityDays: _validityDaysController.text.trim(),
-      activeStatus: '1',
-      dbname: dbName!,
-      branchId: branchId,
-      tokenNo: '', pointValue: _pointValueController.text.toString(),
-    ),);
-
-    }
-
+    context.read<SettingsCubit>().saveLoyaltyCard(
+      LoyaltyCardSaveRequest(
+        loyaltyName: _nameController.text.trim(),
+        amountPerPoint: _amountPerPointController.text.trim().toString(),
+        minRedeemPoint: _minRedeemController.text.trim(),
+        redeemValidityDays: _validityDaysController.text.trim(),
+        activeStatus: '1',
+        dbname: dbName!,
+        branchId: branchId,
+        tokenNo: '',
+        pointValue: _pointValueController.text.toString(),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -61,8 +60,10 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('Create Loyalty Program',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Create Loyalty Program',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: appThemeLightOrange,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -82,7 +83,8 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                   color: const Color(0xFF1565C0).withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: const Color(0xFF1565C0).withOpacity(0.2)),
+                    color: const Color(0xFF1565C0).withOpacity(0.2),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -92,24 +94,33 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                         color: const Color(0xFF1565C0),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.card_giftcard,
-                          color: Colors.white, size: 24),
+                      child: const Icon(
+                        Icons.card_giftcard,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Loyalty Configuration',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1565C0))),
+                          Text(
+                            'Loyalty Configuration',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1565C0),
+                            ),
+                          ),
                           SizedBox(height: 2),
-                          Text('Set up your rewards program details',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF546E7A))),
+                          Text(
+                            'Set up your rewards program details',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF546E7A),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -142,10 +153,10 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                 hint: 'e.g. 10.00',
                 icon: Icons.currency_rupee,
                 keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true),
+                  decimal: true,
+                ),
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'^\d*\.?\d{0,2}'))
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
@@ -168,10 +179,10 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                 hint: 'e.g. 1',
                 icon: Icons.currency_rupee,
                 keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true),
+                  decimal: true,
+                ),
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'^\d*\.?\d{0,2}'))
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
@@ -193,10 +204,10 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                 hint: 'e.g. 100.00',
                 icon: Icons.redeem,
                 keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true),
+                  decimal: true,
+                ),
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'^\d*\.?\d{0,2}'))
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
@@ -212,7 +223,6 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                 },
               ),
 
-
               const SizedBox(height: 16),
               _buildField(
                 controller: _validityDaysController,
@@ -220,9 +230,7 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
                 hint: 'e.g. 30',
                 icon: Icons.calendar_today,
                 keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ],
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
                     return 'Validity days is required';
@@ -241,53 +249,58 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
 
               // ── Save button ────────────────────────────────────────────
               BlocConsumer<SettingsCubit, SettingsState>(
-  listener: (context, state) {
-   if(state is SaveLoyaltyCardSuccess){
-    Navigator.pop(context);
-   }
-   if(state is SaveLoyaltyCardError){
-    print('error while save');
-   }
-  },
-  builder: (context, state) {
-    return SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed:  _save,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: appThemeYellow,
-                    foregroundColor: Colors.black,
-                    disabledBackgroundColor:
-                    const Color(0xFF1565C0).withOpacity(0.6),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    elevation: 2,
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
+                listener: (context, state) {
+                  if (state is SaveLoyaltyCardSuccess) {
+                    Navigator.pop(context, true);
+                  }
+                  if (state is SaveLoyaltyCardError) {
+                    print('error while save');
+                  }
+                },
+                builder: (context, state) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _save,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: appThemeYellow,
+                        foregroundColor: Colors.black,
+                        disabledBackgroundColor: const Color(
+                          0xFF1565C0,
+                        ).withOpacity(0.6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.save_alt, size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Save Loyalty Program',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
-                  )
-                      : const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.save_alt, size: 20),
-                      SizedBox(width: 8),
-                      Text('Save Loyalty Program',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              );
-  },
-),
+                  );
+                },
+              ),
 
               const SizedBox(height: 20),
             ],
@@ -309,11 +322,14 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF37474F))),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF37474F),
+          ),
+        ),
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
@@ -322,14 +338,14 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
-                color: Colors.grey.shade400, fontSize: 13),
-            prefixIcon: Icon(icon,
-                color: const Color(0xFF1565C0), size: 20),
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+            prefixIcon: Icon(icon, color: const Color(0xFF1565C0), size: 20),
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16, vertical: 14),
+              horizontal: 16,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: Colors.grey.shade300),
@@ -341,7 +357,9 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                  color: Color(0xFF1565C0), width: 1.5),
+                color: Color(0xFF1565C0),
+                width: 1.5,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -350,7 +368,9 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                  color: Color(0xFFC62828), width: 1.5),
+                color: Color(0xFFC62828),
+                width: 1.5,
+              ),
             ),
           ),
         ),

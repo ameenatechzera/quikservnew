@@ -44,7 +44,7 @@ void main() async {
   final currentBaseUrl = await sharedPrefHelper.getBaseUrl();
   if (currentBaseUrl == null) {
     await sharedPrefHelper.setBaseUrl(
-      'https://bonwing.quikserv.app/Api/public/api',
+      'https://test.quikserv.app/Api/public/api',
     );
   }
   runApp(MyApp());
@@ -83,8 +83,6 @@ class MyApp extends StatelessWidget {
         BlocProvider<PaymentCubit>(create: (_) => sl<PaymentCubit>()),
         BlocProvider<ItemCubit>(create: (_) => sl<ItemCubit>()),
         BlocProvider<SalesCountCubit>(create: (_) => sl<SalesCountCubit>()),
-
-
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

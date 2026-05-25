@@ -49,7 +49,7 @@ class _CartScreenState extends State<CartScreen> {
   LoyaltyCustomer? _selectedCustomer;
   bool _redeemPoints = false;
   bool _redeemEligible = false;
-  String st_RedeemAmount = '' , st_points_earned ='';
+  String st_RedeemAmount = '', st_points_earned = '';
 
   @override
   void initState() {
@@ -254,7 +254,6 @@ class _CartScreenState extends State<CartScreen> {
                             total = total - redeemAmount;
                             discount = redeemAmount;
                           }
-
                         } else {
                           if (_selectedCustomer != null) {
                             double amountPerPoint = double.parse(
@@ -262,9 +261,7 @@ class _CartScreenState extends State<CartScreen> {
                             );
                             double dbl_billTotal = total;
                             pointsEarned = dbl_billTotal / amountPerPoint;
-                            st_points_earned =
-                                pointsEarned
-                                    .toString();
+                            st_points_earned = pointsEarned.toString();
                           }
                         }
 
@@ -886,19 +883,18 @@ class _CartScreenState extends State<CartScreen> {
                                                     }
                                                     //print('_selectedCustomer!.loyalityId ${_selectedCustomer!.loyalityId}');
                                                     String st_pointsRedeemed =
-                                                            '';
+                                                        '';
                                                     if (redeemAmount > 0) {
                                                       st_pointsRedeemed =
                                                           _selectedCustomer!
                                                               .totalPointsEarned;
                                                     }
 
-
                                                     final customer =
                                                         _selectedCustomer;
                                                     int st_LoyaltyId = 0;
                                                     int loyaltyCustId = 0;
-                                                    if (customer != null ) {
+                                                    if (customer != null) {
                                                       st_LoyaltyId =
                                                           customer!.loyalityId;
                                                       loyaltyCustId =

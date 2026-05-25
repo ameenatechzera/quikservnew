@@ -320,7 +320,9 @@ class ServiceLocator {
         //fetchSalesCountGraphReportUseCase: sl(),
         fetchCustomSalesAmountGraphReportUseCase: sl(),
         savePrinterSettingsUseCase: sl(),
-        fetchLoyaltyListUseCase: sl(), saveLoyaltyCustomerUseCase: sl(), saveLoyaltyCardUseCase: sl(),
+        fetchLoyaltyListUseCase: sl(),
+        saveLoyaltyCustomerUseCase: sl(),
+        saveLoyaltyCardUseCase: sl(),
         fetchLoyaltyCustomersUseCase: sl(),
       ),
     );
@@ -392,7 +394,8 @@ class ServiceLocator {
       () => SaleCubit(
         saveSaleUseCase: sl(),
         salesRepository: sl(),
-        salesDetailsByMasterIdUseCase: sl(), fetchLoyaltyDetailsBySearchUseCase: sl(),
+        salesDetailsByMasterIdUseCase: sl(),
+        fetchLoyaltyDetailsBySearchUseCase: sl(),
       ),
     );
     sl.registerLazySingleton(() => SaveSaleUseCase(sl()));
@@ -407,14 +410,11 @@ class ServiceLocator {
 
     sl.registerFactory(() => ItemCubit(fetchItemWiseDetailsUseCase: sl()));
 
-
-//Loyalty Card
+    //Loyalty Card
     sl.registerLazySingleton(() => FetchLoyaltyListUseCase(sl()));
     sl.registerLazySingleton(() => SaveLoyaltyCustomerUseCase(sl()));
     sl.registerLazySingleton(() => SaveLoyaltyCardUseCase(sl()));
     sl.registerLazySingleton(() => FetchLoyaltyCustomersUseCase(sl()));
-
-
 
     // ------------------- CreateUSer Cubit -------------------
     sl.registerFactory(
@@ -512,7 +512,6 @@ class ServiceLocator {
     sl.registerLazySingleton(() => DeleteAccountGroupUseCase(sl()));
     sl.registerLazySingleton(() => UpdateAccountGroupUseCase(sl()));
     sl.registerLazySingleton(() => FetchLoyaltyDetailsBySearchUseCase(sl()));
-
 
     sl.registerLazySingleton<AccountGroupsRemoteDataSource>(
       () => AccountGroupsRemoteDataSourceImpl(),

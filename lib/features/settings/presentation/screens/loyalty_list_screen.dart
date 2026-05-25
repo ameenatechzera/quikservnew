@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/sale/domain/entities/loyalty_search_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/loyaltyListResult.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
 
@@ -32,27 +34,27 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
       appBar: AppBar(
         title: const Text(
           'Loyalty Programs',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF1565C0),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.theme,
+        foregroundColor: AppColors.black,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Refresh',
-            onPressed: (){
-              Navigator.of(context).push(
+            onPressed: () async {
+              final result = await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
                     return CreateLoyaltyPage();
                   },
                 ),
               );
-            }
+              if (result == true) {
+                _fetchCards();
+              }
+            },
           ),
         ],
       ),
@@ -67,9 +69,7 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
         builder: (context, state) {
           // Loading state
           if (state is FetchLoyaltyCardListLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           // Error state
@@ -124,7 +124,8 @@ class _LoyaltyCard extends StatelessWidget {
     final accent = _accents[index % _accents.length];
 
     // Safe bool conversion
-    final enabled = card.activeStatus == true ||
+    final enabled =
+        card.activeStatus == true ||
         card.activeStatus == 1 ||
         card.activeStatus.toString() == '1';
 
@@ -146,10 +147,7 @@ class _LoyaltyCard extends StatelessWidget {
           // Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: accent,
               borderRadius: const BorderRadius.vertical(
@@ -210,10 +208,7 @@ class _LoyaltyCard extends StatelessWidget {
 
           // Stats
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
                 _StatCell(
@@ -237,8 +232,7 @@ class _LoyaltyCard extends StatelessWidget {
                 _StatCell(
                   icon: Icons.calendar_today,
                   label: 'Validity',
-                  value:
-                  '${card.redeemValidityDays ?? '-'} days',
+                  value: '${card.redeemValidityDays ?? '-'} days',
                   accent: accent,
                 ),
               ],
@@ -276,11 +270,7 @@ class _StatCell extends StatelessWidget {
               color: accent.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              size: 16,
-              color: accent,
-            ),
+            child: Icon(icon, size: 16, color: accent),
           ),
           const SizedBox(height: 6),
 
@@ -313,11 +303,7 @@ class _StatCell extends StatelessWidget {
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 48,
-      color: Colors.grey.shade200,
-    );
+    return Container(width: 1, height: 48, color: Colors.grey.shade200);
   }
 }
 
@@ -352,10 +338,7 @@ class _EmptyState extends StatelessWidget {
 
           Text(
             'Create your first loyalty program to get started',
-            style: TextStyle(
-              color: Colors.grey.shade400,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
           ),
         ],
       ),
@@ -366,10 +349,7 @@ class _EmptyState extends StatelessWidget {
 // ───────────────── Error State ─────────────────
 
 class _ErrorState extends StatelessWidget {
-  const _ErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorState({required this.message, required this.onRetry});
 
   final String message;
   final VoidCallback onRetry;
@@ -382,20 +362,13 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              size: 64,
-              color: Colors.grey.shade300,
-            ),
+            Icon(Icons.wifi_off_rounded, size: 64, color: Colors.grey.shade300),
             const SizedBox(height: 16),
 
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey.shade500,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
             ),
 
             const SizedBox(height: 20),

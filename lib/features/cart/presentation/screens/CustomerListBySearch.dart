@@ -88,15 +88,14 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
               },
               builder: (context, state) {
                 /// Loading — clear list and show spinner
-                if (state is LoyaltyDetailsBySearchInitial
-                   ) {
+                if (state is LoyaltyDetailsBySearchInitial) {
                   customers = [];
                   return const Center(child: CircularProgressIndicator());
                 }
 
                 /// Error
                 if (state is LoyaltyBySearchError) {
-                  return Center(child: Text("Error: ${state.error}"));
+                  return Center(child: Text("No Data"));
                 }
 
                 /// Success
@@ -157,9 +156,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                   children: [
                                     const Icon(Icons.email, size: 18),
                                     const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(customer.email ?? ""),
-                                    ),
+                                    Expanded(child: Text(customer.email ?? "")),
                                   ],
                                 ),
                                 const Divider(),
