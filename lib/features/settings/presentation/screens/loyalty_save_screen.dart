@@ -149,7 +149,7 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
 
               _buildField(
                 controller: _pointValueController,
-                label: 'Point Value(₹)',
+                label: 'Point Value(₹) for redeem card',
                 hint: 'e.g. 10.00',
                 icon: Icons.currency_rupee,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -175,7 +175,7 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
               const SizedBox(height: 16),
               _buildField(
                 controller: _amountPerPointController,
-                label: 'Amount per Point for redeem amount',
+                label: 'Amount per Point while sale',
                 hint: 'e.g. 1',
                 icon: Icons.currency_rupee,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -200,8 +200,8 @@ class _CreateLoyaltyPageState extends State<CreateLoyaltyPage> {
               const SizedBox(height: 16),
               _buildField(
                 controller: _minRedeemController,
-                label: 'Minimum Redeem Amount (₹)',
-                hint: 'e.g. 100.00',
+                label: 'Minimum Redeem Point',
+                hint: 'e.g. 10',
                 icon: Icons.redeem,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,

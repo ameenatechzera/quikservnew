@@ -275,7 +275,7 @@ class _AssignLoyaltyPageState extends State<AddLoyaltyCustomer> {
                                 ),
                                 _previewChip(
                                   Icons.redeem,
-                                  'Min ₹${_selectedCard!.minRedeemPoint}',
+                                  'Min ${_selectedCard!.minRedeemPoint} points',
                                 ),
                                 _previewChip(
                                   Icons.calendar_today,
@@ -295,7 +295,7 @@ class _AssignLoyaltyPageState extends State<AddLoyaltyCustomer> {
                   _buildField(
                     controller: _nameController,
                     label: 'Customer Name',
-                    hint: 'e.g. Rahul Sharma',
+                    hint: 'Customer Name',
                     icon: Icons.person_outline,
                     keyboardType: TextInputType.name,
                     validator: (v) {
