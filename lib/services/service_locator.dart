@@ -396,9 +396,11 @@ class ServiceLocator {
         salesRepository: sl(),
         salesDetailsByMasterIdUseCase: sl(),
         fetchLoyaltyDetailsBySearchUseCase: sl(),
+        // fetchLoyaltyCustomersUseCase: sl(),
       ),
     );
     sl.registerLazySingleton(() => SaveSaleUseCase(sl()));
+
     sl.registerLazySingleton<SalesRemoteDataSource>(
       () => SalesRemoteDataSourceImpl(),
     );
@@ -407,7 +409,6 @@ class ServiceLocator {
     );
 
     // -------------- Item Cubit in day close report -----------------
-
     sl.registerFactory(() => ItemCubit(fetchItemWiseDetailsUseCase: sl()));
 
     //Loyalty Card

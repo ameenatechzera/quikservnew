@@ -55,14 +55,8 @@ abstract class SettingsRemoteDataSource {
   Future<LoyaltyListModel> fetchLoyaltyList();
   Future<Loyalty_Customer_Model> fetchLoyaltyCustomers();
 
-  Future<LoyaltyCardSaveResult> saveLoyaltyCard(
-      LoyaltyCardSaveRequest request,
-      );
-  Future<CommonResult> saveLoyaltyCustomer(
-      LoyaltyCustomerSaveRequest request,
-      );
-
-
+  Future<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request);
+  Future<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request);
 }
 
 class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
@@ -470,7 +464,9 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request) async {
+  Future<LoyaltyCardSaveResult> saveLoyaltyCard(
+    LoyaltyCardSaveRequest request,
+  ) async {
     print('LoyaltyCardSaveRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
@@ -506,7 +502,9 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request) async {
+  Future<CommonResult> saveLoyaltyCustomer(
+    LoyaltyCustomerSaveRequest request,
+  ) async {
     print('LoyaltyCustomerSaveRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
@@ -564,6 +562,8 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
           },
         ),
       );
+      print(response.statusCode);
+      print(response.data);
       if (response.statusCode == 200) {
         return Loyalty_Customer_Model.fromJson(response.data);
       } else {

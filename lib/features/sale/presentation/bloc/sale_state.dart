@@ -85,8 +85,33 @@ class SalesDetailsFetchSuccess extends SaleState {
 
   const SalesDetailsFetchSuccess({required this.response});
 }
+
 class LoyaltyBySearchFetchSuccess extends SaleState {
   final LoyaltySearchResult response;
 
   const LoyaltyBySearchFetchSuccess({required this.response});
 }
+
+// class FetchLoyaltyCustomersLoading extends SaleState {
+//   const FetchLoyaltyCustomersLoading();
+// }
+
+// // Success State
+// class FetchLoyaltyCustomersSuccess extends SaleState {
+//   final LoyaltyCustomerListResult loyaltyCustomers;
+
+//   const FetchLoyaltyCustomersSuccess(this.loyaltyCustomers);
+// }
+
+// // Error States
+// class FetchLoyaltyCardError extends SaleState {
+//   final String error;
+
+//   const FetchLoyaltyCardError(this.error);
+// }
+
+// class FetchLoyaltyCustomersError extends SaleState {
+//   final String error;
+
+//   const FetchLoyaltyCustomersError(this.error);
+// }

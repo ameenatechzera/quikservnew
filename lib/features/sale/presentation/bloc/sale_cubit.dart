@@ -10,6 +10,8 @@ import 'package:quikservnew/features/sale/domain/usecases/save_sale_toserver_use
 import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/usecases/salesdetails_bymasterid_usecase.dart';
+import 'package:quikservnew/features/settings/domain/entities/loyalty_customer_entity.dart';
+import 'package:quikservnew/features/settings/domain/usecases/fetch_loyalty_customers_usecase.dart';
 
 part 'sale_state.dart';
 
@@ -17,6 +19,8 @@ class SaleCubit extends Cubit<SaleState> {
   final SaveSaleUseCase _saveSaleUseCase;
   final SalesDetailsByMasterIdUseCase _salesDetailsByMasterIdUseCase;
   final FetchLoyaltyDetailsBySearchUseCase _fetchLoyaltyDetailsBySearchUseCase;
+  //final FetchLoyaltyCustomersUseCase _fetchLoyaltyCustomersUseCase;
+
   bool _isSearchBarVisible = false;
   bool _isMenuMode = false;
   String _searchQuery = '';
@@ -30,10 +34,14 @@ class SaleCubit extends Cubit<SaleState> {
     required SaveSaleUseCase saveSaleUseCase,
     required SalesRepository salesRepository,
     required SalesDetailsByMasterIdUseCase salesDetailsByMasterIdUseCase,
-    required FetchLoyaltyDetailsBySearchUseCase fetchLoyaltyDetailsBySearchUseCase
+    required FetchLoyaltyDetailsBySearchUseCase
+    fetchLoyaltyDetailsBySearchUseCase,
+    // required FetchLoyaltyCustomersUseCase fetchLoyaltyCustomersUseCase,
   }) : _saveSaleUseCase = saveSaleUseCase,
        _salesDetailsByMasterIdUseCase = salesDetailsByMasterIdUseCase,
-  _fetchLoyaltyDetailsBySearchUseCase = fetchLoyaltyDetailsBySearchUseCase,
+       _fetchLoyaltyDetailsBySearchUseCase = fetchLoyaltyDetailsBySearchUseCase,
+
+       //_fetchLoyaltyCustomersUseCase = fetchLoyaltyCustomersUseCase,
        super(SaleInitial());
   void showSearchBar() {
     _isSearchBarVisible = true;
@@ -136,21 +144,36 @@ class SaleCubit extends Cubit<SaleState> {
   }
 
   // --------------------- API  fetchLoyaltyDetailsBySearch  ---------------------
-  Future<void> fetchLoyaltyDetailsBySearch(
-      LoyaltySearchRequest request,
-      ) async {
+  Future<void> fetchLoyaltyDetailsBySearch(LoyaltySearchRequest request) async {
     print('FetchSalesDetailsBySearchRequest ${request.toJson()}');
     emit(LoyaltyDetailsBySearchInitial());
     try {
       final response = await _fetchLoyaltyDetailsBySearchUseCase(request);
 
       response.fold(
-            (failure) => emit(LoyaltyBySearchError(error: failure.message)),
-            (saleResponse) =>
+        (failure) => emit(LoyaltyBySearchError(error: failure.message)),
+        (saleResponse) =>
             emit(LoyaltyBySearchFetchSuccess(response: saleResponse)),
       );
     } catch (e) {
       emit(LoyaltyBySearchError(error: e.toString()));
     }
   }
+
+  // Future<void> fetchLoyaltyCustomersFromServer() async {
+  //   emit(FetchLoyaltyCustomersLoading());
+  //   try {
+  //     final response = await _fetchLoyaltyCustomersUseCase();
+  //     response.fold(
+  //       (failure) async {
+  //         emit(FetchLoyaltyCardError(failure.message));
+  //       },
+  //       (success) {
+  //         emit(FetchLoyaltyCustomersSuccess(success));
+  //       },
+  //     );
+  //   } catch (e) {
+  //     emit(FetchLoyaltyCustomersError('An error occurred: $e'));
+  //   }
+  // }
 }

@@ -18,7 +18,6 @@ class _CustomerListPageState extends State<CustomerListPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read<SettingsCubit>().fetchLoyaltyCustomersFromServer();
   }
@@ -27,6 +26,8 @@ class _CustomerListPageState extends State<CustomerListPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: const Color(0xffF5F6FA),
+
         appBar: AppBar(
           title: const Text(
             'Loyalty Customers',
@@ -45,31 +46,16 @@ class _CustomerListPageState extends State<CustomerListPage> {
                         builder: (context) => CustomerListBySearchPage(),
                       ),
                     );
-                    // print('selectedCustomer $_selectedCustomer');
-                    // print(
-                    //   'totalSalesController ${totalSalesController.text.toString()}',
-                    // );
-                    // print(
-                    //   'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
-                    // );
-                    // double totalSalesAmount = double.parse(totalSalesController.text.toString());
-                    // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
-                    // if(totalSalesAmount>=totalEarnedAmount){
-                    //   _redeemEligible = true;
-                    // }
                     setState(() {});
                   },
-                  icon: Icon(Icons.search),
+                  icon: const Icon(Icons.search),
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
-                  tooltip: 'Refresh',
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) {
-                          return AddLoyaltyCustomer();
-                        },
+                        builder: (context) => AddLoyaltyCustomer(),
                       ),
                     );
                   },
@@ -78,10 +64,15 @@ class _CustomerListPageState extends State<CustomerListPage> {
             ),
           ],
         ),
+
         body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
             if (state is FetchLoyaltyCustomersSuccess) {
               final customers = state.customerListResult.data;
+
+              if (customers.isEmpty) {
+                return const Center(child: Text("No customer found"));
+              }
 
               return ListView.builder(
                 padding: const EdgeInsets.all(12),
@@ -89,66 +80,113 @@ class _CustomerListPageState extends State<CustomerListPage> {
                 itemBuilder: (context, index) {
                   final customer = customers[index];
 
-                  return Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          const CircleAvatar(
-                            radius: 28,
-                            child: Icon(Icons.person),
-                          ),
 
-                          const SizedBox(width: 16),
-
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  customer.customerName ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 6),
-                                Text(
-                                  customer.loyalityName ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.phone, size: 18),
-                                    const SizedBox(width: 6),
-                                    Text(customer.phoneNo ?? ''),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 4),
-
-                                Row(
-                                  children: [
-                                    const Icon(Icons.email, size: 18),
-                                    const SizedBox(width: 6),
-                                    Expanded(child: Text(customer.email ?? '')),
-                                  ],
-                                ),
-                              ],
+                    child: Column(
+                      children: [
+                        /// TOP SECTION
+                        Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: AppColors.theme.withOpacity(0.10),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(
+                                Icons.person,
+                                color: AppColors.primary,
+                                size: 26,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+
+                            const SizedBox(width: 12),
+
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    customer.customerName ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    customer.loyalityName ?? '',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        /// PHONE
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.phone,
+                              size: 15,
+                              color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              customer.phoneNo ?? '',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        /// EMAIL
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.email_outlined,
+                              size: 15,
+                              color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                customer.email ?? '',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   );
                 },
