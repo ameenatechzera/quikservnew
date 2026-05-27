@@ -163,9 +163,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
   // }
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) return;
 
@@ -190,8 +188,10 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
 
     try {
       // Compress image below 200 KB
-      File compressedImage =
-      await compressImageToTargetSize(File(cropped.path), 200);
+      File compressedImage = await compressImageToTargetSize(
+        File(cropped.path),
+        200,
+      );
 
       setState(() {
         pickedImage = compressedImage;
@@ -207,11 +207,7 @@ class _ProductEntryUiOnlyScreenState extends State<ProductEntryUiOnlyScreen> {
     }
   }
 
-
-  Future<File> compressImageToTargetSize(
-      File file,
-      int targetKb,
-      ) async {
+  Future<File> compressImageToTargetSize(File file, int targetKb) async {
     int quality = 90;
 
     final dir = await getTemporaryDirectory();

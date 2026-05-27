@@ -4,6 +4,7 @@ import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/errors/failure.dart';
 import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
+import 'package:quikservnew/features/sale/domain/entities/loyalty_search_result.dart';
 import 'package:quikservnew/features/settings/data/datasources/settings_remote_data_source.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
@@ -184,7 +185,9 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  ResultFuture<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request) async {
+  ResultFuture<LoyaltyCardSaveResult> saveLoyaltyCard(
+    LoyaltyCardSaveRequest request,
+  ) async {
     try {
       final result = await remoteDataSource.saveLoyaltyCard(request);
       return Right(result);
@@ -196,7 +199,9 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  ResultFuture<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request) async {
+  ResultFuture<CommonResult> saveLoyaltyCustomer(
+    LoyaltyCustomerSaveRequest request,
+  ) async {
     try {
       final result = await remoteDataSource.saveLoyaltyCustomer(request);
       return Right(result);
@@ -208,7 +213,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  ResultFuture<LoyaltyCustomerListResult> fetchLoyaltyCustomerList() async {
+  ResultFuture<LoyaltySearchResult> fetchLoyaltyCustomerList() async {
     try {
       final result = await remoteDataSource.fetchLoyaltyCustomers();
       return Right(result);

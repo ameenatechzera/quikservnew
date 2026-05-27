@@ -219,6 +219,7 @@ class SaveLoyaltyCustomerError extends SettingsState {
   @override
   List<Object> get props => [message];
 }
+
 class FetchLoyaltyCardSuccess extends SettingsState {
   final LoyaltyCardListResult cardListResult;
   const FetchLoyaltyCardSuccess(this.cardListResult);
@@ -228,7 +229,7 @@ class FetchLoyaltyCardSuccess extends SettingsState {
 }
 
 class FetchLoyaltyCustomersSuccess extends SettingsState {
-  final LoyaltyCustomerListResult customerListResult;
+  final LoyaltySearchResult customerListResult;
   const FetchLoyaltyCustomersSuccess(this.customerListResult);
 
   @override
@@ -242,6 +243,7 @@ class SaveLoyaltyCustomerSuccess extends SettingsState {
   @override
   List<Object> get props => [commonResult];
 }
+
 class SaveLoyaltyCardSuccess extends SettingsState {
   final LoyaltyCardSaveResult cardListResult;
   const SaveLoyaltyCardSuccess(this.cardListResult);

@@ -131,7 +131,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
-                                    customer.loyalityName ?? '',
+                                    customer.loyaltyName ?? '',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppColors.primary,

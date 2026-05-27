@@ -51,9 +51,9 @@ class CategoryListWidget extends StatelessWidget {
                 final name = category.categoryName ?? "All";
                 saleCubit.selectCategory(id, name);
                 if (category.categoryId == 0) {
-                  productCubit.loadProductsByCategory(category.categoryId!);
+                  // productCubit.loadProductsByCategory(category.categoryId!);
 
-                  // productCubit.loadProductsFromLocal();
+                  productCubit.loadProductsFromLocal();
                 } else {
                   productCubit.loadProductsByCategory(category.categoryId!);
                 }

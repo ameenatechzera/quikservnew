@@ -3,6 +3,7 @@ import 'package:quikservnew/core/errors/error_message_model.dart';
 import 'package:quikservnew/core/errors/exceptions.dart';
 import 'package:quikservnew/core/network/api_endpoints.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
+import 'package:quikservnew/features/sale/domain/entities/loyalty_search_result.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/data/models/loyalty_cutomer_model.dart';
 import 'package:quikservnew/features/settings/data/models/loyaltylist_model.dart';
@@ -53,7 +54,7 @@ abstract class SettingsRemoteDataSource {
     SavePrinterSettingsRequest savePrinterSettings,
   );
   Future<LoyaltyListModel> fetchLoyaltyList();
-  Future<Loyalty_Customer_Model> fetchLoyaltyCustomers();
+  Future<LoyaltySearchResult> fetchLoyaltyCustomers();
 
   Future<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request);
   Future<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request);
@@ -540,7 +541,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   }
 
   @override
-  Future<Loyalty_Customer_Model> fetchLoyaltyCustomers() async {
+  Future<LoyaltySearchResult> fetchLoyaltyCustomers() async {
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
@@ -565,7 +566,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
       print(response.statusCode);
       print(response.data);
       if (response.statusCode == 200) {
-        return Loyalty_Customer_Model.fromJson(response.data);
+        return LoyaltySearchResult.fromJson(response.data);
       } else {
         throw ServerException(
           errorMessageModel: ErrorMessageModel.fromJson(response.data),

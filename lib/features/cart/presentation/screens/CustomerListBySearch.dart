@@ -158,7 +158,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
 
                       /// SUCCESS
                       if (state is LoyaltyBySearchFetchSuccess) {
-                        searchCustomers = state.response.data ?? [];
+                        searchCustomers = state.response.data;
 
                         if (searchCustomers.isEmpty) {
                           return const Center(child: Text("No customer found"));
@@ -174,7 +174,6 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
 
                             return GestureDetector(
                               onTap: () => Navigator.of(context).pop(customer),
-
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 10),
 
@@ -229,7 +228,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
 
                                             children: [
                                               Text(
-                                                customer.customerName ?? "",
+                                                customer.customerName,
 
                                                 maxLines: 1,
 
@@ -244,7 +243,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                               const SizedBox(height: 3),
 
                                               Text(
-                                                customer.loyaltyName ?? "",
+                                                customer.loyaltyName,
 
                                                 style: TextStyle(
                                                   fontSize: 12,
@@ -273,7 +272,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                           ),
 
                                           child: Text(
-                                            "${customer.totalPointsEarned ?? "0"} pts",
+                                            "${customer.totalPointsEarned} pts",
 
                                             style: const TextStyle(
                                               color: Colors.green,
@@ -299,7 +298,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                         const SizedBox(width: 6),
 
                                         Text(
-                                          customer.phoneNo ?? "",
+                                          customer.phoneNo,
 
                                           style: const TextStyle(
                                             fontSize: 13,
@@ -327,7 +326,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
 
                                         Expanded(
                                           child: Text(
-                                            customer.email ?? "",
+                                            customer.email,
 
                                             maxLines: 1,
 
@@ -362,17 +361,17 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                         children: [
                                           miniDetail(
                                             "Earned",
-                                            "₹${customer.totalEarnedAmount ?? "0"}",
+                                            "₹${customer.totalEarnedAmount}",
                                           ),
 
                                           miniDetail(
                                             "Redeem",
-                                            "₹${customer.minRedeemPoint ?? "0"}",
+                                            "₹${customer.minRedeemPoint}",
                                           ),
 
                                           miniDetail(
                                             "Valid",
-                                            "${customer.redeemValidityDays ?? 0}d",
+                                            "${customer.redeemValidityDays}d",
                                           ),
                                         ],
                                       ),
@@ -451,7 +450,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                customer.customerName ?? '',
+                                                customer.customerName,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
@@ -461,7 +460,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                               ),
                                               const SizedBox(height: 3),
                                               Text(
-                                                customer.loyalityName ?? '',
+                                                customer.loyaltyName,
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   color: AppColors.primary,
@@ -486,7 +485,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
-                                          customer.phoneNo ?? '',
+                                          customer.phoneNo,
                                           style: const TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
@@ -508,7 +507,7 @@ class _CustomerListBySearchPageState extends State<CustomerListBySearchPage> {
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
-                                            customer.email ?? '',
+                                            customer.email,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(

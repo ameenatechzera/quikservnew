@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
-import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/login_screen.dart';
@@ -77,6 +76,22 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  Future<void> _openCustomerSearch() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const CustomerListBySearchPage()),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedCustomer = result;
+      });
+
+      print('selectedCustomer $_selectedCustomer');
+      print('totalSalesController ${totalSalesController.text}');
+      print('totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -96,34 +111,82 @@ class _CartScreenState extends State<CartScreen> {
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
           actions: [
-            Row(
-              children: [
-                Text('Search Customers', style: TextStyle(color: Colors.black)),
-                IconButton(
-                  icon: const Icon(Icons.search, color: Colors.black),
-                  tooltip: 'Search Loyalty',
-                  onPressed: () async {
-                    _selectedCustomer = await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => CustomerListBySearchPage(),
-                      ),
-                    );
-                    print('selectedCustomer $_selectedCustomer');
-                    print(
-                      'totalSalesController ${totalSalesController.text.toString()}',
-                    );
-                    print(
-                      'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
-                    );
-                    // double totalSalesAmount = double.parse(totalSalesController.text.toString());
-                    // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
-                    // if(totalSalesAmount>=totalEarnedAmount){
-                    //   _redeemEligible = true;
-                    // }
-                    setState(() {});
-                  },
+            // GestureDetector(
+            //   onTap: () async {
+            //     _selectedCustomer = await Navigator.of(context).push(
+            //       MaterialPageRoute(
+            //         builder: (context) => CustomerListBySearchPage(),
+            //       ),
+            //     );
+            //     print('selectedCustomer $_selectedCustomer');
+            //     print(
+            //       'totalSalesController ${totalSalesController.text.toString()}',
+            //     );
+            //     print(
+            //       'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
+            //     );
+            //     // double totalSalesAmount = double.parse(totalSalesController.text.toString());
+            //     // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
+            //     // if(totalSalesAmount>=totalEarnedAmount){
+            //     //   _redeemEligible = true;
+            //     // }
+            //     setState(() {});
+            //   },
+            //   child: Row(
+            //     children: [
+            //       Text(
+            //         'Search Customers',
+            //         style: TextStyle(color: Colors.black),
+            //       ),
+            //       IconButton(
+            //         icon: const Icon(Icons.search, color: Colors.black),
+            //         tooltip: 'Search Loyalty',
+            //         onPressed: () async {
+            //           _selectedCustomer = await Navigator.of(context).push(
+            //             MaterialPageRoute(
+            //               builder: (context) => CustomerListBySearchPage(),
+            //             ),
+            //           );
+            //           print('selectedCustomer $_selectedCustomer');
+            //           print(
+            //             'totalSalesController ${totalSalesController.text.toString()}',
+            //           );
+            //           print(
+            //             'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
+            //           );
+            //           // double totalSalesAmount = double.parse(totalSalesController.text.toString());
+            //           // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
+            //           // if(totalSalesAmount>=totalEarnedAmount){
+            //           //   _redeemEligible = true;
+            //           // }
+            //           setState(() {});
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            InkWell(
+              onTap: _openCustomerSearch,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 8,
                 ),
-              ],
+                child: Row(
+                  children: [
+                    const Text(
+                      'Search Customers',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    const SizedBox(width: 8),
+
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.black),
+                      onPressed: _openCustomerSearch,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -239,25 +302,23 @@ class _CartScreenState extends State<CartScreen> {
                         if (_redeemPoints && _selectedCustomer != null) {
                           final dbl_redeemLimit =
                               double.tryParse(
-                                _selectedCustomer!.totalEarnedAmount ?? '0',
+                                _selectedCustomer!.totalEarnedAmount,
                               ) ??
                               0;
 
                           if (total >= dbl_redeemLimit && dbl_redeemLimit > 0) {
                             redeemAmount =
                                 double.parse(
-                                  _selectedCustomer!.totalPointsEarned ?? '0',
+                                  _selectedCustomer!.totalPointsEarned,
                                 ) *
-                                double.parse(
-                                  _selectedCustomer!.pointValue ?? '0',
-                                );
+                                double.parse(_selectedCustomer!.pointValue);
                             total = total - redeemAmount;
                             discount = redeemAmount;
                           }
                         } else {
                           if (_selectedCustomer != null) {
                             double amountPerPoint = double.parse(
-                              _selectedCustomer!.amountPerPoint ?? '0',
+                              _selectedCustomer!.amountPerPoint,
                             );
                             double dbl_billTotal = total;
                             pointsEarned = dbl_billTotal / amountPerPoint;
@@ -896,7 +957,7 @@ class _CartScreenState extends State<CartScreen> {
                                                     int loyaltyCustId = 0;
                                                     if (customer != null) {
                                                       st_LoyaltyId =
-                                                          customer!.loyalityId;
+                                                          customer.loyalityId;
                                                       loyaltyCustId =
                                                           customer.custId;
                                                     }
@@ -1215,7 +1276,7 @@ class _CartScreenState extends State<CartScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            customer.customerName ?? "",
+                            customer.customerName,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -1224,14 +1285,14 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            customer.phoneNo ?? "",
+                            customer.phoneNo,
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.white.withOpacity(0.5),
                             ),
                           ),
                           Text(
-                            customer.email ?? "",
+                            customer.email,
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.white.withOpacity(0.38),
@@ -1252,7 +1313,7 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            customer.totalPointsEarned ?? "0",
+                            customer.totalPointsEarned,
                             style: const TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w500,
@@ -1292,7 +1353,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   onChanged: (val) {
                     double _salesTotal = double.parse(
-                      totalSalesController.text.toString() ?? '0',
+                      totalSalesController.text.toString(),
                     );
                     print('_salesTotal $_salesTotal');
                     print(
@@ -1301,10 +1362,10 @@ class _CartScreenState extends State<CartScreen> {
                     print('pointLimit ${_selectedCustomer!.minRedeemPoint}');
                     print('PointValue ${_selectedCustomer!.pointValue}');
                     double dbl_pointLimit = double.parse(
-                      _selectedCustomer!.minRedeemPoint.toString() ?? '0',
+                      _selectedCustomer!.minRedeemPoint.toString(),
                     );
                     double dbl_pointEarned = double.parse(
-                      _selectedCustomer!.totalPointsEarned.toString() ?? '0',
+                      _selectedCustomer!.totalPointsEarned.toString(),
                     );
                     double totalSalesAmount = double.parse(
                       totalSalesController.text.toString(),
@@ -1313,7 +1374,7 @@ class _CartScreenState extends State<CartScreen> {
                       _selectedCustomer!.totalEarnedAmount.toString(),
                     );
                     double pointValue = double.parse(
-                      _selectedCustomer!.pointValue.toString() ?? '0',
+                      _selectedCustomer!.pointValue.toString(),
                     ); //return Discount
                     dbl_pointEarned = dbl_pointEarned * pointValue;
                     st_RedeemAmount = dbl_pointEarned.toStringAsFixed(
@@ -1335,8 +1396,7 @@ class _CartScreenState extends State<CartScreen> {
                       }
                       if (_salesTotal >=
                           double.parse(
-                            _selectedCustomer!.totalEarnedAmount.toString() ??
-                                '',
+                            _selectedCustomer!.totalEarnedAmount.toString(),
                           )) {
                         setState(() => _redeemPoints = val ?? false);
                       }
@@ -1365,7 +1425,7 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ),
                       Text(
-                        "${customer.totalPointsEarned ?? "0"} pts → ₹${st_RedeemAmount ?? "0.00"} off",
+                        "${customer.totalPointsEarned} pts → ₹${st_RedeemAmount} off",
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey.shade500,

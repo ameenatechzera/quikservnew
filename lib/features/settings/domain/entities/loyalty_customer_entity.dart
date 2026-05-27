@@ -1,10 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class LoyaltyCustomerListResult extends Equatable {
-  LoyaltyCustomerListResult({
-    required this.success,
-    required this.data,
-  });
+  LoyaltyCustomerListResult({required this.success, required this.data});
 
   final bool success;
   static const String successKey = "success";
@@ -12,18 +9,12 @@ class LoyaltyCustomerListResult extends Equatable {
   final List<Datum> data;
   static const String dataKey = "data";
 
-
-  LoyaltyCustomerListResult copyWith({
-    bool? success,
-    List<Datum>? data,
-  }) {
+  LoyaltyCustomerListResult copyWith({bool? success, List<Datum>? data}) {
     return LoyaltyCustomerListResult(
       success: success ?? this.success,
       data: data ?? this.data,
     );
   }
-
-
 
   Map<String, dynamic> toJson() => {
     "success": success,
@@ -31,13 +22,12 @@ class LoyaltyCustomerListResult extends Equatable {
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$success, $data, ";
   }
 
   @override
-  List<Object?> get props => [
-    success, data, ];
+  List<Object?> get props => [success, data];
 }
 
 class Datum extends Equatable {
@@ -51,7 +41,7 @@ class Datum extends Equatable {
     required this.createdUser,
     required this.modifiedDate,
     required this.modifiedUser,
-    required this.loyalityName
+    required this.loyalityName,
   });
 
   final int custId;
@@ -84,7 +74,6 @@ class Datum extends Equatable {
   final dynamic modifiedUser;
   static const String modifiedUserKey = "modifiedUser";
 
-
   Datum copyWith({
     int? custId,
     String? customerName,
@@ -107,11 +96,11 @@ class Datum extends Equatable {
       createdUser: createdUser ?? this.createdUser,
       modifiedDate: modifiedDate ?? this.modifiedDate,
       modifiedUser: modifiedUser ?? this.modifiedUser,
-        loyalityName : loyalityName ?? this.loyalityName
+      loyalityName: loyalityName ?? this.loyalityName,
     );
   }
 
-  factory Datum.fromJson(Map<String, dynamic> json){
+  factory Datum.fromJson(Map<String, dynamic> json) {
     return Datum(
       custId: json["custId"] ?? 0,
       customerName: json["customerName"] ?? "",
@@ -122,7 +111,7 @@ class Datum extends Equatable {
       createdUser: json["createdUser"] ?? "",
       modifiedDate: json["modifiedDate"],
       modifiedUser: json["modifiedUser"],
-        loyalityName : json["loyalityName"]
+      loyalityName: json["loyalityName"],
     );
   }
 
@@ -136,15 +125,25 @@ class Datum extends Equatable {
     "createdUser": createdUser,
     "modifiedDate": modifiedDate,
     "modifiedUser": modifiedUser,
-    "loyalityName": loyalityName
+    "loyalityName": loyalityName,
   };
 
   @override
-  String toString(){
+  String toString() {
     return "$custId, $customerName, $phoneNo, $email, $loyalityId, $createdDate, $createdUser, $modifiedDate, $modifiedUser, $loyalityName";
   }
 
   @override
   List<Object?> get props => [
-    custId, customerName, phoneNo, email, loyalityId, createdDate, createdUser, modifiedDate, modifiedUser, loyalityName];
+    custId,
+    customerName,
+    phoneNo,
+    email,
+    loyalityId,
+    createdDate,
+    createdUser,
+    modifiedDate,
+    modifiedUser,
+    loyalityName,
+  ];
 }
