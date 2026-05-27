@@ -64,12 +64,14 @@ class ItemWiseReportRemoteDataSourceImpl
   Future<ItemWiseReportModelNew> fetchItemWiseReportNew(
     ItemWiseReportRequest request,
   ) async {
+    print('ItemWiseReportRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
       final url = ApiConstants.fetchItemWiseReportNewReportPath(baseUrl);
+      print('url $url');
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");

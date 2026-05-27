@@ -202,7 +202,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                               itemBuilder: (context, index) {
                                 final item = products[index];
                                 return SizedBox(
-                                  height: 130,
+                                  height: 140,
                                   child: Card(
                                     elevation: 1,
                                     shape: RoundedRectangleBorder(

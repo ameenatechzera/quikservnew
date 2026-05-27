@@ -131,6 +131,7 @@ class ProductCubit extends Cubit<ProductsState> {
   }
 
   Future<void> updateProduct(int productId, ProductSaveRequest request) async {
+    print('ProductUpdateRequest ${request.toJson()}');
     emit(UpdateProductLoading());
 
     final response = await _editProductUseCase(productId, request);

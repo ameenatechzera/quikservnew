@@ -545,27 +545,31 @@ Widget productTile(FetchProductDetails item, BuildContext context) {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.productName ?? '',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+              Expanded( // ✅ allows text to take available space
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.productName ?? '',
+                        maxLines: 2, // or remove for unlimited lines
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      item.categoryName ?? '',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        item.categoryName ?? '',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
@@ -578,13 +582,15 @@ Widget productTile(FetchProductDetails item, BuildContext context) {
                         item: item,
                       );
                     },
-                    child: Padding(
+                    child: const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: SizedBox(
                         height: 25,
                         width: 25,
-                        child: Image.asset(
-                          "assets/icons/forwardicon.png",
+                        child: Image(
+                          image: AssetImage(
+                            "assets/icons/forwardicon.png",
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -596,10 +602,10 @@ Widget productTile(FetchProductDetails item, BuildContext context) {
                         context: context,
                         productId: int.parse(
                           item.productCode.toString(),
-                        ), // ✅ ensure not null
+                        ),
                       );
                     },
-                    child: Padding(
+                    child: const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: SizedBox(
                         height: 25,
@@ -612,6 +618,7 @@ Widget productTile(FetchProductDetails item, BuildContext context) {
               ),
             ],
           ),
+
           // ---- BOTTOM 3 COLS ----
           Padding(
             padding: const EdgeInsets.only(left: 8.0, right: 8),
