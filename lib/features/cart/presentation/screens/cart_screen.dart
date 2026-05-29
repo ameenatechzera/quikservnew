@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:quikservnew/core/appdata/appdata.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
@@ -52,6 +53,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void initState() {
+    AppData.saleType ='Dine-In';
     expiredStatusController.text = 'false';
     //getDeviceId();
     WidgetsBinding.instance.addPostFrameCallback((_) {

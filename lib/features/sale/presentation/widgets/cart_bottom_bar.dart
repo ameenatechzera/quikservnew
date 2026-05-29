@@ -6,8 +6,8 @@ import 'package:quikservnew/features/cart/presentation/screens/cart_screen.dart'
 /// Controls cart bottom bar visibility
 final ValueNotifier<bool> showCartBar = ValueNotifier(false);
 
-Widget cartBottomBar(BuildContext context, int selectedSaleType) {
-  print('selectedSaleTypeBottom $selectedSaleType');
+Widget cartBottomBar(BuildContext context) {
+
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
@@ -72,7 +72,7 @@ Widget cartBottomBar(BuildContext context, int selectedSaleType) {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         // ✅ Fixed: use the function parameter directly
-                        builder: (context) => CartScreen(selectedSaleType),
+                        builder: (context) => CartScreen(),
                       ),
                     );
                   },
