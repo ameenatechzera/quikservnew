@@ -5,7 +5,10 @@ import 'package:quikservnew/features/cart/presentation/screens/cart_screen.dart'
 
 /// Controls cart bottom bar visibility
 final ValueNotifier<bool> showCartBar = ValueNotifier(false);
-Widget cartBottomBar(BuildContext context) {
+
+Widget cartBottomBar(BuildContext context, int selectedSaleType) {
+  print('selectedSaleTypeBottom $selectedSaleType');
+
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
     child: ValueListenableBuilder<List<CartItem>>(
@@ -15,14 +18,15 @@ Widget cartBottomBar(BuildContext context) {
           showCartBar.value = false;
           return const SizedBox();
         }
+
         final totalItems = items.fold<int>(
           0,
-          (sum, item) => sum + item.qty.toInt(),
+              (sum, item) => sum + item.qty.toInt(),
         );
 
         final totalPrice = items.fold<double>(
           0,
-          (sum, item) => sum + item.totalPrice,
+              (sum, item) => sum + item.totalPrice,
         );
 
         return Container(
@@ -36,7 +40,7 @@ Widget cartBottomBar(BuildContext context) {
               // ITEMS COUNT
               Text(
                 "$totalItems Item${totalItems > 1 ? 's' : ''}",
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
@@ -52,7 +56,7 @@ Widget cartBottomBar(BuildContext context) {
               // TOTAL PRICE
               Text(
                 totalPrice.toStringAsFixed(2),
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -60,18 +64,22 @@ Widget cartBottomBar(BuildContext context) {
               ),
 
               const Spacer(),
+
               SizedBox(
                 height: 48,
                 child: InkWell(
                   onTap: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => CartScreen()),
+                      MaterialPageRoute(
+                        // ✅ Fixed: use the function parameter directly
+                        builder: (context) => CartScreen(selectedSaleType),
+                      ),
                     );
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         "View Cart",
                         style: TextStyle(
                           color: Color(0xFFEAB307),
@@ -80,14 +88,12 @@ Widget cartBottomBar(BuildContext context) {
                         ),
                       ),
 
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
 
                       Padding(
                         padding: const EdgeInsets.only(bottom: 5.0),
                         child: Image.asset(
                           'assets/icons/Clip path group.png',
-                          // width: 24,
-                          // height: 24,
                           color: const Color(0xFFEAB307),
                         ),
                       ),

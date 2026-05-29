@@ -2384,6 +2384,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                   // ✅ CART BAR ONLY FOR HOME
                   if (_currentTabIndex == 0)
+
                     ValueListenableBuilder<bool>(
                       valueListenable: showCartBar,
                       builder: (context, visible, _) {

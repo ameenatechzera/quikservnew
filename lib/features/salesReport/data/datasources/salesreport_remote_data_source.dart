@@ -29,14 +29,18 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
 
   @override
   Future<SalesReportModel> fetchSalesReport(FetchReportRequest request) async {
+    print('FetchReportRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {
         throw Exception("Base URL not set");
       }
+
       final url = ApiConstants.getFetchSalesReportPath(baseUrl);
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
+      print('dbName $dbName');
+      print('token $token');
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
       final response = await dio.post(
         url,
@@ -50,6 +54,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           },
         ),
       );
+      print('response $response');
       if (response.statusCode == 200 || response.statusCode == 201) {
         return SalesReportModel.fromJson(response.data);
       } else {
@@ -66,6 +71,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
   Future<SalesDetailsByMasterIdModel> fetchSalesDetailsByMasterId(
     FetchSalesDetailsRequest request,
   ) async {
+    print('FetchSalesDetailsRequest ${request.toJson()}');
     try {
       final baseUrl = await SharedPreferenceHelper().getBaseUrl();
       if (baseUrl == null || baseUrl.isEmpty) {

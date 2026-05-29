@@ -29,6 +29,7 @@ String st_branchId = '';
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime.now();
 final DateFormat formatter = DateFormat('MM-dd-yyyy');
+
 void _onDateChanged(BuildContext context) {
   final fromDateRaw = fromDateController.text.trim();
   final toDateRaw = toDateController.text.trim();
@@ -61,83 +62,156 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xffF5F6FA),
-
-      appBar: AppBar(
-        toolbarHeight: 40,
-        backgroundColor: AppColors.theme,
-        title: const Text(
-          'Sales Report',
-          style: TextStyle(fontWeight: FontWeight.bold),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color(0xffF5F6FA),
+      
+        appBar: AppBar(
+          toolbarHeight: 40,
+          backgroundColor: AppColors.theme,
+          title: const Text(
+            'Sales Report',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(0),
-        child: Column(
-          children: [
-            _dateFilter(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: BlocConsumer<SalesReportCubit, SlesReportState>(
-                listener: (context, state) {
-                  if (state is SalesDeleteSuccess) {
-                    Fluttertoast.showToast(
-                      msg: "Sales details deleted successfully..!",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      backgroundColor: Colors.black87,
-                      textColor: Colors.white,
-                      fontSize: 14,
+        body: Padding(
+          padding: const EdgeInsets.all(0),
+          child: Column(
+            children: [
+              _dateFilter(),
+              const SizedBox(height: 16),
+              Expanded(
+                child: BlocConsumer<SalesReportCubit, SlesReportState>(
+                  listener: (context, state) {
+                    if (state is SalesDeleteSuccess) {
+                      Fluttertoast.showToast(
+                        msg: "Sales details deleted successfully..!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.black87,
+                        textColor: Colors.white,
+                        fontSize: 14,
+                      );
+                      context.read<SalesReportCubit>().fetchSalesReport(
+                        FetchReportRequest(
+                          fromDate: formatter.format(fromDate),
+                          toDate: formatter.format(toDate),
+                          userId: '1',
+                          branchId: st_branchId,
+                        ),
+                      );
+                    }
+                    if (state is SalesDeleteFailure) {
+                      Fluttertoast.showToast(
+                        msg: "Sales details deletion failed..!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.black87,
+                        textColor: Colors.white,
+                        fontSize: 14,
+                      );
+                    }
+                    if (state is SalesReportSuccess) {
+                      salesList.clear();
+                      salesList = state.response.salesMaster;
+                      print('salesList ${salesList}');
+                      // _calculateTotals(salesList);
+      
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is SlesReportInitial) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+      
+                    if (salesList.isEmpty) {
+                      return const Center(child: Text("No data found"));
+                    }
+                    return Expanded(
+                      child: ListView.builder(
+                        itemCount: salesList.length,
+                        itemBuilder: (context, index) {
+                          final sale = salesList[index];
+                          return _salesCard(sale);
+                        },
+                      ),
                     );
-                    context.read<SalesReportCubit>().fetchSalesReport(
-                      FetchReportRequest(
-                        fromDate: formatter.format(fromDate),
-                        toDate: formatter.format(toDate),
-                        userId: '1',
-                        branchId: st_branchId,
+                  },
+                ),
+              ),
+              BlocBuilder<SalesReportCubit, SlesReportState>(
+                builder: (context, state) {
+                  if(state is SalesReportSuccess){
+                    print('SalesReportSuccess HR');
+                    saleTotal = 0;
+      
+                    for (final item in salesList) {
+                      saleTotal += double.tryParse(item.grandTotal) ?? 0;
+                    }
+      
+                    _totalRecordsController.text = salesList.length.toString();
+                    _totalSalesController.text = saleTotal.toStringAsFixed(2);
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, -2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Total Records",
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                              Text(
+                                _totalRecordsController.text,
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+      
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Text(
+                                "Total Sales",
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                              Text(
+                                _totalSalesController.text,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   }
-                  if (state is SalesDeleteFailure) {
-                    Fluttertoast.showToast(
-                      msg: "Sales details deletion failed..!",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      backgroundColor: Colors.black87,
-                      textColor: Colors.white,
-                      fontSize: 14,
-                    );
+                  else{
+                    Container();
                   }
-                  if (state is SalesReportSuccess) {
-                    salesList.clear();
-                    salesList = state.response.salesMaster;
-                    print('salesList ${salesList}');
-                    _calculateTotals(salesList);
-                  }
+               return Container();
                 },
-                builder: (context, state) {
-                  if (state is SlesReportInitial) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (salesList.isEmpty) {
-                    return const Center(child: Text("No data found"));
-                  }
-                  return Expanded(
-                    child: ListView.builder(
-                      itemCount: salesList.length,
-                      itemBuilder: (context, index) {
-                        final sale = salesList[index];
-                        return _salesCard(sale);
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-            footerTotalSection(_totalRecordsController),
-          ],
+              )
+              //  footerTotalSection(_totalRecordsController),
+            ],
+          ),
         ),
       ),
     );
@@ -218,10 +292,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     );
   }
 
-  Future<void> _selectDate(
-    BuildContext context,
-    TextEditingController controller,
-  ) async {
+  Future<void> _selectDate(BuildContext context,
+      TextEditingController controller,) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -265,10 +337,11 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => SalesReportPreviewScreen(
-                  pagefrom: 'SalesReport',
-                  masterId: sale.salesMasterId.toString(),
-                ),
+                builder: (context) =>
+                    SalesReportPreviewScreen(
+                      pagefrom: 'SalesReport',
+                      masterId: sale.salesMasterId.toString(),
+                    ),
               ),
             );
           },
@@ -369,8 +442,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           message: 'Are you sure you want to delete all selected items?',
           salesMasterId: salesMasterId,
         );
-        if (result == true) {
-        } else {}
+        if (result == true) {} else {}
       },
       child: CircleAvatar(
         radius: 16,
