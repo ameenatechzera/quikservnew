@@ -53,7 +53,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void initState() {
-    AppData.saleType ='Dine-In';
+    //AppData.saleType ='Dine-In';
     expiredStatusController.text = 'false';
     //getDeviceId();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -100,8 +100,8 @@ class _CartScreenState extends State<CartScreen> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
-          title: const Text(
-            'Cart',
+          title:  Text(
+            AppData.saleType!,
             style: TextStyle(
               fontSize: 16,
               color: Colors.black,
@@ -1005,7 +1005,7 @@ class _CartScreenState extends State<CartScreen> {
                                                       cashierId: 1,
                                                       orderMasterId: 10,
                                                       billStatus: 'Completed',
-                                                      salesType: '',
+                                                      salesType: AppData.saleType!,
                                                       billTokenNo: 22,
                                                       createdUser: 1,
                                                       branchId: 1,

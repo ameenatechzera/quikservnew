@@ -61,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void initState() {
+    AppData.saleType ='Dine-In';
     super.initState();
     _itemTapListener = () {
       if (!mounted) return;
