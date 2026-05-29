@@ -1,5 +1,6 @@
 import 'package:quikservnew/core/utils/typedef.dart';
 import 'package:quikservnew/features/masters/domain/entities/master_result_response_entity.dart';
+import 'package:quikservnew/features/sale/domain/entities/loyalty_search_result.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
 import 'package:quikservnew/features/settings/domain/entities/common_result.dart';
 import 'package:quikservnew/features/settings/domain/entities/loyaltyCardSaveResult.dart';
@@ -23,10 +24,14 @@ abstract class SettingsRepository {
   ResultFuture<CommonResult> refreshSalesToken();
   ResultFuture<TokenDetailsResult> fetchCurrentSalesTokenDetails();
   ResultFuture<LoyaltyCardListResult> fetchLoyaltyList();
-  ResultFuture<LoyaltyCardSaveResult> saveLoyaltyCard(LoyaltyCardSaveRequest request);
-  ResultFuture<CommonResult> saveLoyaltyCustomer(LoyaltyCustomerSaveRequest request);
+  ResultFuture<LoyaltyCardSaveResult> saveLoyaltyCard(
+    LoyaltyCardSaveRequest request,
+  );
+  ResultFuture<CommonResult> saveLoyaltyCustomer(
+    LoyaltyCustomerSaveRequest request,
+  );
 
-  ResultFuture<LoyaltyCustomerListResult> fetchLoyaltyCustomerList();
+  ResultFuture<LoyaltySearchResult> fetchLoyaltyCustomerList();
 
   ResultFuture<TokenUpdateResult> updateSalesTokenToServer(
     UpdateSalesTokenRequest updateSalesTokenRequest,

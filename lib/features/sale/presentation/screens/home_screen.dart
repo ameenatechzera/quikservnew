@@ -1784,10 +1784,21 @@ class _HomeScreenState extends State<HomeScreen>
                     state is ProductsByCategoryLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
+                // if (state is ProductLoading ||
+                //     state is ProductsByCategoryLoading) {
+                //   return const Center(child: CircularProgressIndicator());
+                // }
 
-                if (products == null || products.isEmpty) {
+                if (products == null) {
+                  return const SizedBox();
+                }
+
+                if (products.isEmpty) {
                   return const Center(child: Text("No Products"));
                 }
+                // if (products == null || products.isEmpty) {
+                //   return const Center(child: Text("No Products"));
+                // }
                 // Apply search filter
                 return BlocBuilder<SaleCubit, SaleState>(
                   builder: (context, state) {
