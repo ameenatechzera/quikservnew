@@ -51,8 +51,10 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     final now = DateTime.now();
     fromDateController.text = DateFormat('dd-MM-yyyy').format(now);
     toDateController.text = DateFormat('dd-MM-yyyy').format(now);
+    DateTime fromDate = DateTime.now();
+    DateTime toDate = DateTime.now();
     super.initState();
-    fetchSalesReport();
+    fetchSalesReportInitial();
   }
 
   @override
@@ -469,6 +471,22 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     st_branchId = await sharedPrefHelper.getBranchId();
     final expiryDate = await SharedPreferenceHelper().getExpiryDate();
     print('expiryDate $expiryDate');
+    context.read<SalesReportCubit>().fetchSalesReport(
+      FetchReportRequest(
+        fromDate: formatter.format(fromDate),
+        toDate: formatter.format(toDate),
+        userId: '1',
+        branchId: st_branchId,
+      ),
+    );
+  }
+  Future<void> fetchSalesReportInitial() async {
+    final sharedPrefHelper = SharedPreferenceHelper();
+    st_branchId = await sharedPrefHelper.getBranchId();
+    final expiryDate = await SharedPreferenceHelper().getExpiryDate();
+    print('expiryDate $expiryDate');
+    DateTime fromDate = DateTime.now();
+    DateTime toDate = DateTime.now();
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
         fromDate: formatter.format(fromDate),

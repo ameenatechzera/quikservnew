@@ -32,6 +32,7 @@ class SalesReportCubit extends Cubit<SlesReportState> {
 
   // --------------------- API Fetch SalesReport ---------------------
   Future<void> fetchSalesReport(FetchReportRequest request) async {
+    print('FetchReportRequest ${request.toJson()}');
     emit(SlesReportInitial());
     try {
       final response = await _salesReportFromServerUseCase(request);
@@ -72,6 +73,7 @@ class SalesReportCubit extends Cubit<SlesReportState> {
   Future<void> fetchSalesReportMasterByDate(
     SalesReportMasterByDateRequest request,
   ) async {
+    print("SalesReportMasterByDateRequest ${request.toJson()}");
     emit(SalesReportMasterByDateInitial());
     try {
       final response = await _salesReportMasterByDateUseCase(request);
