@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
@@ -77,7 +78,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
         child: Column(
           children: [
             _dateFilter(),
-            const SizedBox(height: 16),
+            // const SizedBox(height: 2),
             Expanded(
               child: BlocConsumer<SalesReportCubit, SlesReportState>(
                 listener: (context, state) {
@@ -124,19 +125,20 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                   if (salesList.isEmpty) {
                     return const Center(child: Text("No data found"));
                   }
-                  return Expanded(
-                    child: ListView.builder(
-                      itemCount: salesList.length,
-                      itemBuilder: (context, index) {
-                        final sale = salesList[index];
-                        return _salesCard(sale);
-                      },
+                  return ListView.builder(
+                    physics: const SoftBounceScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
                     ),
+                    itemCount: salesList.length,
+                    itemBuilder: (context, index) {
+                      final sale = salesList[index];
+                      return _salesCard(sale);
+                    },
                   );
                 },
               ),
             ),
-            footerTotalSection(_totalRecordsController),
+            footerTotalSection(_totalRecordsController, _totalSalesController),
           ],
         ),
       ),

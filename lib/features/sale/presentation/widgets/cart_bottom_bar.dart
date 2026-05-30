@@ -5,6 +5,7 @@ import 'package:quikservnew/features/cart/presentation/screens/cart_screen.dart'
 
 /// Controls cart bottom bar visibility
 final ValueNotifier<bool> showCartBar = ValueNotifier(false);
+
 Widget cartBottomBar(BuildContext context) {
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
@@ -15,6 +16,7 @@ Widget cartBottomBar(BuildContext context) {
           showCartBar.value = false;
           return const SizedBox();
         }
+
         final totalItems = items.fold<int>(
           0,
           (sum, item) => sum + item.qty.toInt(),
@@ -33,65 +35,74 @@ Widget cartBottomBar(BuildContext context) {
           ),
           child: Row(
             children: [
-              // ITEMS COUNT
-              Text(
-                "$totalItems Item${totalItems > 1 ? 's' : ''}",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
+              /// LEFT SECTION
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(
+                      "$totalItems Item${totalItems > 1 ? 's' : ''}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Container(width: 2, height: 20, color: Colors.white54),
+
+                    const SizedBox(width: 12),
+
+                    Flexible(
+                      child: Text(
+                        totalPrice.toStringAsFixed(2),
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-              const SizedBox(width: 12),
-
-              Container(width: 2, height: 20, color: Colors.white54),
-
-              const SizedBox(width: 12),
-
-              // TOTAL PRICE
-              Text(
-                totalPrice.toStringAsFixed(2),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-
-              const Spacer(),
-              SizedBox(
-                height: 48,
-                child: InkWell(
+              /// RIGHT SECTION
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => CartScreen()),
                     );
                   },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "View Cart",
-                        style: TextStyle(
-                          color: Color(0xFFEAB307),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
+                  child: SizedBox(
+                    height: 48,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Text(
+                          "View Cart",
+                          style: TextStyle(
+                            color: Color(0xFFEAB307),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
 
-                      SizedBox(width: 8),
+                        const SizedBox(width: 8),
 
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 5.0),
-                        child: Image.asset(
-                          'assets/icons/Clip path group.png',
-                          // width: 24,
-                          // height: 24,
-                          color: const Color(0xFFEAB307),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 5),
+                          child: Image.asset(
+                            'assets/icons/Clip path group.png',
+                            color: const Color(0xFFEAB307),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

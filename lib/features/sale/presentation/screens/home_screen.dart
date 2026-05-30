@@ -658,11 +658,14 @@ class _HomeScreenState extends State<HomeScreen>
   //   );
   // }
   Widget _buildSalesContent() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth > 600;
+
     return Column(
       children: [
         // ================= TOP TABS =================
         Container(
-          height: 40,
+          height: isTablet ? 60 : 40,
           color: const Color(0xFFFFE38A),
           child: Padding(
             padding: const EdgeInsets.all(5),
@@ -1246,7 +1249,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       // ---------- QTY CONTROLLER ----------
                                       return Container(
                                         height: 30,
-                                        width: 120,
+                                        width: 200,
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(
@@ -2156,7 +2159,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                                               return Container(
                                                 height: 30,
-                                                width: 120,
+                                                width: 200,
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
@@ -2297,6 +2300,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth > 600;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -2320,7 +2326,7 @@ class _HomeScreenState extends State<HomeScreen>
                     top: 0,
                     left: 0,
                     right: 0,
-                    height: 40,
+                    height: isTablet ? 60 : 40,
                     child: Container(color: AppColors.theme),
                   ),
                   AnimatedSwitcher(
@@ -2402,7 +2408,7 @@ class _HomeScreenState extends State<HomeScreen>
                         return Positioned(
                           left: 20,
                           right: 20,
-                          bottom: 80,
+                          bottom: isTablet ? 90 : 80,
                           child: MediaQuery.removeViewInsets(
                             context: context,
                             removeBottom: true,

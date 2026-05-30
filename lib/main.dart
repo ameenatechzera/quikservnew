@@ -44,7 +44,7 @@ void main() async {
   final currentBaseUrl = await sharedPrefHelper.getBaseUrl();
   if (currentBaseUrl == null) {
     await sharedPrefHelper.setBaseUrl(
-      'https://bonwing.quikserv.app/Api/public/api',
+      'https://test.quikserv.app/Api/public/api',
     );
   }
   runApp(MyApp());
