@@ -139,7 +139,7 @@ Widget totalCard(TextEditingController totalQtyController) {
 
                   totalRow("Discount", st_totalDisc),
                   const Divider(),
-                  totalRow("Grand Total", st_GrandTotal, isBold: true),
+                  grandTotalRow("Grand Total", st_GrandTotal, isBold: true),
                 ],
               ),
             ),
@@ -196,7 +196,7 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                       ),
                       Text(
                         " $st_invoiceno",
-                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 18),
+                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 15),
                       ),
                     ],
                   ),
@@ -209,7 +209,7 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                       ),
                       Text(
                         " $tokenNo",
-                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 18),
+                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 15),
                       ),
                     ],
                   ),
@@ -415,6 +415,30 @@ Widget totalRow(String label, String value, {bool isBold = false}) {
           value,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+Widget grandTotalRow(String label, String value, {bool isBold = false}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            color: Colors.green
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            fontSize: 18
           ),
         ),
       ],
