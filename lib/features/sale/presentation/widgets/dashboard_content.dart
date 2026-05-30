@@ -101,7 +101,7 @@ class _DashboardContentState extends State<DashboardContent> {
         fromDate: fromDate,
         toDate: toDate,
         userId: '1',
-        branchId: st_branchId,
+        branchId: "1",
       ),
     );
   }

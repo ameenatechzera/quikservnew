@@ -318,6 +318,16 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
+    String st_PayMode ='';
+    if (double.parse(sale.cashAmount) > 0) {
+      st_PayMode = 'Cash';
+    }
+    else if(double.parse(sale.cardAmount) > 0){
+      st_PayMode = 'Card';
+    }
+    else if(double.parse(sale.cardAmount) > 0 && double.parse(sale.cashAmount) > 0){
+      st_PayMode = 'Multi';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
@@ -419,7 +429,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                     children: [
                       SvgPicture.asset('assets/icons/salesreporticon3.svg'),
                       SizedBox(width: 6),
-                      Text(sale.salesType.toString()),
+                      Text(st_PayMode.toString()),
                     ],
                   ),
                   Text(

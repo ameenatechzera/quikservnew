@@ -113,60 +113,6 @@ class _CartScreenState extends State<CartScreen> {
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
           actions: [
-            // GestureDetector(
-            //   onTap: () async {
-            //     _selectedCustomer = await Navigator.of(context).push(
-            //       MaterialPageRoute(
-            //         builder: (context) => CustomerListBySearchPage(),
-            //       ),
-            //     );
-            //     print('selectedCustomer $_selectedCustomer');
-            //     print(
-            //       'totalSalesController ${totalSalesController.text.toString()}',
-            //     );
-            //     print(
-            //       'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
-            //     );
-            //     // double totalSalesAmount = double.parse(totalSalesController.text.toString());
-            //     // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
-            //     // if(totalSalesAmount>=totalEarnedAmount){
-            //     //   _redeemEligible = true;
-            //     // }
-            //     setState(() {});
-            //   },
-            //   child: Row(
-            //     children: [
-            //       Text(
-            //         'Search Customers',
-            //         style: TextStyle(color: Colors.black),
-            //       ),
-            //       IconButton(
-            //         icon: const Icon(Icons.search, color: Colors.black),
-            //         tooltip: 'Search Loyalty',
-            //         onPressed: () async {
-            //           _selectedCustomer = await Navigator.of(context).push(
-            //             MaterialPageRoute(
-            //               builder: (context) => CustomerListBySearchPage(),
-            //             ),
-            //           );
-            //           print('selectedCustomer $_selectedCustomer');
-            //           print(
-            //             'totalSalesController ${totalSalesController.text.toString()}',
-            //           );
-            //           print(
-            //             'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
-            //           );
-            //           // double totalSalesAmount = double.parse(totalSalesController.text.toString());
-            //           // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
-            //           // if(totalSalesAmount>=totalEarnedAmount){
-            //           //   _redeemEligible = true;
-            //           // }
-            //           setState(() {});
-            //         },
-            //       ),
-            //     ],
-            //   ),
-            // ),
             InkWell(
               onTap: _openCustomerSearch,
               child: Padding(

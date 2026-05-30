@@ -184,21 +184,65 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Invoice No: $st_invoiceno",
-                style: const TextStyle(fontWeight: FontWeight.bold),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "Invoice No: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $st_invoiceno",
+                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 18),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 4),
+                  Row(
+                    children: [
+                      Text(
+                        "Token No: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $tokenNo",
+                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 18),
+                      ),
+                    ],
+                  ),
+
+                ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Bill Date: $st_billDate",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      Text(
+                        "Bill Date: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $st_billDate",
+                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "Time: $amPmTime",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      Text(
+                        "Time: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $amPmTime",
+                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black,),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -207,26 +251,14 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                 children: [
                   const Text(
                     "Customer Name:",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
                   ),
-                  Text(st_custName, style: TextStyle(color: Colors.black)),
+                  Text(st_custName, style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 8),
 
-              Row(
-                children: [
-                  Text(
-                    "TokenNo:",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    tokenNo.toString(),
-                    style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
+
             ],
           ),
         ),
@@ -343,7 +375,7 @@ Widget itemsCard() {
                               ),
                             ),
                           ),
-                          Expanded(flex: 2, child: Text(formatSubtotal(data.salesRate))),
+                          Expanded(flex: 2, child: Text(data.salesRate)),
                           Expanded(
                             flex: 2,
                             child: Text(
