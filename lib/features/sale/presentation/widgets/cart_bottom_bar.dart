@@ -75,7 +75,10 @@ Widget cartBottomBar(BuildContext context) {
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => CartScreen()),
+                      MaterialPageRoute(
+                        // ✅ Fixed: use the function parameter directly
+                        builder: (context) => CartScreen(),
+                      ),
                     );
                   },
                   child: SizedBox(

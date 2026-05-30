@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:quikservnew/core/appdata/appdata.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
@@ -60,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void initState() {
+    AppData.saleType ='Dine-In';
     super.initState();
     _itemTapListener = () {
       if (!mounted) return;
@@ -392,271 +394,6 @@ class _HomeScreenState extends State<HomeScreen>
       ],
     );
   }
-
-  // // Added this method to build the Sales content
-  // Widget _buildSalesContent() {
-  //   return Column(
-  //     children: [
-  //       // Top Tabs
-  //       Container(
-  //         height: 40,
-  //         color: const Color(0xFFFFE38A),
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(5),
-  //           child: ValueListenableBuilder<int>(
-  //             valueListenable: selectedSaleTab,
-  //             builder: (context, selectedIndex, _) {
-  //               return Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                 children: [
-  //                   buildTab(
-  //                     context,
-  //                     "Dine-In",
-  //                     selectedIndex == 0,
-  //                     () => selectedSaleTab.value = 0,
-  //                   ),
-  //                   buildTab(
-  //                     context,
-  //                     "Takeaway",
-  //                     selectedIndex == 1,
-  //                     () => selectedSaleTab.value = 1,
-  //                   ),
-  //                   buildTab(
-  //                     context,
-  //                     "Delivery",
-  //                     selectedIndex == 2,
-  //                     () => selectedSaleTab.value = 2,
-  //                   ),
-  //                 ],
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //       ),
-
-  //       // Top row (menu/search/close) – same row works for both modes
-  //       Padding(
-  //         padding: const EdgeInsets.symmetric(horizontal: 12),
-  //         child: BlocBuilder<SaleCubit, SaleState>(
-  //           builder: (context, state) {
-  //             final saleCubit = context.read<SaleCubit>();
-  //             final isMenuMode = context.read<SaleCubit>().isMenuMode;
-  //             return Row(
-  //               children: [
-  //                 Container(
-  //                   height: 30,
-  //                   width: 30,
-  //                   decoration: BoxDecoration(
-  //                     color: AppColors.black,
-  //                     borderRadius: BorderRadius.circular(20),
-  //                   ),
-  //                   child: InkWell(
-  //                     borderRadius: BorderRadius.circular(20),
-  //                     onTap: () {
-  //                       toggleMenuModeWithAnimation(
-  //                         context: context,
-  //                         menuAnimationController: _menuAnimationController,
-  //                         searchController: _searchController,
-  //                       );
-  //                     },
-  //                     child: Center(
-  //                       child: SvgPicture.asset(
-  //                         'assets/icons/menuicon.svg',
-  //                         color: AppColors.white,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(width: 8),
-
-  //                 // ✅ Title changes based on mode
-  //                 Expanded(
-  //                   child: isMenuMode
-  //                       ? BlocBuilder<ProductCubit, ProductsState>(
-  //                           builder: (context, state) {
-  //                             int count = 0;
-  //                             List<FetchProductDetails> products = [];
-
-  //                             if (state is ProductSuccess) {
-  //                               products = state.products.productDetails ?? [];
-  //                             } else if (state is ProductsByCategoryLoaded) {
-  //                               products = state.products;
-  //                             } else if (state is ProductLoadedFromLocal) {
-  //                               products = state
-  //                                   .products; // ✅ PRELOAD IMAGES ONLY ONCE (FIRST LOAD)
-  //                               if (!_imagesPreloaded) {
-  //                                 preloadProductImages(products);
-  //                                 _imagesPreloaded = true;
-  //                               }
-  //                             }
-  //                             // Apply search filter
-  //                             // ✅ Get query from cubit
-  //                             final query = context
-  //                                 .read<SaleCubit>()
-  //                                 .searchQuery;
-  //                             products = searchProducts(products, query);
-  //                             count = products.length;
-  //                             final catName = saleCubit.selectedCategoryName;
-  //                             return Text("$catName ($count)");
-  //                           },
-  //                         )
-  //                       : BlocBuilder<SaleCubit, SaleState>(
-  //                           builder: (context, state) {
-  //                             // ✅ Get query from cubit
-  //                             final query = context
-  //                                 .read<SaleCubit>()
-  //                                 .searchQuery;
-  //                             return BlocBuilder<ProductCubit, ProductsState>(
-  //                               builder: (context, state) {
-  //                                 int count = 0;
-  //                                 if (state is ProductLoadedFromLocal) {
-  //                                   final filteredProducts = searchProducts(
-  //                                     state.products,
-  //                                     query,
-  //                                   );
-  //                                   count = filteredProducts.length;
-  //                                 }
-  //                                 final saleCubit = context.watch<SaleCubit>();
-  //                                 final selectedCategoryId =
-  //                                     saleCubit.selectedCategoryId;
-  //                                 final selectedCategoryName =
-  //                                     saleCubit.selectedCategoryName;
-
-  //                                 String title;
-
-  //                                 if (query.isNotEmpty) {
-  //                                   title = "Search Results ($count)";
-  //                                 } else if (selectedCategoryId != 0) {
-  //                                   title = "$selectedCategoryName ($count)";
-  //                                 } else {
-  //                                   title = "All ($count)";
-  //                                 }
-
-  //                                 return Text(
-  //                                   title,
-  //                                   maxLines: 1,
-  //                                   overflow: TextOverflow.ellipsis,
-  //                                 );
-  //                                 // return Text(
-  //                                 //   query.isEmpty
-  //                                 //       ? "All ($count)"
-  //                                 //       : "Search Results ($count)",
-  //                                 //   maxLines: 1,
-  //                                 //   overflow: TextOverflow.ellipsis,
-  //                                 // );
-  //                               },
-  //                             );
-  //                           },
-  //                         ),
-  //                 ),
-
-  //                 // ✅ Search Icon Button - Now using SaleCubit
-  //                 BlocBuilder<SaleCubit, SaleState>(
-  //                   builder: (context, state) {
-  //                     return IconButton(
-  //                       icon: CustomSearchIcon(
-  //                         size: 22,
-  //                         color: AppColors.black,
-  //                       ),
-  //                       onPressed: () {
-  //                         // ✅ Using SaleCubit toggle method instead of ValueNotifier
-  //                         context.read<SaleCubit>().toggleSearchBar();
-
-  //                         // Clear search when closing search bar
-  //                         if (!context.read<SaleCubit>().isSearchBarVisible) {
-  //                           _searchController.clear();
-  //                           context.read<SaleCubit>().clearSearchQuery();
-  //                         }
-  //                       },
-  //                     );
-  //                   },
-  //                 ),
-
-  //                 // ✅ Close button - Now using SaleCubit
-  //                 BlocBuilder<SaleCubit, SaleState>(
-  //                   builder: (context, state) {
-  //                     return IconButton(
-  //                       icon: const Icon(
-  //                         Icons.close,
-  //                         color: AppColors.red,
-  //                         size: 20,
-  //                       ),
-  //                       onPressed: () {
-  //                         cartManager.clearCart();
-  //                         showCartBar.value = false;
-  //                       },
-  //                     );
-  //                   },
-  //                 ),
-  //               ],
-  //             );
-  //           },
-  //         ),
-  //       ),
-
-  //       // ✅ Search bar - Now using SaleCubit
-  //       BlocBuilder<SaleCubit, SaleState>(
-  //         builder: (context, state) {
-  //           final isSearchVisible = context
-  //               .read<SaleCubit>()
-  //               .isSearchBarVisible;
-  //           final searchQuery = context
-  //               .read<SaleCubit>()
-  //               .searchQuery; // ✅ Get query from cubit
-
-  //           if (!isSearchVisible) return const SizedBox();
-
-  //           return Padding(
-  //             padding: const EdgeInsets.symmetric(horizontal: 12),
-  //             child: TextField(
-  //               controller: _searchController,
-  //               autofocus: true,
-  //               decoration: InputDecoration(
-  //                 hintText: "Search by product name",
-  //                 prefixIcon: Padding(
-  //                   padding: const EdgeInsets.all(10.0),
-  //                   child: CustomSearchIcon(size: 22, color: Colors.grey),
-  //                 ),
-  //                 suffixIcon: searchQuery.isNotEmpty
-  //                     ? IconButton(
-  //                         icon: const Icon(Icons.clear, color: Colors.grey),
-  //                         onPressed: () {
-  //                           _searchController.clear();
-  //                           context.read<SaleCubit>().clearSearchQuery();
-  //                         },
-  //                       )
-  //                     : null,
-  //                 border: OutlineInputBorder(
-  //                   borderRadius: BorderRadius.circular(12),
-  //                   borderSide: BorderSide.none,
-  //                 ),
-  //                 fillColor: Colors.grey[200],
-  //                 filled: true,
-  //               ),
-  //               onChanged: (value) {},
-  //             ),
-  //           );
-  //         },
-  //       ),
-  //       // ✅ MAIN BODY SWITCH (NO ANIMATION / NO PAGE)
-  //       Expanded(
-  //         child: _buildSwipeDetector(
-  //           BlocBuilder<SaleCubit, SaleState>(
-  //             builder: (context, state) {
-  //               final isMenuMode = context.read<SaleCubit>().isMenuMode;
-  //               return FadeTransition(
-  //                 opacity: _menuFadeAnimation,
-  //                 child: isMenuMode
-  //                     ? _buildMenuModeContent()
-  //                     : _buildNormalModeContent(),
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
   Widget _buildSalesContent() {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isTablet = screenWidth > 600;
@@ -676,22 +413,36 @@ class _HomeScreenState extends State<HomeScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     buildTab(
-                      context,
-                      "Dine-In",
-                      selectedIndex == 0,
-                      () => selectedSaleTab.value = 0,
+                        context,
+                        "Dine-In",
+                        selectedIndex == 0,
+                        // () => selectedSaleTab.value = 0,
+                            (){
+                          selectedSaleTab.value = 0;
+                          AppData.saleType = 'Dine-In';
+                          print('selectedSaleTab.value ${selectedSaleTab.value}');
+
+                        }
                     ),
                     buildTab(
-                      context,
-                      "Takeaway",
-                      selectedIndex == 1,
-                      () => selectedSaleTab.value = 1,
+                        context,
+                        "Takeaway",
+                        selectedIndex == 1,
+                            () {
+                          selectedSaleTab.value = 1;
+                          AppData.saleType = 'Takeaway';
+                          print('selectedSaleTab.value ${selectedSaleTab.value}');
+                        }
                     ),
                     buildTab(
-                      context,
-                      "Delivery",
-                      selectedIndex == 2,
-                      () => selectedSaleTab.value = 2,
+                        context,
+                        "Delivery",
+                        selectedIndex == 2,
+                            () {
+                          selectedSaleTab.value = 2;
+                          AppData.saleType = 'Delivery';
+                          print('selectedSaleTab.value ${selectedSaleTab.value}');
+                        }
                     ),
                   ],
                 );
@@ -847,12 +598,12 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   suffixIcon: saleCubit.searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, color: Colors.grey),
-                          onPressed: () {
-                            _searchController.clear();
-                            saleCubit.clearSearchQuery();
-                          },
-                        )
+                    icon: const Icon(Icons.clear, color: Colors.grey),
+                    onPressed: () {
+                      _searchController.clear();
+                      saleCubit.clearSearchQuery();
+                    },
+                  )
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -902,6 +653,7 @@ class _HomeScreenState extends State<HomeScreen>
       ],
     );
   }
+
 
   Widget _buildNormalModeContent() {
     return BlocBuilder<ProductCubit, ProductsState>(
@@ -2401,6 +2153,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                   // ✅ CART BAR ONLY FOR HOME
                   if (_currentTabIndex == 0)
+
                     ValueListenableBuilder<bool>(
                       valueListenable: showCartBar,
                       builder: (context, visible, _) {

@@ -9,6 +9,7 @@ import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dai
 import 'package:quikservnew/features/itemwiseReport/presentation/screens/item_wise_reportscreen.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
+import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesreport_screen.dart';
@@ -92,8 +93,16 @@ class _DashboardContentState extends State<DashboardContent> {
     context.read<SalesCountCubit>().fetchSalesCountFromServer(
       BarGraphRequest(period: 'daily', branchId: '1'),
     );
-    context.read<SalesReportCubit>().fetchSalesReportMasterByDate(
-      SalesReportMasterByDateRequest(fromDate: fromDate, toDate: toDate),
+    // context.read<SalesReportCubit>().fetchSalesReportMasterByDate(
+    //   SalesReportMasterByDateRequest(fromDate: fromDate, toDate: toDate),
+    // );
+    context.read<SalesReportCubit>().fetchSalesReport(
+      FetchReportRequest(
+        fromDate: fromDate,
+        toDate: toDate,
+        userId: '1',
+        branchId: "1",
+      ),
     );
   }
 
@@ -177,7 +186,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       String totalCountText = '--';
                       String totalAmountText = '--';
 
-                      if (state is SalesReportMasterByDateSuccess) {
+                      if (state is SalesReportSuccess) {
                         final list = state.response.salesMaster;
                         totalCountText = list.length.toString();
 
@@ -221,7 +230,7 @@ class _DashboardContentState extends State<DashboardContent> {
                       bool isLoading = true;
                       String cashText = '--';
 
-                      if (state is SalesReportMasterByDateSuccess) {
+                      if (state is SalesReportSuccess) {
                         final list = state.response.salesMaster;
 
                         final cashBalance = list.fold<double>(

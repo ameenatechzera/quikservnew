@@ -30,6 +30,7 @@ String st_branchId = '';
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime.now();
 final DateFormat formatter = DateFormat('MM-dd-yyyy');
+
 void _onDateChanged(BuildContext context) {
   final fromDateRaw = fromDateController.text.trim();
   final toDateRaw = toDateController.text.trim();
@@ -51,8 +52,10 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     final now = DateTime.now();
     fromDateController.text = DateFormat('dd-MM-yyyy').format(now);
     toDateController.text = DateFormat('dd-MM-yyyy').format(now);
+    DateTime fromDate = DateTime.now();
+    DateTime toDate = DateTime.now();
     super.initState();
-    fetchSalesReport();
+    fetchSalesReportInitial();
   }
 
   @override
@@ -62,84 +65,244 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xffF5F6FA),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color(0xffF5F6FA),
 
-      appBar: AppBar(
-        toolbarHeight: 40,
-        backgroundColor: AppColors.theme,
-        title: const Text(
-          'Sales Report',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        appBar: AppBar(
+          toolbarHeight: 40,
+          backgroundColor: AppColors.theme,
+          title: const Text(
+            'Sales Report',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(0),
-        child: Column(
-          children: [
-            _dateFilter(),
-            // const SizedBox(height: 2),
-            Expanded(
-              child: BlocConsumer<SalesReportCubit, SlesReportState>(
-                listener: (context, state) {
-                  if (state is SalesDeleteSuccess) {
-                    Fluttertoast.showToast(
-                      msg: "Sales details deleted successfully..!",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      backgroundColor: Colors.black87,
-                      textColor: Colors.white,
-                      fontSize: 14,
+        body: Padding(
+          padding: const EdgeInsets.all(0),
+          child: Column(
+            children: [
+              _dateFilter(),
+              // const SizedBox(height: 16),
+              Expanded(
+                child: BlocConsumer<SalesReportCubit, SlesReportState>(
+                  listener: (context, state) {
+                    if (state is SalesDeleteSuccess) {
+                      Fluttertoast.showToast(
+                        msg: "Sales details deleted successfully..!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.black87,
+                        textColor: Colors.white,
+                        fontSize: 14,
+                      );
+                      context.read<SalesReportCubit>().fetchSalesReport(
+                        FetchReportRequest(
+                          fromDate: formatter.format(fromDate),
+                          toDate: formatter.format(toDate),
+                          userId: '1',
+                          branchId: st_branchId,
+                        ),
+                      );
+                    }
+                    if (state is SalesDeleteFailure) {
+                      Fluttertoast.showToast(
+                        msg: "Sales details deletion failed..!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.black87,
+                        textColor: Colors.white,
+                        fontSize: 14,
+                      );
+                    }
+                    if (state is SalesReportSuccess) {
+                      salesList.clear();
+                      salesList = state.response.salesMaster;
+                      print('salesList ${salesList}');
+                      // _calculateTotals(salesList);
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is SlesReportInitial) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (salesList.isEmpty) {
+                      return const Center(child: Text("No data found"));
+                    }
+                    return ListView.builder(
+                      physics: const SoftBounceScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      itemCount: salesList.length,
+                      itemBuilder: (context, index) {
+                        final sale = salesList[index];
+                        return _salesCard(sale);
+                      },
                     );
-                    context.read<SalesReportCubit>().fetchSalesReport(
-                      FetchReportRequest(
-                        fromDate: formatter.format(fromDate),
-                        toDate: formatter.format(toDate),
-                        userId: '1',
-                        branchId: st_branchId,
+                  },
+                ),
+              ),
+              BlocBuilder<SalesReportCubit, SlesReportState>(
+                builder: (context, state) {
+                  if (state is SalesReportSuccess) {
+                    print('SalesReportSuccess HR');
+                    saleTotal = 0;
+
+                    for (final item in salesList) {
+                      saleTotal += double.tryParse(item.grandTotal) ?? 0;
+                    }
+
+                    _totalRecordsController.text = salesList.length.toString();
+                    _totalSalesController.text = saleTotal.toStringAsFixed(2);
+                    return Container(
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  "Total Records",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _totalRecordsController.text,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Container(
+                            width: 1,
+                            height: 45,
+                            color: Colors.white24,
+                          ),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  "Total Sales",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _totalSalesController.text,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFFFE08A),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     );
-                  }
-                  if (state is SalesDeleteFailure) {
-                    Fluttertoast.showToast(
-                      msg: "Sales details deletion failed..!",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      backgroundColor: Colors.black87,
-                      textColor: Colors.white,
-                      fontSize: 14,
-                    );
-                  }
-                  if (state is SalesReportSuccess) {
-                    salesList.clear();
-                    salesList = state.response.salesMaster;
-                    print('salesList ${salesList}');
-                    _calculateTotals(salesList);
-                  }
-                },
-                builder: (context, state) {
-                  if (state is SlesReportInitial) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+                    // return Container(
+                    //   padding: const EdgeInsets.symmetric(
+                    //     horizontal: 20,
+                    //     vertical: 14,
+                    //   ),
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.white,
+                    //     boxShadow: [
+                    //       BoxShadow(
+                    //         color: Colors.black.withOpacity(0.08),
+                    //         blurRadius: 8,
+                    //         offset: const Offset(0, -2),
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //     children: [
+                    //       Column(
+                    //         crossAxisAlignment: CrossAxisAlignment.start,
+                    //         children: [
+                    //           const Text(
+                    //             "Total Records",
+                    //             style: TextStyle(
+                    //               fontSize: 12,
+                    //               color: Colors.grey,
+                    //             ),
+                    //           ),
+                    //           Text(
+                    //             _totalRecordsController.text,
+                    //             style: const TextStyle(
+                    //               fontSize: 16,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
 
-                  if (salesList.isEmpty) {
-                    return const Center(child: Text("No data found"));
+                    //       Column(
+                    //         crossAxisAlignment: CrossAxisAlignment.end,
+                    //         children: [
+                    //           const Text(
+                    //             "Total Sales",
+                    //             style: TextStyle(
+                    //               fontSize: 12,
+                    //               color: Colors.grey,
+                    //             ),
+                    //           ),
+                    //           Text(
+                    //             _totalSalesController.text,
+                    //             style: const TextStyle(
+                    //               fontSize: 18,
+                    //               fontWeight: FontWeight.bold,
+                    //               color: Colors.black,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ],
+                    //   ),
+                    // );
+                  } else {
+                    Container();
                   }
-                  return ListView.builder(
-                    physics: const SoftBounceScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
-                    itemCount: salesList.length,
-                    itemBuilder: (context, index) {
-                      final sale = salesList[index];
-                      return _salesCard(sale);
-                    },
-                  );
+                  return Container();
                 },
               ),
-            ),
-            footerTotalSection(_totalRecordsController, _totalSalesController),
-          ],
+              //  footerTotalSection(_totalRecordsController),
+            ],
+          ),
         ),
       ),
     );
@@ -246,6 +409,15 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
+    String st_PayMode = '';
+    if (double.parse(sale.cashAmount) > 0) {
+      st_PayMode = 'Cash';
+    } else if (double.parse(sale.cardAmount) > 0) {
+      st_PayMode = 'Card';
+    } else if (double.parse(sale.cardAmount) > 0 &&
+        double.parse(sale.cashAmount) > 0) {
+      st_PayMode = 'Multi';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
@@ -346,7 +518,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                     children: [
                       SvgPicture.asset('assets/icons/salesreporticon3.svg'),
                       SizedBox(width: 6),
-                      Text(sale.salesType.toString()),
+                      Text(st_PayMode.toString()),
                     ],
                   ),
                   Text(
@@ -399,6 +571,23 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     st_branchId = await sharedPrefHelper.getBranchId();
     final expiryDate = await SharedPreferenceHelper().getExpiryDate();
     print('expiryDate $expiryDate');
+    context.read<SalesReportCubit>().fetchSalesReport(
+      FetchReportRequest(
+        fromDate: formatter.format(fromDate),
+        toDate: formatter.format(toDate),
+        userId: '1',
+        branchId: st_branchId,
+      ),
+    );
+  }
+
+  Future<void> fetchSalesReportInitial() async {
+    final sharedPrefHelper = SharedPreferenceHelper();
+    st_branchId = await sharedPrefHelper.getBranchId();
+    final expiryDate = await SharedPreferenceHelper().getExpiryDate();
+    print('expiryDate $expiryDate');
+    DateTime fromDate = DateTime.now();
+    DateTime toDate = DateTime.now();
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
         fromDate: formatter.format(fromDate),

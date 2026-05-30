@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:quikservnew/core/appdata/appdata.dart';
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
@@ -52,6 +53,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void initState() {
+    //AppData.saleType ='Dine-In';
     expiredStatusController.text = 'false';
     //getDeviceId();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -98,8 +100,8 @@ class _CartScreenState extends State<CartScreen> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
-          title: const Text(
-            'Cart',
+          title:  Text(
+            AppData.saleType!,
             style: TextStyle(
               fontSize: 16,
               color: Colors.black,
@@ -111,60 +113,6 @@ class _CartScreenState extends State<CartScreen> {
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
           actions: [
-            // GestureDetector(
-            //   onTap: () async {
-            //     _selectedCustomer = await Navigator.of(context).push(
-            //       MaterialPageRoute(
-            //         builder: (context) => CustomerListBySearchPage(),
-            //       ),
-            //     );
-            //     print('selectedCustomer $_selectedCustomer');
-            //     print(
-            //       'totalSalesController ${totalSalesController.text.toString()}',
-            //     );
-            //     print(
-            //       'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
-            //     );
-            //     // double totalSalesAmount = double.parse(totalSalesController.text.toString());
-            //     // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
-            //     // if(totalSalesAmount>=totalEarnedAmount){
-            //     //   _redeemEligible = true;
-            //     // }
-            //     setState(() {});
-            //   },
-            //   child: Row(
-            //     children: [
-            //       Text(
-            //         'Search Customers',
-            //         style: TextStyle(color: Colors.black),
-            //       ),
-            //       IconButton(
-            //         icon: const Icon(Icons.search, color: Colors.black),
-            //         tooltip: 'Search Loyalty',
-            //         onPressed: () async {
-            //           _selectedCustomer = await Navigator.of(context).push(
-            //             MaterialPageRoute(
-            //               builder: (context) => CustomerListBySearchPage(),
-            //             ),
-            //           );
-            //           print('selectedCustomer $_selectedCustomer');
-            //           print(
-            //             'totalSalesController ${totalSalesController.text.toString()}',
-            //           );
-            //           print(
-            //             'totalEarnedAmount ${_selectedCustomer!.totalEarnedAmount}',
-            //           );
-            //           // double totalSalesAmount = double.parse(totalSalesController.text.toString());
-            //           // double totalEarnedAmount = double.parse(_selectedCustomer!.totalEarnedAmount.toString());
-            //           // if(totalSalesAmount>=totalEarnedAmount){
-            //           //   _redeemEligible = true;
-            //           // }
-            //           setState(() {});
-            //         },
-            //       ),
-            //     ],
-            //   ),
-            // ),
             InkWell(
               onTap: _openCustomerSearch,
               child: Padding(
@@ -1003,7 +951,7 @@ class _CartScreenState extends State<CartScreen> {
                                                       cashierId: 1,
                                                       orderMasterId: 10,
                                                       billStatus: 'Completed',
-                                                      salesType: '',
+                                                      salesType: AppData.saleType!,
                                                       billTokenNo: 22,
                                                       createdUser: 1,
                                                       branchId: 1,

@@ -8,9 +8,13 @@ import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_c
 import 'package:quikservnew/features/salesReport/presentation/screens/salesreport_preview_screen.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
+// Add this at the top of your file / class (as a field)
+final ValueNotifier<int> _totalCardNotifier = ValueNotifier(0);
+
 Widget totalCard(TextEditingController totalQtyController) {
   return BlocConsumer<SalesReportCubit, SlesReportState>(
-    listener: (context, state) {
+    listener: (context, state) async {
+      // ✅ async listener directly
       if (state is SalesDetailsSuccess) {
         saleList.clear();
         saleList.add(state.response);
@@ -18,12 +22,11 @@ Widget totalCard(TextEditingController totalQtyController) {
         // Calculate total quantity
         totalQty = 0;
         for (int i = 0; i < saleList.first.salesDetails.length; i++) {
-          totalQty =
-              totalQty +
-              double.parse(saleList.first.salesDetails[i].qty.toString());
-          String truncated = totalQty.toStringAsFixed(get_decimalpoints());
-          totalQtyController.text = truncated.toString();
+          totalQty += double.parse(
+            saleList.first.salesDetails[i].qty.toString(),
+          );
         }
+        totalQtyController.text = totalQty.toStringAsFixed(get_decimalpoints());
 
         // Reset all tax values
         st_TotalTax = '0';
@@ -35,124 +38,114 @@ Widget totalCard(TextEditingController totalQtyController) {
         st_totalDisc = '0';
         st_netInvAmt = '0';
 
-        // Get VAT settings
+        // ✅ Await SharedPrefs directly — no more Future() wrapper
         final sharedPrefHelper = SharedPreferenceHelper();
-        String vatEnabled = '';
-        String vatType = '';
+        final vatEnabled = (await sharedPrefHelper.getVatStatus()).toString();
+        final vatType = await sharedPrefHelper.getVatType();
 
-        // Get values from SharedPreferences
-        Future(() async {
-          vatEnabled = await sharedPrefHelper.getVatStatus().toString();
-          vatType = await sharedPrefHelper.getVatType();
+        // ✅ Save to globals so builder can use them
+        st_vatEnabled = vatEnabled;
+        st_vatType = vatType;
 
-          // Calculate values based on VAT settings
-          try {
-            double dblsubTotal = double.parse(
-              state.response.salesMaster!.subTotal.toString(),
-            );
-            st_SubTotal = dblsubTotal.toStringAsFixed(get_decimalpoints());
-            st_TaxableAmt = st_SubTotal;
+        // Sub total
+        double dblsubTotal = double.parse(
+          state.response.salesMaster!.subTotal.toString(),
+        );
+        st_SubTotal = dblsubTotal.toStringAsFixed(get_decimalpoints());
+        st_TaxableAmt = st_SubTotal;
 
-            // Calculate tax based on VAT status and type
-            if (vatEnabled == 'true' && vatType.isNotEmpty) {
-              double dbltax = double.parse(
-                state.response.salesMaster!.vatAmount.toString(),
-              );
-              st_TotalTax = dbltax.toStringAsFixed(get_decimalpoints());
+        // Tax calculation — all sync now, values are ready
+        if (vatEnabled == 'true' && vatType.isNotEmpty) {
+          double dbltax = double.parse(
+            state.response.salesMaster!.vatAmount.toString(),
+          );
+          st_TotalTax = dbltax.toStringAsFixed(get_decimalpoints());
 
-              // For GST, split into SGST and CGST
-              if (vatType.toLowerCase() == 'gst') {
-                double halfTax = dbltax / 2;
-                st_sgst = halfTax.toStringAsFixed(get_decimalpoints());
-                st_cgst = halfTax.toStringAsFixed(get_decimalpoints());
-              }
-            } else {
-              // No tax if VAT is not enabled or type is null/empty
-              st_TotalTax = '0';
-              st_sgst = '0';
-              st_cgst = '0';
-            }
+          if (vatType.toLowerCase() == 'gst') {
+            double halfTax = dbltax / 2;
+            st_sgst = halfTax.toStringAsFixed(get_decimalpoints());
+            st_cgst = halfTax.toStringAsFixed(get_decimalpoints());
+          }
+        } else {
+          st_TotalTax = '0';
+          st_sgst = '0';
+          st_cgst = '0';
+        }
 
-            // Calculate grand total
-            double dblGrandTotal =
-                double.parse(st_SubTotal) + double.parse(st_TotalTax);
-            st_GrandTotal = dblGrandTotal.toStringAsFixed(get_decimalpoints());
+        // ✅ Grand total calculated AFTER tax is fully resolved
+        double dblGrandTotal =
+            double.parse(st_SubTotal) + double.parse(st_TotalTax);
+        st_GrandTotal = dblGrandTotal.toStringAsFixed(get_decimalpoints());
 
-            // Calculate discount
-            try {
-              double dbl_TotalDisc = double.parse(
-                state.response.salesMaster!.discountAmount.toString(),
-              );
-              st_totalDisc = dbl_TotalDisc.toStringAsFixed(get_decimalpoints());
-            } catch (_) {}
+        // Discount
+        try {
+          double dbl_TotalDisc = double.parse(
+            state.response.salesMaster!.discountAmount.toString(),
+          );
+          st_totalDisc = dbl_TotalDisc.toStringAsFixed(get_decimalpoints());
+        } catch (_) {}
 
-            // Calculate net invoice amount
-            try {
-              double dbl_NetInvAmt = double.parse(
-                state.response.salesMaster!.grandTotal.toString(),
-              );
-              st_netInvAmt = dbl_NetInvAmt.toStringAsFixed(get_decimalpoints());
-            } catch (_) {}
-          } catch (_) {}
-        });
+        // Net invoice amount
+        try {
+          double dbl_NetInvAmt = double.parse(
+            state.response.salesMaster!.grandTotal.toString(),
+          );
+          st_netInvAmt = dbl_NetInvAmt.toStringAsFixed(get_decimalpoints());
+        } catch (_) {}
 
-        // Handle time formatting
+        // Time formatting
         try {
           String st_Time = state.response.salesMaster!.invoiceTime.toString();
           DateTime time = DateFormat('HH:mm').parse(st_Time);
           amPmTime = DateFormat('hh:mm a').format(time);
-          print('ChangedTime $amPmTime');
         } catch (_) {}
 
+        // Customer details
         st_custName = state.response.salesMaster!.ledgerName.toString();
         st_custAddress = state.response.salesMaster!.ledgerName.toString();
-
-        // Handle null cases
         st_custName = st_custName == 'null' ? '' : st_custName;
         st_custAddress = st_custAddress == 'null' ? '' : st_custAddress;
+
+        // ✅ Trigger rebuild after ALL values are ready
+        _totalCardNotifier.value++;
       }
     },
     builder: (context, state) {
-      // Get VAT settings for display
-      String vatEnabled = '';
-      String vatType = '';
+      return ValueListenableBuilder(
+        valueListenable: _totalCardNotifier, // ✅ rebuilds when notifier fires
+        builder: (context, _, __) {
+          return Card(
+            margin: const EdgeInsets.all(8),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  totalRow("Total Qty", totalQtyController.text),
+                  totalRow("Sub Total", st_SubTotal),
 
-      // This should be fetched properly in a real scenario
-      // For now, we'll use the global variables
-      vatEnabled = st_vatEnabled;
-      vatType = st_vatType;
+                  if (st_vatEnabled == 'true' && st_vatType.isNotEmpty)
+                    Column(
+                      children: [
+                        if (st_vatType.toLowerCase() == 'gst')
+                          Column(
+                            children: [
+                              totalRow('SGST', st_sgst),
+                              totalRow('CGST', st_cgst),
+                            ],
+                          )
+                        else if (st_vatType.toLowerCase() == 'tax')
+                          totalRow('Tax Amount', st_TotalTax),
+                      ],
+                    ),
 
-      return Card(
-        margin: const EdgeInsets.all(8),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              totalRow("Total Qty", totalQtyController.text.toString()),
-              totalRow("Sub Total", st_SubTotal.toString()),
-
-              // Show tax rows only if VAT is enabled and has a type
-              if (vatEnabled == 'true' && vatType.isNotEmpty)
-                Column(
-                  children: [
-                    if (vatType.toLowerCase() == 'gst')
-                      Column(
-                        children: [
-                          totalRow('SGST', st_sgst),
-                          totalRow('CGST', st_cgst),
-                        ],
-                      )
-                    else if (vatType.toLowerCase() == 'tax')
-                      totalRow('Tax Amount', st_TotalTax),
-                  ],
-                ),
-
-              totalRow("Discount", st_totalDisc),
-              const Divider(),
-              totalRow("Grand Total", st_GrandTotal, isBold: true),
-            ],
-          ),
-        ),
+                  totalRow("Discount", st_totalDisc),
+                  const Divider(),
+                  grandTotalRow("Grand Total", st_GrandTotal, isBold: true),
+                ],
+              ),
+            ),
+          );
+        },
       );
     },
   );
@@ -168,6 +161,7 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
       if (state is SalesDetailsSuccess) {
         st_custName = state.response.salesMaster!.ledgerName;
         tokenNo = state.response.salesMaster!.billTokenNo;
+        st_invoiceno = state.response.salesMaster!.invoiceNo;
         print(tokenNo);
         print('BillDate ${state.response.salesMaster!.invoiceDate.toString()}');
 
@@ -194,13 +188,74 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Bill Date: $st_billDate",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      Text(
+                        "Invoice No: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $st_invoiceno",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "Time: $amPmTime",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  SizedBox(width: 4),
+                  Row(
+                    children: [
+                      Text(
+                        "Token No: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $tokenNo",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "Bill Date: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $st_billDate",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "Time: ",
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        " $amPmTime",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -209,26 +264,21 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                 children: [
                   const Text(
                     "Customer Name:",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
-                  Text(st_custName, style: TextStyle(color: Colors.black)),
+                  Text(
+                    st_custName,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
-
-              Row(
-                children: [
-                  Text(
-                    "TokenNo:",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    tokenNo.toString(),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
@@ -259,11 +309,11 @@ Widget itemsCard() {
           child: Row(
             children: const [
               Expanded(flex: 1, child: Text("Sl", style: headerStyle)),
-              Expanded(flex: 3, child: Text("Barcode", style: headerStyle)),
-              Expanded(flex: 1, child: Text("Qty", style: headerStyle)),
-              Expanded(flex: 1, child: Text("Rate", style: headerStyle)),
+              Expanded(flex: 4, child: Text("Product", style: headerStyle)),
+              Expanded(flex: 2, child: Text("Qty", style: headerStyle)),
+              Expanded(flex: 2, child: Text("Rate", style: headerStyle)),
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Text(
                   "Total",
                   style: headerStyle,
@@ -302,11 +352,13 @@ Widget itemsCard() {
 
                     SalesDetail data = state.response.salesDetails[index];
                     String st_qty = '', st_rate = '', st_total = '';
-                    try {
-                      st_qty = double.parse(
-                        data.qty.toString(),
-                      ).toStringAsFixed(get_decimalpoints());
-                    } catch (_) {}
+                    st_qty = data.qty.toString();
+                    // try {
+                    //   st_qty = double.parse(
+                    //     formatSubtotal(data.qty.toString()).toString(),
+                    //   ).toString();
+                    //   // .toStringAsFixed(get_decimalpoints());
+                    // } catch (_) {}
                     try {
                       st_rate = double.parse(
                         data.salesRate.toString(),
@@ -327,25 +379,25 @@ Widget itemsCard() {
                         children: [
                           Expanded(flex: 1, child: Text("${index + 1}")),
                           Expanded(
-                            flex: 3,
+                            flex: 4,
                             child: Text(
                               data.productName,
                               style: TextStyle(fontSize: 11),
                             ),
                           ),
                           Expanded(
-                            flex: 1,
+                            flex: 2,
                             child: Text(
-                              '$st_qty-${data.unitName}',
+                              '$st_qty',
                               style: const TextStyle(
                                 color: Colors.red,
-                                fontSize: 8,
+                                fontSize: 13,
                               ),
                             ),
                           ),
-                          Expanded(flex: 1, child: Text(data.salesRate)),
+                          Expanded(flex: 2, child: Text(data.salesRate)),
                           Expanded(
-                            flex: 1,
+                            flex: 2,
                             child: Text(
                               data.subtotal,
                               textAlign: TextAlign.right,
@@ -383,6 +435,31 @@ Widget totalRow(String label, String value, {bool isBold = false}) {
           value,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget grandTotalRow(String label, String value, {bool isBold = false}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            color: Colors.green,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            fontSize: 18,
           ),
         ),
       ],
@@ -582,4 +659,14 @@ Widget dateCard(String title, DateTime date, VoidCallback onTap) {
       ),
     ),
   );
+}
+
+String formatSubtotal(String value) {
+  double number = double.tryParse(value) ?? 0;
+
+  if (number % 1 == 0) {
+    return number.toInt().toString(); // Remove .00
+  }
+
+  return number.toStringAsFixed(2); // Keep decimals
 }

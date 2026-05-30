@@ -51,7 +51,7 @@ bool? selectedPdfWithBgIndex = false;
 // final _totalSalesController = TextEditingController();
 final _totalQtyController = TextEditingController();
 String st_custName = '', st_custAddress = '';
-String amPmTime = '', st_billDate = '';
+String amPmTime = '', st_billDate = '', st_invoiceno ='';
 int clickPdfFlag = 0;
 int tokenNo = 0;
 double saleTotal = 0;

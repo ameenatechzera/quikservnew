@@ -903,138 +903,140 @@ class _PrintPageState extends State<PrintPage> {
       // appBar: AppBar(title: Text('Bluetooth Thermal Print')),
       body: Container(
         color: Colors.white,
-        child: Column(
-          children: [
-            Center(
-              child: Lottie.asset(
-                'assets/success_animation.json',
-                width: double.infinity,
-                height: 500,
-                fit: BoxFit.contain,
-              ),
-            ),
-            // Container(color: Colors.red,
-            //   width: double.infinity,
-            //   height: 500)
-
-            // Visibility(
-            //   visible: deviceListStatus,
-            //   child: Container(
-            //     color: Colors.white,
-            //     height: dbl_bluetoothList,
-            //     width: double.infinity,
-            //     child: ListView.builder(
-            //       itemCount: availableBluetoothDevices.length,
-            //       itemBuilder: (context, index) {
-            //         final device = availableBluetoothDevices[index];
-            //         return ListTile(
-            //           title: Text(device.name ?? 'Unknown'),
-            //           subtitle: Text(device.macAdress ?? ''),
-            //           onTap: () async {
-            //             if (device.macAdress != null) {
-            //               final prefs = await SharedPreferences.getInstance();
-            //               await prefs.setString(
-            //                 'bt_device_name',
-            //                 device!.name.toString(),
-            //               );
-            //               await prefs.setString(
-            //                 'bt_device_mac',
-            //                 device!.macAdress.toString(),
-            //               );
-            //               // SharedPrefrence()
-            //               //     .setBluetoothMacAddress(device!.macAdress.toString());
-            //               // SharedPrefrence()
-            //               //     .setBluetoothDevice(device!.name.toString());
-            //               // _connectAndPrint(device.macAdress!);
-            //             }
-            //           },
-            //         );
-            //       },
-            //     ),
-            //   ),
-            // ),
-            // Visibility(
-            //   visible: salesCase,
-            //   child: Container(
-            //     width: double.infinity,
-            //     height: dbl_paymentSuccess,
-            //     color: Colors.white,
-            //     child: Column(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: <Widget>[
-            //         Expanded(
-            //           child: Lottie.asset('assets/success_animation.json'),
-            //         ),
-            //         // Add your animation file here
-            //         const SizedBox(height: 20),
-            //         const Visibility(
-            //           visible: true,
-            //           child: Text(
-            //             'Payment Successful!',
-            //             style: TextStyle(
-            //               fontSize: 24,
-            //               fontWeight: FontWeight.bold,
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
-            // Visibility(
-            //   visible: salesReportCase,
-            //   child: Visibility(
-            //     child: Container(
-            //       width: double.infinity,
-            //       height: 500,
-            //       color: Colors.white,
-            //       child: Center(
-            //         child: Padding(
-            //           padding: const EdgeInsets.all(8.0),
-            //           child: Text(
-            //             _statusTextController.text,
-            //             style: TextStyle(color: Colors.black, fontSize: 22),
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            Visibility(
-              visible: true,
-              child: Container(
-                color: Colors.white,
-                child: BlocConsumer<SalesReportCubit, SlesReportState>(
-                  listener: (context, state) {
-                    if (state is SaleFinishSuccess) {
-                      print('Finished');
-
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
-                        );
-                      });
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is SaleFinishSuccess) {
-                      return Container();
-                    } else {
-                      return Center(
-                        child: Lottie.asset(
-                          'assets/success_animation.json',
-                          width: double.infinity,
-                          height: 500,
-                          fit: BoxFit.contain,
-                        ),
-                      );
-                    }
-                  },
+        child: Expanded(
+          child: Column(
+            children: [
+              Center(
+                child: Lottie.asset(
+                  'assets/success_animation.json',
+                  width: double.infinity,
+                  height: 500,
+                  fit: BoxFit.contain,
                 ),
               ),
-            ),
-          ],
+              // Container(color: Colors.red,
+              //   width: double.infinity,
+              //   height: 500)
+          
+              // Visibility(
+              //   visible: deviceListStatus,
+              //   child: Container(
+              //     color: Colors.white,
+              //     height: dbl_bluetoothList,
+              //     width: double.infinity,
+              //     child: ListView.builder(
+              //       itemCount: availableBluetoothDevices.length,
+              //       itemBuilder: (context, index) {
+              //         final device = availableBluetoothDevices[index];
+              //         return ListTile(
+              //           title: Text(device.name ?? 'Unknown'),
+              //           subtitle: Text(device.macAdress ?? ''),
+              //           onTap: () async {
+              //             if (device.macAdress != null) {
+              //               final prefs = await SharedPreferences.getInstance();
+              //               await prefs.setString(
+              //                 'bt_device_name',
+              //                 device!.name.toString(),
+              //               );
+              //               await prefs.setString(
+              //                 'bt_device_mac',
+              //                 device!.macAdress.toString(),
+              //               );
+              //               // SharedPrefrence()
+              //               //     .setBluetoothMacAddress(device!.macAdress.toString());
+              //               // SharedPrefrence()
+              //               //     .setBluetoothDevice(device!.name.toString());
+              //               // _connectAndPrint(device.macAdress!);
+              //             }
+              //           },
+              //         );
+              //       },
+              //     ),
+              //   ),
+              // ),
+              // Visibility(
+              //   visible: salesCase,
+              //   child: Container(
+              //     width: double.infinity,
+              //     height: dbl_paymentSuccess,
+              //     color: Colors.white,
+              //     child: Column(
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       children: <Widget>[
+              //         Expanded(
+              //           child: Lottie.asset('assets/success_animation.json'),
+              //         ),
+              //         // Add your animation file here
+              //         const SizedBox(height: 20),
+              //         const Visibility(
+              //           visible: true,
+              //           child: Text(
+              //             'Payment Successful!',
+              //             style: TextStyle(
+              //               fontSize: 24,
+              //               fontWeight: FontWeight.bold,
+              //             ),
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // Visibility(
+              //   visible: salesReportCase,
+              //   child: Visibility(
+              //     child: Container(
+              //       width: double.infinity,
+              //       height: 500,
+              //       color: Colors.white,
+              //       child: Center(
+              //         child: Padding(
+              //           padding: const EdgeInsets.all(8.0),
+              //           child: Text(
+              //             _statusTextController.text,
+              //             style: TextStyle(color: Colors.black, fontSize: 22),
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              Visibility(
+                visible: true,
+                child: Container(
+                  color: Colors.white,
+                  child: BlocConsumer<SalesReportCubit, SlesReportState>(
+                    listener: (context, state) {
+                      if (state is SaleFinishSuccess) {
+                        print('Finished');
+          
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomeScreen()),
+                          );
+                        });
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is SaleFinishSuccess) {
+                        return Container();
+                      } else {
+                        return Center(
+                          child: Lottie.asset(
+                            'assets/success_animation.json',
+                            width: double.infinity,
+                            height: 500,
+                            fit: BoxFit.contain,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
