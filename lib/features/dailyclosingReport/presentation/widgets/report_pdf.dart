@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:quikservnew/features/dailyclosingReport/domain/entities/dailyclosingreport_result.dart';
 import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_report_response.dart';
+import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:share_plus/share_plus.dart';
 
 String formatDateString(String inputDate) {
@@ -34,52 +36,271 @@ Future<void> shareDailyClosingReport({
     final PdfColor redColor = PdfColor.fromHex('#D32F2F');
     final PdfColor textColor = PdfColors.black;
     final PdfColor subTextColor = PdfColor.fromHex('#666666');
+    final companyName = await SharedPreferenceHelper().getCompanyName() ?? '';
+
+    final companyPhone =
+        await SharedPreferenceHelper().getCompanyPhoneNo() ?? '';
+
+    final companyAddress =
+        await SharedPreferenceHelper().getCompanyAddress1() ?? '';
+
+    final companyAddress2 =
+        await SharedPreferenceHelper().getCompanyAddress2() ?? '';
+
+    final companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? '';
+
+    final logoBytes = await rootBundle.load('assets/images/bw_printlogo.png');
+
+    final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
 
     pdf.addPage(
       pw.MultiPage(
         margin: const pw.EdgeInsets.fromLTRB(16, 14, 16, 14),
         build: (pw.Context context) {
           return [
-            /// Title
-            pw.Container(
-              width: double.infinity,
-              padding: const pw.EdgeInsets.symmetric(vertical: 8),
-              child: pw.Center(
-                child: pw.Text(
-                  "DAILY CLOSING REPORT",
-                  style: pw.TextStyle(
-                    fontSize: 18,
-                    fontWeight: pw.FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-              ),
-            ),
-
-            /// Date bar
             pw.Container(
               width: double.infinity,
               padding: const pw.EdgeInsets.symmetric(
                 horizontal: 12,
-                vertical: 7,
+                vertical: 10,
               ),
               decoration: pw.BoxDecoration(
-                color: headerColor,
-                borderRadius: pw.BorderRadius.circular(8),
+                borderRadius: pw.BorderRadius.circular(10),
+                border: pw.Border.all(color: PdfColors.grey700, width: 0.8),
               ),
-              child: pw.Center(
-                child: pw.Text(
-                  formatDateString(dateText),
-                  style: pw.TextStyle(
-                    fontSize: 13,
-                    fontWeight: pw.FontWeight.bold,
-                    color: textColor,
+              child: pw.Column(
+                children: [
+                  pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      pw.Container(
+                        // width: 100,
+                        // height: 160,
+                        child: pw.Image(
+                          logoImage,
+                          width: 100,
+                          height: 160,
+                          fit: pw.BoxFit.contain,
+                        ),
+                      ),
+
+                      pw.SizedBox(width: 12),
+
+                      pw.Expanded(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Text(
+                              companyName.toUpperCase(),
+                              textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                fontSize: 17,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+
+                            pw.SizedBox(height: 3),
+
+                            pw.Text(
+                              companyAddress,
+                              textAlign: pw.TextAlign.center,
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
+
+                            if (companyAddress2.isNotEmpty)
+                              pw.Text(
+                                companyAddress2,
+                                textAlign: pw.TextAlign.center,
+                                style: const pw.TextStyle(fontSize: 9),
+                              ),
+
+                            pw.Text(
+                              companyPhone,
+                              textAlign: pw.TextAlign.center,
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      pw.SizedBox(width: 60),
+                    ],
                   ),
-                ),
+
+                  pw.SizedBox(height: 10),
+
+                  pw.Container(height: 1, color: PdfColors.grey700),
+
+                  pw.SizedBox(height: 10),
+
+                  pw.Text(
+                    "DAILY CLOSING REPORT",
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+
+                  pw.SizedBox(height: 6),
+
+                  pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    child: pw.Text(
+                      formatDateString(dateText),
+                      style: pw.TextStyle(
+                        fontSize: 11,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            pw.SizedBox(height: 10),
+            pw.SizedBox(height: 12),
+            // _card(
+            //   borderColor: borderColor,
+            //   child: pw.Column(
+            //     children: [
+            //       pw.Row(
+            //         crossAxisAlignment: pw.CrossAxisAlignment.center,
+            //         children: [
+            //           /// LOGO RIGHT
+            //           pw.Container(
+            //             width: 80,
+            //             alignment: pw.Alignment.centerRight,
+            //             child: pw.Image(
+            //               logoImage,
+            //               width: 70,
+            //               height: 70,
+            //               fit: pw.BoxFit.contain,
+            //             ),
+            //           ),
+
+            //           /// COMPANY DETAILS CENTER
+            //           pw.Expanded(
+            //             child: pw.Column(
+            //               children: [
+            //                 pw.Text(
+            //                   companyName,
+            //                   textAlign: pw.TextAlign.center,
+            //                   style: pw.TextStyle(
+            //                     fontSize: 16,
+            //                     fontWeight: pw.FontWeight.bold,
+            //                   ),
+            //                 ),
+
+            //                 pw.SizedBox(height: 3),
+
+            //                 pw.Text(
+            //                   companyAddress,
+            //                   textAlign: pw.TextAlign.center,
+            //                   style: const pw.TextStyle(fontSize: 10),
+            //                 ),
+
+            //                 if (companyAddress2.isNotEmpty)
+            //                   pw.Text(
+            //                     companyAddress2,
+            //                     textAlign: pw.TextAlign.center,
+            //                     style: const pw.TextStyle(fontSize: 10),
+            //                   ),
+
+            //                 pw.SizedBox(height: 3),
+
+            //                 pw.Text(
+            //                   companyPhone,
+            //                   textAlign: pw.TextAlign.center,
+            //                   style: const pw.TextStyle(fontSize: 10),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
+
+            // pw.SizedBox(height: 10),
+
+            /// Title
+            // pw.Container(
+            //   width: double.infinity,
+            //   padding: const pw.EdgeInsets.symmetric(vertical: 8),
+            //   child: pw.Center(
+            //     child: pw.Text(
+            //       "DAILY CLOSING REPORT",
+            //       style: pw.TextStyle(
+            //         fontSize: 18,
+            //         fontWeight: pw.FontWeight.bold,
+            //         color: textColor,
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // pw.Container(
+            //   width: double.infinity,
+            //   padding: const pw.EdgeInsets.symmetric(
+            //     horizontal: 12,
+            //     vertical: 10,
+            //   ),
+            //   decoration: pw.BoxDecoration(
+            //     color: headerColor,
+            //     borderRadius: pw.BorderRadius.circular(8),
+            //     border: pw.Border.all(color: PdfColors.grey400, width: 0.5),
+            //   ),
+            //   child: pw.Column(
+            //     children: [
+            //       pw.Text(
+            //         "DAILY CLOSING REPORT",
+            //         style: pw.TextStyle(
+            //           fontSize: 18,
+            //           fontWeight: pw.FontWeight.bold,
+            //           color: textColor,
+            //         ),
+            //       ),
+
+            //       pw.SizedBox(height: 4),
+
+            //       pw.Text(
+            //         formatDateString(dateText),
+            //         style: pw.TextStyle(
+            //           fontSize: 15,
+            //           fontWeight: pw.FontWeight.bold,
+            //           color: textColor,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // /// Date bar
+            // pw.Container(
+            //   width: double.infinity,
+            //   padding: const pw.EdgeInsets.symmetric(
+            //     horizontal: 12,
+            //     vertical: 7,
+            //   ),
+            //   decoration: pw.BoxDecoration(
+            //     color: headerColor,
+            //     borderRadius: pw.BorderRadius.circular(8),
+            //   ),
+            //   child: pw.Center(
+            //     child: pw.Text(
+            //       formatDateString(dateText),
+            //       style: pw.TextStyle(
+            //         fontSize: 13,
+            //         fontWeight: pw.FontWeight.bold,
+            //         color: textColor,
+            //       ),
+            //     ),
+            //   ),
+            // ),
+
+            // pw.SizedBox(height: 10),
 
             /// Sales summary card
             _buildPdfCard(
@@ -245,6 +466,18 @@ Future<void> shareDailyClosingReport({
   } catch (e) {
     debugPrint("Share error: $e");
   }
+}
+
+pw.Widget _card({required pw.Widget child, required PdfColor borderColor}) {
+  return pw.Container(
+    width: double.infinity,
+    padding: const pw.EdgeInsets.all(10),
+    decoration: pw.BoxDecoration(
+      borderRadius: pw.BorderRadius.circular(10),
+      border: pw.Border.all(color: borderColor, width: 0.7),
+    ),
+    child: child,
+  );
 }
 
 pw.Widget _buildPdfCard({

@@ -16,14 +16,31 @@ class ItemWiseReportPage extends StatelessWidget {
   final TextEditingController toDateController = TextEditingController(
     text: DateFormat('dd-MM-yyyy').format(DateTime.now()),
   );
+  // void _onDateChanged(BuildContext context) {
+  //   final fromDateRaw = fromDateController.text.trim();
+  //   final toDateRaw = toDateController.text.trim();
+  //   if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
+  //     context.read<ItemWiseReportCubit>().fetchItemWiseReportNew(
+  //       ItemWiseReportRequest(
+  //         fromDate: formatter.format(fromDate),
+  //         toDate: formatter.format(fromDate),
+  //         branchId: "1",
+  //       ),
+  //     );
+  //   }
+  // }
   void _onDateChanged(BuildContext context) {
     final fromDateRaw = fromDateController.text.trim();
     final toDateRaw = toDateController.text.trim();
+
     if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
+      final fromDate = DateFormat('dd-MM-yyyy').parse(fromDateRaw);
+      final toDate = DateFormat('dd-MM-yyyy').parse(toDateRaw);
+
       context.read<ItemWiseReportCubit>().fetchItemWiseReportNew(
         ItemWiseReportRequest(
           fromDate: formatter.format(fromDate),
-          toDate: formatter.format(fromDate),
+          toDate: formatter.format(toDate),
           branchId: "1",
         ),
       );

@@ -317,6 +317,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
         children: [
           Expanded(
             child: Container(
+              height: 50,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -329,7 +330,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                 decoration: const InputDecoration(
                   labelText: '  From Date',
                   labelStyle: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                   floatingLabelAlignment: FloatingLabelAlignment.center,
@@ -347,6 +348,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           const SizedBox(width: 30),
           Expanded(
             child: Container(
+              height: 50,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -361,7 +363,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                   decoration: const InputDecoration(
                     labelText: 'To Date',
                     labelStyle: TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
