@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
@@ -67,7 +68,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xffF5F6FA),
-      
+
         appBar: AppBar(
           toolbarHeight: 40,
           backgroundColor: AppColors.theme,
@@ -81,7 +82,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           child: Column(
             children: [
               _dateFilter(),
-              const SizedBox(height: 16),
+              // const SizedBox(height: 16),
               Expanded(
                 child: BlocConsumer<SalesReportCubit, SlesReportState>(
                   listener: (context, state) {
@@ -118,99 +119,187 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                       salesList = state.response.salesMaster;
                       print('salesList ${salesList}');
                       // _calculateTotals(salesList);
-      
                     }
                   },
                   builder: (context, state) {
                     if (state is SlesReportInitial) {
                       return const Center(child: CircularProgressIndicator());
                     }
-      
+
                     if (salesList.isEmpty) {
                       return const Center(child: Text("No data found"));
                     }
-                    return Expanded(
-                      child: ListView.builder(
-                        itemCount: salesList.length,
-                        itemBuilder: (context, index) {
-                          final sale = salesList[index];
-                          return _salesCard(sale);
-                        },
+                    return ListView.builder(
+                      physics: const SoftBounceScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
                       ),
+                      itemCount: salesList.length,
+                      itemBuilder: (context, index) {
+                        final sale = salesList[index];
+                        return _salesCard(sale);
+                      },
                     );
                   },
                 ),
               ),
               BlocBuilder<SalesReportCubit, SlesReportState>(
                 builder: (context, state) {
-                  if(state is SalesReportSuccess){
+                  if (state is SalesReportSuccess) {
                     print('SalesReportSuccess HR');
                     saleTotal = 0;
-      
+
                     for (final item in salesList) {
                       saleTotal += double.tryParse(item.grandTotal) ?? 0;
                     }
-      
+
                     _totalRecordsController.text = salesList.length.toString();
                     _totalSalesController.text = saleTotal.toStringAsFixed(2);
                     return Container(
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
+                        horizontal: 20,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 8,
-                            offset: const Offset(0, -2),
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Total Records",
-                                style: TextStyle(fontSize: 12, color: Colors.grey),
-                              ),
-                              Text(
-                                _totalRecordsController.text,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-      
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Text(
-                                "Total Sales",
-                                style: TextStyle(fontSize: 12, color: Colors.grey),
-                              ),
-                              Text(
-                                _totalSalesController.text,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  "Total Records",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 4),
+                                Text(
+                                  _totalRecordsController.text,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Container(
+                            width: 1,
+                            height: 45,
+                            color: Colors.white24,
+                          ),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  "Total Sales",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _totalSalesController.text,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFFFE08A),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     );
-                  }
-                  else{
+                    // return Container(
+                    //   padding: const EdgeInsets.symmetric(
+                    //     horizontal: 20,
+                    //     vertical: 14,
+                    //   ),
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.white,
+                    //     boxShadow: [
+                    //       BoxShadow(
+                    //         color: Colors.black.withOpacity(0.08),
+                    //         blurRadius: 8,
+                    //         offset: const Offset(0, -2),
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //     children: [
+                    //       Column(
+                    //         crossAxisAlignment: CrossAxisAlignment.start,
+                    //         children: [
+                    //           const Text(
+                    //             "Total Records",
+                    //             style: TextStyle(
+                    //               fontSize: 12,
+                    //               color: Colors.grey,
+                    //             ),
+                    //           ),
+                    //           Text(
+                    //             _totalRecordsController.text,
+                    //             style: const TextStyle(
+                    //               fontSize: 16,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+
+                    //       Column(
+                    //         crossAxisAlignment: CrossAxisAlignment.end,
+                    //         children: [
+                    //           const Text(
+                    //             "Total Sales",
+                    //             style: TextStyle(
+                    //               fontSize: 12,
+                    //               color: Colors.grey,
+                    //             ),
+                    //           ),
+                    //           Text(
+                    //             _totalSalesController.text,
+                    //             style: const TextStyle(
+                    //               fontSize: 18,
+                    //               fontWeight: FontWeight.bold,
+                    //               color: Colors.black,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ],
+                    //   ),
+                    // );
+                  } else {
                     Container();
                   }
-               return Container();
+                  return Container();
                 },
-              )
+              ),
               //  footerTotalSection(_totalRecordsController),
             ],
           ),
@@ -294,8 +383,10 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context,
-      TextEditingController controller,) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -317,14 +408,13 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   }
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
-    String st_PayMode ='';
+    String st_PayMode = '';
     if (double.parse(sale.cashAmount) > 0) {
       st_PayMode = 'Cash';
-    }
-    else if(double.parse(sale.cardAmount) > 0){
+    } else if (double.parse(sale.cardAmount) > 0) {
       st_PayMode = 'Card';
-    }
-    else if(double.parse(sale.cardAmount) > 0 && double.parse(sale.cashAmount) > 0){
+    } else if (double.parse(sale.cardAmount) > 0 &&
+        double.parse(sale.cashAmount) > 0) {
       st_PayMode = 'Multi';
     }
     return Padding(
@@ -348,11 +438,10 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    SalesReportPreviewScreen(
-                      pagefrom: 'SalesReport',
-                      masterId: sale.salesMasterId.toString(),
-                    ),
+                builder: (context) => SalesReportPreviewScreen(
+                  pagefrom: 'SalesReport',
+                  masterId: sale.salesMasterId.toString(),
+                ),
               ),
             );
           },
@@ -454,7 +543,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           message: 'Are you sure you want to delete all selected items?',
           salesMasterId: salesMasterId,
         );
-        if (result == true) {} else {}
+        if (result == true) {
+        } else {}
       },
       child: CircleAvatar(
         radius: 16,
@@ -490,6 +580,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       ),
     );
   }
+
   Future<void> fetchSalesReportInitial() async {
     final sharedPrefHelper = SharedPreferenceHelper();
     st_branchId = await sharedPrefHelper.getBranchId();

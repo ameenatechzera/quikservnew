@@ -85,6 +85,18 @@ class MyApp extends StatelessWidget {
         BlocProvider<SalesCountCubit>(create: (_) => sl<SalesCountCubit>()),
       ],
       child: MaterialApp(
+        // builder: (context, child) {
+        //   final width = MediaQuery.of(context).size.width;
+
+        //   final scaleFactor = width >= 600 ? 1.25 : 1.0;
+
+        //   return MediaQuery(
+        //     data: MediaQuery.of(
+        //       context,
+        //     ).copyWith(textScaler: TextScaler.linear(scaleFactor)),
+        //     child: child!,
+        //   );
+        // },
         debugShowCheckedModeBanner: false,
         title: 'QuikSERV',
         theme: ThemeData(

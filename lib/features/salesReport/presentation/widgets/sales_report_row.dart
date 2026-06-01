@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quikservnew/core/config/colors.dart';
+import 'package:quikservnew/core/utils/widgets/app_toast.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/pdf.dart';
 import 'package:quikservnew/features/salesReport/presentation/screens/salesreport_preview_screen.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/print_thermal.dart';
+import 'package:quikservnew/services/shared_preference_helper.dart';
 
 class SalesReportRow extends StatelessWidget {
   const SalesReportRow({super.key, required this.selectPrintStatus});
@@ -139,7 +141,39 @@ class SalesReportRow extends StatelessWidget {
                           ),
                           elevation: 0,
                         ),
-                        onPressed: () {
+                        onPressed: () async {
+                          final selectedPrinter = await SharedPreferenceHelper()
+                              .loadSelectedPrinter();
+
+                          if (selectedPrinter == null ||
+                              selectedPrinter.trim().isEmpty) {
+                            // Fluttertoast.showToast(
+                            //   msg:
+                            //       "No printer connected. Please connect a printer first.",
+                            //   toastLength: Toast.LENGTH_SHORT,
+                            //   gravity: ToastGravity.BOTTOM,
+                            //   backgroundColor: Colors.red,
+                            //   textColor: Colors.white,
+                            // );
+                            showAnimatedToast(
+                              context,
+                              message:
+                                  'No printer connected. Please connect a printer first.',
+                              isSuccess: false,
+                            );
+                            return;
+                          }
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PrintPage(
+                                pageFrom: 'SalesReport',
+                                sales: saleList.first,
+                              ),
+                            ),
+                          );
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(

@@ -470,28 +470,28 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                                                             ),
                                                           ],
                                                         ),
-                                                        Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            const Text(
-                                                              'Tax',
-                                                              style: TextStyle(
-                                                                fontSize: 13,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              item_list
-                                                                  .taxAmount,
-                                                              style: const TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
+                                                        // Column(
+                                                        //   crossAxisAlignment:
+                                                        //       CrossAxisAlignment
+                                                        //           .start,
+                                                        //   children: [
+                                                        //     const Text(
+                                                        //       'Tax',
+                                                        //       style: TextStyle(
+                                                        //         fontSize: 13,
+                                                        //       ),
+                                                        //     ),
+                                                        //     Text(
+                                                        //       item_list
+                                                        //           .taxAmount,
+                                                        //       style: const TextStyle(
+                                                        //         fontWeight:
+                                                        //             FontWeight
+                                                        //                 .bold,
+                                                        //       ),
+                                                        //     ),
+                                                        //   ],
+                                                        // ),
                                                       ],
                                                     ),
                                                   ),

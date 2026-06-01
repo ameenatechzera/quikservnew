@@ -13,7 +13,8 @@ final ValueNotifier<int> _totalCardNotifier = ValueNotifier(0);
 
 Widget totalCard(TextEditingController totalQtyController) {
   return BlocConsumer<SalesReportCubit, SlesReportState>(
-    listener: (context, state) async {  // ✅ async listener directly
+    listener: (context, state) async {
+      // ✅ async listener directly
       if (state is SalesDetailsSuccess) {
         saleList.clear();
         saleList.add(state.response);
@@ -111,7 +112,7 @@ Widget totalCard(TextEditingController totalQtyController) {
     },
     builder: (context, state) {
       return ValueListenableBuilder(
-        valueListenable: _totalCardNotifier,  // ✅ rebuilds when notifier fires
+        valueListenable: _totalCardNotifier, // ✅ rebuilds when notifier fires
         builder: (context, _, __) {
           return Card(
             margin: const EdgeInsets.all(8),
@@ -184,7 +185,6 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -196,7 +196,11 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                       ),
                       Text(
                         " $st_invoiceno",
-                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontSize: 15,
+                        ),
                       ),
                     ],
                   ),
@@ -209,11 +213,14 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                       ),
                       Text(
                         " $tokenNo",
-                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red,fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontSize: 15,
+                        ),
                       ),
                     ],
                   ),
-
                 ],
               ),
               const SizedBox(height: 8),
@@ -228,7 +235,10 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                       ),
                       Text(
                         " $st_billDate",
-                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                       ),
                     ],
                   ),
@@ -240,7 +250,10 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                       ),
                       Text(
                         " $amPmTime",
-                        style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black,),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                       ),
                     ],
                   ),
@@ -251,14 +264,21 @@ Widget topBillInfoCard({required String billDate, required String billTime}) {
                 children: [
                   const Text(
                     "Customer Name:",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
-                  Text(st_custName, style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+                  Text(
+                    st_custName,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
-
-
             ],
           ),
         ),
@@ -421,6 +441,7 @@ Widget totalRow(String label, String value, {bool isBold = false}) {
     ),
   );
 }
+
 Widget grandTotalRow(String label, String value, {bool isBold = false}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -431,14 +452,14 @@ Widget grandTotalRow(String label, String value, {bool isBold = false}) {
           label,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: Colors.green
+            color: Colors.green,
           ),
         ),
         Text(
           value,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: 18
+            fontSize: 18,
           ),
         ),
       ],
@@ -477,54 +498,128 @@ Future<void> fetchDetails(String stMasterID, BuildContext context) async {
   );
 }
 
-Widget footerTotalSection(TextEditingController totalRecordsController) {
+// Widget footerTotalSection(TextEditingController totalRecordsController) {
+//   return Container(
+//     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+//     decoration: BoxDecoration(
+//       color: Colors.white,
+//       boxShadow: [
+//         BoxShadow(
+//           color: Colors.black.withOpacity(0.08),
+//           blurRadius: 8,
+//           offset: const Offset(0, -2),
+//         ),
+//       ],
+//     ),
+//     child: Row(
+//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//       children: [
+//         Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text(
+//               "Total Records",
+//               style: TextStyle(fontSize: 12, color: Colors.grey),
+//             ),
+//             Text(
+//               totalRecordsController.text,
+//               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//             ),
+//           ],
+//         ),
 
-  return
-    Container(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+//         Column(
+//           crossAxisAlignment: CrossAxisAlignment.end,
+//           children: [
+//             const Text(
+//               "Total Sales",
+//               style: TextStyle(fontSize: 12, color: Colors.grey),
+//             ),
+//             Text(
+//               totalRecordsController.text,
+//               style: const TextStyle(
+//                 fontSize: 18,
+//                 fontWeight: FontWeight.bold,
+//                 color: Colors.black,
+//               ),
+//             ),
+//           ],
+//         ),
+//       ],
+//     ),
+//   );
+// }
+
+Widget footerTotalSection(
+  TextEditingController totalRecordsController,
+  TextEditingController totalSalesController,
+) {
+  return Container(
+    margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Colors.black,
+      borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.08),
-          blurRadius: 8,
-          offset: const Offset(0, -2),
+          color: Colors.black.withOpacity(0.25),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
         ),
       ],
     ),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Total Records",
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            Text(
-              totalRecordsController.text,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Total Records",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                totalRecordsController.text,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
 
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Text(
-              "Total Sales",
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            Text(
-              totalRecordsController.text,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+        Container(width: 1, height: 45, color: Colors.white24),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const Text(
+                "Total Sales",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                totalSalesController.text,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFFE08A),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     ),
@@ -565,6 +660,7 @@ Widget dateCard(String title, DateTime date, VoidCallback onTap) {
     ),
   );
 }
+
 String formatSubtotal(String value) {
   double number = double.tryParse(value) ?? 0;
 

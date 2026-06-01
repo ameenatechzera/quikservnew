@@ -12,22 +12,30 @@ class CommomBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    /// Tablet check
+    final bool isTablet = screenWidth > 600;
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
+        padding: EdgeInsets.symmetric(horizontal: 30),
         child: Container(
-          margin: const EdgeInsets.all(10),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: EdgeInsets.all(10),
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 50 : 20,
+            vertical: 10,
+          ),
           decoration: BoxDecoration(
             color: const Color(0xFFFFE38A),
-            borderRadius: BorderRadius.circular(40),
+            borderRadius: BorderRadius.circular(isTablet ? 50 : 40),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // HOME
               _buildTab(
+                context: context,
                 iconPath: 'assets/icons/homeicon.svg',
                 label: "Home",
                 index: 0,
@@ -35,6 +43,7 @@ class CommomBottomBar extends StatelessWidget {
 
               // DASHBOARD
               _buildTab(
+                context: context,
                 iconPath: 'assets/icons/dashboardicon.svg',
                 label: "Dashboard",
                 index: 1,
@@ -42,6 +51,7 @@ class CommomBottomBar extends StatelessWidget {
 
               // SETTINGS
               _buildTab(
+                context: context,
                 iconPath: 'assets/icons/Clip path group.svg',
                 label: "Settings",
                 index: 2,
@@ -54,21 +64,25 @@ class CommomBottomBar extends StatelessWidget {
   }
 
   Widget _buildTab({
+    required BuildContext context,
     required String iconPath,
     required String label,
     required int index,
   }) {
     final bool isSelected = currentTabIndex == index;
+    final screenWidth = MediaQuery.of(context).size.width;
 
+    /// Tablet check
+    final bool isTablet = screenWidth > 600;
     return GestureDetector(
       onTap: () => onTabChanged(index),
       child: Container(
         padding: isSelected
-            ? const EdgeInsets.symmetric(horizontal: 14, vertical: 9)
-            : const EdgeInsets.all(10),
+            ? EdgeInsets.symmetric(horizontal: isTablet ? 50 : 14, vertical: 9)
+            : EdgeInsets.all(isTablet ? 14 : 10),
         decoration: BoxDecoration(
           color: isSelected ? Colors.black : Colors.transparent,
-          border: Border.all(color: Colors.black, width: 2),
+          border: Border.all(color: Colors.black, width: isTablet ? 2.5 : 2),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
@@ -81,12 +95,12 @@ class CommomBottomBar extends StatelessWidget {
             ),
 
             if (isSelected) ...[
-              const SizedBox(width: 6),
+              SizedBox(width: isTablet ? 10 : 6),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: isTablet ? 18 : 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),

@@ -9,8 +9,13 @@ class ItemWiseReportPage extends StatelessWidget {
   ItemWiseReportPage({super.key});
   final DateFormat formatter = DateFormat('MM-dd-yyyy');
   final DateTime fromDate = DateTime.now();
-  final TextEditingController fromDateController = TextEditingController();
-  final TextEditingController toDateController = TextEditingController();
+  final TextEditingController fromDateController = TextEditingController(
+    text: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+  );
+
+  final TextEditingController toDateController = TextEditingController(
+    text: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+  );
   void _onDateChanged(BuildContext context) {
     final fromDateRaw = fromDateController.text.trim();
     final toDateRaw = toDateController.text.trim();
@@ -128,7 +133,7 @@ class ItemWiseReportPage extends StatelessWidget {
                           floatingLabelAlignment: FloatingLabelAlignment.center,
                           border: InputBorder.none,
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
+                          contentPadding: EdgeInsets.symmetric(
                             vertical: 12,
                             horizontal: 0,
                           ),

@@ -51,7 +51,7 @@ class SalesPreviewPdfHelper {
     /// ---------------- UI ----------------
     pdf.addPage(
       pw.MultiPage(
-        margin: const pw.EdgeInsets.all(8), // same as UI
+        margin: const pw.EdgeInsets.all(8),
         build: (context) => [
           ///  TOP CARD
           _card(
@@ -69,7 +69,7 @@ class SalesPreviewPdfHelper {
 
                 pw.Row(
                   children: [
-                    pw.Text("Customer Name:", style: _semiBold()),
+                    pw.Text("Customer Name:$customerName", style: _semiBold()),
                     pw.SizedBox(width: 4),
                     pw.Text(customerName),
                   ],
