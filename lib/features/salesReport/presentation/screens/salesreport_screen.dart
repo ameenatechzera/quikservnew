@@ -315,7 +315,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       _onDateChanged(context);
     }
   }
-
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
     String st_PayMode ='';
@@ -406,6 +405,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
               /// Invoice & Time
               Row(
+
                 children: [
                   SvgPicture.asset('assets/icons/salesreporticon2.svg'),
                   SizedBox(width: 6),

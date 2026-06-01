@@ -42,6 +42,7 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
           },
         ),
       );
+      print('fetchProducts_url $url');
       if (response.statusCode == 200) {
         return FetchProductResponseModel.fromJson(response.data);
       } else {

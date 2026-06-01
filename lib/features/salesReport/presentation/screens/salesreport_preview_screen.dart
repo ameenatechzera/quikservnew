@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/core/utils/widgets/common_appbar.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
+import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
+import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/sales_report_row.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/salesreport_widgets.dart';
 
@@ -74,7 +77,7 @@ class _SalesReportPreviewScreenState extends State<SalesReportPreviewScreen> {
   int decimal = 2;
   double totalQty = 0;
   bool? selectedPdfWithBgIndex = false;
-
+  final DateFormat formatter = DateFormat('MM-dd-yyyy');
   @override
   void initState() {
     stMasterID = widget.masterId;
@@ -87,69 +90,86 @@ class _SalesReportPreviewScreenState extends State<SalesReportPreviewScreen> {
     final now = DateTime.now();
     final dateFormatter = DateFormat('dd-MM-yyyy');
     final timeFormatter = DateFormat('hh:mm a');
-    return Scaffold(
-      appBar: const CommonAppBar(title: "Bill Preview"),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              /// TOP CARD
-              topBillInfoCard(
-                billDate: dateFormatter.format(now),
-                billTime: timeFormatter.format(now),
-              ),
-
-              /// ITEMS CARD
-              itemsCard(),
-
-              /// TOTAL CARD
-              totalCard(_totalQtyController),
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 2.0,
-                  right: 2.0,
-                  top: 0.0,
-                  bottom: 6.0,
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          DateTime fromDate = DateTime.now();
+          DateTime toDate = DateTime.now();
+          context.read<SalesReportCubit>().fetchSalesReport(
+            FetchReportRequest(
+              fromDate: formatter.format(fromDate),
+              toDate: formatter.format(toDate),
+              userId: st_userId,
+              branchId: st_branchId,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: const CommonAppBar(title: "Bill Preview"),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                /// TOP CARD
+                topBillInfoCard(
+                  billDate: dateFormatter.format(now),
+                  billTime: timeFormatter.format(now),
                 ),
-                child: SalesReportRow(selectPrintStatus: selectPrintStatus),
-              ),
-              Visibility(
-                visible: false,
-                child: Padding(
+      
+                /// ITEMS CARD
+                itemsCard(),
+      
+                /// TOTAL CARD
+                totalCard(_totalQtyController),
+                Padding(
                   padding: const EdgeInsets.only(
-                    left: 8.0,
-                    right: 8.0,
-                    bottom: 8.0,
+                    left: 2.0,
+                    right: 2.0,
+                    top: 0.0,
+                    bottom: 6.0,
                   ),
-                  child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          appBarColor,
-                        ),
-                        backgroundColor: MaterialStateProperty.all(appBarColor),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
-                                side: BorderSide(color: appBarColor),
+                  child: SalesReportRow(selectPrintStatus: selectPrintStatus),
+                ),
+                Visibility(
+                  visible: false,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 8.0,
+                      right: 8.0,
+                      bottom: 8.0,
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            appBarColor,
+                          ),
+                          backgroundColor: MaterialStateProperty.all(appBarColor),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  side: BorderSide(color: appBarColor),
+                                ),
                               ),
-                            ),
-                      ),
-                      onPressed: () {},
-                      child: const Text(
-                        'New Sale',
-                        style: TextStyle(color: Colors.white, fontSize: 15),
-                        textAlign: TextAlign.center,
+                        ),
+                        onPressed: () {},
+                        child: const Text(
+                          'New Sale',
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

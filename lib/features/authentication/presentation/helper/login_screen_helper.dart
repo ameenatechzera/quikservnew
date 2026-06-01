@@ -146,6 +146,7 @@ class LoginScreenHelper {
         await SharedPreferenceHelper().setBranchId(
           state.loginResponse.data.first.branchIds.first.toString(),
         );
+        await SharedPreferenceHelper().setUserId(state.loginResponse.data.first.id.toString());
         await SharedPreferenceHelper().setSubscriptionCode(
           codeCtrl.text.trim(),
         );
