@@ -46,6 +46,22 @@ class SalesReportCubit extends Cubit<SlesReportState> {
     }
   }
 
+  // --------------------- API Fetch SalesReport ---------------------
+  Future<void> fetchSalesReportFromDashboard(FetchReportRequest request) async {
+    print('FetchReportRequest ${request.toJson()}');
+    emit(SlesReportDashboardInitial());
+    try {
+      final response = await _salesReportFromServerUseCase(request);
+
+      response.fold(
+            (failure) => emit(SalesReportError(error: failure.message)),
+            (saleResponse) => emit(SalesReportFromDashboarduccess(response: saleResponse)),
+      );
+    } catch (e) {
+      emit(SalesReportDashboardError(error: e.toString()));
+    }
+  }
+
   // --------------------- API Fetch SalesDetails By MasterId ---------------------
   Future<void> fetchSalesDetailsByMasterId(
     FetchSalesDetailsRequest request,

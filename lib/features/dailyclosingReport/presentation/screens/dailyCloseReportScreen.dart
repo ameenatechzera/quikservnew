@@ -512,11 +512,11 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                         },
                       ),
 
-                      itemsList.isEmpty || summaryList.isEmpty
-                          ? const Center(child: Text("No data found."))
-                          : Container(
-                              // your normal container content here
-                            ),
+                      // itemsList.isEmpty || summaryList.isEmpty
+                      //     ? const Center(child: Text("No data found."))
+                      //     : Container(
+                      //         // your normal container content here
+                      //       ),
                     ],
                   ),
                 );

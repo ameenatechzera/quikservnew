@@ -19,6 +19,7 @@ class ItemWiseReportPage extends StatelessWidget {
   void _onDateChanged(BuildContext context) {
     final fromDateRaw = fromDateController.text.trim();
     final toDateRaw = toDateController.text.trim();
+
     if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
       context.read<ItemWiseReportCubit>().fetchItemWiseReportNew(
         ItemWiseReportRequest(
@@ -31,9 +32,9 @@ class ItemWiseReportPage extends StatelessWidget {
   }
 
   Future<void> _selectDate(
-    BuildContext context,
-    TextEditingController controller,
-  ) async {
+      BuildContext context,
+      TextEditingController controller,
+      ) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -170,7 +171,7 @@ class ItemWiseReportPage extends StatelessWidget {
                       /// Calculate category total
                       double categoryTotal = products.fold(
                         0,
-                        (sum, item) => sum + double.parse(item.totalAmount),
+                            (sum, item) => sum + double.parse(item.totalAmount),
                       );
 
                       return Container(

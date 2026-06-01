@@ -21,7 +21,8 @@ class SaveSaleRequest {
   final int createdUser;
   final int branchId;
   final double totalTax;
-
+  final String customerName;
+  final String customerPhoneNo;
   final int loyalCardId;
   final int customerId;
   final double redeemedAmount;
@@ -54,7 +55,8 @@ class SaveSaleRequest {
     required this.branchId,
     required this.totalTax,
     required this.salesDetails,
-
+    required this.customerName,
+    required this.customerPhoneNo,
 
     required this.loyalCardId,
     required this.customerId,
@@ -88,6 +90,8 @@ class SaveSaleRequest {
       "branchId": branchId,
       "totalTax": totalTax,
       "redeemedAmount":redeemedAmount,
+      "customerName":customerName,
+      "customerPhoneNo":customerPhoneNo,
 
       "loyalCardId":loyalCardId,
       "customerId":customerId,

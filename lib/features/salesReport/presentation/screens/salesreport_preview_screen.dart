@@ -12,10 +12,14 @@ import 'package:quikservnew/features/salesReport/presentation/widgets/salesrepor
 class SalesReportPreviewScreen extends StatefulWidget {
   final String pagefrom;
   final String masterId;
+  final String fromDateFrom;
+  final String toDateFrom;
   const SalesReportPreviewScreen({
     super.key,
     required this.pagefrom,
     required this.masterId,
+    required this.fromDateFrom,
+    required this.toDateFrom
   });
 
   @override
@@ -58,6 +62,7 @@ String amPmTime = '', st_billDate = '', st_invoiceno ='';
 int clickPdfFlag = 0;
 int tokenNo = 0;
 double saleTotal = 0;
+String st_userId ='',st_branchId='';
 
 class _SalesReportPreviewScreenState extends State<SalesReportPreviewScreen> {
   String stMasterID = '';
@@ -93,18 +98,17 @@ class _SalesReportPreviewScreenState extends State<SalesReportPreviewScreen> {
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          DateTime fromDate = DateTime.now();
-          DateTime toDate = DateTime.now();
-          context.read<SalesReportCubit>().fetchSalesReport(
-            FetchReportRequest(
-              fromDate: formatter.format(fromDate),
-              toDate: formatter.format(toDate),
-              userId: st_userId,
-              branchId: st_branchId,
-            ),
-          );
-        }
+        //if (didPop) {
+        //
+        //   context.read<SalesReportCubit>().fetchSalesReport(
+        //     FetchReportRequest(
+        //       fromDate:widget.fromDateFrom,
+        //       toDate:widget.toDateFrom,
+        //       userId: st_userId,
+        //       branchId: st_branchId,
+        //     ),
+        //   );
+        // }
       },
       child: Scaffold(
         appBar: const CommonAppBar(title: "Bill Preview"),

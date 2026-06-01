@@ -4,13 +4,20 @@ part of 'sles_report_cubit.dart';
 sealed class SlesReportState {}
 
 final class SlesReportInitial extends SlesReportState {}
-
+ final class SlesReportDashboardInitial extends SlesReportState{}
 final class SlesDetailsInitial extends SlesReportState {}
 
 class SalesReportSuccess extends SlesReportState {
   final SalesReportResult response;
 
   SalesReportSuccess({required this.response});
+}
+
+
+class SalesReportFromDashboarduccess extends SlesReportState {
+  final SalesReportResult response;
+
+  SalesReportFromDashboarduccess({required this.response});
 }
 
 class SalesDetailsSuccess extends SlesReportState {
@@ -30,7 +37,11 @@ class SalesReportError extends SlesReportState {
 
   SalesReportError({required this.error});
 }
+class SalesReportDashboardError extends SlesReportState {
+  final String error;
 
+  SalesReportDashboardError({required this.error});
+}
 class SalesDetailsError extends SlesReportState {
   final String error;
 

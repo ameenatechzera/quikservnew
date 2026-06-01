@@ -83,6 +83,7 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Future<void> _fetchReport() async {
+    print('reached........');
     final fromDate = DateFormat('yyyy-MM-dd').format(fromDateNotifier.value);
     final toDate = DateFormat('yyyy-MM-dd').format(toDateNotifier.value);
     //final prefs = await SharedPreferences.getInstance();
@@ -96,7 +97,7 @@ class _DashboardContentState extends State<DashboardContent> {
     // context.read<SalesReportCubit>().fetchSalesReportMasterByDate(
     //   SalesReportMasterByDateRequest(fromDate: fromDate, toDate: toDate),
     // );
-    context.read<SalesReportCubit>().fetchSalesReport(
+    context.read<SalesReportCubit>().fetchSalesReportFromDashboard(
       FetchReportRequest(
         fromDate: fromDate,
         toDate: toDate,
@@ -130,6 +131,7 @@ class _DashboardContentState extends State<DashboardContent> {
   Widget build(BuildContext context) {
     // Set status bar BEFORE anything else
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchReport();
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
           statusBarColor: AppColors.theme,
@@ -137,6 +139,9 @@ class _DashboardContentState extends State<DashboardContent> {
           statusBarBrightness: Brightness.light,
         ),
       );
+
+
+
     });
     return ScrollConfiguration(
       behavior: const AppScrollBehavior(), // ✅ no glow + consistent behavior
@@ -182,11 +187,13 @@ class _DashboardContentState extends State<DashboardContent> {
                   /// SALES STATS
                   BlocBuilder<SalesReportCubit, SlesReportState>(
                     builder: (context, state) {
-                      bool isLoading = true;
+                      bool isLoading = false;
                       String totalCountText = '--';
                       String totalAmountText = '--';
-
-                      if (state is SalesReportSuccess) {
+                      if (state is SlesReportDashboardInitial) {
+                         isLoading = true;
+                      }
+                      if (state is SalesReportFromDashboarduccess) {
                         final list = state.response.salesMaster;
                         totalCountText = list.length.toString();
 
@@ -197,7 +204,7 @@ class _DashboardContentState extends State<DashboardContent> {
                         totalAmountText = totalAmount.toStringAsFixed(2);
 
                         isLoading = false;
-                      } else if (state is SalesReportMasterByDateError) {
+                      } else if (state is SalesReportDashboardError) {
                         isLoading = false;
                       }
                       return Row(
@@ -227,10 +234,12 @@ class _DashboardContentState extends State<DashboardContent> {
                   /// CASH BALANCE
                   BlocBuilder<SalesReportCubit, SlesReportState>(
                     builder: (context, state) {
-                      bool isLoading = true;
+                      bool isLoading = false;
                       String cashText = '--';
-
-                      if (state is SalesReportSuccess) {
+                      if (state is SlesReportDashboardInitial) {
+                        isLoading = true;
+                      }
+                      if (state is SalesReportFromDashboarduccess) {
                         final list = state.response.salesMaster;
 
                         final cashBalance = list.fold<double>(
@@ -240,7 +249,7 @@ class _DashboardContentState extends State<DashboardContent> {
                         cashText = cashBalance.toStringAsFixed(2);
 
                         isLoading = false;
-                      } else if (state is SalesReportMasterByDateError) {
+                      } else if (state is SalesReportDashboardError) {
                         isLoading = false;
                       }
                       return Container(
@@ -342,18 +351,21 @@ class _DashboardContentState extends State<DashboardContent> {
 
                           label: 'Sales Report',
                           onTap: () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (_) => const SalesReportPage(),
+                            //   ),
+                            // );
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => const SalesReportPage(),
                               ),
-                            );
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (_) => const MonthlyReportPage(),
-                            //   ),
-                            // );
+                            ).then((_) {
+                              // Call your reload function here
+                             _fetchReport();
+                            });
                           },
                         ),
                       ),

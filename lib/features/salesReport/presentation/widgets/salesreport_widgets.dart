@@ -473,6 +473,9 @@ Future<void> fetchDetails(String stMasterID, BuildContext context) async {
   }
   final sharedPrefHelper = SharedPreferenceHelper();
   st_branchIdPref = await sharedPrefHelper.getBranchId();
+  st_branchId = await sharedPrefHelper.getBranchId();
+  st_userId = await sharedPrefHelper.getUserId();
+  print('st_userId $st_userId');
   // st_vatType ='GST';
   if (st_vatEnabled == 'true') {
     if (st_vatType == 'VAT') {

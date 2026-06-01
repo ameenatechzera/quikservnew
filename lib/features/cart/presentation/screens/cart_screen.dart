@@ -43,6 +43,8 @@ class _CartScreenState extends State<CartScreen> {
   final SharedPreferenceHelper helper = SharedPreferenceHelper();
   TextEditingController expiredStatusController = TextEditingController();
   TextEditingController totalSalesController = TextEditingController();
+  TextEditingController customerNameController = TextEditingController();
+  TextEditingController customerPhoneController = TextEditingController();
   final _deviceIdController = TextEditingController();
   final CartScreenHelper cartScreenHelper = CartScreenHelper();
   bool _isButtonDisabled = false;
@@ -50,6 +52,7 @@ class _CartScreenState extends State<CartScreen> {
   bool _redeemPoints = false;
   bool _redeemEligible = false;
   String st_RedeemAmount = '', st_points_earned = '';
+  bool _collectCustomerSaveOnSale = false;
 
   @override
   void initState() {
@@ -70,7 +73,11 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _loadDefaultPayment() async {
     final int savedPayment = await helper
         .getPaymentOption(); // 0 = Cash, 1 = Card
-
+    final int collectedCustomer = await helper
+        .getCustomerDetailsOnSale(); // 0 = Not Collecting Customer Details, 1 = Collecting Customer Details
+    if(collectedCustomer == 1){
+      _collectCustomerSaveOnSale = true;
+    }
     if (savedPayment == 0) {
       selectedPayment.value = 'Cash';
     } else if (savedPayment == 1) {
@@ -829,7 +836,61 @@ class _CartScreenState extends State<CartScreen> {
                                     },
                                   ),
                                   const SizedBox(height: 10),
+                                  Visibility(
+                                    visible: _collectCustomerSaveOnSale,
+                                    child: Card(
+                                      elevation: 3,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'Customer Name',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: customerNameController,
+                                              decoration: InputDecoration(
+                                                hintText: 'Enter customer name',
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                            ),
 
+                                            const SizedBox(height: 16),
+
+                                            const Text(
+                                              'Phone Number',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: customerPhoneController,
+                                              keyboardType: TextInputType.phone,
+                                              decoration: InputDecoration(
+                                                hintText: 'Enter phone number',
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                   /// Confirm Sale button
                                   SizedBox(
                                     width: double.infinity,
@@ -1002,6 +1063,8 @@ class _CartScreenState extends State<CartScreen> {
                                                           st_points_earned,
                                                       redeemedAmount:
                                                           redeemAmount,
+                                                      customerName: customerNameController.text.toString(),
+                                                      customerPhoneNo: customerPhoneController.text.toString(),
                                                     );
                                                     if (expiredStatusController
                                                             .text ==
@@ -1010,6 +1073,7 @@ class _CartScreenState extends State<CartScreen> {
                                                           .read<SaleCubit>()
                                                           .saveSale(request);
                                                     }
+
                                                   },
                                             child: const Text(
                                               'Confirm Sale',
