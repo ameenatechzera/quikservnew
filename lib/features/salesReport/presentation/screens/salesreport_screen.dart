@@ -26,7 +26,7 @@ final _totalRecordsController = TextEditingController();
 final _totalSalesController = TextEditingController();
 final TextEditingController fromDateController = TextEditingController();
 final TextEditingController toDateController = TextEditingController();
-String st_branchId = '';
+String st_branchId = '' , st_userId ='';
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime.now();
 final DateFormat formatter = DateFormat('MM-dd-yyyy');
@@ -35,11 +35,20 @@ void _onDateChanged(BuildContext context) {
   final fromDateRaw = fromDateController.text.trim();
   final toDateRaw = toDateController.text.trim();
   if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
+    String formattedFromDate = DateFormat('yyyy-MM-dd').format(
+      DateFormat('dd-MM-yyyy').parse(fromDateRaw),
+    );
+    String formattedToDate = DateFormat('yyyy-MM-dd').format(
+      DateFormat('dd-MM-yyyy').parse(toDateRaw),
+    );
+    print('fromDateRaw $fromDateRaw');
+    print('formattedFromDate $formattedFromDate');
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
-        fromDate: formatter.format(fromDate),
-        toDate: formatter.format(toDate),
-        userId: '1',
+        fromDate: formattedFromDate,
+        toDate: formattedToDate,
+
+        userId: "1",
         branchId: st_branchId,
       ),
     );
@@ -99,7 +108,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                         FetchReportRequest(
                           fromDate: formatter.format(fromDate),
                           toDate: formatter.format(toDate),
-                          userId: '1',
+                          userId: st_userId,
                           branchId: st_branchId,
                         ),
                       );
@@ -317,7 +326,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
         children: [
           Expanded(
             child: Container(
-              height: 50,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -330,7 +338,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                 decoration: const InputDecoration(
                   labelText: '  From Date',
                   labelStyle: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                   floatingLabelAlignment: FloatingLabelAlignment.center,
@@ -348,7 +356,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           const SizedBox(width: 30),
           Expanded(
             child: Container(
-              height: 50,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -363,7 +370,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                   decoration: const InputDecoration(
                     labelText: 'To Date',
                     labelStyle: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
@@ -386,9 +393,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   }
 
   Future<void> _selectDate(
-    BuildContext context,
-    TextEditingController controller,
-  ) async {
+      BuildContext context,
+      TextEditingController controller,
+      ) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -437,12 +444,25 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
         ),
         child: InkWell(
           onTap: () {
+            String formattedFromDate ='', formattedToDate ='';
+            final fromDateRaw = fromDateController.text.trim();
+            final toDateRaw = toDateController.text.trim();
+            if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
+              String formattedFromDate = DateFormat('yyyy-MM-dd').format(
+                DateFormat('dd-MM-yyyy').parse(fromDateRaw),
+              );
+              String formattedToDate = DateFormat('yyyy-MM-dd').format(
+                DateFormat('dd-MM-yyyy').parse(toDateRaw),
+              );
+            }
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => SalesReportPreviewScreen(
                   pagefrom: 'SalesReport',
                   masterId: sale.salesMasterId.toString(),
+                  fromDateFrom: formattedFromDate,
+                  toDateFrom: formattedToDate,
                 ),
               ),
             );
@@ -577,7 +597,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       FetchReportRequest(
         fromDate: formatter.format(fromDate),
         toDate: formatter.format(toDate),
-        userId: '1',
+        userId: st_userId,
         branchId: st_branchId,
       ),
     );
@@ -586,15 +606,18 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   Future<void> fetchSalesReportInitial() async {
     final sharedPrefHelper = SharedPreferenceHelper();
     st_branchId = await sharedPrefHelper.getBranchId();
+    st_userId =  await sharedPrefHelper.getUserId();
     final expiryDate = await SharedPreferenceHelper().getExpiryDate();
     print('expiryDate $expiryDate');
-    DateTime fromDate = DateTime.now();
-    DateTime toDate = DateTime.now();
+    String currentDate =
+    DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
-        fromDate: formatter.format(fromDate),
-        toDate: formatter.format(toDate),
-        userId: '1',
+        fromDate:currentDate,
+        toDate: currentDate,
+        userId: "1",//st_userId
         branchId: st_branchId,
       ),
     );

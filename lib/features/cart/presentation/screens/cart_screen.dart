@@ -130,7 +130,7 @@ class _CartScreenState extends State<CartScreen> {
                 child: Row(
                   children: [
                     const Text(
-                      'Search Customers',
+                      'Loyalty Customers',
                       style: TextStyle(color: Colors.black),
                     ),
                     const SizedBox(width: 8),
@@ -840,6 +840,7 @@ class _CartScreenState extends State<CartScreen> {
                                     visible: _collectCustomerSaveOnSale,
                                     child: Card(
                                       elevation: 3,
+                                      color: Colors.white70,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
