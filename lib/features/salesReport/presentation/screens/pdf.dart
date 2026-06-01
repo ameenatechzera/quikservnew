@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -47,17 +48,132 @@ class SalesPreviewPdfHelper {
       sgst = tax / 2;
       cgst = tax / 2;
     }
+    final logoBytes = await rootBundle.load('assets/images/bw_printlogo.png');
+
+    final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
+    final companyName = await SharedPreferenceHelper().getCompanyName() ?? '';
+
+    final companyPhone =
+        await SharedPreferenceHelper().getCompanyPhoneNo() ?? '';
+
+    final companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? '';
+    final companyAddress =
+        await SharedPreferenceHelper().getCompanyAddress1() ?? '';
+    final companyAddress2 =
+        await SharedPreferenceHelper().getCompanyAddress2() ?? '';
 
     /// ---------------- UI ----------------
     pdf.addPage(
       pw.MultiPage(
         margin: const pw.EdgeInsets.all(8),
         build: (context) => [
-          ///  TOP CARD
+          // pw.Container(
+          //   width: double.infinity,
+          //   padding: const pw.EdgeInsets.symmetric(
+          //     vertical: 18,
+          //     horizontal: 16,
+          //   ),
+          //   decoration: pw.BoxDecoration(
+          //     border: pw.Border.all(color: PdfColors.grey400),
+          //     // color: PdfColors.deepPurple,
+          //     borderRadius: pw.BorderRadius.circular(10),
+          //   ),
+          //   child: pw.Column(
+          //     children: [
+          //       pw.Image(
+          //         logoImage,
+          //         width: 120,
+          //         height: 80,
+          //         fit: pw.BoxFit.contain,
+          //       ),
+
+          //       pw.Text(
+          //         "Phone : +91 9876543210",
+          //         style: const pw.TextStyle(
+          //           color: PdfColors.black,
+          //           fontSize: 10,
+          //         ),
+          //       ),
+
+          //       pw.Text(
+          //         "Thrissur, Kerala",
+          //         style: const pw.TextStyle(
+          //           color: PdfColors.black,
+          //           fontSize: 10,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+
+          // pw.SizedBox(height: 10),
           _card(
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    /// Logo - Left Side
+                    pw.Image(
+                      logoImage,
+                      width: 100,
+                      height: 160,
+                      fit: pw.BoxFit.contain,
+                    ),
+
+                    // pw.SizedBox(width: 10),
+
+                    /// Company Details - Center
+                    pw.Expanded(
+                      child: pw.Column(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text(
+                            companyName,
+                            textAlign: pw.TextAlign.center,
+                            style: pw.TextStyle(
+                              fontSize: 16,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
+                          ),
+
+                          pw.SizedBox(height: 3),
+
+                          pw.Text(
+                            companyAddress,
+                            textAlign: pw.TextAlign.center,
+                            style: const pw.TextStyle(fontSize: 10),
+                          ),
+
+                          pw.SizedBox(height: 3),
+                          pw.Text(
+                            companyAddress2,
+                            textAlign: pw.TextAlign.center,
+                            style: const pw.TextStyle(fontSize: 10),
+                          ),
+
+                          pw.SizedBox(height: 3),
+                          pw.Text(
+                            companyPhone,
+                            textAlign: pw.TextAlign.center,
+                            style: const pw.TextStyle(fontSize: 10),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    /// Right spacer (same width as logo area)
+                    pw.SizedBox(width: 120),
+                  ],
+                ),
+                pw.SizedBox(height: 12),
+
+                pw.Divider(),
+
+                pw.SizedBox(height: 8),
+
+                /// BILL DATE & TIME
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
@@ -65,28 +181,87 @@ class SalesPreviewPdfHelper {
                     pw.Text("Time: $billTime", style: _bold()),
                   ],
                 ),
+
                 pw.SizedBox(height: 8),
 
+                /// CUSTOMER
                 pw.Row(
                   children: [
-                    pw.Text("Customer Name:$customerName", style: _semiBold()),
-                    pw.SizedBox(width: 4),
-                    pw.Text(customerName),
+                    pw.Text("Customer Name: ", style: _semiBold()),
+                    pw.Expanded(child: pw.Text(customerName)),
                   ],
                 ),
 
                 pw.SizedBox(height: 8),
 
+                /// TOKEN
                 pw.Row(
                   children: [
-                    pw.Text("TokenNo:", style: _semiBold()),
-                    pw.SizedBox(width: 4),
+                    pw.Text("Token No: ", style: _semiBold()),
                     pw.Text(tokenNo),
                   ],
                 ),
               ],
             ),
           ),
+
+          ///  TOP CARD
+          ///
+          // _card(
+          //   pw.Column(
+          //     crossAxisAlignment: pw.CrossAxisAlignment.start,
+          //     children: [
+          //       pw.Image(
+          //         logoImage,
+          //         width: 120,
+          //         height: 80,
+          //         fit: pw.BoxFit.contain,
+          //       ),
+
+          //       pw.Text(
+          //         companyPhone,
+          //         style: const pw.TextStyle(
+          //           color: PdfColors.black,
+          //           fontSize: 10,
+          //         ),
+          //       ),
+
+          //       // pw.Text(
+          //       //   "Thrissur, Kerala",
+          //       //   style: const pw.TextStyle(
+          //       //     color: PdfColors.black,
+          //       //     fontSize: 10,
+          //       //   ),
+          //       // ),
+          //       pw.Row(
+          //         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           pw.Text("Bill Date: $billDate", style: _bold()),
+          //           pw.Text("Time: $billTime", style: _bold()),
+          //         ],
+          //       ),
+          //       pw.SizedBox(height: 8),
+
+          //       pw.Row(
+          //         children: [
+          //           pw.Text("Customer Name:$customerName", style: _semiBold()),
+          //           pw.SizedBox(width: 4),
+          //           pw.Text(customerName),
+          //         ],
+          //       ),
+
+          //       pw.SizedBox(height: 8),
+
+          //       pw.Row(
+          //         children: [
+          //           pw.Text("TokenNo:", style: _semiBold()),
+          //           pw.SizedBox(width: 4),
+          //           pw.Text(tokenNo),
+          //         ],
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
           /// 🔶 ITEMS CARD
           _card(
