@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/sale/presentation/widgets/scroll_supportings.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesreport_result.dart';
@@ -12,6 +18,7 @@ import 'package:quikservnew/features/salesReport/presentation/screens/salesrepor
 import 'package:quikservnew/features/salesReport/presentation/widgets/delete_confirmation_dialogue.dart';
 import 'package:quikservnew/features/salesReport/presentation/widgets/salesreport_widgets.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SalesReportPage extends StatefulWidget {
   const SalesReportPage({super.key});
@@ -26,7 +33,7 @@ final _totalRecordsController = TextEditingController();
 final _totalSalesController = TextEditingController();
 final TextEditingController fromDateController = TextEditingController();
 final TextEditingController toDateController = TextEditingController();
-String st_branchId = '' , st_userId ='';
+String st_branchId = '', st_userId = '';
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime.now();
 final DateFormat formatter = DateFormat('MM-dd-yyyy');
@@ -35,12 +42,12 @@ void _onDateChanged(BuildContext context) {
   final fromDateRaw = fromDateController.text.trim();
   final toDateRaw = toDateController.text.trim();
   if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
-    String formattedFromDate = DateFormat('yyyy-MM-dd').format(
-      DateFormat('dd-MM-yyyy').parse(fromDateRaw),
-    );
-    String formattedToDate = DateFormat('yyyy-MM-dd').format(
-      DateFormat('dd-MM-yyyy').parse(toDateRaw),
-    );
+    String formattedFromDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(DateFormat('dd-MM-yyyy').parse(fromDateRaw));
+    String formattedToDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(DateFormat('dd-MM-yyyy').parse(toDateRaw));
     print('fromDateRaw $fromDateRaw');
     print('formattedFromDate $formattedFromDate');
     context.read<SalesReportCubit>().fetchSalesReport(
@@ -85,6 +92,14 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             'Sales Report',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                await generateAndSharePdf();
+              },
+              icon: Icon(Icons.share),
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(0),
@@ -393,9 +408,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   }
 
   Future<void> _selectDate(
-      BuildContext context,
-      TextEditingController controller,
-      ) async {
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -415,6 +430,302 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       _onDateChanged(context);
     }
   }
+
+  Future<void> generateAndSharePdf() async {
+    final pdf = pw.Document();
+
+    double totalSales = 0;
+    final logoBytes = await rootBundle.load('assets/images/bw_printlogo.png');
+
+    final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
+    final companyName = await SharedPreferenceHelper().getCompanyName() ?? '';
+
+    final companyPhone =
+        await SharedPreferenceHelper().getCompanyPhoneNo() ?? '';
+
+    final companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? '';
+    final companyAddress =
+        await SharedPreferenceHelper().getCompanyAddress1() ?? '';
+    final companyAddress2 =
+        await SharedPreferenceHelper().getCompanyAddress2() ?? '';
+    for (final sale in salesList) {
+      totalSales += double.tryParse(sale.grandTotal) ?? 0;
+    }
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(20),
+
+        build: (context) => [
+          pw.Container(
+            padding: const pw.EdgeInsets.all(16),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey300),
+              borderRadius: pw.BorderRadius.circular(12),
+            ),
+            child: pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                /// LOGO LEFT
+                pw.Image(
+                  logoImage,
+                  width: 80,
+                  height: 80,
+                  fit: pw.BoxFit.contain,
+                ),
+
+                pw.SizedBox(width: 15),
+
+                /// COMPANY DETAILS CENTER
+                pw.Expanded(
+                  child: pw.Center(
+                    child: pw.Column(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      children: [
+                        pw.Text(
+                          companyName,
+                          textAlign: pw.TextAlign.center,
+                          style: pw.TextStyle(
+                            fontSize: 22,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+
+                        pw.SizedBox(height: 4),
+
+                        pw.Text(
+                          companyAddress,
+                          textAlign: pw.TextAlign.center,
+                          style: const pw.TextStyle(fontSize: 10),
+                        ),
+
+                        pw.Text(
+                          companyAddress2,
+                          textAlign: pw.TextAlign.center,
+                          style: const pw.TextStyle(fontSize: 10),
+                        ),
+
+                        pw.Text(
+                          companyPhone,
+                          textAlign: pw.TextAlign.center,
+                          style: const pw.TextStyle(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                /// BALANCER (optional)
+                pw.SizedBox(width: 95),
+              ],
+            ),
+          ),
+
+          /// HEADER
+          // pw.Container(
+          //   padding: const pw.EdgeInsets.all(15),
+          //   decoration: pw.BoxDecoration(
+          //     color: PdfColors.black,
+          //     borderRadius: pw.BorderRadius.circular(10),
+          //   ),
+          //   child: pw.Column(
+          //     crossAxisAlignment: pw.CrossAxisAlignment.start,
+          //     children: [
+          //       pw.Text(
+          //         "SALES REPORT",
+          //         style: pw.TextStyle(
+          //           color: PdfColors.white,
+          //           fontSize: 22,
+          //           fontWeight: pw.FontWeight.bold,
+          //         ),
+          //       ),
+
+          //       pw.SizedBox(height: 5),
+
+          //       pw.Text(
+          //         "From : ${fromDateController.text}",
+          //         style: const pw.TextStyle(
+          //           color: PdfColors.white,
+          //           fontSize: 12,
+          //         ),
+          //       ),
+
+          //       pw.Text(
+          //         "To : ${toDateController.text}",
+          //         style: const pw.TextStyle(
+          //           color: PdfColors.white,
+          //           fontSize: 12,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          pw.SizedBox(height: 10),
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(15),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.black,
+              borderRadius: pw.BorderRadius.circular(10),
+            ),
+            child: pw.Column(
+              children: [
+                pw.Text(
+                  "SALES REPORT",
+                  style: pw.TextStyle(
+                    color: PdfColors.white,
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+
+                pw.SizedBox(height: 8),
+
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  children: [
+                    pw.Text(
+                      "From : ${fromDateController.text}",
+                      style: const pw.TextStyle(
+                        color: PdfColors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+
+                    pw.SizedBox(width: 30),
+
+                    pw.Text(
+                      "To : ${toDateController.text}",
+                      style: const pw.TextStyle(
+                        color: PdfColors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          pw.SizedBox(height: 10),
+
+          /// TABLE
+          pw.Table.fromTextArray(
+            border: pw.TableBorder.all(color: PdfColors.grey),
+            headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
+            headerStyle: pw.TextStyle(
+              color: PdfColors.white,
+              fontWeight: pw.FontWeight.bold,
+            ),
+            cellAlignment: pw.Alignment.center,
+            headers: const ["Token", "Invoice", "Date", "Pay Mode", "Amount"],
+            data: salesList.map((sale) {
+              String payMode = '';
+
+              if ((double.tryParse(sale.cashAmount) ?? 0) > 0) {
+                payMode = "Cash";
+              } else if ((double.tryParse(sale.cardAmount) ?? 0) > 0) {
+                payMode = "Card";
+              }
+
+              return [
+                sale.billTokenNo.toString(),
+                sale.invoiceNo.toString(),
+                DateFormat(
+                  'dd-MM-yyyy',
+                ).format(DateTime.parse(sale.invoiceDate!)),
+                payMode,
+                sale.grandTotal.toString(),
+              ];
+            }).toList(),
+          ),
+
+          pw.SizedBox(height: 25),
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 12,
+            ),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.black,
+              borderRadius: pw.BorderRadius.circular(8),
+            ),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  "TOTAL SALES",
+                  style: pw.TextStyle(
+                    color: PdfColors.white,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  totalSales.toStringAsFixed(2),
+                  style: pw.TextStyle(
+                    color: PdfColors.white,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // /// TOTAL SALES AT BOTTOM
+          // pw.Align(
+          //   alignment: pw.Alignment.centerRight,
+          //   child: pw.Container(
+          //     padding: const pw.EdgeInsets.symmetric(
+          //       horizontal: 20,
+          //       vertical: 10,
+          //     ),
+          //     decoration: pw.BoxDecoration(
+          //       color: PdfColors.black,
+          //       borderRadius: pw.BorderRadius.circular(8),
+          //     ),
+          //     child: pw.Text(
+          //       "TOTAL SALES : ${totalSales.toStringAsFixed(2)}",
+          //       style: pw.TextStyle(
+          //         color: PdfColors.white,
+          //         fontSize: 16,
+          //         fontWeight: pw.FontWeight.bold,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+        ],
+      ),
+    );
+
+    //   final directory = await getTemporaryDirectory();
+
+    //   final file = File(
+    //     '${directory.path}/Sales_Report_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    //   );
+
+    //   await file.writeAsBytes(await pdf.save());
+
+    //   await Share.shareXFiles([XFile(file.path)], text: 'Sales Report');
+    // }
+    final directory = await getTemporaryDirectory();
+
+    final fromDate = fromDateController.text.replaceAll('-', '_');
+    final toDate = toDateController.text.replaceAll('-', '_');
+
+    final file = File(
+      '${directory.path}/Sales_Report_${fromDate}_to_${toDate}.pdf',
+    );
+
+    await file.writeAsBytes(await pdf.save());
+
+    await Share.shareXFiles([
+      XFile(file.path),
+    ], text: 'Sales Report ($fromDate to $toDate)');
+  }
+
   /// 🔹 Sales Card
   Widget _salesCard(SalesMaster sale) {
     String st_PayMode = '';
@@ -444,16 +755,16 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
         ),
         child: InkWell(
           onTap: () {
-            String formattedFromDate ='', formattedToDate ='';
+            String formattedFromDate = '', formattedToDate = '';
             final fromDateRaw = fromDateController.text.trim();
             final toDateRaw = toDateController.text.trim();
             if (fromDateRaw.isNotEmpty && toDateRaw.isNotEmpty) {
-              String formattedFromDate = DateFormat('yyyy-MM-dd').format(
-                DateFormat('dd-MM-yyyy').parse(fromDateRaw),
-              );
-              String formattedToDate = DateFormat('yyyy-MM-dd').format(
-                DateFormat('dd-MM-yyyy').parse(toDateRaw),
-              );
+              String formattedFromDate = DateFormat(
+                'yyyy-MM-dd',
+              ).format(DateFormat('dd-MM-yyyy').parse(fromDateRaw));
+              String formattedToDate = DateFormat(
+                'yyyy-MM-dd',
+              ).format(DateFormat('dd-MM-yyyy').parse(toDateRaw));
             }
             Navigator.push(
               context,
@@ -516,7 +827,6 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
               /// Invoice & Time
               Row(
-
                 children: [
                   SvgPicture.asset('assets/icons/salesreporticon2.svg'),
                   SizedBox(width: 6),
@@ -606,18 +916,16 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
   Future<void> fetchSalesReportInitial() async {
     final sharedPrefHelper = SharedPreferenceHelper();
     st_branchId = await sharedPrefHelper.getBranchId();
-    st_userId =  await sharedPrefHelper.getUserId();
+    st_userId = await sharedPrefHelper.getUserId();
     final expiryDate = await SharedPreferenceHelper().getExpiryDate();
     print('expiryDate $expiryDate');
-    String currentDate =
-    DateFormat('yyyy-MM-dd').format(DateTime.now());
-
+    String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
-        fromDate:currentDate,
+        fromDate: currentDate,
         toDate: currentDate,
-        userId: "1",//st_userId
+        userId: "1", //st_userId
         branchId: st_branchId,
       ),
     );

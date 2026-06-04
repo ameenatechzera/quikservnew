@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void initState() {
-    AppData.saleType ='Dine-In';
+    AppData.saleType = 'Dine-In';
     super.initState();
     _itemTapListener = () {
       if (!mounted) return;
@@ -394,6 +394,7 @@ class _HomeScreenState extends State<HomeScreen>
       ],
     );
   }
+
   Widget _buildSalesContent() {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isTablet = screenWidth > 600;
@@ -413,37 +414,26 @@ class _HomeScreenState extends State<HomeScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     buildTab(
-                        context,
-                        "Dine-In",
-                        selectedIndex == 0,
-                        // () => selectedSaleTab.value = 0,
-                            (){
-                          selectedSaleTab.value = 0;
-                          AppData.saleType = 'Dine-In';
-                          print('selectedSaleTab.value ${selectedSaleTab.value}');
-
-                        }
+                      context,
+                      "Dine-In",
+                      selectedIndex == 0,
+                      // () => selectedSaleTab.value = 0,
+                      () {
+                        selectedSaleTab.value = 0;
+                        AppData.saleType = 'Dine-In';
+                        print('selectedSaleTab.value ${selectedSaleTab.value}');
+                      },
                     ),
-                    buildTab(
-                        context,
-                        "Takeaway",
-                        selectedIndex == 1,
-                            () {
-                          selectedSaleTab.value = 1;
-                          AppData.saleType = 'Takeaway';
-                          print('selectedSaleTab.value ${selectedSaleTab.value}');
-                        }
-                    ),
-                    buildTab(
-                        context,
-                        "Delivery",
-                        selectedIndex == 2,
-                            () {
-                          selectedSaleTab.value = 2;
-                          AppData.saleType = 'Delivery';
-                          print('selectedSaleTab.value ${selectedSaleTab.value}');
-                        }
-                    ),
+                    buildTab(context, "Takeaway", selectedIndex == 1, () {
+                      selectedSaleTab.value = 1;
+                      AppData.saleType = 'Takeaway';
+                      print('selectedSaleTab.value ${selectedSaleTab.value}');
+                    }),
+                    buildTab(context, "Delivery", selectedIndex == 2, () {
+                      selectedSaleTab.value = 2;
+                      AppData.saleType = 'Delivery';
+                      print('selectedSaleTab.value ${selectedSaleTab.value}');
+                    }),
                   ],
                 );
               },
@@ -547,7 +537,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                   // SEARCH BUTTON
                   IconButton(
-                    icon: CustomSearchIcon(size: 22, color: AppColors.black),
+                    icon: CustomSearchIcon(size: 20, color: AppColors.black),
                     onPressed: () {
                       saleCubit.toggleSearchBar();
 
@@ -563,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen>
                     icon: const Icon(
                       Icons.close,
                       color: AppColors.red,
-                      size: 20,
+                      size: 30,
                     ),
                     onPressed: () {
                       cartManager.clearCart();
@@ -598,12 +588,12 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   suffixIcon: saleCubit.searchQuery.isNotEmpty
                       ? IconButton(
-                    icon: const Icon(Icons.clear, color: Colors.grey),
-                    onPressed: () {
-                      _searchController.clear();
-                      saleCubit.clearSearchQuery();
-                    },
-                  )
+                          icon: const Icon(Icons.clear, color: Colors.grey),
+                          onPressed: () {
+                            _searchController.clear();
+                            saleCubit.clearSearchQuery();
+                          },
+                        )
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -653,7 +643,6 @@ class _HomeScreenState extends State<HomeScreen>
       ],
     );
   }
-
 
   Widget _buildNormalModeContent() {
     return BlocBuilder<ProductCubit, ProductsState>(
@@ -2153,7 +2142,6 @@ class _HomeScreenState extends State<HomeScreen>
 
                   // ✅ CART BAR ONLY FOR HOME
                   if (_currentTabIndex == 0)
-
                     ValueListenableBuilder<bool>(
                       valueListenable: showCartBar,
                       builder: (context, visible, _) {

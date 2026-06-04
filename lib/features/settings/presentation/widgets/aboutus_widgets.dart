@@ -21,16 +21,32 @@ Widget infoTile({
   String? assetIcon,
   required String title,
   required VoidCallback onTap,
+  // double iconSize = 24,
   //Color iconColor = Colors.black,
 }) {
   return ListTile(
     contentPadding: EdgeInsets.zero,
+
+    // leading: assetIcon != null
+    //     ? Image.asset(
+    //         assetIcon,
+    //         width: iconSize,
+    //         height: iconSize,
+    //         //color: iconColor,
+    //       )
+    //     : Icon(
+    //         icon,
+    //         //color: iconColor,
+    //       ),
     leading: assetIcon != null
-        ? Image.asset(
-            assetIcon,
-            width: 22,
-            height: 22,
-            //color: iconColor,
+        ? SizedBox(
+            width: 24,
+            height: 24,
+            child: OverflowBox(
+              maxWidth: 50,
+              maxHeight: 50,
+              child: Image.asset(assetIcon, width: 40, height: 40),
+            ),
           )
         : Icon(
             icon,

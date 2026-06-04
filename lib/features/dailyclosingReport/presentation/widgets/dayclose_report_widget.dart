@@ -23,6 +23,10 @@ class DayCloseReportWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("st_CashBalance => $st_CashBalance");
+    print("st_BankBalance => $st_BankBalance");
+    print("payment.cashAmount => ${payment.cashAmount}");
+    print("payment.cardAmount => ${payment.cardAmount}");
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, right: 8),
       child: Card(

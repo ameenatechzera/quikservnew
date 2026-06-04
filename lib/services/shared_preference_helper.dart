@@ -360,6 +360,7 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_PrintGap, value);
   }
+
   Future<int?> getPrintDelayForKot() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_PrintGap);
@@ -445,6 +446,7 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_paymentOptionKey) ?? 0; // CASH default
   }
+
   ///save Customer details
 
   Future<void> saveCustomerDetailsOnSale(int value) async {
@@ -497,7 +499,6 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_kAppVersion) ?? '';
   }
-
 
   Future<String> fetchPrinterType() async {
     final prefs = await SharedPreferences.getInstance();

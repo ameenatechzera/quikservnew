@@ -247,6 +247,15 @@ class _DailyClosingReportScreenState extends State<DailyClosingReportScreen> {
                             //   return const Center(
                             //       child: Text("No data found."));
                             // }
+                            print(
+                              "expenseTotal => ${state.dayCloseReport.expenseTotal}",
+                            );
+                            print(
+                              "cashBalance => ${state.dayCloseReport.cashBalance}",
+                            );
+                            print(
+                              "bankBalance => ${state.dayCloseReport.bankBalance}",
+                            );
                             return ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),

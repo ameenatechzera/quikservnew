@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:quikservnew/core/config/colors.dart';
 import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
@@ -47,11 +48,9 @@ class SubscriptionInfoCard extends StatelessWidget {
             final subCode = data['subCode'] ?? '';
             final rawExpiryDate = data['expiryDate'] ?? '';
 
-            // Remove time part
             final formattedExpiryDate = rawExpiryDate.isNotEmpty
-                ? rawExpiryDate.split(' ').first
+                ? DateFormat('dd-MM-yyyy').format(DateTime.parse(rawExpiryDate))
                 : '';
-
             //  Calculate remaining days
             DateTime? expiryDateTime;
             int daysRemaining = 0;
@@ -100,12 +99,60 @@ class SubscriptionInfoCard extends StatelessWidget {
                                   shape: BoxShape.circle,
                                   color: Color(0xFF0B3D3B),
                                 ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.restaurant_menu,
-                                    color: Colors.white,
-                                    size: 22,
-                                  ),
+
+                                // child: const Center(
+                                //   child: Icon(
+                                //     Icons.restaurant_menu,
+                                //     color: Colors.white,
+                                //     size: 22,
+                                //   ),
+                                // ),
+                                child: FutureBuilder<String?>(
+                                  future: SharedPreferenceHelper()
+                                      .getCompanyLogo(),
+                                  builder: (context, snapshot) {
+                                    final logo = snapshot.data;
+                                    print("LOGO VALUE => $logo");
+
+                                    if (logo == null || logo.isEmpty) {
+                                      print("LOGO IS EMPTY");
+                                      return const Center(
+                                        child: Icon(
+                                          Icons.restaurant_menu,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      );
+                                    }
+                                    if (logo == null || logo.isEmpty) {
+                                      return const Center(
+                                        child: Icon(
+                                          Icons.restaurant_menu,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      );
+                                    }
+
+                                    return ClipOval(
+                                      child: Image.network(
+                                        logo,
+                                        width: 78,
+                                        height: 78,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Center(
+                                                child: Icon(
+                                                  Icons.restaurant_menu,
+                                                  color: Colors.white,
+                                                  size: 22,
+                                                ),
+                                              );
+                                            },
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                               Positioned(

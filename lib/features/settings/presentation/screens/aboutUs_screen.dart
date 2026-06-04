@@ -48,9 +48,10 @@ class AboutScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: infoTile(
-                    assetIcon: 'assets/icons/whatsapp_icon.png',
+                    assetIcon: 'assets/images/whatsappicon.png',
                     title: "+91-7592909990",
                     onTap: helper.openWhatsApp,
+                    // iconSize: 40,
                   ),
                 ),
               ),

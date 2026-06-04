@@ -33,6 +33,7 @@ class DailyClosingReportRemoteDataSourceImpl
       final url = ApiConstants.getDayCloseReportPath(
         baseUrl,
       ); // implement in ApiConstants
+      print('daily report url $url');
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
@@ -48,6 +49,7 @@ class DailyClosingReportRemoteDataSourceImpl
           },
         ),
       );
+      print(response.data);
       if (response.statusCode == 200 || response.statusCode == 201) {
         return FetchDailyClosingReportModel.fromJson(response.data);
       } else {

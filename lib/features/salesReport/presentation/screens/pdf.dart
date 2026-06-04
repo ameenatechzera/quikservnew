@@ -350,12 +350,30 @@ class SalesPreviewPdfHelper {
       ),
     );
 
+    // final dir = await getTemporaryDirectory();
+    // final file = File("${dir.path}/bill_preview_$tokenNo.pdf");
+
+    // await file.writeAsBytes(await pdf.save());
+
+    // await Share.shareXFiles([XFile(file.path)]);
     final dir = await getTemporaryDirectory();
-    final file = File("${dir.path}/bill_preview_$tokenNo.pdf");
+
+    final safeDate = billDate.replaceAll('/', '-');
+
+    final file = File("${dir.path}/SalesReport_$safeDate.pdf");
 
     await file.writeAsBytes(await pdf.save());
 
-    await Share.shareXFiles([XFile(file.path)]);
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      subject: 'Sales Report',
+      text:
+          '''
+Sales Report
+
+Date : $billDate
+''',
+    );
   }
 
   /// ---------------- HELPERS ----------------
