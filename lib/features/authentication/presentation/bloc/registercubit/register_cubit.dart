@@ -66,6 +66,7 @@ class RegisterCubit extends Cubit<RegisterState> {
         await SharedPreferenceHelper().setCompanyAddress1(company.address1);
         await SharedPreferenceHelper().setCompanyAddress2(company.address2);
         await SharedPreferenceHelper().setCompanyPhoneNo(company.phone);
+        await SharedPreferenceHelper().setBaseUrl(company.baseUrl);
 
         emit(RegisterSuccess(response));
       },

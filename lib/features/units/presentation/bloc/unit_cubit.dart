@@ -30,6 +30,7 @@ class UnitCubit extends Cubit<UnitState> {
 
   ///  to fetch units
   Future<void> fetchUnits() async {
+    print('FetchUnits');
     emit(UnitLoading());
 
     final response = await _fetchUnitsUseCase();

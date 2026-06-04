@@ -12,6 +12,7 @@ import 'package:quikservnew/features/authentication/domain/parameters/register_s
 import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/authentication/presentation/screens/login_screen.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
+import 'package:quikservnew/features/cart/domain/customerDataForSale.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
 import 'package:quikservnew/features/cart/presentation/helper/cartscreen_helper.dart';
 import 'package:quikservnew/features/cart/presentation/widgets/cart_item_row.dart';
@@ -53,6 +54,8 @@ class _CartScreenState extends State<CartScreen> {
   bool _redeemEligible = false;
   String st_RedeemAmount = '', st_points_earned = '';
   bool _collectCustomerSaveOnSale = false;
+  bool loyalty_Status = false;
+  final FocusNode cashFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -75,7 +78,15 @@ class _CartScreenState extends State<CartScreen> {
         .getPaymentOption(); // 0 = Cash, 1 = Card
     final int collectedCustomer = await helper
         .getCustomerDetailsOnSale(); // 0 = Not Collecting Customer Details, 1 = Collecting Customer Details
-    if(collectedCustomer == 1){
+    final int loyaltyStatus = await helper.getLoyalCustomerOnSale();
+    if (loyaltyStatus == 1) {
+      setState(() {
+          loyalty_Status = true;
+
+      });
+    }
+
+    if (collectedCustomer == 1) {
       _collectCustomerSaveOnSale = true;
     }
     if (savedPayment == 0) {
@@ -107,7 +118,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
-          title:  Text(
+          title: Text(
             AppData.saleType!,
             style: TextStyle(
               fontSize: 16,
@@ -127,19 +138,22 @@ class _CartScreenState extends State<CartScreen> {
                   vertical: 12,
                   horizontal: 8,
                 ),
-                child: Row(
-                  children: [
-                    const Text(
-                      'Loyalty Customers',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    const SizedBox(width: 8),
+                child: Visibility(
+                  visible: loyalty_Status,
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Loyalty Mem',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      const SizedBox(width: 8),
 
-                    IconButton(
-                      icon: const Icon(Icons.search, color: Colors.black),
-                      onPressed: _openCustomerSearch,
-                    ),
-                  ],
+                      IconButton(
+                        icon: const Icon(Icons.search, color: Colors.black),
+                        onPressed: _openCustomerSearch,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -549,259 +563,291 @@ class _CartScreenState extends State<CartScreen> {
                                                         ),
                                                   ),
                                                   builder: (context) {
+                                                    WidgetsBinding.instance
+                                                        .addPostFrameCallback((
+                                                          _,
+                                                        ) {
+                                                          cashFocusNode
+                                                              .requestFocus();
+
+                                                          cashCtrl.selection =
+                                                              TextSelection(
+                                                                baseOffset: 0,
+                                                                extentOffset:
+                                                                    cashCtrl
+                                                                        .text
+                                                                        .length,
+                                                              );
+                                                        });
+
                                                     return WillPopScope(
                                                       onWillPop: () async {
                                                         if (!closedByButton)
                                                           onCancel();
                                                         return true;
                                                       },
-                                                      child: Padding(
-                                                        padding: EdgeInsets.only(
-                                                          left: 16,
-                                                          right: 16,
-                                                          top: 16,
-                                                          bottom:
-                                                              MediaQuery.of(
-                                                                    context,
-                                                                  )
-                                                                  .viewInsets
-                                                                  .bottom +
-                                                              16,
-                                                        ),
-                                                        child: Column(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            const Text(
-                                                              'Multi Payment',
-                                                              style: TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
+                                                      child: SafeArea(
+                                                        child: AnimatedPadding(
+                                                          duration:
+                                                              const Duration(
+                                                                milliseconds:
+                                                                    200,
                                                               ),
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 8,
-                                                            ),
-                                                            Align(
-                                                              alignment: Alignment
-                                                                  .centerLeft,
-                                                              child: Text(
-                                                                'Total: ${total.toStringAsFixed(2)}',
-                                                                style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                ),
+                                                          padding: EdgeInsets.only(
+                                                            bottom:
+                                                                MediaQuery.of(
+                                                                      context,
+                                                                    )
+                                                                    .viewInsets
+                                                                    .bottom,
+                                                          ),
+                                                          child: SingleChildScrollView(
+                                                            child: Container(
+                                                              padding:
+                                                                  const EdgeInsets.all(
+                                                                    16,
+                                                                  ),
+                                                              constraints: BoxConstraints(
+                                                                maxHeight:
+                                                                    MediaQuery.of(
+                                                                      context,
+                                                                    ).size.height *
+                                                                    0.75,
                                                               ),
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 16,
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                const SizedBox(
-                                                                  width: 160,
-                                                                  child: Text(
-                                                                    'Cash',
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                  child: TextField(
-                                                                    controller:
-                                                                        cashCtrl,
-                                                                    keyboardType:
-                                                                        const TextInputType.numberWithOptions(
-                                                                          decimal:
-                                                                              true,
-                                                                        ),
-                                                                    inputFormatters: [
-                                                                      FilteringTextInputFormatter.allow(
-                                                                        RegExp(
-                                                                          r'^\d*\.?\d{0,2}$',
-                                                                        ),
-                                                                      ),
-                                                                      _maxTotalFormatter(
-                                                                        total,
-                                                                      ),
-                                                                    ],
-                                                                    decoration: InputDecoration(
-                                                                      hintText:
-                                                                          'Amount',
-                                                                      border: OutlineInputBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(
-                                                                              8,
-                                                                            ),
-                                                                      ),
-                                                                    ),
-                                                                    onChanged: (v) {
-                                                                      if (isAutoUpdating)
-                                                                        return;
-                                                                      isAutoUpdating =
-                                                                          true;
-                                                                      tempCash =
-                                                                          _parse(
-                                                                            v,
-                                                                          );
-                                                                      tempCard =
-                                                                          total -
-                                                                          tempCash;
-                                                                      _setText(
-                                                                        cardCtrl,
-                                                                        tempCard,
-                                                                      );
-                                                                      isAutoUpdating =
-                                                                          false;
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 12,
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                const SizedBox(
-                                                                  width: 160,
-                                                                  child: Text(
-                                                                    'Card',
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                  child: TextField(
-                                                                    controller:
-                                                                        cardCtrl,
-                                                                    keyboardType:
-                                                                        const TextInputType.numberWithOptions(
-                                                                          decimal:
-                                                                              true,
-                                                                        ),
-                                                                    inputFormatters: [
-                                                                      FilteringTextInputFormatter.allow(
-                                                                        RegExp(
-                                                                          r'^\d*\.?\d{0,2}$',
-                                                                        ),
-                                                                      ),
-                                                                      _maxTotalFormatter(
-                                                                        total,
-                                                                      ),
-                                                                    ],
-                                                                    decoration: InputDecoration(
-                                                                      hintText:
-                                                                          'Amount',
-                                                                      border: OutlineInputBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(
-                                                                              8,
-                                                                            ),
-                                                                      ),
-                                                                    ),
-                                                                    onChanged: (v) {
-                                                                      if (isAutoUpdating)
-                                                                        return;
-                                                                      isAutoUpdating =
-                                                                          true;
-                                                                      tempCard =
-                                                                          _parse(
-                                                                            v,
-                                                                          );
-                                                                      tempCash =
-                                                                          total -
-                                                                          tempCard;
-                                                                      _setText(
-                                                                        cashCtrl,
-                                                                        tempCash,
-                                                                      );
-                                                                      isAutoUpdating =
-                                                                          false;
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 20,
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                Expanded(
-                                                                  child: OutlinedButton(
-                                                                    onPressed: () {
-                                                                      closedByButton =
-                                                                          true;
-                                                                      onCancel();
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                    child: const Text(
-                                                                      'Cancel',
+                                                              child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  const Text(
+                                                                    'Split Payment',
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
                                                                     ),
                                                                   ),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 12,
-                                                                ),
-                                                                Expanded(
-                                                                  child: ElevatedButton(
-                                                                    style: ElevatedButton.styleFrom(
-                                                                      backgroundColor:
-                                                                          const Color(
-                                                                            0xFFEAB307,
+
+                                                                  const SizedBox(
+                                                                    height: 8,
+                                                                  ),
+
+                                                                  Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    child: Text(
+                                                                      'Total: ${total.toStringAsFixed(2)}',
+                                                                      style: const TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+
+                                                                  const SizedBox(
+                                                                    height: 16,
+                                                                  ),
+
+                                                                  // CASH
+                                                                  Row(
+                                                                    children: [
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            100,
+                                                                        child: Text(
+                                                                          'Cash',
+                                                                        ),
+                                                                      ),
+                                                                      Expanded(
+                                                                        child: TextField(
+                                                                          controller:
+                                                                              cashCtrl,
+                                                                          focusNode:
+                                                                              cashFocusNode,
+                                                                          keyboardType: const TextInputType.numberWithOptions(
+                                                                            decimal:
+                                                                                true,
                                                                           ),
-                                                                      foregroundColor:
-                                                                          Colors
-                                                                              .black,
-                                                                    ),
-                                                                    onPressed: () {
-                                                                      if ((tempCash +
-                                                                                  tempCard -
-                                                                                  total)
-                                                                              .abs() >
-                                                                          0.01) {
-                                                                        ScaffoldMessenger.of(
-                                                                          context,
-                                                                        ).showSnackBar(
-                                                                          const SnackBar(
-                                                                            content: Text(
-                                                                              'Cash + Card must equal Total',
+                                                                          decoration: InputDecoration(
+                                                                            hintText:
+                                                                                'Amount',
+                                                                            border: OutlineInputBorder(
+                                                                              borderRadius: BorderRadius.circular(
+                                                                                8,
+                                                                              ),
                                                                             ),
                                                                           ),
-                                                                        );
-                                                                        return;
-                                                                      }
-                                                                      closedByButton =
-                                                                          true;
-                                                                      multiCashAmount
-                                                                              .value =
-                                                                          tempCash;
-                                                                      multiCardAmount
-                                                                              .value =
-                                                                          tempCard;
-                                                                      onOk();
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                    child:
-                                                                        const Text(
-                                                                          'OK',
+                                                                          onChanged: (v) {
+                                                                            if (isAutoUpdating)
+                                                                              return;
+
+                                                                            isAutoUpdating =
+                                                                                true;
+                                                                            tempCash = _parse(
+                                                                              v,
+                                                                            );
+                                                                            tempCard =
+                                                                                total -
+                                                                                tempCash;
+
+                                                                            _setText(
+                                                                              cardCtrl,
+                                                                              tempCard,
+                                                                            );
+
+                                                                            isAutoUpdating =
+                                                                                false;
+                                                                          },
                                                                         ),
+                                                                      ),
+                                                                    ],
                                                                   ),
-                                                                ),
-                                                              ],
+
+                                                                  const SizedBox(
+                                                                    height: 12,
+                                                                  ),
+
+                                                                  // CARD
+                                                                  Row(
+                                                                    children: [
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            100,
+                                                                        child: Text(
+                                                                          'Card',
+                                                                        ),
+                                                                      ),
+                                                                      Expanded(
+                                                                        child: TextField(
+                                                                          controller:
+                                                                              cardCtrl,
+                                                                          keyboardType: const TextInputType.numberWithOptions(
+                                                                            decimal:
+                                                                                true,
+                                                                          ),
+                                                                          decoration: InputDecoration(
+                                                                            hintText:
+                                                                                'Amount',
+                                                                            border: OutlineInputBorder(
+                                                                              borderRadius: BorderRadius.circular(
+                                                                                8,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          onChanged: (v) {
+                                                                            if (isAutoUpdating)
+                                                                              return;
+
+                                                                            isAutoUpdating =
+                                                                                true;
+                                                                            tempCard = _parse(
+                                                                              v,
+                                                                            );
+                                                                            tempCash =
+                                                                                total -
+                                                                                tempCard;
+
+                                                                            _setText(
+                                                                              cashCtrl,
+                                                                              tempCash,
+                                                                            );
+
+                                                                            isAutoUpdating =
+                                                                                false;
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+
+                                                                  const SizedBox(
+                                                                    height: 20,
+                                                                  ),
+
+                                                                  Row(
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child: OutlinedButton(
+                                                                          onPressed: () {
+                                                                            closedByButton =
+                                                                                true;
+                                                                            onCancel();
+                                                                            Navigator.pop(
+                                                                              context,
+                                                                            );
+                                                                          },
+                                                                          child: const Text(
+                                                                            'Cancel',
+                                                                          ),
+                                                                        ),
+                                                                      ),
+
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            12,
+                                                                      ),
+
+                                                                      Expanded(
+                                                                        child: ElevatedButton(
+                                                                          style: ElevatedButton.styleFrom(
+                                                                            backgroundColor: const Color(
+                                                                              0xFFEAB307,
+                                                                            ),
+                                                                            foregroundColor:
+                                                                                Colors.black,
+                                                                          ),
+                                                                          onPressed: () {
+                                                                            if ((tempCash +
+                                                                                        tempCard -
+                                                                                        total)
+                                                                                    .abs() >
+                                                                                0.01) {
+                                                                              ScaffoldMessenger.of(
+                                                                                context,
+                                                                              ).showSnackBar(
+                                                                                const SnackBar(
+                                                                                  content: Text(
+                                                                                    'Cash + Card must equal Total',
+                                                                                  ),
+                                                                                ),
+                                                                              );
+                                                                              return;
+                                                                            }
+
+                                                                            closedByButton =
+                                                                                true;
+                                                                            multiCashAmount.value =
+                                                                                tempCash;
+                                                                            multiCardAmount.value =
+                                                                                tempCard;
+
+                                                                            onOk();
+                                                                            Navigator.pop(
+                                                                              context,
+                                                                            );
+                                                                          },
+                                                                          child: const Text(
+                                                                            'OK',
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
                                                             ),
-                                                          ],
+                                                          ),
                                                         ),
                                                       ),
                                                     );
                                                   },
                                                 ).whenComplete(() {
-                                                  if (!closedByButton)
+                                                  if (!closedByButton) {
                                                     onCancel();
+                                                  }
                                                 });
                                               },
                                               child: ValueListenableBuilder(
@@ -813,7 +859,7 @@ class _CartScreenState extends State<CartScreen> {
                                                         multiCardAmount,
                                                     builder: (context, card, __) {
                                                       return PaymentOption(
-                                                        title: 'Multi',
+                                                        title: 'Split',
                                                         subtitle:
                                                             cash == 0 &&
                                                                 card == 0
@@ -835,63 +881,117 @@ class _CartScreenState extends State<CartScreen> {
                                       );
                                     },
                                   ),
-                                  const SizedBox(height: 10),
-                                  Visibility(
-                                    visible: _collectCustomerSaveOnSale,
-                                    child: Card(
-                                      elevation: 3,
-                                      color: Colors.white70,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              'Customer Name',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            TextField(
-                                              controller: customerNameController,
-                                              decoration: InputDecoration(
-                                                hintText: 'Enter customer name',
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                            ),
+                                  const SizedBox(height: 5),
 
-                                            const SizedBox(height: 16),
+                                  TextButton.icon(
+                                    onPressed: () async {
+                                      final result = await _showCustomerModal(
+                                        context,
+                                      );
 
-                                            const Text(
-                                              'Phone Number',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            TextField(
-                                              controller: customerPhoneController,
-                                              keyboardType: TextInputType.phone,
-                                              decoration: InputDecoration(
-                                                hintText: 'Enter phone number',
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                      if (result != null) {
+                                        // print('object')
+                                        setState(() {
+                                          customerNameController.text =
+                                              result.name;
+                                          customerPhoneController.text =
+                                              result.phone;
+                                        });
+                                      }
+                                    },
+                                    icon: const Icon(Icons.person_add),
+                                    label: const Text('Add Customer'),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text('Name        : '),
+                                        Text(
+                                          '' + customerNameController.text,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text('Phone No : '),
+                                        Text(
+                                          '' + customerPhoneController.text,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Visibility(
+                                  //   visible: _collectCustomerSaveOnSale,
+                                  //   child: Card(
+                                  //     elevation: 3,
+                                  //     color: Colors.white70,
+                                  //     shape: RoundedRectangleBorder(
+                                  //       borderRadius: BorderRadius.circular(12),
+                                  //     ),
+                                  //     child: Padding(
+                                  //       padding: const EdgeInsets.all(16.0),
+                                  //       child: Column(
+                                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                                  //         children: [
+                                  //           const Text(
+                                  //             'Customer Name',
+                                  //             style: TextStyle(
+                                  //               fontSize: 14,
+                                  //               fontWeight: FontWeight.w500,
+                                  //             ),
+                                  //           ),
+                                  //           const SizedBox(height: 8),
+                                  //           TextField(
+                                  //             controller: customerNameController,
+                                  //             decoration: InputDecoration(
+                                  //               hintText: 'Enter customer name',
+                                  //               border: OutlineInputBorder(
+                                  //                 borderRadius: BorderRadius.circular(8),
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //
+                                  //           const SizedBox(height: 16),
+                                  //
+                                  //           const Text(
+                                  //             'Phone Number',
+                                  //             style: TextStyle(
+                                  //               fontSize: 14,
+                                  //               fontWeight: FontWeight.w500,
+                                  //             ),
+                                  //           ),
+                                  //           const SizedBox(height: 8),
+                                  //           TextField(
+                                  //             controller: customerPhoneController,
+                                  //             keyboardType: TextInputType.phone,
+                                  //             decoration: InputDecoration(
+                                  //               hintText: 'Enter phone number',
+                                  //               border: OutlineInputBorder(
+                                  //                 borderRadius: BorderRadius.circular(8),
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //         ],
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   /// Confirm Sale button
                                   SizedBox(
                                     width: double.infinity,
@@ -1013,7 +1113,8 @@ class _CartScreenState extends State<CartScreen> {
                                                       cashierId: 1,
                                                       orderMasterId: 10,
                                                       billStatus: 'Completed',
-                                                      salesType: AppData.saleType!,
+                                                      salesType:
+                                                          AppData.saleType!,
                                                       billTokenNo: 22,
                                                       createdUser: 1,
                                                       branchId: 1,
@@ -1064,8 +1165,14 @@ class _CartScreenState extends State<CartScreen> {
                                                           st_points_earned,
                                                       redeemedAmount:
                                                           redeemAmount,
-                                                      customerName: customerNameController.text.toString(),
-                                                      customerPhoneNo: customerPhoneController.text.toString(),
+                                                      customerName:
+                                                          customerNameController
+                                                              .text
+                                                              .toString(),
+                                                      customerPhoneNo:
+                                                          customerPhoneController
+                                                              .text
+                                                              .toString(),
                                                     );
                                                     if (expiredStatusController
                                                             .text ==
@@ -1074,7 +1181,6 @@ class _CartScreenState extends State<CartScreen> {
                                                           .read<SaleCubit>()
                                                           .saveSale(request);
                                                     }
-
                                                   },
                                             child: const Text(
                                               'Confirm Sale',
@@ -1480,4 +1586,96 @@ class _CartScreenState extends State<CartScreen> {
 Future<void> clearAppData() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.clear(); // 🔥 clears everything
+}
+
+Future<CustomerDataForSale?> _showCustomerModal(BuildContext context) async {
+  final nameController = TextEditingController();
+
+  final phoneController = TextEditingController();
+
+  return await showModalBottomSheet<CustomerDataForSale>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Add Customer',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 20),
+
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Customer Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(
+                            context,
+                            CustomerDataForSale(
+                              name: nameController.text,
+                              phone: phoneController.text,
+                            ),
+                          );
+                        },
+                        child: const Text('Save'),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

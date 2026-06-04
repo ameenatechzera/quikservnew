@@ -395,7 +395,8 @@ class ServiceLocator {
         saveSaleUseCase: sl(),
         salesRepository: sl(),
         salesDetailsByMasterIdUseCase: sl(),
-        fetchLoyaltyDetailsBySearchUseCase: sl(),
+        fetchLoyaltyDetailsBySearchUseCase: sl(), fetchProductsUseCase: sl(), productLocalRepository: sl(), fetchSettingsUseCase: sl(), fetchCategoriesUseCase: sl(),
+        categoryLocalRepository: sl(),
         // fetchLoyaltyCustomersUseCase: sl(),
       ),
     );

@@ -28,6 +28,7 @@ class GroupsCubit extends Cubit<GroupsState> {
        super(GroupsInitial());
 
   Future<void> fetchGroups() async {
+    print('FetchGroups');
     emit(GroupsLoading());
 
     final response = await _fetchGroupsUseCase();

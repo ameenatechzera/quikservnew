@@ -11,6 +11,12 @@ final class SaleInitial extends SaleState {}
 
 final class SlesDetailsFetchInitial extends SaleState {}
 
+final class CategoryReloadLoading extends SaleState{}
+
+final class ProductReloadLoading extends SaleState{}
+
+final class SettingsReloadLoading extends SaleState{}
+
 final class LoyaltyDetailsBySearchInitial extends SaleState {}
 
 class SaleLoading extends SaleState {}
@@ -20,11 +26,41 @@ class SaleSuccess extends SaleState {
 
   const SaleSuccess({required this.response});
 }
+class SettingsReloadError extends SaleState {
+  final String error;
 
+  const SettingsReloadError({required this.error});
+}
+final class CategoryReloadError extends SaleState {
+  final String error;
+
+  const CategoryReloadError({required this.error});
+}
+class SettingsReloadLoaded extends SaleState {
+  final FetchSettingsResponseModel settings;
+
+  const SettingsReloadLoaded({required this.settings});
+}
+
+class ProductReloadSuccess extends SaleState {
+  final FetchProductResponseModel products;
+
+  const ProductReloadSuccess(this.products);
+}
+final class CategoryReloadLoaded extends SaleState {
+  final FetchCategoryResponseModel categories;
+
+  const CategoryReloadLoaded({required this.categories});
+}
 class SaleError extends SaleState {
   final String error;
 
   const SaleError({required this.error});
+}
+class ProductReloadFailure extends SaleState {
+  final String error;
+
+  const ProductReloadFailure(this.error);
 }
 
 // SearchBarState

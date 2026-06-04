@@ -1,13 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
+import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
+import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/screens/item_wise_reportscreen.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
+import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
+import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
@@ -21,6 +27,8 @@ import 'package:quikservnew/features/settings/domain/parameters/bargraph_request
 import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
+import 'package:quikservnew/features/units/presentation/bloc/unit_cubit.dart';
+import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 final DateFormat formatter = DateFormat('dd MMM yyyy');
@@ -69,6 +77,7 @@ class _DashboardContentState extends State<DashboardContent> {
     toDateNotifier.addListener(_fetchReport);
   }
 
+  bool _isRefreshing = false;
   @override
   void dispose() {
     fromDateNotifier.removeListener(_fetchReport);
@@ -127,6 +136,28 @@ class _DashboardContentState extends State<DashboardContent> {
     }
   }
 
+  Future<void> _refreshAllData() async {
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    try {
+      await context.read<SaleCubit>().fetchProductsReload();
+      await context.read<SaleCubit>().fetchSettingsReload();
+      await context.read<SaleCubit>().fetchCategoriesReload();
+
+      await _fetchReport();
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Set status bar BEFORE anything else
@@ -139,9 +170,6 @@ class _DashboardContentState extends State<DashboardContent> {
           statusBarBrightness: Brightness.light,
         ),
       );
-
-
-
     });
     return ScrollConfiguration(
       behavior: const AppScrollBehavior(), // ✅ no glow + consistent behavior
@@ -149,279 +177,402 @@ class _DashboardContentState extends State<DashboardContent> {
         appBar: AppBar(
           toolbarHeight: 40,
           backgroundColor: AppColors.theme,
-          title: const Text(
-            'Dashboard',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        backgroundColor: AppColors.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            // ✅ Soft/reduced bounce
-            physics: const SoftBounceScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 5, 16, 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// DATE PICKERS
-                  Row(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Dashboard',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              BlocConsumer<SaleCubit, SaleState>(
+                listener: (context, state) async {
+                  if (state is ProductReloadFailure) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(state.error)));
+                  }
+                  if (state is ProductReloadSuccess) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Product Sync completed ✓")),
+                    );
+                  }
+                  if (state is CategoryReloadLoaded) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Category Sync completed ✓"),
+                      ),
+                    );
+                  }
+                  if (state is SettingsReloadLoaded) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Settings Sync completed ✓"),
+                      ),
+                    );
+                    final settings = state.settings.settings!.first;
+
+                    await SharedPreferenceHelper().setVatStatus(
+                      settings.vatStatus!,
+                    );
+                    await SharedPreferenceHelper().setVatType(
+                      settings.vatType!,
+                    );
+                    await SharedPreferenceHelper().setCashLedgerId(
+                      (settings.cashLedgerId ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setCardLedgerId(
+                      (settings.cardLedgerId ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setBankLedgerId(
+                      (settings.bankLedgerId ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setAppVersion(
+                      (settings.appVersion ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setKOTStatus(
+                      (settings.isKOT ?? '').toString(),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  final isLoading = state is SaleLoading;
+
+                  return Stack(
                     children: [
-                      DateCard(
-                        title: 'From Date',
-                        dateNotifier: fromDateNotifier,
-                        onTap: () => _pickDate(context, fromDateNotifier),
-                      ),
-                      const SizedBox(width: 12),
-                      DateCard(
-                        title: 'To Date',
-                        dateNotifier: toDateNotifier,
-                        onTap: () => _pickDate(context, toDateNotifier),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  /// SALES STATS
-                  BlocBuilder<SalesReportCubit, SlesReportState>(
-                    builder: (context, state) {
-                      bool isLoading = false;
-                      String totalCountText = '--';
-                      String totalAmountText = '--';
-                      if (state is SlesReportDashboardInitial) {
-                         isLoading = true;
-                      }
-                      if (state is SalesReportFromDashboarduccess) {
-                        final list = state.response.salesMaster;
-                        totalCountText = list.length.toString();
-
-                        final totalAmount = list.fold<double>(
-                          0.0,
-                          (sum, item) => sum + _toDouble(item.grandTotal),
-                        );
-                        totalAmountText = totalAmount.toStringAsFixed(2);
-
-                        isLoading = false;
-                      } else if (state is SalesReportDashboardError) {
-                        isLoading = false;
-                      }
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: _StatCard(
-                              title: 'Total Sales Count',
-                              value: totalCountText,
-                              isLoading: isLoading,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _StatCard(
-                              title: 'Total Sales Amount',
-                              value: totalAmountText,
-                              isLoading: isLoading,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  /// CASH BALANCE
-                  BlocBuilder<SalesReportCubit, SlesReportState>(
-                    builder: (context, state) {
-                      bool isLoading = false;
-                      String cashText = '--';
-                      if (state is SlesReportDashboardInitial) {
-                        isLoading = true;
-                      }
-                      if (state is SalesReportFromDashboarduccess) {
-                        final list = state.response.salesMaster;
-
-                        final cashBalance = list.fold<double>(
-                          0.0,
-                          (sum, item) => sum + _toDouble(item.cashAmount),
-                        );
-                        cashText = cashBalance.toStringAsFixed(2);
-
-                        isLoading = false;
-                      } else if (state is SalesReportDashboardError) {
-                        isLoading = false;
-                      }
-                      return Container(
-                        height: 100,
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF6E0),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Cash Balance',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            // ✅ ONLY VALUE LOADING
-                            if (isLoading)
-                              const SizedBox(
-                                height: 22,
-                                width: 22,
+                      InkWell(
+                        onTap: isLoading ? null : _refreshAllData,
+                        // onTap: isLoading
+                        //     ? null
+                        //     : () async {
+                        //         await context
+                        //             .read<SaleCubit>()
+                        //             .fetchProductsReload();
+                        //         await context
+                        //             .read<SaleCubit>()
+                        //             .fetchSettingsReload();
+                        //         await context
+                        //             .read<SaleCubit>()
+                        //             .fetchCategoriesReload();
+                        //       },
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                 ),
                               )
-                            else
-                              Text(
-                                cashText,
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w800,
+                            : const Icon(Icons.refresh),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: AppColors.white,
+        body: Stack(
+          children: [
+            SafeArea(
+              child: SingleChildScrollView(
+                // ✅ Soft/reduced bounce
+                physics: const SoftBounceScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 5, 16, 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// DATE PICKERS
+                      Row(
+                        children: [
+                          DateCard(
+                            title: 'From Date',
+                            dateNotifier: fromDateNotifier,
+                            onTap: () => _pickDate(context, fromDateNotifier),
+                          ),
+                          const SizedBox(width: 12),
+                          DateCard(
+                            title: 'To Date',
+                            dateNotifier: toDateNotifier,
+                            onTap: () => _pickDate(context, toDateNotifier),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      /// SALES STATS
+                      BlocBuilder<SalesReportCubit, SlesReportState>(
+                        builder: (context, state) {
+                          bool isLoading = false;
+                          String totalCountText = '--';
+                          String totalAmountText = '--';
+                          if (state is SlesReportDashboardInitial) {
+                            isLoading = true;
+                          }
+                          if (state is SalesReportFromDashboarduccess) {
+                            final list = state.response.salesMaster;
+                            totalCountText = list.length.toString();
+
+                            final totalAmount = list.fold<double>(
+                              0.0,
+                              (sum, item) => sum + _toDouble(item.grandTotal),
+                            );
+                            totalAmountText = totalAmount.toStringAsFixed(2);
+
+                            isLoading = false;
+                          } else if (state is SalesReportDashboardError) {
+                            isLoading = false;
+                          }
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: _StatCard(
+                                  title: 'Total Sales Count',
+                                  value: totalCountText,
+                                  isLoading: isLoading,
                                 ),
                               ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  // TRANSACTION
-                  const Text(
-                    'Transaction',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _ActionTile(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const HomeScreen(),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _StatCard(
+                                  title: 'Total Sales Amount',
+                                  value: totalAmountText,
+                                  isLoading: isLoading,
+                                ),
                               ),
-                            );
-                          },
+                            ],
+                          );
+                        },
+                      ),
 
-                          iconPath: 'assets/icons/salesinvoiceicon.svg',
-                          label: 'Sales Invoice',
+                      const SizedBox(height: 14),
+
+                      /// CASH BALANCE
+                      BlocBuilder<SalesReportCubit, SlesReportState>(
+                        builder: (context, state) {
+                          bool isLoading = false;
+                          String cashText = '--';
+                          if (state is SlesReportDashboardInitial) {
+                            isLoading = true;
+                          }
+                          if (state is SalesReportFromDashboarduccess) {
+                            final list = state.response.salesMaster;
+
+                            final cashBalance = list.fold<double>(
+                              0.0,
+                              (sum, item) => sum + _toDouble(item.cashAmount),
+                            );
+                            cashText = cashBalance.toStringAsFixed(2);
+
+                            isLoading = false;
+                          } else if (state is SalesReportDashboardError) {
+                            isLoading = false;
+                          }
+                          return Container(
+                            height: 100,
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF6E0),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Cash Balance',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                // ✅ ONLY VALUE LOADING
+                                if (isLoading)
+                                  const SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    cashText,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // TRANSACTION
+                      const Text(
+                        'Transaction',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _ActionTile(
-                          iconPath: 'assets/icons/paymenticon.svg',
-                          label: 'Payment',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => PaymentScreen(pagefrom: ''),
-                              ),
-                            );
-                          },
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _ActionTile(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const HomeScreen(),
+                                  ),
+                                );
+                              },
+
+                              iconPath: 'assets/icons/salesinvoiceicon.svg',
+                              label: 'Sales Invoice',
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _ActionTile(
+                              iconPath: 'assets/icons/paymenticon.svg',
+                              label: 'Payment',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PaymentScreen(pagefrom: ''),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      // REPORTS
+                      const Text(
+                        'Reports',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _ActionTile(
+                              iconPath: 'assets/icons/salesreporticon.svg',
+
+                              label: 'Sales Report',
+                              onTap: () {
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (_) => const SalesReportPage(),
+                                //   ),
+                                // );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SalesReportPage(),
+                                  ),
+                                ).then((_) {
+                                  // Call your reload function here
+                                  _fetchReport();
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _ActionTile(
+                              iconPath: 'assets/icons/itemreporticon.svg',
+                              label: 'Item Report',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ItemWiseReportPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _ActionTile(
+                              iconPath: 'assets/icons/dailyclosingicon.svg',
+                              label: 'Daily Closing\nReport',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DailyClosingReportScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(child: SizedBox()),
+                        ],
+                      ),
+
+                      const SizedBox(height: 4),
+                      // ✅ some bottom space
+                      _buildCustomSelector(),
+                      // _buildSalesTypeSelector(),
+
+                      // //Sales Count
+                      // _buildCustomSelector(),
+                      // _buildSalesTypeSelector(),
+                      _buildSalesChart(),
                     ],
                   ),
-
-                  const SizedBox(height: 18),
-
-                  // REPORTS
-                  const Text(
-                    'Reports',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _ActionTile(
-                          iconPath: 'assets/icons/salesreporticon.svg',
-
-                          label: 'Sales Report',
-                          onTap: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (_) => const SalesReportPage(),
-                            //   ),
-                            // );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const SalesReportPage(),
-                              ),
-                            ).then((_) {
-                              // Call your reload function here
-                             _fetchReport();
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _ActionTile(
-                          iconPath: 'assets/icons/itemreporticon.svg',
-                          label: 'Item Report',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ItemWiseReportPage(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _ActionTile(
-                          iconPath: 'assets/icons/dailyclosingicon.svg',
-                          label: 'Daily Closing\nReport',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DailyClosingReportScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(child: SizedBox()),
-                    ],
-                  ),
-
-                  const SizedBox(height: 4),
-                  // ✅ some bottom space
-                  _buildCustomSelector(),
-                  // _buildSalesTypeSelector(),
-
-                  // //Sales Count
-                  // _buildCustomSelector(),
-                  // _buildSalesTypeSelector(),
-                  _buildSalesChart(),
-                ],
+                ),
               ),
             ),
-          ),
+
+            if (_isRefreshing)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.3),
+                  child: const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 12),
+                        Text(
+                          "Syncing data...",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -580,158 +731,6 @@ class _DashboardContentState extends State<DashboardContent> {
       ],
     );
   }
-
-  // Widget _buildCustomCountSelector() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       /// 🔹 Heading + Dropdown Row
-  //       Padding(
-  //         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-  //         child: Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             const Text(
-  //               "Sales Graph",
-  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-
-  //       /// 🔹 Only One Checkbox
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           Row(
-  //             children: [
-  //               Checkbox(
-  //                 value: isCustomSelected,
-  //                 onChanged: (value) {
-  //                   setState(() {
-  //                     isCustomSelected = value ?? false;
-
-  //                     if (!isCustomSelected) {
-  //                       fromDate = null;
-  //                       toDate = null;
-  //                       fromController.clear();
-  //                       toController.clear();
-  //                     }
-  //                   });
-  //                 },
-  //               ),
-  //               const Text("Custom", style: TextStyle(fontSize: 14)),
-  //             ],
-  //           ),
-  //           if (!isCustomSelected)
-  //             Padding(
-  //               padding: const EdgeInsets.symmetric(
-  //                 horizontal: 12,
-  //                 vertical: 8,
-  //               ),
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   /// 🔹 Dropdown
-  //                   Container(
-  //                     padding: const EdgeInsets.symmetric(horizontal: 12),
-  //                     decoration: BoxDecoration(
-  //                       border: Border.all(color: Colors.grey.shade400),
-  //                       borderRadius: BorderRadius.circular(8),
-  //                     ),
-  //                     child: DropdownButton<SalesPeriod>(
-  //                       value: selectedPeriod,
-  //                       underline: const SizedBox(),
-  //                       onChanged: (SalesPeriod? newValue) {
-  //                         if (newValue == null) return;
-
-  //                         setState(() {
-  //                           selectedPeriod = newValue;
-  //                         });
-
-  //                         /// 🔥 Call API based on selection
-  //                         String period = newValue.name; // daily, weekly...
-  //                         if (selectedView.name == 'count') {
-  //                           if (period == 'daily') {
-  //                             period = 'hourly';
-  //                           }
-  //                         }
-
-  //                         print('Hr ${selectedView.name}');
-  //                         print('ClickedHR ${selectedView.name}');
-  //                         if (selectedView.name == 'amount') {
-  //                           context
-  //                               .read<SettingsCubit>()
-  //                               .fetchMonthlyGraphFromServer(
-  //                                 BarGraphRequest(
-  //                                   period: period,
-  //                                   branchId: stBranchId,
-  //                                 ),
-  //                               );
-  //                         } else {
-  //                           context
-  //                               .read<SalesCountCubit>()
-  //                               .fetchSalesCountFromServer(
-  //                                 BarGraphRequest(
-  //                                   period: period,
-  //                                   branchId: stBranchId,
-  //                                 ),
-  //                               );
-  //                         }
-  //                       },
-  //                       items: SalesPeriod.values.map((period) {
-  //                         return DropdownMenuItem(
-  //                           value: period,
-  //                           child: Text(
-  //                             period.name.toUpperCase(),
-  //                             style: const TextStyle(fontSize: 12),
-  //                           ),
-  //                         );
-  //                       }).toList(),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //         ],
-  //       ),
-
-  //       const SizedBox(height: 10),
-
-  //       /// 🔹 Show Date Fields Only When Checked
-  //       if (isCustomSelected)
-  //         Row(
-  //           children: [
-  //             Expanded(
-  //               child: TextField(
-  //                 controller: fromController,
-  //                 readOnly: true,
-  //                 decoration: const InputDecoration(
-  //                   hintText: "From (dd-MM-yyyy)",
-  //                   border: OutlineInputBorder(),
-  //                   isDense: true,
-  //                 ),
-  //                 onTap: () => _pickDate2(true),
-  //               ),
-  //             ),
-  //             const SizedBox(width: 10),
-  //             Expanded(
-  //               child: TextField(
-  //                 controller: toController,
-  //                 readOnly: true,
-  //                 decoration: const InputDecoration(
-  //                   hintText: "To (dd-MM-yyyy)",
-  //                   border: OutlineInputBorder(),
-  //                   isDense: true,
-  //                 ),
-  //                 onTap: () => _pickDate2(false),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //     ],
-  //   );
-  // }
 
   void _onCustomDateChanged() {
     if (!isCustomSelected) return;

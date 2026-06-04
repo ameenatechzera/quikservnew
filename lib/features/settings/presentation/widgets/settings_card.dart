@@ -20,6 +20,7 @@ import 'package:quikservnew/features/settings/presentation/widgets/dashboard_lis
 import 'package:quikservnew/features/settings/presentation/widgets/subscription_infocard.dart';
 import 'package:quikservnew/features/units/presentation/screens/unit_listing_screen.dart';
 import 'package:quikservnew/features/vat/presentation/screens/vat_listing_screen.dart';
+import 'package:quikservnew/services/shared_preference_helper.dart';
 bool _loyaltyEnabled = false;
 class SettingsCard extends StatefulWidget {
   const SettingsCard({super.key, required this.isBasic});
@@ -31,6 +32,12 @@ class SettingsCard extends StatefulWidget {
 }
 
 class _SettingsCardState extends State<SettingsCard> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadLoyaltyStatus();
+  }
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -116,8 +123,26 @@ class _SettingsCardState extends State<SettingsCard> {
                         const Spacer(),
                         Switch(
                           value: _loyaltyEnabled,
-                          onChanged: (val) => setState(() => _loyaltyEnabled = val),
-                          activeColor: const Color(0xFF1565C0),
+                          onChanged: (val) async {
+                            setState(() {
+                              _loyaltyEnabled = val;
+                            });
+                            print('_loyaltyEnabled $_loyaltyEnabled');
+
+                            final helper =
+                            SharedPreferenceHelper();
+                            if(_loyaltyEnabled){
+                              await helper
+                                  .saveLoyalCustomerOnSale(1);
+                            }
+                            else{
+                              await helper
+                                  .saveLoyalCustomerOnSale(0);
+                            }
+
+                          },
+                          activeColor:
+                          const Color(0xFF1565C0),
                         ),
 
 
@@ -127,20 +152,26 @@ class _SettingsCardState extends State<SettingsCard> {
 
                   const SizedBox(height: 16),
 
-                    buildTile(
-                      context: context,
-                      icon: Icons.card_giftcard,
-                      title: "Loyalty Card",
-                      page: LoyaltyListPage(),
+                    Visibility(
+                      visible: _loyaltyEnabled,
+                      child: buildTile(
+                        context: context,
+                        icon: Icons.card_giftcard,
+                        title: "Loyalty Card",
+                        page: LoyaltyListPage(),
+                      ),
                     ),
-                  buildTile(
-                    context: context,
-                    icon: Icons.person_outline,
-                    title: "Loyalty Customer",
-                    page: CustomerListPage(),
-                    // page: PrinterSettingsContent(
-                    //   companyName: st_companyName,
-                    // ),
+                  Visibility(
+                    visible: _loyaltyEnabled,
+                    child: buildTile(
+                      context: context,
+                      icon: Icons.person_outline,
+                      title: "Loyalty Customer",
+                      page: CustomerListPage(),
+                      // page: PrinterSettingsContent(
+                      //   companyName: st_companyName,
+                      // ),
+                    ),
                   ),
                 ],
               ),
@@ -267,5 +298,20 @@ class _SettingsCardState extends State<SettingsCard> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadLoyaltyStatus() async {
+    final helper =
+    SharedPreferenceHelper();
+
+    final value =
+    await helper
+        .getLoyalCustomerOnSale();
+    print('value $value');
+
+    setState(() {
+      _loyaltyEnabled =
+          value == 1;
+    });
   }
 }

@@ -41,6 +41,7 @@ class ProductCubit extends Cubit<ProductsState> {
        super(ProductsInitial());
 
   Future<void> fetchProducts() async {
+    print('FetchProducts');
     emit(ProductLoading());
     final response = await fetchProductsUseCase();
     response.fold(
