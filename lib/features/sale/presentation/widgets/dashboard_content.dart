@@ -1,13 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/core/utils/widgets/app_snackbar.dart';
+import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
 import 'package:quikservnew/features/dailyclosingReport/presentation/screens/dailyCloseReportScreen.dart';
+import 'package:quikservnew/features/groups/presentation/bloc/groups_cubit.dart';
 import 'package:quikservnew/features/itemwiseReport/presentation/screens/item_wise_reportscreen.dart';
 import 'package:quikservnew/features/paymentVoucher/presentation/screens/payment_voucher.dart';
+import 'package:quikservnew/features/products/presentation/bloc/products_cubit.dart';
+import 'package:quikservnew/features/sale/presentation/bloc/sale_cubit.dart';
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/salesReport_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/parameters/sales_masterreport_bydate_parameter.dart';
@@ -21,6 +27,8 @@ import 'package:quikservnew/features/settings/domain/parameters/bargraph_request
 import 'package:quikservnew/features/settings/domain/parameters/custom_sales_graph_request.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/salesCountCubit/sales_count_cubit.dart';
 import 'package:quikservnew/features/settings/presentation/bloc/settings_cubit.dart';
+import 'package:quikservnew/features/units/presentation/bloc/unit_cubit.dart';
+import 'package:quikservnew/features/vat/presentation/bloc/vat_cubit.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 
 final DateFormat formatter = DateFormat('dd MMM yyyy');
@@ -149,9 +157,82 @@ class _DashboardContentState extends State<DashboardContent> {
         appBar: AppBar(
           toolbarHeight: 40,
           backgroundColor: AppColors.theme,
-          title: const Text(
-            'Dashboard',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Dashboard',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              BlocConsumer<SaleCubit, SaleState>(
+                listener: (context, state) async {
+                  if (state is ProductReloadFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.error)),
+                    );
+                  }
+                  if (state is ProductReloadSuccess) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Product Sync completed ✓")),
+                    );
+                  }
+                  if(state is CategoryReloadLoaded){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Category Sync completed ✓")),
+                    );
+                  }
+                  if (state is SettingsReloadLoaded) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Settings Sync completed ✓")),
+                    );
+                    final settings = state.settings.settings!.first;
+
+                    await SharedPreferenceHelper().setVatStatus(settings.vatStatus!);
+                    await SharedPreferenceHelper().setVatType(settings.vatType!);
+                    await SharedPreferenceHelper().setCashLedgerId(
+                      (settings.cashLedgerId ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setCardLedgerId(
+                      (settings.cardLedgerId ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setBankLedgerId(
+                      (settings.bankLedgerId ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setAppVersion(
+                      (settings.appVersion ?? '').toString(),
+                    );
+                    await SharedPreferenceHelper().setKOTStatus(
+                      (settings.isKOT ?? '').toString(),
+                    );
+
+                  }
+                },
+                builder: (context, state) {
+                  final isLoading = state is SaleLoading;
+
+                  return Stack(
+                    children: [
+                      InkWell(
+                        onTap: isLoading
+                            ? null
+                            : () async {
+                          await context.read<SaleCubit>().fetchProductsReload();
+                          await context.read<SaleCubit>().fetchSettingsReload();
+                          await context.read<SaleCubit>().fetchCategoriesReload();
+                        },
+                        child: isLoading
+                            ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                            : const Icon(Icons.refresh),
+                      ),
+                    ],
+                  );
+                },
+              )
+            ],
           ),
         ),
         backgroundColor: AppColors.white,
@@ -580,158 +661,6 @@ class _DashboardContentState extends State<DashboardContent> {
       ],
     );
   }
-
-  // Widget _buildCustomCountSelector() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       /// 🔹 Heading + Dropdown Row
-  //       Padding(
-  //         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-  //         child: Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             const Text(
-  //               "Sales Graph",
-  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-
-  //       /// 🔹 Only One Checkbox
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           Row(
-  //             children: [
-  //               Checkbox(
-  //                 value: isCustomSelected,
-  //                 onChanged: (value) {
-  //                   setState(() {
-  //                     isCustomSelected = value ?? false;
-
-  //                     if (!isCustomSelected) {
-  //                       fromDate = null;
-  //                       toDate = null;
-  //                       fromController.clear();
-  //                       toController.clear();
-  //                     }
-  //                   });
-  //                 },
-  //               ),
-  //               const Text("Custom", style: TextStyle(fontSize: 14)),
-  //             ],
-  //           ),
-  //           if (!isCustomSelected)
-  //             Padding(
-  //               padding: const EdgeInsets.symmetric(
-  //                 horizontal: 12,
-  //                 vertical: 8,
-  //               ),
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   /// 🔹 Dropdown
-  //                   Container(
-  //                     padding: const EdgeInsets.symmetric(horizontal: 12),
-  //                     decoration: BoxDecoration(
-  //                       border: Border.all(color: Colors.grey.shade400),
-  //                       borderRadius: BorderRadius.circular(8),
-  //                     ),
-  //                     child: DropdownButton<SalesPeriod>(
-  //                       value: selectedPeriod,
-  //                       underline: const SizedBox(),
-  //                       onChanged: (SalesPeriod? newValue) {
-  //                         if (newValue == null) return;
-
-  //                         setState(() {
-  //                           selectedPeriod = newValue;
-  //                         });
-
-  //                         /// 🔥 Call API based on selection
-  //                         String period = newValue.name; // daily, weekly...
-  //                         if (selectedView.name == 'count') {
-  //                           if (period == 'daily') {
-  //                             period = 'hourly';
-  //                           }
-  //                         }
-
-  //                         print('Hr ${selectedView.name}');
-  //                         print('ClickedHR ${selectedView.name}');
-  //                         if (selectedView.name == 'amount') {
-  //                           context
-  //                               .read<SettingsCubit>()
-  //                               .fetchMonthlyGraphFromServer(
-  //                                 BarGraphRequest(
-  //                                   period: period,
-  //                                   branchId: stBranchId,
-  //                                 ),
-  //                               );
-  //                         } else {
-  //                           context
-  //                               .read<SalesCountCubit>()
-  //                               .fetchSalesCountFromServer(
-  //                                 BarGraphRequest(
-  //                                   period: period,
-  //                                   branchId: stBranchId,
-  //                                 ),
-  //                               );
-  //                         }
-  //                       },
-  //                       items: SalesPeriod.values.map((period) {
-  //                         return DropdownMenuItem(
-  //                           value: period,
-  //                           child: Text(
-  //                             period.name.toUpperCase(),
-  //                             style: const TextStyle(fontSize: 12),
-  //                           ),
-  //                         );
-  //                       }).toList(),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //         ],
-  //       ),
-
-  //       const SizedBox(height: 10),
-
-  //       /// 🔹 Show Date Fields Only When Checked
-  //       if (isCustomSelected)
-  //         Row(
-  //           children: [
-  //             Expanded(
-  //               child: TextField(
-  //                 controller: fromController,
-  //                 readOnly: true,
-  //                 decoration: const InputDecoration(
-  //                   hintText: "From (dd-MM-yyyy)",
-  //                   border: OutlineInputBorder(),
-  //                   isDense: true,
-  //                 ),
-  //                 onTap: () => _pickDate2(true),
-  //               ),
-  //             ),
-  //             const SizedBox(width: 10),
-  //             Expanded(
-  //               child: TextField(
-  //                 controller: toController,
-  //                 readOnly: true,
-  //                 decoration: const InputDecoration(
-  //                   hintText: "To (dd-MM-yyyy)",
-  //                   border: OutlineInputBorder(),
-  //                   isDense: true,
-  //                 ),
-  //                 onTap: () => _pickDate2(false),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //     ],
-  //   );
-  // }
 
   void _onCustomDateChanged() {
     if (!isCustomSelected) return;

@@ -31,9 +31,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<RegisterResponseResult> registerServer(
     RegisterServerRequest registerServerParams,
   ) async {
-    final baseUrl = await SharedPreferenceHelper().getBaseUrl();
-
-    if (baseUrl == null || baseUrl.isEmpty) {}
+    final baseUrl = 'https://test.quikserv.app/Api/public/api';
 
     final url = ApiConstants.getRegisterServerPath(baseUrl!);
     print('Register URL: $url');

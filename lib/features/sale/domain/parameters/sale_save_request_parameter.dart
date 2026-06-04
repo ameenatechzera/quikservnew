@@ -91,7 +91,7 @@ class SaveSaleRequest {
       "totalTax": totalTax,
       "redeemedAmount":redeemedAmount,
       "customerName":customerName,
-      "customerPhoneNo":customerPhoneNo,
+      "customerPhone":customerPhoneNo,
 
       "loyalCardId":loyalCardId,
       "customerId":customerId,

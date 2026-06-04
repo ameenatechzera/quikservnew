@@ -15,6 +15,7 @@ class SharedPreferenceHelper {
   static const _kCardLedgerId = 'card_ledger_id';
   static const _kBankLedgerId = 'bank_ledger_id';
   static const _customerDataSaveInSaleKey = 'customerDataSaveInSaleKey';
+  static const _loyalcustomerSaveKey = '_loyalcustomerSaveKey';
   static const _kAppVersion = 'app_version';
   static const _KOTStatus = 'KOT_status';
   static const _PrintGap = 'print_gap';
@@ -455,6 +456,18 @@ class SharedPreferenceHelper {
   Future<int> getCustomerDetailsOnSale() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_customerDataSaveInSaleKey) ?? 0; // CASH default
+  }
+
+  ///save Loyal Customer details
+
+  Future<void> saveLoyalCustomerOnSale(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_loyalcustomerSaveKey, value);
+  }
+
+  Future<int> getLoyalCustomerOnSale() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_loyalcustomerSaveKey) ?? 0; // CASH default
   }
 
   Future<void> setCashLedgerId(String value) async {

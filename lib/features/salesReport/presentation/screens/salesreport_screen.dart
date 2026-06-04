@@ -242,73 +242,13 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                         ],
                       ),
                     );
-                    // return Container(
-                    //   padding: const EdgeInsets.symmetric(
-                    //     horizontal: 20,
-                    //     vertical: 14,
-                    //   ),
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.white,
-                    //     boxShadow: [
-                    //       BoxShadow(
-                    //         color: Colors.black.withOpacity(0.08),
-                    //         blurRadius: 8,
-                    //         offset: const Offset(0, -2),
-                    //       ),
-                    //     ],
-                    //   ),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //     children: [
-                    //       Column(
-                    //         crossAxisAlignment: CrossAxisAlignment.start,
-                    //         children: [
-                    //           const Text(
-                    //             "Total Records",
-                    //             style: TextStyle(
-                    //               fontSize: 12,
-                    //               color: Colors.grey,
-                    //             ),
-                    //           ),
-                    //           Text(
-                    //             _totalRecordsController.text,
-                    //             style: const TextStyle(
-                    //               fontSize: 16,
-                    //               fontWeight: FontWeight.bold,
-                    //             ),
-                    //           ),
-                    //         ],
-                    //       ),
-
-                    //       Column(
-                    //         crossAxisAlignment: CrossAxisAlignment.end,
-                    //         children: [
-                    //           const Text(
-                    //             "Total Sales",
-                    //             style: TextStyle(
-                    //               fontSize: 12,
-                    //               color: Colors.grey,
-                    //             ),
-                    //           ),
-                    //           Text(
-                    //             _totalSalesController.text,
-                    //             style: const TextStyle(
-                    //               fontSize: 18,
-                    //               fontWeight: FontWeight.bold,
-                    //               color: Colors.black,
-                    //             ),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     ],
-                    //   ),
-                    // );
                   } else {
                     Container();
                   }
                   return Container();
                 },
               ),
+
               //  footerTotalSection(_totalRecordsController),
             ],
           ),
@@ -427,9 +367,9 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       st_PayMode = 'Multi';
     }
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 8.0),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -443,7 +383,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
           ],
         ),
         child: InkWell(
-          onTap: () {
+          onTap: () async {
             String formattedFromDate ='', formattedToDate ='';
             final fromDateRaw = fromDateController.text.trim();
             final toDateRaw = toDateController.text.trim();
@@ -455,7 +395,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                 DateFormat('dd-MM-yyyy').parse(toDateRaw),
               );
             }
-            Navigator.push(
+
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => SalesReportPreviewScreen(
@@ -464,6 +405,15 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                   fromDateFrom: formattedFromDate,
                   toDateFrom: formattedToDate,
                 ),
+              ),
+            );
+
+            context.read<SalesReportCubit>().fetchSalesReport(
+              FetchReportRequest(
+                fromDate: formatter.format(fromDate),
+                toDate: formatter.format(toDate),
+                userId: "1",
+                branchId: st_branchId,
               ),
             );
           },

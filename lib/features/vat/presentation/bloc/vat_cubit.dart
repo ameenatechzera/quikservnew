@@ -30,6 +30,7 @@ class VatCubit extends Cubit<VatState> {
 
   ///  to fetch VAT
   Future<void> fetchVat() async {
+    print('FetchVats');
     emit(VatLoading());
 
     final response = await _fetchVatUseCase();

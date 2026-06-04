@@ -81,6 +81,8 @@ class LoginScreenHelper {
       await SharedPreferenceHelper().setCompanyAddress1(company.address1);
       await SharedPreferenceHelper().setCompanyAddress2(company.address2);
       await SharedPreferenceHelper().setCompanyPhoneNo(company.phone);
+      print('baseUrl ${company.baseUrl}');
+      await SharedPreferenceHelper().setBaseUrl(company.baseUrl);
 
       try {
         await SharedPreferenceHelper().setCompanyLogo(company.companyLogo);
@@ -197,6 +199,7 @@ class LoginScreenHelper {
     required SettingsState state,
   }) async {
     if (state is SettingsLoaded) {
+      print('LoginCheckSettings');
       final settings = state.settings.settings!.first;
 
       await SharedPreferenceHelper().setVatStatus(settings.vatStatus!);
