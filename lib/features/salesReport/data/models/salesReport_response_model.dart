@@ -5,7 +5,7 @@ class SalesReportModel extends SalesReportResult {
     required super.status,
     required super.error,
     required super.message,
-    required super.salesMaster,
+    required super.salesMaster, required super.balance,
   });
 
   factory SalesReportModel.fromJson(Map<String, dynamic> json) {
@@ -17,7 +17,7 @@ class SalesReportModel extends SalesReportResult {
           ? []
           : List<SalesMaster>.from(
               json["sales_master"]!.map((x) => SalesMaster.fromJson(x)),
-            ),
+            ),balance: json["balance"] == null ? [] : List<Balance>.from(json["balance"]!.map((x) => Balance.fromJson(x))),
     );
   }
   SalesReportResult toEntity() {
@@ -26,6 +26,7 @@ class SalesReportModel extends SalesReportResult {
       error: error,
       message: message,
       salesMaster: [],
+      balance: []
     );
   }
 }

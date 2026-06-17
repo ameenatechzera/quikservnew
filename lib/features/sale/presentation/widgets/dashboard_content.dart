@@ -314,6 +314,7 @@ class _DashboardContentState extends State<DashboardContent> {
                           }
                           if (state is SalesReportFromDashboarduccess) {
                             final list = state.response.salesMaster;
+
                             totalCountText = list.length.toString();
 
                             final totalAmount = list.fold<double>(
@@ -359,13 +360,15 @@ class _DashboardContentState extends State<DashboardContent> {
                             isLoading = true;
                           }
                           if (state is SalesReportFromDashboarduccess) {
-                            final list = state.response.salesMaster;
-
-                            final cashBalance = list.fold<double>(
-                              0.0,
-                              (sum, item) => sum + _toDouble(item.cashAmount),
-                            );
-                            cashText = cashBalance.toStringAsFixed(2);
+                           // final list = state.response.salesMaster;
+                            final listBal = state.response.balance;
+                            // final cashBalance = list.fold<double>(
+                            //   0.0,
+                            //   (sum, item) => sum + _toDouble(item.cashAmount),
+                            // );
+                            String cashBalance = listBal.first.balance;
+                            //cashText = cashBalance.toStringAsFixed(2);
+                            cashText = cashBalance;
 
                             isLoading = false;
                           } else if (state is SalesReportDashboardError) {

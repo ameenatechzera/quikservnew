@@ -41,6 +41,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       final token = await SharedPreferenceHelper().getToken() ?? "";
       print('dbName $dbName');
       print('token $token');
+      print('url $url');
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
       final response = await dio.post(
         url,

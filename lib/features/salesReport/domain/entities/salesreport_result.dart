@@ -6,6 +6,7 @@ class SalesReportResult extends Equatable {
     required this.error,
     required this.message,
     required this.salesMaster,
+    required this.balance,
   });
 
   final int status;
@@ -20,17 +21,22 @@ class SalesReportResult extends Equatable {
   final List<SalesMaster> salesMaster;
   static const String salesMasterKey = "sales_master";
 
+  final List<Balance> balance;
+  static const String balanceKey = "balance";
+
   SalesReportResult copyWith({
     int? status,
     bool? error,
     String? message,
     List<SalesMaster>? salesMaster,
+    List<Balance>? balance,
   }) {
     return SalesReportResult(
       status: status ?? this.status,
       error: error ?? this.error,
       message: message ?? this.message,
       salesMaster: salesMaster ?? this.salesMaster,
+      balance: balance ?? this.balance,
     );
   }
 
@@ -44,6 +50,7 @@ class SalesReportResult extends Equatable {
           : List<SalesMaster>.from(
               json["sales_master"]!.map((x) => SalesMaster.fromJson(x)),
             ),
+      balance: json["balance"] == null ? [] : List<Balance>.from(json["balance"]!.map((x) => Balance.fromJson(x))),
     );
   }
 
@@ -52,17 +59,69 @@ class SalesReportResult extends Equatable {
     "error": error,
     "message": message,
     "sales_master": salesMaster.map((x) => x.toJson()).toList(),
+    "balance": balance.map((x) => x?.toJson()).toList(),
   };
 
   @override
   String toString() {
-    return "$status, $error, $message, $salesMaster, ";
+    return "$status, $error, $message, $salesMaster,$balance ";
   }
 
   @override
-  List<Object?> get props => [status, error, message, salesMaster];
+  List<Object?> get props => [status, error, message, salesMaster,balance];
 }
+class Balance extends Equatable {
+  Balance({
+    required this.currentbal,
+    required this.balance,
+    required this.crordr,
+  });
 
+  final String currentbal;
+  static const String currentbalKey = "currentbal";
+
+  final String balance;
+  static const String balanceKey = "balance";
+
+  final dynamic crordr;
+  static const String crordrKey = "crordr";
+
+
+  Balance copyWith({
+    String? currentbal,
+    String? balance,
+    dynamic? crordr,
+  }) {
+    return Balance(
+      currentbal: currentbal ?? this.currentbal,
+      balance: balance ?? this.balance,
+      crordr: crordr ?? this.crordr,
+    );
+  }
+
+  factory Balance.fromJson(Map<String, dynamic> json){
+    return Balance(
+      currentbal: json["currentbal"] ?? "",
+      balance: json["balance"] ?? "",
+      crordr: json["crordr"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "currentbal": currentbal,
+    "balance": balance,
+    "crordr": crordr,
+  };
+
+  @override
+  String toString(){
+    return "$currentbal, $balance, $crordr, ";
+  }
+
+  @override
+  List<Object?> get props => [
+    currentbal, balance, crordr, ];
+}
 class SalesMaster extends Equatable {
   const SalesMaster({
     required this.salesMasterId,
