@@ -27,10 +27,11 @@ class CartScreenHelper {
 
     final vatStatus = await SharedPreferenceHelper().getVatStatus();
     final vatType = await SharedPreferenceHelper().getVatType();
+    print('vatStatus $vatStatus');
     double tax = 0.0;
     if (vatStatus == true) {
       // Apply 1% tax regardless of tax type (tax or gst)
-      tax = subTotal * 0.01; // 1% tax
+      tax = subTotal * 0.15; // 1% tax
     }
     final total = subTotal - discount + tax;
 

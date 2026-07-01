@@ -366,7 +366,12 @@ class _DashboardContentState extends State<DashboardContent> {
                             //   0.0,
                             //   (sum, item) => sum + _toDouble(item.cashAmount),
                             // );
-                            String cashBalance = listBal.first.balance;
+                            String cashBalance = '0.00';
+                            try {
+                               cashBalance = listBal.first.balance;
+                            }catch(_){
+
+                            }
                             //cashText = cashBalance.toStringAsFixed(2);
                             cashText = cashBalance;
 

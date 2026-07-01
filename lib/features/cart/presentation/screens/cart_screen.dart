@@ -1108,7 +1108,7 @@ class _CartScreenState extends State<CartScreen> {
                                                           cardLedgerId,
                                                       cardAmount: cardAmt,
                                                       creditAmount: 0,
-                                                      tableId: 1,
+                                                      tableId: "",
                                                       supplierId: 1,
                                                       cashierId: 1,
                                                       orderMasterId: 10,

@@ -11,7 +11,7 @@ class SaveSaleRequest {
   final int cardLedgerId;
   final double cardAmount;
   final double creditAmount;
-  final int tableId;
+  final String tableId;
   final int? supplierId;
   final int cashierId;
   final int orderMasterId;
