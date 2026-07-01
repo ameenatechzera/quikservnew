@@ -33,7 +33,7 @@ class SalesReportCubit extends Cubit<SlesReportState> {
   // --------------------- API Fetch SalesReport ---------------------
   Future<void> fetchSalesReport(FetchReportRequest request) async {
     print('FetchReportRequest ${request.toJson()}');
-    emit(SlesReportInitial());
+    emit(SalesReportLoading());
     try {
       final response = await _salesReportFromServerUseCase(request);
 
@@ -54,8 +54,9 @@ class SalesReportCubit extends Cubit<SlesReportState> {
       final response = await _salesReportFromServerUseCase(request);
 
       response.fold(
-            (failure) => emit(SalesReportError(error: failure.message)),
-            (saleResponse) => emit(SalesReportFromDashboarduccess(response: saleResponse)),
+        (failure) => emit(SalesReportError(error: failure.message)),
+        (saleResponse) =>
+            emit(SalesReportFromDashboarduccess(response: saleResponse)),
       );
     } catch (e) {
       emit(SalesReportDashboardError(error: e.toString()));

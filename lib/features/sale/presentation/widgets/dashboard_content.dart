@@ -360,7 +360,7 @@ class _DashboardContentState extends State<DashboardContent> {
                             isLoading = true;
                           }
                           if (state is SalesReportFromDashboarduccess) {
-                           // final list = state.response.salesMaster;
+                            // final list = state.response.salesMaster;
                             final listBal = state.response.balance;
                             // final cashBalance = list.fold<double>(
                             //   0.0,
@@ -368,10 +368,8 @@ class _DashboardContentState extends State<DashboardContent> {
                             // );
                             String cashBalance = '0.00';
                             try {
-                               cashBalance = listBal.first.balance;
-                            }catch(_){
-
-                            }
+                              cashBalance = listBal.first.balance;
+                            } catch (_) {}
                             //cashText = cashBalance.toStringAsFixed(2);
                             cashText = cashBalance;
 
@@ -493,7 +491,7 @@ class _DashboardContentState extends State<DashboardContent> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const SalesReportPage(),
+                                    builder: (_) => SalesReportPage(),
                                   ),
                                 ).then((_) {
                                   // Call your reload function here
