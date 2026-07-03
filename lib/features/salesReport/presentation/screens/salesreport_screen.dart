@@ -987,7 +987,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
       FetchReportRequest(
         fromDate: apiFormatter.format(fromDate),
         toDate: apiFormatter.format(toDate),
-        userId: "1",
+        userId: stUserId,
         branchId: stBranchId,
       ),
     );

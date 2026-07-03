@@ -81,8 +81,7 @@ class _CartScreenState extends State<CartScreen> {
     final int loyaltyStatus = await helper.getLoyalCustomerOnSale();
     if (loyaltyStatus == 1) {
       setState(() {
-          loyalty_Status = true;
-
+        loyalty_Status = true;
       });
     }
 
@@ -1052,6 +1051,15 @@ class _CartScreenState extends State<CartScreen> {
                                                         return;
                                                       }
                                                     }
+                                                    final sharedPref =
+                                                        SharedPreferenceHelper();
+
+                                                    final int createdUser =
+                                                        int.tryParse(
+                                                          await sharedPref
+                                                              .getUserId(),
+                                                        ) ??
+                                                        0;
                                                     //print('_selectedCustomer!.loyalityId ${_selectedCustomer!.loyalityId}');
                                                     String st_pointsRedeemed =
                                                         '';
@@ -1116,7 +1124,7 @@ class _CartScreenState extends State<CartScreen> {
                                                       salesType:
                                                           AppData.saleType!,
                                                       billTokenNo: 22,
-                                                      createdUser: 1,
+                                                      createdUser: createdUser,
                                                       branchId: 1,
                                                       totalTax: tax,
                                                       salesDetails: items
