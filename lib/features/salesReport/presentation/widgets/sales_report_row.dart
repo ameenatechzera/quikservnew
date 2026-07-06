@@ -174,15 +174,15 @@ class SalesReportRow extends StatelessWidget {
                             ),
                           );
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PrintPage(
-                                pageFrom: 'SalesReport',
-                                sales: saleList.first,
-                              ),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => PrintPage(
+                          //       pageFrom: 'SalesReport',
+                          //       sales: saleList.first,
+                          //     ),
+                          //   ),
+                          // );
                         },
                         child: const Text(
                           'Print',

@@ -301,7 +301,7 @@ class _PrintPageState extends State<PrintPage> {
   }
 
   Future<List<int>> printKotItemDetails(Generator generator) async {
-    final List<int> bytes = [];
+    List<int> bytes = [];
     final details = widget.sales?.salesDetails ?? [];
 
     final bool is3in = selectedPrinter == '3 inch';
@@ -354,27 +354,63 @@ class _PrintPageState extends State<PrintPage> {
       // If Malayalam (or other complex script) or for 2" printer, print name on its own line.
       final bool nameOnOwnLine = !is3in || containsMalayalam(prodName);
       final text = printerSafe(item.productName);
-      bytes.addAll(
-        generator.row([
-          PosColumn(
-            text: srlNo,
-            width: 1,
-            styles: PosStyles(align: PosAlign.left),
+
+
+      bytes += generator.row([
+
+        PosColumn(
+          text: srlNo,
+          width: 4,
+          styles: const PosStyles(
+            align: PosAlign.left,
+            bold: false, // bold increases visual size
+            height: PosTextSize.size1, // smallest
+            width: PosTextSize.size1,
           ),
-          PosColumn(
-            text: text,
-            width: 8,
-            styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: text,
+          width: 4,
+          styles: const PosStyles(
+            align: PosAlign.left,
+            bold: false, // bold increases visual size
+            height: PosTextSize.size1, // smallest
+            width: PosTextSize.size1,
           ),
-          PosColumn(
-            text: qtyStr,
-            width: 3,
-            styles: PosStyles(align: PosAlign.center),
+        ),
+        PosColumn(
+          text: qtyStr,
+          width: 4,
+          styles: const PosStyles(
+            align: PosAlign.left,
+            bold: false, // bold increases visual size
+            height: PosTextSize.size1, // smallest
+            width: PosTextSize.size1,
           ),
-          // PosColumn(text: rateStr, width: 3, styles: PosStyles(align: PosAlign.right)),
-          // PosColumn(text: totalStr, width: 3, styles: PosStyles(align: PosAlign.right)),
-        ]),
-      );
+        ),
+      ]);
+
+      // bytes.addAll(
+      //   generator.row([
+      //     PosColumn(
+      //       text: srlNo,
+      //       width: 1,
+      //       styles: PosStyles(align: PosAlign.left),
+      //     ),
+      //     PosColumn(
+      //       text: text,
+      //       width: 8,
+      //       styles: PosStyles(align: PosAlign.left),
+      //     ),
+      //     PosColumn(
+      //       text: qtyStr,
+      //       width: 3,
+      //       styles: PosStyles(align: PosAlign.center),
+      //     ),
+      //     // PosColumn(text: rateStr, width: 3, styles: PosStyles(align: PosAlign.right)),
+      //     // PosColumn(text: totalStr, width: 3, styles: PosStyles(align: PosAlign.right)),
+      //   ]),
+      //);
     } // end loop
 
     return bytes;
@@ -665,7 +701,7 @@ class _PrintPageState extends State<PrintPage> {
     // }
     try {
       debugPrint('Step 1: Loading asset...');
-      final ByteData data = await rootBundle.load('assets/images/bw_printlogo.png');
+      final ByteData data = await rootBundle.load('assets/images/sara_bg.png');
       debugPrint('Step 2: Asset loaded, size: ${data.lengthInBytes}');
 
       final Uint8List logoBytes = data.buffer.asUint8List();
@@ -677,11 +713,21 @@ class _PrintPageState extends State<PrintPage> {
       if (image != null) {
         debugPrint('Step 5: Image size: ${image.width}x${image.height}');
 
-        final resized = img.copyResize(image, width: 380);
-        debugPrint('Step 6: Resized to: ${resized.width}x${resized.height}');
+        final resizedLogo = img.copyResize(image, width: 180);
+        debugPrint('Step 6: Resized to: ${resizedLogo.width}x${resizedLogo.height}');
 
-        bytes += generator.image(resized, align: PosAlign.center);
-        debugPrint('Step 7: Image added to bytes ✓');
+        // --- FIX: manually center the logo on a full-paper-width canvas ---
+        // Printers ignore ESC/POS align commands for raster images, so we
+        // bake the centering into the image itself instead.
+        const int paperWidthDots = 384; // 58mm paper = 384 dots, 80mm = 576 dots
+        final canvas = img.Image(width: paperWidthDots, height: resizedLogo.height);
+        img.fill(canvas, color: img.ColorRgb8(255, 255, 255)); // white background
+
+        final int xOffset = ((paperWidthDots - resizedLogo.width) / 1.2).round();
+        img.compositeImage(canvas, resizedLogo, dstX: xOffset, dstY: 0);
+
+        bytes += generator.image(canvas); // no need for align here anymore
+        debugPrint('Step 7: Image added to bytes ✓ (centered on $paperWidthDots px canvas)');
       } else {
         debugPrint('ERROR: decodeImage returned null');
       }
@@ -689,7 +735,6 @@ class _PrintPageState extends State<PrintPage> {
       debugPrint('CRASH at: $e');
       debugPrint('Stack: $stackTrace');
     }
-
     bytes += generator.feed(1);
 
     /// =======================
@@ -770,6 +815,7 @@ class _PrintPageState extends State<PrintPage> {
     //   styles: PosStyles(align: PosAlign.center, bold: true),
     // );
 
+    print('ReachedLast');
     bytes += generator.feed(2);
 
     bytes += generator.cut();
@@ -1956,7 +2002,8 @@ class _PrintPageState extends State<PrintPage> {
           .toString();
       String? st_prodNameArabic = '', st_unitwithQty = '', st_taxTotal = '';
 
-      print('st_prodName $st_prodName');
+      print('st_prodNameHRCT $st_prodName');
+
       double dblQty = 0;
       try {
         String? stQty = widget.sales?.salesDetails[i].qty.toString();
@@ -1988,7 +2035,7 @@ class _PrintPageState extends State<PrintPage> {
         st_total = dblTotal.toStringAsFixed(get_decimalpoints());
       } catch (_) {}
       //String? st_vatPercent = widget.sales?.salesDetails[i].vatPercentage;
-      // print('st_vatPercent $st_vatPercent');
+
 
       st_barcode = widget.sales!.salesDetails[i].productCode.toString();
       if (st_barcode!.length > 5) {
@@ -2028,34 +2075,93 @@ class _PrintPageState extends State<PrintPage> {
         }
       }
       if (selectedPrinter == '3inch') {
+        // bytes += generator.row([
+        //   PosColumn(
+        //     text: srlNo.toString(),
+        //     styles: PosStyles(align: PosAlign.left),
+        //     width: 1,
+        //   ),
+        //   PosColumn(
+        //     text: st_prodName!,
+        //     width: 5,
+        //     styles: const PosStyles(align: PosAlign.left),
+        //   ),
+        //   PosColumn(
+        //     text: dblQty.toString(),
+        //     width: 2,
+        //     styles: PosStyles(align: PosAlign.right),
+        //   ),
+        //   PosColumn(
+        //     text: st_rate!,
+        //     width: 2,
+        //     styles: PosStyles(align: PosAlign.right),
+        //   ),
+        //   PosColumn(
+        //     text: st_total!,
+        //     width: 2,
+        //     styles: PosStyles(align: PosAlign.right),
+        //   ),
+        // ]);
+
         bytes += generator.row([
           PosColumn(
             text: srlNo.toString(),
-            styles: PosStyles(align: PosAlign.left),
             width: 1,
+            styles: const PosStyles(
+              align: PosAlign.left,
+              bold: false,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+              fontType: PosFontType.fontB,
+            ),
           ),
           PosColumn(
             text: st_prodName!,
             width: 5,
-            styles: const PosStyles(align: PosAlign.left),
+            styles: const PosStyles(
+              align: PosAlign.left,
+              bold: false,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+              fontType: PosFontType.fontB,
+            ),
           ),
           PosColumn(
             text: dblQty.toString(),
             width: 2,
-            styles: PosStyles(align: PosAlign.right),
+            styles: const PosStyles(
+              align: PosAlign.right,
+              bold: false,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+              fontType: PosFontType.fontB,
+            ),
           ),
           PosColumn(
             text: st_rate!,
             width: 2,
-            styles: PosStyles(align: PosAlign.right),
+            styles: const PosStyles(
+              align: PosAlign.right,
+              bold: false,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+              fontType: PosFontType.fontB,
+            ),
           ),
           PosColumn(
             text: st_total!,
             width: 2,
-            styles: PosStyles(align: PosAlign.right),
+            styles: const PosStyles(
+              align: PosAlign.right,
+              bold: false,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+              fontType: PosFontType.fontB,
+            ),
           ),
         ]);
       }
+      print('st_vatPercent');
       if (selectedPrinter == '2inch') {
         bool malayalamWordStatus = containsMalayalam(st_prodName!);
         print('malayalamWordStatus $malayalamWordStatus');
