@@ -902,6 +902,7 @@
 //     }
 //   }
 // }
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -943,6 +944,33 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   final DateFormat displayFormatter = DateFormat('dd-MM-yyyy');
   final DateFormat apiFormatter = DateFormat('yyyy-MM-dd');
+// ── Add these fields to your State class ────────────────────────────────
+  final Stopwatch _loadStopwatch = Stopwatch();
+  Timer? _uiTickTimer;
+  double? _lastElapsedSeconds; // frozen value once loading finishes
+
+  void _startLoadTimer() {
+    _loadStopwatch
+      ..reset()
+      ..start();
+    _lastElapsedSeconds = null;
+    // Ticks every 100ms just to refresh the UI while loading is in progress.
+    _uiTickTimer?.cancel();
+    _uiTickTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  void _stopLoadTimer() {
+    if (_loadStopwatch.isRunning) {
+      _loadStopwatch.stop();
+      _lastElapsedSeconds = _loadStopwatch.elapsedMilliseconds / 1000;
+    }
+    _uiTickTimer?.cancel();
+    _uiTickTimer = null;
+  }
+
+
 
   @override
   void initState() {
@@ -963,6 +991,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   @override
   void dispose() {
+    _uiTickTimer?.cancel();
     fromDateController.dispose();
     toDateController.dispose();
     super.dispose();
@@ -973,6 +1002,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
     stBranchId = await sharedPrefHelper.getBranchId();
     stUserId = await sharedPrefHelper.getUserId();
+    print('stUserId $stUserId');
 
     final expiryDate = await SharedPreferenceHelper().getExpiryDate();
     print('expiryDate $expiryDate');
@@ -982,6 +1012,7 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
 
   void _fetchSalesReport() {
     if (!mounted) return;
+
 
     context.read<SalesReportCubit>().fetchSalesReport(
       FetchReportRequest(
@@ -1029,8 +1060,19 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
             children: [
               _dateFilter(),
               Expanded(
-                child: BlocConsumer<SalesReportCubit, SlesReportState>(
+                child:
+
+// ── Replace your BlocConsumer with this ──────────────────────────────────
+                BlocConsumer<SalesReportCubit, SlesReportState>(
                   listener: (context, state) {
+                    if (state is SalesReportLoading) {
+                      _startLoadTimer();
+                    }
+
+                    if (state is SalesReportSuccess || state is SalesReportError) {
+                      _stopLoadTimer();
+                    }
+
                     if (state is SalesDeleteSuccess) {
                       Fluttertoast.showToast(
                         msg: "Sales details deleted successfully..!",
@@ -1067,35 +1109,155 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                     }
                   },
                   builder: (context, state) {
-                    if (state is SalesReportLoading ||
-                        state is SlesReportInitial) {
-                      return const Center(child: CircularProgressIndicator());
+                    if (state is SalesReportLoading || state is SlesReportInitial) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 8),
+                            if (state is SalesReportLoading)
+                              Text(
+                                '${(_loadStopwatch.elapsedMilliseconds / 1000).toStringAsFixed(1)}s',
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
                     }
 
                     if (state is SalesReportError) {
-                      return Center(child: Text(state.error));
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(state.error),
+                            if (_lastElapsedSeconds != null)
+                              Text(
+                                'Failed after ${_lastElapsedSeconds!.toStringAsFixed(1)}s',
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
                     }
 
+                    // if (state is SalesReportSuccess) {
+                    //   final List<SalesMaster> salesList = state.response.salesMaster;
+                    //
+                    //   if (salesList.isEmpty) {
+                    //     return const Center(child: Text("No data found"));
+                    //   }
+                    //
+                    //   return Column(
+                    //     children: [
+                    //       if (_lastElapsedSeconds != null)
+                    //         Padding(
+                    //           padding: const EdgeInsets.all(8.0),
+                    //           child: Text(
+                    //             'Loaded in ${_lastElapsedSeconds!.toStringAsFixed(1)}s',
+                    //             style: const TextStyle(
+                    //               color: Colors.red,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       Expanded(
+                    //         child: ListView.builder(
+                    //           physics: const SoftBounceScrollPhysics(
+                    //             parent: AlwaysScrollableScrollPhysics(),
+                    //           ),
+                    //           itemCount: salesList.length,
+                    //           itemBuilder: (context, index) {
+                    //             final sale = salesList[index];
+                    //             return _salesCard(sale);
+                    //           },
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   );
+                    // }
+// ── Add these fields to your State class ────────────────────────────────
+                    final Stopwatch _renderStopwatch = Stopwatch();
+                    double? _listRenderSeconds; // time taken to render the list after data arrived
+                    List<SalesMaster>? _lastMeasuredList; // guards against re-timing on every rebuild
+
+// ── Inside your builder, replace the SalesReportSuccess branch with: ────
                     if (state is SalesReportSuccess) {
-                      final List<SalesMaster> salesList =
-                          state.response.salesMaster;
+                      final List<SalesMaster> salesList = state.response.salesMaster;
 
                       if (salesList.isEmpty) {
                         return const Center(child: Text("No data found"));
                       }
 
-                      return ListView.builder(
-                        physics: const SoftBounceScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics(),
-                        ),
-                        itemCount: salesList.length,
-                        itemBuilder: (context, index) {
-                          final sale = salesList[index];
-                          return _salesCard(sale);
-                        },
+                      // Only start a fresh render-timer if this is a NEW list (avoids
+                      // restarting the stopwatch on every unrelated rebuild, e.g. from
+                      // setState calls triggered elsewhere).
+                      if (!identical(_lastMeasuredList, salesList)) {
+                        _lastMeasuredList = salesList;
+                        _listRenderSeconds = null;
+                        _renderStopwatch
+                          ..reset()
+                          ..start();
+
+                        // Fires right after this frame is actually painted on screen —
+                        // i.e. once the ListView has finished laying out/rendering.
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          _renderStopwatch.stop();
+                          setState(() {
+                            _listRenderSeconds = _renderStopwatch.elapsedMilliseconds / 1000;
+                          });
+                        });
+                      }
+
+                      return Column(
+                        children: [
+                          if (_lastElapsedSeconds != null)
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Loaded in ${_lastElapsedSeconds!.toStringAsFixed(1)}s',
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          if (_listRenderSeconds != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                'List rendered in ${_listRenderSeconds!.toStringAsFixed(2)}s '
+                                    '(${salesList.length} items)',
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          Expanded(
+                            child: ListView.builder(
+                              physics: const SoftBounceScrollPhysics(
+                                parent: AlwaysScrollableScrollPhysics(),
+                              ),
+                              itemCount: salesList.length,
+                              itemBuilder: (context, index) {
+                                final sale = salesList[index];
+                                return _salesCard(sale);
+                              },
+                            ),
+                          ),
+                        ],
                       );
                     }
-
                     return const SizedBox();
                   },
                 ),

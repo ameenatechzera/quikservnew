@@ -14,7 +14,7 @@ class CartItem {
   final String excludeRate;
   String subtotal;
   final String vatId;
-  final String vatAmount;
+   String vatAmount;
   String totalAmount;
   String conversion_rate;
   String category;

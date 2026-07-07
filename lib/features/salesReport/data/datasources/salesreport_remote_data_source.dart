@@ -37,6 +37,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
       }
 
       final url = ApiConstants.getFetchSalesReportPath(baseUrl);
+      print('url $url');
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
       print('dbName $dbName');
@@ -79,8 +80,11 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
         throw Exception("Base URL not set");
       }
       final url = ApiConstants.getFetchSalesDetailsReportPath(baseUrl);
+      print('FetchSalesDetails_url ${url}');
       final dbName = await SharedPreferenceHelper().getDatabaseName();
       final token = await SharedPreferenceHelper().getToken() ?? "";
+      print('dbName$dbName');
+      print('token$token');
       if (token.isEmpty) throw Exception("Token missing! Please login again.");
       final response = await dio.post(
         url,
@@ -94,6 +98,7 @@ class SalesReportRemoteDataSourceImpl implements SalesReportRemoteDataSource {
           },
         ),
       );
+      print('response ${response.toString()}');
       if (response.statusCode == 200 || response.statusCode == 201) {
         return SalesDetailsByMasterIdModel.fromJson(response.data);
       } else {

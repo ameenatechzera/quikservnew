@@ -19,6 +19,7 @@ class SharedPreferenceHelper {
   static const _kAppVersion = 'app_version';
   static const _KOTStatus = 'KOT_status';
   static const _PrintGap = 'print_gap';
+  static const String _restaurantCodeKey = '_restaurantCode';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
 
   /// ------------------ BASE URL ------------------
@@ -30,6 +31,17 @@ class SharedPreferenceHelper {
   Future<String?> getBaseUrl() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_baseUrlKey);
+  }
+
+  /// ------------------ Restaurant  Code ------------------
+  Future<void> setRestaurantCode(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_restaurantCodeKey, code);
+  }
+
+  Future<String?> getRestaurantCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_restaurantCodeKey);
   }
 
   /// ------------------ TOKEN ------------------
@@ -318,6 +330,16 @@ class SharedPreferenceHelper {
     return prefs.getString(_vatTypeKey) ?? '';
   }
 
+  /// ------------------ VAT OncludedTYPE ------------------
+  Future<bool> setVatIncludedStatus(String vatIncluded) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString("vatIncludedStatus", vatIncluded);
+  }
+
+  Future<String> getVatIncludedStatus() async {
+   final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("vatIncludedStatus") ?? '';
+  }
   /// ------------------ Expiry Date ------------------
   Future<void> setExpiryDate(String expiryDate) async {
     final prefs = await SharedPreferences.getInstance();

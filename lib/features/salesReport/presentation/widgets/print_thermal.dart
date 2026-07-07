@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +61,10 @@ class PrintPage extends StatefulWidget {
   @override
   _PrintPageState createState() => _PrintPageState();
 }
+// Global margin config — tweak these two once, applies everywhere
+const int kLeftMargin = 1;   // out of 12 units
+const int kRightMargin = 1;  // out of 12 units
+const int kContentWidth = 12 - kLeftMargin - kRightMargin; // = 10
 
 class _PrintPageState extends State<PrintPage> {
   List<BluetoothInfo> availableBluetoothDevices = [];
@@ -699,6 +705,42 @@ class _PrintPageState extends State<PrintPage> {
     // if (image != null) {
     //   bytes += generator.image(image, align: PosAlign.center);
     // }
+    // try {
+    //   debugPrint('Step 1: Loading asset...');
+    //   final ByteData data = await rootBundle.load('assets/images/sara_bg.png');
+    //   debugPrint('Step 2: Asset loaded, size: ${data.lengthInBytes}');
+    //
+    //   final Uint8List logoBytes = data.buffer.asUint8List();
+    //   debugPrint('Step 3: Bytes converted, length: ${logoBytes.length}');
+    //
+    //   final image = await compute(img.decodeImage, logoBytes);
+    //   debugPrint('Step 4: Image decoded: $image');
+    //
+    //   if (image != null) {
+    //     debugPrint('Step 5: Image size: ${image.width}x${image.height}');
+    //
+    //     final resizedLogo = img.copyResize(image, width: 180);
+    //     debugPrint('Step 6: Resized to: ${resizedLogo.width}x${resizedLogo.height}');
+    //
+    //     // --- FIX: manually center the logo on a full-paper-width canvas ---
+    //     // Printers ignore ESC/POS align commands for raster images, so we
+    //     // bake the centering into the image itself instead.
+    //     const int paperWidthDots = 384; // 58mm paper = 384 dots, 80mm = 576 dots
+    //     final canvas = img.Image(width: paperWidthDots, height: resizedLogo.height);
+    //     img.fill(canvas, color: img.ColorRgb8(255, 255, 255)); // white background
+    //
+    //     final int xOffset = ((paperWidthDots - resizedLogo.width) / 1.2).round();
+    //     img.compositeImage(canvas, resizedLogo, dstX: xOffset, dstY: 0);
+    //
+    //     bytes += generator.image(canvas); // no need for align here anymore
+    //     debugPrint('Step 7: Image added to bytes ✓ (centered on $paperWidthDots px canvas)');
+    //   } else {
+    //     debugPrint('ERROR: decodeImage returned null');
+    //   }
+    // } catch (e, stackTrace) {
+    //   debugPrint('CRASH at: $e');
+    //   debugPrint('Stack: $stackTrace');
+    // }
     try {
       debugPrint('Step 1: Loading asset...');
       final ByteData data = await rootBundle.load('assets/images/sara_bg.png');
@@ -713,21 +755,26 @@ class _PrintPageState extends State<PrintPage> {
       if (image != null) {
         debugPrint('Step 5: Image size: ${image.width}x${image.height}');
 
-        final resizedLogo = img.copyResize(image, width: 180);
+        // Trim any transparent/white padding baked into the source PNG first
+        final trimmedLogo = img.trim(image);
+        debugPrint('Step 5b: Trimmed to: ${trimmedLogo.width}x${trimmedLogo.height}');
+
+        final resizedLogo = img.copyResize(trimmedLogo, width: 260);
         debugPrint('Step 6: Resized to: ${resizedLogo.width}x${resizedLogo.height}');
 
-        // --- FIX: manually center the logo on a full-paper-width canvas ---
-        // Printers ignore ESC/POS align commands for raster images, so we
-        // bake the centering into the image itself instead.
-        const int paperWidthDots = 384; // 58mm paper = 384 dots, 80mm = 576 dots
-        final canvas = img.Image(width: paperWidthDots, height: resizedLogo.height);
-        img.fill(canvas, color: img.ColorRgb8(255, 255, 255)); // white background
+        final int paperWidthDots = (selectedPrinter == '3inch' ||
+            selectedPrinter == '3 inch')
+            ? 576
+            : 384;
 
-        final int xOffset = ((paperWidthDots - resizedLogo.width) / 1.2).round();
+        final canvas = img.Image(width: paperWidthDots, height: resizedLogo.height);
+        img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+
+        final int xOffset = ((paperWidthDots - resizedLogo.width) / 2).round();
         img.compositeImage(canvas, resizedLogo, dstX: xOffset, dstY: 0);
 
-        bytes += generator.image(canvas); // no need for align here anymore
-        debugPrint('Step 7: Image added to bytes ✓ (centered on $paperWidthDots px canvas)');
+        bytes += generator.image(canvas);
+        debugPrint('Step 7: Image added ✓ ($paperWidthDots px canvas)');
       } else {
         debugPrint('ERROR: decodeImage returned null');
       }
@@ -1059,53 +1106,7 @@ class _PrintPageState extends State<PrintPage> {
     logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
     logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
     print('st_connectedDevicePref $st_connectedDevicePref');
-    print('st_connectedSecondPrinter $st_connectedSecondPrinter');
-    print('selectedPrinter $selectedPrinter');
-    print('logoHeight $logoHeight');
-    print('logoWidth $logoWidth');
-    print('companyNameFontSize $companyNameFontSize');
-    print('st_baseUrl $st_baseUrl');
-    // await SharedPrefrence().getBluetoothMacAddress().then((value) async {
-    //   print('st_connectedDevicePref $value');
-    //   st_connectedDevicePref = value.toString();
-    // });
-    // await SharedPrefrence().getCompanyName().then((value) async {
-    //   print('getCompanyName $value');
-    //   st_company = value.toString();
-    // });
-    // await SharedPrefrence().getCompanyPhone().then((value) async {
-    //   print('getCompanyPhone $value');
-    //   st_companyPhone = value.toString();
-    // });
-    // await SharedPrefrence().getCompanyAddress().then((value) async {
-    //   print('getCompanyAddress $value');
-    //   st_companyAddress = value.toString();
-    // });
-    // await SharedPrefrence().getCompanyVatNo().then((value) async {
-    //   print('getCompanyVatNo $value');
-    //   st_companyVatNo = value.toString();
-    // });
-    // await SharedPrefrence().getVatType().then((value) async {
-    //   print('st_vatType $value');
-    //   st_vatType = value.toString();
-    // });
-    // await SharedPrefrence().getVatEnabledStatus().then((value) async {
-    //   print('st_vatEnabled $value');
-    //   st_vatEnabled = value.toString();
-    // });
-    // await SharedPrefrence().getUserName().then((value) async {
-    //   print('getUserName $value');
-    //   st_userName = value.toString();
-    // });
-    // SharedPrefrence().loadSelectedPrinter().then((selected) {
-    //   if(selected!.isNotEmpty) {
-    //     selectedPrinter = selected;
-    //     print('selectedPrinter $selectedPrinter');
-    //   }
-    //   else{
-    //     selectedPrinter ='No print';
-    //   }
-    // });
+
     if (st_vatEnabled == '1') {
       if (st_vatType == 'VAT') {
         vatStatus = true;
@@ -1230,18 +1231,6 @@ class _PrintPageState extends State<PrintPage> {
       }
     }
 
-    // if (selectedPrinter == '3 inch') {
-    //   if (image != null) {
-    //     //   // Resize if too large (max width depends on paper size: ~384 px for 58mm)
-    //     //final img.Image resized = img.copyResize(image, width: 150,height: 150);
-    //     final resized = img.copyResize(image, width: logoWidthInt, height: logoHeightInt);
-    //     bytes += generator.image(
-    //       resized, // The data to encode
-    //       // QRSize from 1 (smallest) to 8 (largest)
-    //       align: PosAlign.center,
-    //     );
-    //   }
-    // }
     if (selectedPrinter == '3 inch') {
       // 🔥 Load logo from network
       final paperWidth = 576; // 80mm printer
@@ -1280,38 +1269,21 @@ class _PrintPageState extends State<PrintPage> {
 
     final textSize = _getTextSize(compnyFontSize);
     String st_OrderNo = '${widget.sales?.salesMaster?.billTokenNo ?? ''}';
-    // bytes += generator.text(
-    //   st_company,
-    //   styles: PosStyles(
-    //     align: PosAlign.center,
-    //     bold: true,
-    //     height: textSize,
-    //     width: textSize,
-    //   ),
-    //   linesAfter: 0,
-    // );
-    bytes += generator.text(
-      'Token No: ' + st_OrderNo,
-      styles: PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: PosTextSize.size2,
-        width: PosTextSize.size1,
+
+
+    bytes += generator.row([
+      PosColumn(
+        text: 'Token No: ' + st_OrderNo,
+        width: 12,
+        styles: const PosStyles(
+          align: PosAlign.center,
+          bold: true,
+          height: PosTextSize.size2,
+          width: PosTextSize.size1,
+          fontType: PosFontType.fontB,
+        ),
       ),
-      linesAfter: 0,
-    );
-
-    // bytes += generator.text(
-    //   st_company,
-    //   styles: PosStyles(
-    //     align: PosAlign.center,
-    //     bold: true,
-    //     height: PosTextSize.size1,
-    //     width: PosTextSize.size1,
-    //   ),
-    //   linesAfter: 0,
-    // );
-
+    ]);
     if (st_companyAddress.length > 1) {
       if (st_companyAdressStatus) {
         bytes += generator.text(
@@ -1348,11 +1320,7 @@ class _PrintPageState extends State<PrintPage> {
         linesAfter: 0,
       );
     }
-    // bytes.addAll(generator.text(
-    //   line,
-    //   styles: PosStyles(align: PosAlign.center),
-    //   linesAfter: 0,
-    // ));
+
     if (vatStatus) {
       bytes += generator.text(
         'SIMPLIFIED TAX INVOICE',
@@ -1382,16 +1350,7 @@ class _PrintPageState extends State<PrintPage> {
           ),
         ),
       ]);
-      // bytes += generator.text(
-      //   'INVOICE',
-      //   styles: PosStyles(
-      //     align: PosAlign.center, // ✅ Centered
-      //     bold: false,
-      //     height: PosTextSize.size1,
-      //     width: PosTextSize.size1,
-      //   ),
-      //   linesAfter: 0,
-      // );
+
     }
 
     if (arabicTextStatus) {
@@ -1544,33 +1503,52 @@ class _PrintPageState extends State<PrintPage> {
       );
       final decoded = img.decodeImage(imageBytesText)!;
       bytes += generator.image(decoded, align: PosAlign.right);
-    } else {
+    }
+    else {
+      PosStyles headerStyle(PosAlign align) => PosStyles(
+        height: PosTextSize.size1,
+        width: PosTextSize.size1,
+        align: align,
+        fontType: PosFontType.fontB,
+      );
+      // bytes += generator.row(withMargin([
+      //   PosColumn(text: '#' + st_invNo!.toString(), styles: headerStyle(PosAlign.left), width: 3),
+      //   PosColumn(text: 'Staff: ' + st_userName, width: 5, styles: headerStyle(PosAlign.right)),
+      // ]));
+
       bytes += generator.row([
+        // Left padding
+        PosColumn(text: '', width: 1),
+
         PosColumn(
-          text: '#' + st_invNo!.toString(),
-          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-          width: 4,
+          text: '#$st_invNo',
+          width: 3,
+          styles: headerStyle(PosAlign.left),
         ),
+
         PosColumn(
-          text: 'Staff : ' + st_userName,
-          width: 8,
-          styles: const PosStyles(
-            height: PosTextSize.size1,
-            align: PosAlign.right,
-          ),
+          text: 'Staff: $st_userName',
+          width: 7,
+          styles: headerStyle(PosAlign.right),
         ),
+
+        // Right padding
+        PosColumn(text: '', width: 1),
       ]);
       bytes += generator.row([
+        PosColumn(text: '', width: 1),
         PosColumn(
           text: 'Date:' + _formatDateDMY(st_dateAndTime.toString())!,
-          width: 12,
+          width: 6,
           styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
         ),
-        // PosColumn(
-        //   text: 'Time : ' + st_timeam_pm.toString(),
-        //   width: 6,
-        //   styles: PosStyles(height: PosTextSize.size1, align: PosAlign.right),
-        // ),
+
+        PosColumn(
+          text: 'Type : ' + widget.sales!.salesMaster!.salesType.toString(),
+          width: 4,
+          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.right),
+        ),
+        PosColumn(text: '', width: 1),
       ]);
     }
 
@@ -1619,74 +1597,58 @@ class _PrintPageState extends State<PrintPage> {
     return formattedDate;
   }
 
+
+  List<PosColumn> withMargin(List<PosColumn> contentColumns) {
+    return [
+      PosColumn(text: '', width: kLeftMargin, styles: const PosStyles()),
+      ...contentColumns,
+      PosColumn(text: '', width: kRightMargin, styles: const PosStyles()),
+    ];
+  }
   Future<List<int>> printHeading(Generator generator) async {
     List<int> bytes = [];
+
     if (selectedPrinter == '3inch') {
-      bytes += generator.row([
-        PosColumn(text: 'No', width: 1),
-        PosColumn(
-          text: 'Item',
-          width: 5,
-          styles: PosStyles(align: PosAlign.center),
-        ),
-        PosColumn(
-          text: 'Qty',
-          width: 2,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          text: 'Rate',
-          width: 2,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          text: 'Total',
-          width: 2,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-      ]);
+      bytes += generator.row(withMargin([
+        PosColumn(text: 'No', width: 1, styles: const PosStyles(align: PosAlign.left)),
+
+        PosColumn(text: 'Item', width: 3, styles: const PosStyles(align: PosAlign.left)),
+        PosColumn(text: 'Qty', width: 2, styles: const PosStyles(align: PosAlign.right)),
+       // PosColumn(text: '', width: 1, styles: cellStyle(PosAlign.left)),
+        PosColumn(text: 'Rate', width:2, styles: const PosStyles(align: PosAlign.right)),
+        PosColumn(text: 'Total', width: 2, styles: const PosStyles(align: PosAlign.right)),
+      ]));
+
+    //   PosColumn(text: srlNo.toString(), width: 1, styles: cellStyle(PosAlign.left)),
+    // PosColumn(text: nameLines[0], width: 4, styles: cellStyle(PosAlign.left)),
+    // PosColumn(text: qty, width: 2, styles: cellStyle(PosAlign.right)),
+    // PosColumn(text: '', width: 1, styles: cellStyle(PosAlign.left)), // spacer
+    // PosColumn(text: rate, width: 2, styles: cellStyle(PosAlign.right)),
+    // PosColumn(text: total, width: 2, styles: cellStyle(PosAlign.right)),
+      // 1+3+2+2+2 = 10 = kContentWidth ✓
+
       if (arabicTextStatus) {
         String st_itemheadArabic =
             'معدل    معدل       معدل                  الكمية              الباركود';
-        Uint8List imageBytesText = await _textToImage(
-          st_itemheadArabic,
-          fontSize: 25,
-        );
+        Uint8List imageBytesText = await _textToImage(st_itemheadArabic, fontSize: 25);
         final decoded = img.decodeImage(imageBytesText)!;
         bytes += generator.image(decoded, align: PosAlign.center);
       }
     }
+
     if (selectedPrinter == '2inch') {
-      bytes += generator.row([
-        PosColumn(text: 'No', width: 1),
-        PosColumn(
-          text: 'Item',
-          width: 3,
-          styles: PosStyles(align: PosAlign.center),
-        ),
-        PosColumn(
-          text: 'Qty',
-          width: 2,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          text: 'Rate',
-          width: 3,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          text: 'Total',
-          width: 3,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-      ]);
+      bytes += generator.row(withMargin([
+        PosColumn(text: 'No', width: 1, styles: const PosStyles(align: PosAlign.left)),
+        PosColumn(text: 'Item', width: 2, styles: const PosStyles(align: PosAlign.center)),
+        PosColumn(text: 'Qty', width: 2, styles: const PosStyles(align: PosAlign.right)),
+        PosColumn(text: 'Rate', width: 2, styles: const PosStyles(align: PosAlign.right)),
+        PosColumn(text: 'Total', width: 3, styles: const PosStyles(align: PosAlign.right)),
+      ]));
+      // 1+2+2+2+3 = 10 = kContentWidth ✓
+
       if (arabicTextStatus) {
-        String st_itemheadArabic =
-            'معدل     معدل       معدل       الكمية   معدل';
-        Uint8List imageBytesText = await _textToImage(
-          st_itemheadArabic,
-          fontSize: 25,
-        );
+        String st_itemheadArabic = 'معدل     معدل       معدل       الكمية   معدل';
+        Uint8List imageBytesText = await _textToImage(st_itemheadArabic, fontSize: 25);
         final decoded = img.decodeImage(imageBytesText)!;
         bytes += generator.image(decoded, align: PosAlign.center);
       }
@@ -1998,8 +1960,7 @@ class _PrintPageState extends State<PrintPage> {
     List<int> bytes = [];
     for (int i = 0; i < widget.sales!.salesDetails.length; i++) {
       int srlNo = i + 1;
-      String? st_prodName = widget.sales?.salesDetails[i].productName
-          .toString();
+      String? st_prodName = widget.sales?.salesDetails[i].productName.toString();
       String? st_prodNameArabic = '', st_unitwithQty = '', st_taxTotal = '';
 
       print('st_prodNameHRCT $st_prodName');
@@ -2008,11 +1969,8 @@ class _PrintPageState extends State<PrintPage> {
       try {
         String? stQty = widget.sales?.salesDetails[i].qty.toString();
         dblQty = double.parse(stQty!);
-
-        //intQty = dblQty.floor();
         st_unitwithQty =
             dblQty.toString() + ' ' + widget.sales!.salesDetails[i].unitName;
-        //print(intQty); // Output: 2
       } catch (_) {}
 
       if (st_unitwithQty!.length < 10) {
@@ -2028,14 +1986,10 @@ class _PrintPageState extends State<PrintPage> {
       String? st_rate = widget.sales?.salesDetails[i].salesRate;
       String? st_total = ' ';
       try {
-        double salesRate = double.parse(
-          widget.sales!.salesDetails[i].salesRate,
-        );
+        double salesRate = double.parse(widget.sales!.salesDetails[i].salesRate);
         double dblTotal = dblQty * salesRate;
         st_total = dblTotal.toStringAsFixed(get_decimalpoints());
       } catch (_) {}
-      //String? st_vatPercent = widget.sales?.salesDetails[i].vatPercentage;
-
 
       st_barcode = widget.sales!.salesDetails[i].productCode.toString();
       if (st_barcode!.length > 5) {
@@ -2074,199 +2028,280 @@ class _PrintPageState extends State<PrintPage> {
           st_total = st_total.toString() + ' ';
         }
       }
-      if (selectedPrinter == '3inch') {
-        // bytes += generator.row([
-        //   PosColumn(
-        //     text: srlNo.toString(),
-        //     styles: PosStyles(align: PosAlign.left),
-        //     width: 1,
-        //   ),
-        //   PosColumn(
-        //     text: st_prodName!,
-        //     width: 5,
-        //     styles: const PosStyles(align: PosAlign.left),
-        //   ),
-        //   PosColumn(
-        //     text: dblQty.toString(),
-        //     width: 2,
-        //     styles: PosStyles(align: PosAlign.right),
-        //   ),
-        //   PosColumn(
-        //     text: st_rate!,
-        //     width: 2,
-        //     styles: PosStyles(align: PosAlign.right),
-        //   ),
-        //   PosColumn(
-        //     text: st_total!,
-        //     width: 2,
-        //     styles: PosStyles(align: PosAlign.right),
-        //   ),
-        // ]);
 
-        bytes += generator.row([
-          PosColumn(
-            text: srlNo.toString(),
-            width: 1,
-            styles: const PosStyles(
-              align: PosAlign.left,
-              bold: false,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-              fontType: PosFontType.fontB,
-            ),
-          ),
-          PosColumn(
-            text: st_prodName!,
-            width: 5,
-            styles: const PosStyles(
-              align: PosAlign.left,
-              bold: false,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-              fontType: PosFontType.fontB,
-            ),
-          ),
-          PosColumn(
-            text: dblQty.toString(),
-            width: 2,
-            styles: const PosStyles(
-              align: PosAlign.right,
-              bold: false,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-              fontType: PosFontType.fontB,
-            ),
-          ),
-          PosColumn(
-            text: st_rate!,
-            width: 2,
-            styles: const PosStyles(
-              align: PosAlign.right,
-              bold: false,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-              fontType: PosFontType.fontB,
-            ),
-          ),
-          PosColumn(
-            text: st_total!,
-            width: 2,
-            styles: const PosStyles(
-              align: PosAlign.right,
-              bold: false,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-              fontType: PosFontType.fontB,
-            ),
-          ),
-        ]);
+      if (selectedPrinter == '3inch') {
+        bytes += buildItemRows(
+          generator,
+          srlNo,
+          st_prodName!,
+          dblQty.toString(),
+          st_rate!,
+          st_total!,
+        );
       }
+
       print('st_vatPercent');
+
+      // if (selectedPrinter == '2inch') {
+      //   bool malayalamWordStatus = containsMalayalam(st_prodName!);
+      //   print('malayalamWordStatus $malayalamWordStatus');
+      //
+      //   if (malayalamWordStatus) {
+      //     Uint8List imageBytesText = await _textToImage(st_prodName!, fontSize: 23);
+      //     final decoded = img.decodeImage(imageBytesText)!;
+      //     bytes += generator.image(decoded, align: PosAlign.left);
+      //
+      //     // srlNo=1, spacer=2, qty=2, rate=2, total=3 → sums to kContentWidth (10)
+      //     bytes += generator.row(withMargin([
+      //       PosColumn(text: srlNo.toString(), width: 1, styles: const PosStyles(align: PosAlign.left)),
+      //       PosColumn(text: '', width: 2, styles: const PosStyles(align: PosAlign.left)),
+      //       PosColumn(text: dblQty.toString(), width: 2, styles: const PosStyles(align: PosAlign.right)),
+      //       PosColumn(text: st_rate!, width: 2, styles: const PosStyles(align: PosAlign.right)),
+      //       PosColumn(text: st_total!, width: 3, styles: const PosStyles(align: PosAlign.right)),
+      //     ]));
+      //   } else {
+      //     bytes += generator.text(
+      //       st_prodName,
+      //       styles: PosStyles(
+      //         align: PosAlign.left,
+      //         bold: true,
+      //         height: PosTextSize.size1,
+      //         width: PosTextSize.size1,
+      //       ),
+      //       linesAfter: 1,
+      //     );
+      //
+      //     bytes += generator.row(withMargin([
+      //       PosColumn(text: srlNo.toString(), width: 1, styles: const PosStyles(align: PosAlign.left)),
+      //       PosColumn(text: '', width: 2, styles: const PosStyles(align: PosAlign.left)),
+      //       PosColumn(text: dblQty.toString(), width: 2, styles: const PosStyles(align: PosAlign.right)),
+      //       PosColumn(text: st_rate!, width: 2, styles: const PosStyles(align: PosAlign.right)),
+      //       PosColumn(text: st_total!, width: 3, styles: const PosStyles(align: PosAlign.right)),
+      //     ]));
+      //
+      //
+      //   }
+      // }
+
       if (selectedPrinter == '2inch') {
         bool malayalamWordStatus = containsMalayalam(st_prodName!);
-        print('malayalamWordStatus $malayalamWordStatus');
-        if (malayalamWordStatus) {
-          Uint8List imageBytesText = await _textToImage(
-            st_prodName!,
-            fontSize: 23,
-          );
-          final decoded = img.decodeImage(imageBytesText)!;
-          bytes += generator.image(decoded, align: PosAlign.left);
-          bytes += generator.row([
-            PosColumn(
-              text: srlNo.toString(),
-              styles: PosStyles(align: PosAlign.left),
-              width: 1,
-            ),
-            PosColumn(
-              text: '',
-              width: 3,
-              styles: const PosStyles(align: PosAlign.left),
-            ),
-            PosColumn(
-              text: dblQty.toString(),
-              width: 2,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-            PosColumn(
-              text: st_rate!,
-              width: 3,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-            PosColumn(
-              text: st_total!,
-              width: 3,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-          ]);
-        } else {
-          bytes += generator.text(
-            st_prodName,
-            styles: PosStyles(
-              align: PosAlign.left,
-              bold: true,
-              height: PosTextSize.size1,
-              width: PosTextSize.size1,
-            ),
-            linesAfter: 1,
-          );
-          bytes += generator.row([
-            PosColumn(
-              text: srlNo.toString(),
-              styles: PosStyles(align: PosAlign.left),
-              width: 1,
-            ),
 
+        if (malayalamWordStatus) {
+          Uint8List imageBytesText =
+          await _textToImage(st_prodName, fontSize: 23);
+          final decoded = img.decodeImage(imageBytesText)!;
+
+          // Product name
+          bytes += generator.image(decoded, align: PosAlign.left);
+
+          // Qty, Rate, Total
+          bytes += generator.row(withMargin([
             PosColumn(
-              text: '',
-              width: 3,
+              text: srlNo.toString(),
+              width: 1,
               styles: const PosStyles(align: PosAlign.left),
             ),
             PosColumn(
-              text: dblQty.toString(),
+              text: '',
+              width: 5,
+            ),
+            PosColumn(
+              text: dblQty.toStringAsFixed(1),
               width: 2,
-              styles: PosStyles(align: PosAlign.right),
+              styles: const PosStyles(align: PosAlign.right),
             ),
             PosColumn(
               text: st_rate!,
-              width: 3,
-              styles: PosStyles(align: PosAlign.right),
+              width: 2,
+              styles: const PosStyles(align: PosAlign.right),
             ),
             PosColumn(
               text: st_total!,
-              width: 3,
-              styles: PosStyles(align: PosAlign.right),
+              width: 2,
+              styles: const PosStyles(align: PosAlign.right),
             ),
-          ]);
+          ]));
+        } else {
+          // First line : Serial No + Product Name
+          bytes += generator.row(withMargin([
+            PosColumn(
+              text: srlNo.toString(),
+              width: 1,
+              styles: const PosStyles(
+                align: PosAlign.left,
+                bold: true,
+              ),
+            ),
+            PosColumn(
+              text: st_prodName,
+              width: 11,
+              styles: const PosStyles(
+                align: PosAlign.left,
+                bold: true,
+              ),
+            ),
+          ]));
+
+          // Second line : Qty, Rate, Total
+          bytes += generator.row(withMargin([
+            PosColumn(
+              text: '',
+              width: 6,
+            ),
+            PosColumn(
+              text: dblQty.toStringAsFixed(1),
+              width: 2,
+              styles: const PosStyles(align: PosAlign.right),
+            ),
+            PosColumn(
+              text: st_rate!,
+              width: 2,
+              styles: const PosStyles(align: PosAlign.right),
+            ),
+            PosColumn(
+              text: st_total!,
+              width: 2,
+              styles: const PosStyles(align: PosAlign.right),
+            ),
+          ]));
         }
       }
       bytes += escSetLineSpacing(5);
-      bytes.addAll(generator.feed(0)); // instead of feed(1) or feed(2)
+      bytes.addAll(generator.feed(0));
     }
     return bytes;
   }
+// Helper: wraps text to fit a given character width for the name column
+  List<String> wrapText(String text, int maxWidth) {
+    List<String> words = text.split(' ');
+    List<String> lines = [];
+    String currentLine = '';
 
+    for (String word in words) {
+      String candidate = currentLine.isEmpty ? word : '$currentLine $word';
+      if (candidate.length <= maxWidth) {
+        currentLine = candidate;
+      } else {
+        if (currentLine.isNotEmpty) lines.add(currentLine);
+        // handle a single word longer than the column itself
+        if (word.length > maxWidth) {
+          int start = 0;
+          while (start < word.length) {
+            int end = (start + maxWidth < word.length) ? start + maxWidth : word.length;
+            lines.add(word.substring(start, end));
+            start = end;
+          }
+          currentLine = '';
+        } else {
+          currentLine = word;
+        }
+      }
+    }
+    if (currentLine.isNotEmpty) lines.add(currentLine);
+    return lines.isEmpty ? [''] : lines;
+  }
+
+  PosStyles cellStyle(PosAlign align) => PosStyles(
+    align: align,
+    bold: false,
+    height: PosTextSize.size1,
+    width: PosTextSize.size1,
+    fontType: PosFontType.fontB,
+  );
+
+// Builds one item's rows (first line + wrapped continuation lines)
+  List<int> buildItemRows(
+      Generator generator,
+      int srlNo,
+      String prodName,
+      String qty,
+      String rate,
+      String total,
+      ) {
+    List<int> bytes = [];
+
+    // Wrap product name only if it exceeds the available width.
+    final nameLines = wrapText(prodName, 22);
+
+    // First row
+    bytes += generator.row([
+      PosColumn(text: '', width: 1), // Left margin
+
+      PosColumn(
+        text: srlNo.toString(),
+        width: 1,
+        styles: cellStyle(PosAlign.left),
+      ),
+
+      PosColumn(
+        text: nameLines[0],
+        width: 4, // Reduced item width
+        styles: cellStyle(PosAlign.left).copyWith(bold: true),
+      ),
+
+      PosColumn(
+        text: qty,
+        width: 1,
+        styles: cellStyle(PosAlign.right),
+      ),
+
+      // Extra gap
+      PosColumn(
+        text: '',
+        width: 1,
+      ),
+
+      PosColumn(
+        text: rate,
+        width: 2,
+        styles: cellStyle(PosAlign.right),
+      ),
+
+      PosColumn(
+        text: total,
+        width: 2,
+        styles: cellStyle(PosAlign.right),
+      ),
+    ]);
+    // Print remaining product name lines only if needed
+    for (int i = 1; i < nameLines.length; i++) {
+      bytes += generator.row([
+        PosColumn(text: '', width: 2),
+
+        PosColumn(
+          text: nameLines[i],
+          width: 4,
+          styles: cellStyle(PosAlign.left),
+        ),
+
+        PosColumn(text: '', width: 1),
+        PosColumn(text: '', width: 1),
+        PosColumn(text: '', width: 2),
+        PosColumn(text: '', width: 2),
+      ]);
+    }
+
+    return bytes;
+  }
   /// ESC 3 n: Set line spacing to `n` dots (0–255)
   List<int> escSetLineSpacing(int n) {
     return [0x1B, 0x33, n];
   }
 
   Future<List<int>> printFooter(
-    Generator generator,
-    String? st_paycash,
-    String? st_paycard,
-  ) async {
+      Generator generator,
+      String? st_paycash,
+      String? st_paycard,
+      ) async {
     List<int> bytes = [];
     String line = '-----------------------------------------------';
     if (selectedPrinter == '2inch') {
-      print('if $selectedPrinter');
-
       line = '-------------------------------';
     }
     if (selectedPrinter == '3inch') {
-      print('secondIf $selectedPrinter');
       line = '-----------------------------------------------';
     }
+
     String? st_taxableValue = widget.sales!.salesMaster?.subTotal;
     String? st_TaxAmt = widget.sales!.salesMaster?.vatAmount;
     double dblSGST = double.parse(st_TaxAmt!);
@@ -2280,324 +2315,304 @@ class _PrintPageState extends State<PrintPage> {
     try {
       dblPayCash = double.parse(st_paycash!);
     } catch (_) {}
+    vatStatus = true;
+
+    PosStyles marginedText(PosAlign align, {PosTextSize height = PosTextSize.size1, bool bold = false}) =>
+        PosStyles(align: align, bold: bold, height: height, width: PosTextSize.size1);
 
     if (selectedPrinter == '3 inch') {
       if (vatStatus) {
-        bytes += generator.text(
-          'Taxable Value : ' + st_taxableValue!,
-          styles: PosStyles(
-            align: PosAlign.right, // ✅ Centered
-            bold: false,
+        bytes += generator.row(withMargin([
+          PosColumn(
+            text: 'Taxable Value: ' + st_taxableValue!,
+            width: kContentWidth,
+            styles: marginedText(PosAlign.right),
           ),
-          linesAfter: 0,
-        );
+        ]));
       }
       if (arabicTextStatus) {
-        String st_vatArabic =
-            'المدفوع                                                         .';
-        Uint8List imageBytesText = await _textToImage(
-          st_vatArabic,
-          fontSize: 25,
-        );
+        String st_vatArabic = 'المدفوع                                                         .';
+        Uint8List imageBytesText = await _textToImage(st_vatArabic, fontSize: 25);
         final decoded = img.decodeImage(imageBytesText)!;
         bytes += generator.image(decoded, align: PosAlign.right);
       }
 
       if (gstStatus) {
         if (arabicTextStatus) {
-          bytes += generator.text(
-            'GST : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'GST: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
           String st_vatArabic = 'المدفوع';
-          Uint8List imageBytesText = await _textToImage(
-            st_vatArabic,
-            fontSize: 25,
-          );
+          Uint8List imageBytesText = await _textToImage(st_vatArabic, fontSize: 25);
           final decoded = img.decodeImage(imageBytesText)!;
           bytes += generator.image(decoded, align: PosAlign.right);
         } else {
-          bytes += generator.text(
-            'GST : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
-          bytes += generator.text(
-            'SGST : ' + st_sgst!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
-          bytes += generator.text(
-            'CGST : ' + st_sgst!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'GST: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'SGST: ' + st_sgst, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'CGST: ' + st_sgst, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
         }
       }
+
       if (vatStatus) {
         if (arabicTextStatus) {
-          bytes += generator.text(
-            'Tax : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'Tax: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
           String st_vatArabic = 'المدفوع';
-          Uint8List imageBytesText = await _textToImage(
-            st_vatArabic,
-            fontSize: 25,
-          );
+          Uint8List imageBytesText = await _textToImage(st_vatArabic, fontSize: 25);
           final decoded = img.decodeImage(imageBytesText)!;
           bytes += generator.image(decoded, align: PosAlign.right);
         } else {
-          bytes += generator.text(
-            'Tax : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'Tax: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
         }
       }
 
       if (arabicTextStatus) {
         String st_totalPaidText = ' : NET TOTAL  ';
-
-        String st_totalPaidTextPrint =
-            '   إجمالي المدفوع' + '   ' + st_totalPaidText;
-        st_totalPaidTextPrint =
-            st_Total.toString() + '  ' + st_totalPaidTextPrint;
-
-        Uint8List imageBytesText = await _textToImage(
-          st_totalPaidTextPrint,
-          fontSize: 33,
-        );
+        String st_totalPaidTextPrint = '   إجمالي المدفوع' + '   ' + st_totalPaidText;
+        st_totalPaidTextPrint = st_Total.toString() + '  ' + st_totalPaidTextPrint;
+        Uint8List imageBytesText = await _textToImage(st_totalPaidTextPrint, fontSize: 33);
         final decoded = img.decodeImage(imageBytesText)!;
         bytes += generator.image(decoded, align: PosAlign.right);
       } else {
-        bytes += generator.text(
-          'NET TOTAL : ' + st_Total!,
-          styles: PosStyles(
-            align: PosAlign.right, // ✅ Centered
-            bold: false,
-            height: PosTextSize.size2,
-            width: PosTextSize.size1,
+        bytes += generator.row(withMargin([
+          PosColumn(
+            text: 'NET TOTAL: ' + st_Total!,
+            width: kContentWidth,
+            styles: marginedText(PosAlign.right, height: PosTextSize.size2),
           ),
-          linesAfter: 0,
-        );
+        ]));
       }
     }
 
     if (selectedPrinter == '2 inch') {
       if (vatStatus) {
-        bytes += generator.text(
-          'Taxable Value : ' + st_taxableValue!,
-          styles: PosStyles(
-            align: PosAlign.right, // ✅ Centered
-            bold: false,
+        bytes += generator.row(withMargin([
+          PosColumn(
+            text: 'Taxable Value: ' + st_taxableValue!,
+            width: kContentWidth,
+            styles: marginedText(PosAlign.right),
           ),
-          linesAfter: 0,
-        );
+        ]));
       }
       if (arabicTextStatus) {
         String st_vatArabic = '         المدفوع    ';
-        Uint8List imageBytesText = await _textToImage(
-          st_vatArabic,
-          fontSize: 25,
-        );
+        Uint8List imageBytesText = await _textToImage(st_vatArabic, fontSize: 25);
         final decoded = img.decodeImage(imageBytesText)!;
         bytes += generator.image(decoded, align: PosAlign.right);
       }
       if (gstStatus) {
         if (arabicTextStatus) {
-          bytes += generator.text(
-            'GST : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'GST: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
           String st_vatArabic = 'المدفوع';
-          Uint8List imageBytesText = await _textToImage(
-            st_vatArabic,
-            fontSize: 25,
-          );
+          Uint8List imageBytesText = await _textToImage(st_vatArabic, fontSize: 25);
           final decoded = img.decodeImage(imageBytesText)!;
           bytes += generator.image(decoded, align: PosAlign.right);
         } else {
-          bytes += generator.text(
-            'GST : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-            linesAfter: 0,
-          );
-          bytes += generator.text(
-            'SGST : ' + st_sgst!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
-          bytes += generator.text(
-            'CGST : ' + st_sgst!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'GST: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'SGST: ' + st_sgst, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'CGST: ' + st_sgst, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
         }
       }
       if (vatStatus) {
         if (arabicTextStatus) {
-          bytes += generator.text(
-            'Tax : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'Tax: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
           String st_vatArabic = '       المدفوع';
-          Uint8List imageBytesText = await _textToImage(
-            st_vatArabic,
-            fontSize: 25,
-          );
+          Uint8List imageBytesText = await _textToImage(st_vatArabic, fontSize: 25);
           final decoded = img.decodeImage(imageBytesText)!;
           bytes += generator.image(decoded, align: PosAlign.left);
         } else {
-          bytes += generator.text(
-            'Tax : ' + st_TaxAmt!,
-            styles: PosStyles(
-              align: PosAlign.left, // ✅ Centered
-              bold: false,
-            ),
-
-            linesAfter: 0,
-          );
+          bytes += generator.row(withMargin([
+            PosColumn(text: 'Tax: ' + st_TaxAmt!, width: kContentWidth, styles: marginedText(PosAlign.left)),
+          ]));
         }
       }
 
       if (arabicTextStatus) {
         String st_totalPaidText = ' : NET TOTAL  ';
-
-        String st_totalPaidTextPrint =
-            ' إجمالي المدفوع' + ' ' + st_totalPaidText;
-        st_totalPaidTextPrint =
-            st_Total.toString() + ' ' + st_totalPaidTextPrint;
-
-        Uint8List imageBytesText = await _textToImage(
-          st_totalPaidTextPrint,
-          fontSize: 25,
-        );
+        String st_totalPaidTextPrint = ' إجمالي المدفوع' + ' ' + st_totalPaidText;
+        st_totalPaidTextPrint = st_Total.toString() + ' ' + st_totalPaidTextPrint;
+        Uint8List imageBytesText = await _textToImage(st_totalPaidTextPrint, fontSize: 25);
         final decoded = img.decodeImage(imageBytesText)!;
         bytes += generator.image(decoded, align: PosAlign.right);
       } else {
-        bytes += generator.text(
-          'NET TOTAL : ' + st_Total!,
-          styles: PosStyles(
-            align: PosAlign.right, // ✅ Centered
-            bold: false,
-            height: PosTextSize.size2,
-            width: PosTextSize.size1,
+        bytes += generator.row(withMargin([
+          PosColumn(
+            text: 'NET TOTAL: ' + st_Total!,
+            width: kContentWidth,
+            styles: marginedText(PosAlign.left),
           ),
-          linesAfter: 0,
-        );
+        ]));
       }
     }
+
+    PosStyles rightBlockStyle({PosTextSize height = PosTextSize.size1}) => PosStyles(
+      height: height,
+      width: PosTextSize.size1,
+      align: PosAlign.right,
+      fontType: PosFontType.fontB,
+    );
+
+    // Spacer pushes content toward the right, now measured within kContentWidth (8)
+    const int innerSpacer = 3;
+    const int innerContent = kContentWidth - innerSpacer; // = 5
+
+    bytes += generator.row(withMargin([
+      PosColumn(text: '', width: innerSpacer, styles: const PosStyles()),
+      PosColumn(text: 'Sub Total: ' + st_taxableValue!, width: innerContent, styles: rightBlockStyle()),
+    ]));
+
+    bytes += generator.row(withMargin([
+      PosColumn(text: '', width: innerSpacer, styles: const PosStyles()),
+      PosColumn(text: 'Tax: ' + st_TaxAmt!, width: innerContent, styles: rightBlockStyle()),
+    ]));
+
+    bytes += generator.row(withMargin([
+      PosColumn(text: '', width: innerSpacer, styles: const PosStyles()),
+      PosColumn(text: 'Grand Total: ' + st_Total!, width: innerContent, styles: rightBlockStyle(height: PosTextSize.size2)),
+    ]));
+
+    PosStyles payStyle(PosAlign align) => PosStyles(
+      height: PosTextSize.size1,
+      width: PosTextSize.size1,
+      align: align,
+      fontType: PosFontType.fontB,
+    );
+
     String st_payCard = dblPayCard.toStringAsFixed(get_decimalpoints());
     String st_payCash = dblPayCash.toStringAsFixed(get_decimalpoints());
+
     if (dblPayCard > 0 && dblPayCash > 0) {
-      bytes += generator.row([
-        PosColumn(
-          text: 'Cash:' + st_payCash.toString(),
-          width: 6,
-          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-        ),
-        PosColumn(
-          text: 'Card :' + st_payCard.toString(),
-          width: 6,
-          styles: PosStyles(height: PosTextSize.size1, align: PosAlign.right),
-        ),
-      ]);
+      bytes += generator.row(withMargin([
+        PosColumn(text: 'Cash: ' + st_payCash, width: 4, styles: payStyle(PosAlign.left)),
+        PosColumn(text: 'Card: ' + st_payCard, width: 4, styles: payStyle(PosAlign.right)),
+      ]));
     } else {
       if (dblPayCard > 0) {
-        bytes += generator.row([
-          PosColumn(
-            text: 'Card  :' + st_payCard.toString(),
-            width: 12,
-            styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-          ),
-        ]);
+        bytes += generator.row(withMargin([
+          PosColumn(text: 'Card: ' + st_payCard, width: kContentWidth, styles: payStyle(PosAlign.left)),
+        ]));
       }
       if (dblPayCash > 0) {
-        bytes += generator.row([
-          PosColumn(
-            text: ' Cash :' + st_payCash.toString(),
-            width: 12,
-            styles: PosStyles(height: PosTextSize.size1, align: PosAlign.left),
-          ),
-        ]);
+        bytes += generator.row(withMargin([
+          PosColumn(text: '', width: innerSpacer, styles: const PosStyles()),
+          PosColumn(text: 'Cash: ' + st_payCash, width: innerContent, styles: rightBlockStyle()),
+        ]));
       }
+
     }
+
     bytes.addAll(
-      generator.text(
-        line,
-        styles: PosStyles(align: PosAlign.center),
-        linesAfter: 1,
-      ),
+      generator.text(line, styles: PosStyles(align: PosAlign.center), linesAfter: 1),
     );
+
+    String st_QRData = await createQRCode();
+    bytes += generator.qrcode(st_QRData, align: PosAlign.center, size: QRSize.size6);
+
     bytes += generator.text(
-      'THANK YOU..!',
-      styles: PosStyles(
-        align: PosAlign.center, // ✅ Centered
-        bold: false,
-        height: PosTextSize.size2,
-        width: PosTextSize.size1,
-      ),
-      linesAfter: 0,
+      '\n\nTHANK YOU..!',
+      styles: PosStyles(align: PosAlign.center, bold: false, height: PosTextSize.size2, width: PosTextSize.size1),
+      linesAfter: 3,
     );
     bytes += generator.text(
       description,
-      styles: PosStyles(
-        align: PosAlign.center, // ✅ Centered
-        bold: false,
-        height: PosTextSize.size2,
-        width: PosTextSize.size1,
-      ),
+      styles: PosStyles(align: PosAlign.center, bold: false, height: PosTextSize.size2, width: PosTextSize.size1),
       linesAfter: 0,
     );
+
     return bytes;
   }
+  // Future<String> createQRCode() async {
+  //   st_company = await SharedPreferenceHelper().getCompanyName() ?? "";
+  //
+  //   int? lenInvoiceTotal = widget.sales?.salesMaster!.grandTotal.length;
+  //   int? lenInvoiceVatAmount = widget.sales?.salesMaster!.vatAmount.length;
+  //   int lenCompanyName = st_company.length;
+  //   // int? lenVatNo = widget.sales?.salesMaster!.customerVatNo.length;
+  //
+  //   String? invoiceDate =
+  //   _formatDateDMY(widget.sales?.salesMaster!.invoiceDate.toString());
+  //   // invoiceDate = invoiceDate! + 'T' + widget.sales?.salesMaster!.invoiceTime.toString();
+  //   String? invoiceVatAmount = widget.sales?.salesMaster!.vatAmount;
+  //   //String invoiceDate ='';
+  //   String strQRvariable = String.fromCharCode(1) +
+  //       String.fromCharCode(lenCompanyName) +
+  //       st_company.toString() +
+  //       String.fromCharCode(2) +
+  //       String.fromCharCode(15) +
+  //       st_TinNo.toString() +
+  //       String.fromCharCode(3) +
+  //       String.fromCharCode(19) +
+  //       invoiceDate! +
+  //       String.fromCharCode(4) +
+  //       String.fromCharCode(lenInvoiceTotal!) +
+  //       widget.sales!.salesMaster!.vatAmount.toString().toString() +
+  //       String.fromCharCode(5) +
+  //       String.fromCharCode(lenInvoiceVatAmount!) +
+  //       invoiceVatAmount.toString();
+  //
+  //   // UTF-8 Encoding and Base64 Conversion
+  //   List<int> utf8text = utf8.encode(strQRvariable);
+  //   String qrdata = base64Encode(utf8text);
+  //   print('qrdata $qrdata');
+  //   return strQRvariable;
+  // }
+  Future<String> createQRCode() async {
+    st_company = await SharedPreferenceHelper().getCompanyName() ?? "";
 
+    String? invoiceDate =
+    _formatDateDMY(widget.sales?.salesMaster!.invoiceDate.toString());
+
+    String invoiceTotal = widget.sales!.salesMaster!.grandTotal.toString();
+    String invoiceVatAmount = widget.sales!.salesMaster!.vatAmount.toString();
+
+    int lenCompanyName = st_company.length;
+    int lenTinNo = st_TinNo.toString().length;
+    int lenInvoiceDate = invoiceDate!.length;
+    int lenInvoiceTotal = invoiceTotal.length;
+    int lenInvoiceVatAmount = invoiceVatAmount.length;
+
+    String strQRvariable = String.fromCharCode(1) +
+        String.fromCharCode(lenCompanyName) +
+        st_company.toString() +
+        String.fromCharCode(2) +
+        String.fromCharCode(lenTinNo) +          // was hardcoded 15
+        st_TinNo.toString() +
+        String.fromCharCode(3) +
+        String.fromCharCode(lenInvoiceDate) +    // was hardcoded 19
+        invoiceDate +
+        String.fromCharCode(4) +
+        String.fromCharCode(lenInvoiceTotal) +
+        invoiceTotal +                            // was vatAmount (wrong field)
+        String.fromCharCode(5) +
+        String.fromCharCode(lenInvoiceVatAmount) +
+        invoiceVatAmount;
+
+    // UTF-8 Encoding and Base64 Conversion
+    List<int> utf8text = utf8.encode(strQRvariable);
+    String qrdata = base64Encode(utf8text);
+    print('qrdata $qrdata');
+
+    return qrdata; // was returning strQRvariable (raw, non-encoded) before
+  }
   void checkBluetooth() async {
     final bluetoothState = await FlutterBluePlus.bondedDevices;
     double screenHeight = MediaQuery.of(context).size.height;

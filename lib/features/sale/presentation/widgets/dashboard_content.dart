@@ -47,7 +47,7 @@ enum SalesPeriod { daily, weekly, monthly, yearly }
 enum SalesViewTypeAmount { amount, count }
 
 int currentYear = 0;
-String stBranchId = '1';
+String stBranchId = '1' , stUserId ='';
 
 SalesViewType selectedView = SalesViewType.amount;
 SalesPeriod selectedPeriod = SalesPeriod.daily;
@@ -96,12 +96,15 @@ class _DashboardContentState extends State<DashboardContent> {
     final fromDate = DateFormat('yyyy-MM-dd').format(fromDateNotifier.value);
     final toDate = DateFormat('yyyy-MM-dd').format(toDateNotifier.value);
     //final prefs = await SharedPreferences.getInstance();
+    final sharedPrefHelper = SharedPreferenceHelper();
+
+    stUserId = await sharedPrefHelper.getUserId();
     stBranchId = await SharedPreferenceHelper().getBranchId();
     context.read<SettingsCubit>().fetchMonthlyGraphFromServer(
-      BarGraphRequest(period: 'daily', branchId: '1'),
+      BarGraphRequest(period: 'daily', branchId: stBranchId),
     );
     context.read<SalesCountCubit>().fetchSalesCountFromServer(
-      BarGraphRequest(period: 'daily', branchId: '1'),
+      BarGraphRequest(period: 'daily', branchId: stBranchId),
     );
     // context.read<SalesReportCubit>().fetchSalesReportMasterByDate(
     //   SalesReportMasterByDateRequest(fromDate: fromDate, toDate: toDate),
@@ -110,8 +113,8 @@ class _DashboardContentState extends State<DashboardContent> {
       FetchReportRequest(
         fromDate: fromDate,
         toDate: toDate,
-        userId: '1',
-        branchId: "1",
+        userId: stUserId,
+        branchId: stBranchId,
       ),
     );
   }

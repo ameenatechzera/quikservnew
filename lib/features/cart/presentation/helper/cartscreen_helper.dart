@@ -22,18 +22,39 @@ class CartScreenHelper {
 
   Future<Map<String, dynamic>> calculateTotals() async {
     final items = CartManager().cartItems.value;
-    final subTotal = items.fold(0.0, (sum, item) => sum + item.totalPrice);
+    var subTotal = items.fold(0.0, (sum, item) => sum + item.totalPrice);
     final discount = 0.0;
 
     final vatStatus = await SharedPreferenceHelper().getVatStatus();
     final vatType = await SharedPreferenceHelper().getVatType();
+    final vatIncludedStatus = await SharedPreferenceHelper()
+        .getVatIncludedStatus();
     print('vatStatus $vatStatus');
+    print('vatIncludedStatus $vatIncludedStatus');
     double tax = 0.0;
-    if (vatStatus == true) {
-      // Apply 1% tax regardless of tax type (tax or gst)
-      tax = subTotal * 0.15; // 1% tax
+    double total = 0.0;
+
+    if (vatStatus) {
+      if (vatIncludedStatus == '1') {
+        // VAT Included
+        for (final item in items) {
+          double vatAmt = item.totalPrice * 15 / 115;
+          item.vatAmount = vatAmt.toString();
+          tax += vatAmt;
+        }
+        total = subTotal;
+        subTotal = subTotal - tax;
+      } else {
+        // VAT Excluded
+        for (final item in items) {
+          double vatAmt = item.totalPrice * 0.15;
+          item.vatAmount = vatAmt.toString();
+          tax += vatAmt;
+        }
+        tax = subTotal * 0.15; // 1% tax
+        total = subTotal - discount + tax;
+      }
     }
-    final total = subTotal - discount + tax;
 
     return {
       'subTotal': subTotal,

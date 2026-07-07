@@ -256,10 +256,16 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                 child: TextField(
                   controller: footerController,
                   maxLines: 4,
-                  decoration: InputDecoration(
+                  style: const TextStyle(
+                    color: Color(0xFF424242), // Light black (dark gray)
+                  ),
+                  decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText:
-                        "Ex.Thank You For Choosing Restaurant\nWe Truly Appreciate Your Visit.\nHave A Great Day!",
+                    "Ex.Thank You For Choosing Restaurant\nWe Truly Appreciate Your Visit.\nHave A Great Day!",
+                    hintStyle: TextStyle(
+                      color: Colors.black54, // Light black hint
+                    ),
                   ),
                 ),
               ),

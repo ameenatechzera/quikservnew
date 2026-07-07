@@ -47,9 +47,33 @@ class SettingsScreen extends StatelessWidget {
             toolbarHeight: 40,
             title: const Text(
               "Configurations",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             backgroundColor: AppColors.theme,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Reload',
+                onPressed: () async {
+                  // Your reload action here
+                  final restaurantCode =
+                      await SharedPreferenceHelper().getRestaurantCode() ?? "";
+                  context
+                      .read<RegisterCubit>()
+                      .registerServer(
+                    RegisterServerRequest(slno: restaurantCode),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Settings reloaded..!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           body: Column(
             children: [

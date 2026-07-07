@@ -136,6 +136,8 @@ class SaleCubit extends Cubit<SaleState> {
   // --------------------- API Save Sale ---------------------
   Future<void> saveSale(SaveSaleRequest request) async {
     print('SaveSaleRequest ${request.toJson()}');
+    print('${request.salesDetails.first.vatAmount}');
+
     emit(SaleLoading());
 
     try {

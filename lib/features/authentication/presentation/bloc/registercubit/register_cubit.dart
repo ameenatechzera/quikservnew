@@ -47,6 +47,7 @@ class RegisterCubit extends Cubit<RegisterState> {
   Future<void> registerServer(
     RegisterServerRequest registerServerRequest,
   ) async {
+    print('registerServerRequest ${registerServerRequest.toJson()}');
     emit(RegisterLoading());
 
     final response = await _registerServerUseCase(registerServerRequest);
@@ -67,6 +68,9 @@ class RegisterCubit extends Cubit<RegisterState> {
         await SharedPreferenceHelper().setCompanyAddress2(company.address2);
         await SharedPreferenceHelper().setCompanyPhoneNo(company.phone);
         await SharedPreferenceHelper().setBaseUrl(company.baseUrl);
+        await SharedPreferenceHelper().setVatIncludedStatus(company.isVatIncluded.toString());
+
+        await SharedPreferenceHelper().setRestaurantCode(registerServerRequest.slno);
 
         emit(RegisterSuccess(response));
       },
