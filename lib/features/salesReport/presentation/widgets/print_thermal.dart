@@ -2480,10 +2480,10 @@ class _PrintPageState extends State<PrintPage> {
       PosColumn(text: 'Sub Total: ' + st_taxableValue!, width: innerContent, styles: rightBlockStyle()),
     ]));
 
-    bytes += generator.row(withMargin([
-      PosColumn(text: '', width: innerSpacer, styles: const PosStyles()),
-      PosColumn(text: 'Tax: ' + st_TaxAmt!, width: innerContent, styles: rightBlockStyle()),
-    ]));
+    // bytes += generator.row(withMargin([
+    //   PosColumn(text: '', width: innerSpacer, styles: const PosStyles()),
+    //   PosColumn(text: 'Tax: ' + st_TaxAmt!, width: innerContent, styles: rightBlockStyle()),
+    // ]));
 
     bytes += generator.row(withMargin([
       PosColumn(text: '', width: innerSpacer, styles: const PosStyles()),
