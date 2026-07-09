@@ -21,6 +21,7 @@ class SharedPreferenceHelper {
   static const _PrintGap = 'print_gap';
   static const String _restaurantCodeKey = '_restaurantCode';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
+  static const String _deviceTypeKey = 'device_type';
 
   /// ------------------ BASE URL ------------------
   Future<void> setBaseUrl(String url) async {
@@ -337,9 +338,10 @@ class SharedPreferenceHelper {
   }
 
   Future<String> getVatIncludedStatus() async {
-   final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     return prefs.getString("vatIncludedStatus") ?? '';
   }
+
   /// ------------------ Expiry Date ------------------
   Future<void> setExpiryDate(String expiryDate) async {
     final prefs = await SharedPreferences.getInstance();
@@ -538,5 +540,16 @@ class SharedPreferenceHelper {
   Future<String> fetchPrinterType() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('printer_type') ?? 'Wifi';
+  }
+
+  /// ------------------ Device Type ------------------
+  Future<void> setDeviceType(String deviceType) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_deviceTypeKey, deviceType);
+  }
+
+  Future<String> getDeviceType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_deviceTypeKey) ?? 'SUNMI';
   }
 }

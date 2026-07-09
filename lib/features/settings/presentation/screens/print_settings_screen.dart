@@ -4,6 +4,7 @@ import 'package:quikservnew/core/theme/colors.dart';
 import 'package:quikservnew/features/settings/presentation/helper/print_settings_helper.dart';
 import 'package:quikservnew/features/settings/presentation/screens/bill_preview_screen.dart';
 import 'package:quikservnew/features/settings/presentation/widgets/print_settings_widget.dart';
+import 'package:quikservnew/services/shared_preference_helper.dart';
 
 import '../widgets/print_settings_ui_widgets.dart';
 
@@ -21,6 +22,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
   final ValueNotifier<double> widthValue = ValueNotifier(80);
   final ValueNotifier<double> heightValue = ValueNotifier(80);
   final ValueNotifier<String> selectedPrinterType = ValueNotifier('wifi');
+  final ValueNotifier<String> selectedDeviceType = ValueNotifier('SUNMI');
   final ValueNotifier<bool> enableKotPrint = ValueNotifier(false);
   final ValueNotifier<String> selectedPaperSize = ValueNotifier('2 inch');
   final ValueNotifier<bool> changeMainPrinter = ValueNotifier(false);
@@ -48,6 +50,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
   String? selectedMainPrinter;
   String? selectedKitchenPrinter;
   String printerType = 'Wifi';
+  String deviceType = 'SUNMI';
   String? paperSize = '2 inch';
   String kotStatus = '0';
   bool deviceListStatus = false;
@@ -59,6 +62,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
   void initState() {
     super.initState();
     companyNameController.text = widget.companyName;
+    _loadSelectedDeviceType();
     PrintSettingsHelper().fetchPrinterSettings(
       selectedPrinterType: selectedPrinterType,
       selectedPaperSize: selectedPaperSize,
@@ -105,6 +109,21 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
     );
   }
 
+  Future<void> _loadSelectedDeviceType() async {
+    final savedDeviceType = await SharedPreferenceHelper().getDeviceType();
+
+    if (!mounted) return;
+
+    selectedDeviceType.value = savedDeviceType;
+    setState(() {
+      deviceType = savedDeviceType;
+    });
+  }
+
+  Future<void> _saveSelectedDeviceType() async {
+    await SharedPreferenceHelper().setDeviceType(selectedDeviceType.value);
+  }
+
   @override
   void dispose() {
     showAddress.dispose();
@@ -112,6 +131,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
     widthValue.dispose();
     heightValue.dispose();
     selectedPrinterType.dispose();
+    selectedDeviceType.dispose();
     enableKotPrint.dispose();
     selectedPaperSize.dispose();
     changeMainPrinter.dispose();
@@ -168,7 +188,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
             ),
           ],
         ),
-      
+
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Column(
@@ -179,7 +199,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 10),
-      
+
               /// Company Name
               const Text("Company Name"),
               const SizedBox(height: 6),
@@ -200,16 +220,16 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-      
+
               /// Font Size
               const Text("Font Size"),
               const SizedBox(height: 8),
               FontSize(fontSizeNotifier: fontSizeNotifier),
-      
+
               /// Switches
               switchRow("Show Company Address", showAddress),
               switchRow("Show Company PhoneNo", showPhone),
-      
+
               /// Logo + Sliders
               LogoSliders(widthValue: widthValue, heightValue: heightValue),
               const SizedBox(height: 18),
@@ -242,7 +262,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                   ),
                 ],
               ),
-      
+
               const SizedBox(height: 18),
               const Text("Footer Description"),
               const SizedBox(height: 6),
@@ -262,7 +282,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText:
-                    "Ex.Thank You For Choosing Restaurant\nWe Truly Appreciate Your Visit.\nHave A Great Day!",
+                        "Ex.Thank You For Choosing Restaurant\nWe Truly Appreciate Your Visit.\nHave A Great Day!",
                     hintStyle: TextStyle(
                       color: Colors.black54, // Light black hint
                     ),
@@ -274,7 +294,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 10),
-      
+
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
@@ -303,7 +323,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                           ),
                         ),
                         const SizedBox(height: 14),
-      
+
                         Row(
                           children: [
                             radioOption(
@@ -327,27 +347,72 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                             ),
                           ],
                         ),
-      
+                        if (printerTypeValue == 'bluetooth') ...[
+                          const SizedBox(height: 18),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Select Device Type",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              ValueListenableBuilder<String>(
+                                valueListenable: selectedDeviceType,
+                                builder: (context, deviceTypeValue, _) {
+                                  return DropdownButton<String>(
+                                    value: deviceTypeValue,
+                                    underline: const SizedBox(),
+                                    icon: const Icon(Icons.keyboard_arrow_down),
+                                    items: const [
+                                      DropdownMenuItem<String>(
+                                        value: 'SUNMI',
+                                        child: Text('SUNMI'),
+                                      ),
+                                      DropdownMenuItem<String>(
+                                        value: 'OTHERS',
+                                        child: Text('OTHERS'),
+                                      ),
+                                    ],
+                                    onChanged: (String? newValue) {
+                                      if (newValue == null) return;
+
+                                      selectedDeviceType.value = newValue;
+                                      deviceType = newValue;
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+
                         const SizedBox(height: 18),
-      
+
+                        //  const SizedBox(height: 18),
                         ValueListenableBuilder<bool>(
                           valueListenable: enableKotPrint,
                           builder: (context, value, _) {
                             return Padding(
                               padding: const EdgeInsets.only(right: 80.0),
-                              child: printerSwitchRow("Enable KOT Print", value, (
-                                newValue,
-                              ) {
-                                enableKotPrint.value = newValue;
-                                kotStatus = newValue ? '1' : '0';
-                                kotStatusController.text = kotStatus;
-                              }),
+                              child: printerSwitchRow(
+                                "Enable KOT Print",
+                                value,
+                                (newValue) {
+                                  enableKotPrint.value = newValue;
+                                  kotStatus = newValue ? '1' : '0';
+                                  kotStatusController.text = kotStatus;
+                                },
+                              ),
                             );
                           },
                         ),
-      
+
                         const SizedBox(height: 18),
-      
+
                         if (printerTypeValue == 'wifi') ...[
                           const Text(
                             "Printer Settings",
@@ -357,7 +422,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-      
+
                           textFieldBox(
                             controller: ipController,
                             hint: "192.929.1.20.838383",
@@ -367,7 +432,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-      
+
                           dropdownBox(
                             topLabel: "Select Main Printer",
                             value: selectedMainPrinter ?? "Main Printer",
@@ -379,7 +444,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                             },
                           ),
                           const SizedBox(height: 12),
-      
+
                           dropdownBox(
                             topLabel: "Select Kitchen Printer",
                             value: selectedKitchenPrinter ?? "Kitchen Printer",
@@ -391,7 +456,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                             },
                           ),
                         ],
-      
+
                         if (printerTypeValue == 'bluetooth') ...[
                           const Text(
                             "Paper Size",
@@ -401,7 +466,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-      
+
                           ValueListenableBuilder<String>(
                             valueListenable: selectedPaperSize,
                             builder: (context, paperSizeValue, _) {
@@ -427,7 +492,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                                       paperSize = "3 inch";
                                     },
                                   ),
-      
+
                                   const SizedBox(height: 14),
                                   radioOption(
                                     title: "No Print",
@@ -442,7 +507,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                               );
                             },
                           ),
-      
+
                           const SizedBox(height: 20),
                           const Text(
                             'Select Main Printer',
@@ -500,7 +565,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                                                     });
                                                   },
                                             );
-      
+
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
@@ -517,9 +582,9 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                               );
                             },
                           ),
-      
+
                           const SizedBox(height: 18),
-      
+
                           const Text(
                             'Select Kitchen Printer',
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -576,7 +641,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                                                     });
                                                   },
                                             );
-      
+
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
@@ -600,7 +665,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-      
+
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -613,6 +678,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                     ),
                   ),
                   onPressed: () async {
+                    await _saveSelectedDeviceType();
                     Navigator.pop(context);
                     await PrintSettingsHelper().saveSettings(
                       context: context,
