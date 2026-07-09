@@ -55,6 +55,9 @@ class CartScreenHelper {
         total = subTotal - discount + tax;
       }
     }
+    else{
+      total = subTotal;
+    }
 
     return {
       'subTotal': subTotal,

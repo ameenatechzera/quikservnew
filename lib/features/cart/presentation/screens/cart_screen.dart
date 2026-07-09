@@ -1182,13 +1182,14 @@ class _CartScreenState extends State<CartScreen> {
                                                               .text
                                                               .toString(),
                                                     );
-                                                    if (expiredStatusController
-                                                            .text ==
-                                                        'true') {
+                                                    print('expiredStatusController ${expiredStatusController.text}');
+                                                    // if (expiredStatusController
+                                                    //         .text ==
+                                                    //     'true') {
                                                       context
                                                           .read<SaleCubit>()
                                                           .saveSale(request);
-                                                    }
+                                                    //}
                                                   },
                                             child: const Text(
                                               'Confirm Sale',

@@ -741,26 +741,96 @@ class _PrintPageState extends State<PrintPage> {
     //   debugPrint('CRASH at: $e');
     //   debugPrint('Stack: $stackTrace');
     // }
-    try {
-      debugPrint('Step 1: Loading asset...');
-      final ByteData data = await rootBundle.load('assets/images/sara_bg.png');
-      debugPrint('Step 2: Asset loaded, size: ${data.lengthInBytes}');
+    // try {
+    //   debugPrint('Step 1: Loading asset...');
+    //   final ByteData data = await rootBundle.load('assets/images/sara_bg.png');
+    //   debugPrint('Step 2: Asset loaded, size: ${data.lengthInBytes}');
+    //
+    //   final Uint8List logoBytes = data.buffer.asUint8List();
+    //   debugPrint('Step 3: Bytes converted, length: ${logoBytes.length}');
+    //
+    //   final image = await compute(img.decodeImage, logoBytes);
+    //   debugPrint('Step 4: Image decoded: $image');
+    //
+    //   if (image != null) {
+    //     debugPrint('Step 5: Image size: ${image.width}x${image.height}');
+    //
+    //     // Trim any transparent/white padding baked into the source PNG first
+    //     final trimmedLogo = img.trim(image);
+    //     debugPrint('Step 5b: Trimmed to: ${trimmedLogo.width}x${trimmedLogo.height}');
+    //
+    //     final resizedLogo = img.copyResize(trimmedLogo, width: 260);
+    //     debugPrint('Step 6: Resized to: ${resizedLogo.width}x${resizedLogo.height}');
+    //
+    //     final int paperWidthDots = (selectedPrinter == '3inch' ||
+    //         selectedPrinter == '3 inch')
+    //         ? 576
+    //         : 384;
+    //
+    //     final canvas = img.Image(width: paperWidthDots, height: resizedLogo.height);
+    //     img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+    //
+    //     final int xOffset = ((paperWidthDots - resizedLogo.width) / 2).round();
+    //     img.compositeImage(canvas, resizedLogo, dstX: xOffset, dstY: 0);
+    //
+    //     bytes += generator.image(canvas);
+    //     debugPrint('Step 7: Image added ✓ ($paperWidthDots px canvas)');
+    //   } else {
+    //     debugPrint('ERROR: decodeImage returned null');
+    //   }
+    // } catch (e, stackTrace) {
+    //   debugPrint('CRASH at: $e');
+    //   debugPrint('Stack: $stackTrace');
+    // }
+    // bytes += generator.feed(1);
 
-      final Uint8List logoBytes = data.buffer.asUint8List();
-      debugPrint('Step 3: Bytes converted, length: ${logoBytes.length}');
+
+    try {
+      debugPrint('Step 1: Getting logo URL from preferences...');
+      final String? imageUrl = await SharedPreferenceHelper().getCompanyLogo();
+      debugPrint('Step 1b: imageUrl = $imageUrl');
+
+      Uint8List? logoBytes;
+
+      if (imageUrl != null && imageUrl.trim().isNotEmpty) {
+        // Try network image first
+        try {
+          final response = await http
+              .get(Uri.parse(imageUrl))
+              .timeout(const Duration(seconds: 10));
+
+          if (response.statusCode == 200) {
+            logoBytes = response.bodyBytes;
+            debugPrint('Step 2: Downloaded from network, size: ${logoBytes.length}');
+          } else {
+            debugPrint('WARN: Network image failed, status: ${response.statusCode}');
+          }
+        } catch (e) {
+          debugPrint('WARN: Network fetch failed: $e');
+        }
+      }
+
+      // Fallback to local asset if network image wasn't available
+      if (logoBytes == null) {
+        debugPrint('Step 2b: Falling back to local asset...');
+        final ByteData data = await rootBundle.load('assets/images/sara_bg.png');
+        logoBytes = data.buffer.asUint8List();
+        debugPrint('Step 2c: Asset loaded, size: ${logoBytes.length}');
+      }
 
       final image = await compute(img.decodeImage, logoBytes);
-      debugPrint('Step 4: Image decoded: $image');
+      debugPrint('Step 3: Image decoded: $image');
 
       if (image != null) {
-        debugPrint('Step 5: Image size: ${image.width}x${image.height}');
+        debugPrint('Step 4: Image size: ${image.width}x${image.height}');
 
         // Trim any transparent/white padding baked into the source PNG first
         final trimmedLogo = img.trim(image);
-        debugPrint('Step 5b: Trimmed to: ${trimmedLogo.width}x${trimmedLogo.height}');
+        debugPrint('Step 4b: Trimmed to: ${trimmedLogo.width}x${trimmedLogo.height}');
 
-        final resizedLogo = img.copyResize(trimmedLogo, width: 260);
-        debugPrint('Step 6: Resized to: ${resizedLogo.width}x${resizedLogo.height}');
+        // final resizedLogo = img.copyResize(trimmedLogo, width: 260);
+        final resizedLogo = img.copyResize(trimmedLogo, width: 450);
+        debugPrint('Step 5: Resized to: ${resizedLogo.width}x${resizedLogo.height}');
 
         final int paperWidthDots = (selectedPrinter == '3inch' ||
             selectedPrinter == '3 inch')
@@ -771,10 +841,11 @@ class _PrintPageState extends State<PrintPage> {
         img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
 
         final int xOffset = ((paperWidthDots - resizedLogo.width) / 2).round();
-        img.compositeImage(canvas, resizedLogo, dstX: xOffset, dstY: 0);
+        final int yOffset = 20; // top padding
+        img.compositeImage(canvas, resizedLogo, dstX: xOffset, dstY: yOffset);
 
         bytes += generator.image(canvas);
-        debugPrint('Step 7: Image added ✓ ($paperWidthDots px canvas)');
+        debugPrint('Step 6: Image added ✓ ($paperWidthDots px canvas)');
       } else {
         debugPrint('ERROR: decodeImage returned null');
       }
@@ -788,6 +859,31 @@ class _PrintPageState extends State<PrintPage> {
     /// 🔹 YOUR EXISTING HEADER
     /// =======================
 
+    FutureBuilder<String?>(
+        future: SharedPreferenceHelper()
+            .getCompanyLogo(),
+        builder: (context, snapshot) {
+          final logo = snapshot.data;
+            return ClipOval(
+            child: Image.network(
+              logo!,
+              width: 78,
+              height: 78,
+              fit: BoxFit.cover,
+              errorBuilder:
+                  (context, error, stackTrace) {
+                return const Center(
+                  child: Icon(
+                    Icons.restaurant_menu,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                );
+              },
+            ),
+          );
+        }
+    );
     String? st_invNo = widget.sales!.salesMaster?.invoiceNo.toString();
     String? st_dateAndTime =
         widget.sales!.salesMaster!.invoiceDate.toString() +
