@@ -25,7 +25,7 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
   TextEditingController priceController = TextEditingController();
   bool isEditingPrice = false;
   bool isEditingQty = false;
-  int localQty = 0;
+  double localQty = 0;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
       cartItem = null;
     }
     // ✅ load existing cart qty as initial display (but DO NOT change cart until Add To Cart)
-    localQty = cartItem?.qty.toInt() ?? 0;
+    localQty = cartItem?.qty ?? 0;
     qtyController.text = localQty.toString();
 
     priceController.text = cartItem != null
@@ -258,7 +258,22 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
                                   onTap: localQty > 0
                                       ? () {
                                           setState(() {
+                                            // localQty -= 1;
+                                            // qtyController.text = localQty
+                                            //     .toString();
+                                            final typed =
+                                                double.tryParse(
+                                                  qtyController.text.trim(),
+                                                ) ??
+                                                localQty;
+
+                                            localQty = typed < 0 ? 0 : typed;
                                             localQty -= 1;
+
+                                            if (localQty < 0) {
+                                              localQty = 0;
+                                            }
+
                                             qtyController.text = localQty
                                                 .toString();
                                           });
@@ -284,7 +299,7 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
                                           onFocusChange: (hasFocus) {
                                             if (!hasFocus) {
                                               final typed =
-                                                  int.tryParse(
+                                                  double.tryParse(
                                                     qtyController.text.trim(),
                                                   ) ??
                                                   localQty;
@@ -302,7 +317,10 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
                                             controller: qtyController,
                                             autofocus: true,
                                             textAlign: TextAlign.center,
-                                            keyboardType: TextInputType.number,
+                                            keyboardType:
+                                                TextInputType.numberWithOptions(
+                                                  decimal: true,
+                                                ),
                                             decoration: const InputDecoration(
                                               isDense: true,
                                               contentPadding:
@@ -350,6 +368,15 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
                                 InkWell(
                                   onTap: () {
                                     setState(() {
+                                      // localQty += 1;
+                                      // qtyController.text = localQty.toString();
+                                      final typed =
+                                          double.tryParse(
+                                            qtyController.text.trim(),
+                                          ) ??
+                                          localQty;
+
+                                      localQty = typed < 0 ? 0 : typed;
                                       localQty += 1;
                                       qtyController.text = localQty.toString();
                                     });
@@ -369,7 +396,9 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
                               onTap: () {
                                 // commit typed qty into localQty just in case user didn't unfocus
                                 final typed =
-                                    int.tryParse(qtyController.text.trim()) ??
+                                    double.tryParse(
+                                      qtyController.text.trim(),
+                                    ) ??
                                     localQty;
                                 localQty = typed < 0 ? 0 : typed;
                                 qtyController.text = localQty.toString();
@@ -474,7 +503,7 @@ class _ProductDialogContentState extends State<ProductDialogContent> {
 
   // ---------------- CART ITEM BUILDER ----------------
   CartItem _buildCartItem({
-    required int qty,
+    required double qty,
     required String productCode,
     required double price,
   }) {
