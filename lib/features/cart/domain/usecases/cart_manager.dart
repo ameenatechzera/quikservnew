@@ -57,38 +57,83 @@ class CartManager {
     if (items.isEmpty) showCartBar.value = false;
   }
 
-  ///  Increase quantity
-  void incrementQuantity(String productCode) {
+  // ///  Increase quantity
+  // void incrementQuantity(String productCode) {
+  //   final items = List<CartItem>.from(cartItems.value);
+  //
+  //   final index = items.indexWhere((item) => item.productCode == productCode);
+  //
+  //   if (index != -1) {
+  //     items[index] = items[index].copyWith(qty: items[index].qty + 1);
+  //   }
+  //
+  //   cartItems.value = items;
+  // }
+  //
+  // ///  Decrement quantity
+  // void decrementQuantity(String productCode) {
+  //   final items = List<CartItem>.from(cartItems.value);
+  //
+  //   final index = items.indexWhere((item) => item.productCode == productCode);
+  //
+  //   if (index != -1) {
+  //     if (items[index].qty > 1) {
+  //       items[index] = items[index].copyWith(qty: items[index].qty - 1);
+  //     } else {
+  //       items.removeAt(index);
+  //     }
+  //   }
+  //
+  //   cartItems.value = items;
+  //
+  //   if (items.isEmpty) showCartBar.value = false;
+  // }
+  /// Increase quantity
+  void incrementQuantity(String productCode, {double step = 1.0}) {
     final items = List<CartItem>.from(cartItems.value);
 
     final index = items.indexWhere((item) => item.productCode == productCode);
 
     if (index != -1) {
-      items[index] = items[index].copyWith(qty: items[index].qty + 1);
+      items[index] =
+          items[index].copyWith(qty: items[index].qty + step);
     }
 
     cartItems.value = items;
   }
 
-  ///  Decrement quantity
-  void decrementQuantity(String productCode) {
+  /// Decrease quantity
+  void decrementQuantity(String productCode, {double step = 1.0}) {
+    final items = List<CartItem>.from(cartItems.value);
+
+    final index = items.indexWhere((item) => item.productCode == productCode);
+
+    if (index == -1) return;
+
+    final item = items[index];
+    final newQty = item.qty - step;
+
+    // Don't allow quantity less than 0.01
+    if (newQty < 0.01) return;
+
+    items[index] = item.copyWith(qty: newQty);
+
+    cartItems.value = items;
+  }
+
+  /// Update quantity
+  void updateQuantity(String productCode, double qty) {
+    if (qty <= 0) return;
+
     final items = List<CartItem>.from(cartItems.value);
 
     final index = items.indexWhere((item) => item.productCode == productCode);
 
     if (index != -1) {
-      if (items[index].qty > 1) {
-        items[index] = items[index].copyWith(qty: items[index].qty - 1);
-      } else {
-        items.removeAt(index);
-      }
+      items[index] = items[index].copyWith(qty: qty);
+      cartItems.value = items;
     }
-
-    cartItems.value = items;
-
-    if (items.isEmpty) showCartBar.value = false;
   }
-
   ///  Total items
   int get totalItems =>
       cartItems.value.fold(0, (sum, item) => sum + item.qty.toInt());
