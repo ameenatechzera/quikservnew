@@ -93,7 +93,7 @@ class CompanyModel {
       databaseName: json['DatabaseName'],
       vatNumber: json['VATNumber'],
       vatEnable: json['VatEnable'] ?? 0,
-      vatType: json['VATType'],
+      vatType: json['VATType'] ?? '',
       isVatIncluded: json['isVatIncluded'] ?? 0,
       expiryDate: json['ExpiryDate'],
       companyLogo: json['company_logo'],

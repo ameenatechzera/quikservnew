@@ -21,6 +21,7 @@ class LoginCubit extends Cubit<LoginState> {
        super(LoginInitial());
 
   Future<void> loginUser(LoginRequest loginRequest) async {
+    print('LoginRequest ${loginRequest.toJson()}');
     emit(LoginLoading());
     try {
       final result = await _loginUseCase(loginRequest);
@@ -39,6 +40,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> checkDeviceRegisterStatus(DeviceRegisterRequest request) async {
+    print('DeviceRegisterRequest ${request.toJson()}');
     emit(DeviceRegisterLoading());
     try {
       final result = await _checkDeviceRegisterStatusUseCase(request);

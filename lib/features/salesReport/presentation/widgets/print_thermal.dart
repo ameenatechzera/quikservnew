@@ -21,6 +21,7 @@ import 'package:quikservnew/features/itemwiseReport/domain/entities/itemwise_rep
 import 'package:quikservnew/features/sale/presentation/screens/home_screen.dart';
 import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_bymasterid_result.dart';
 import 'package:quikservnew/features/salesReport/presentation/bloc/sles_report_cubit.dart';
+import 'package:quikservnew/features/salesReport/presentation/widgets/thermal_print.dart';
 import 'package:quikservnew/services/shared_preference_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -828,8 +829,8 @@ class _PrintPageState extends State<PrintPage> {
         final trimmedLogo = img.trim(image);
         debugPrint('Step 4b: Trimmed to: ${trimmedLogo.width}x${trimmedLogo.height}');
 
-        // final resizedLogo = img.copyResize(trimmedLogo, width: 260);
-        final resizedLogo = img.copyResize(trimmedLogo, width: 450);
+         final resizedLogo = img.copyResize(trimmedLogo, width: 350);
+        //final resizedLogo = img.copyResize(trimmedLogo, width: 450);
         debugPrint('Step 5: Resized to: ${resizedLogo.width}x${resizedLogo.height}');
 
         final int paperWidthDots = (selectedPrinter == '3inch' ||
@@ -859,31 +860,6 @@ class _PrintPageState extends State<PrintPage> {
     /// 🔹 YOUR EXISTING HEADER
     /// =======================
 
-    FutureBuilder<String?>(
-        future: SharedPreferenceHelper()
-            .getCompanyLogo(),
-        builder: (context, snapshot) {
-          final logo = snapshot.data;
-            return ClipOval(
-            child: Image.network(
-              logo!,
-              width: 78,
-              height: 78,
-              fit: BoxFit.cover,
-              errorBuilder:
-                  (context, error, stackTrace) {
-                return const Center(
-                  child: Icon(
-                    Icons.restaurant_menu,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                );
-              },
-            ),
-          );
-        }
-    );
     String? st_invNo = widget.sales!.salesMaster?.invoiceNo.toString();
     String? st_dateAndTime =
         widget.sales!.salesMaster!.invoiceDate.toString() +
@@ -1053,7 +1029,9 @@ class _PrintPageState extends State<PrintPage> {
     } else {
       print('reachedPrint');
       final ticket = await _generateTicket();
+     // final ticket = await ThermalPrinterService().generateReceipt();
 
+     // final result = await PrintBluetoothThermal.writeBytes(ticket);
       final result = await PrintBluetoothThermal.writeBytes(ticket);
       if (kotPrintEnabled) {
         await Future.delayed(const Duration(seconds: 2));
@@ -1062,7 +1040,19 @@ class _PrintPageState extends State<PrintPage> {
       }
       //PrintBluetoothThermal.disconnect;
       print('resultPrint $result');
-      context.read<SalesReportCubit>().saleSaveFinished(1);
+      // context.read<SalesReportCubit>().saleSaveFinished(1);
+     //  WidgetsBinding.instance.addPostFrameCallback((_) {
+     //    Future.delayed(const Duration(seconds: 2), () {
+     //      if (!context.mounted) return;
+     //
+     //      Navigator.push(
+     //        context,
+     //        MaterialPageRoute(
+     //          builder: (context) => HomeScreen(),
+     //        ),
+     //      );
+     //    });
+     //  });
     }
   }
 
@@ -1096,12 +1086,16 @@ class _PrintPageState extends State<PrintPage> {
           child: Column(
             children: [
               Center(
-                child: Lottie.asset(
-                  'assets/success_animation.json',
-                  width: double.infinity,
-                  height: 500,
-                  fit: BoxFit.contain,
-                ),
+                child:
+                Container(
+                  color: Colors.white,
+                )
+                // Lottie.asset(
+                //   'assets/success_animation.json',
+                //   width: double.infinity,
+                //   height: 500,
+                //   fit: BoxFit.contain,
+                // ),
               ),
               Visibility(
                 visible: true,
@@ -1111,7 +1105,7 @@ class _PrintPageState extends State<PrintPage> {
                     listener: (context, state) {
                       if (state is SaleFinishSuccess) {
                         print('Finished');
-          
+
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           Navigator.push(
                             context,
@@ -1125,13 +1119,14 @@ class _PrintPageState extends State<PrintPage> {
                         return Container();
                       } else {
                         return Center(
-                          child: Lottie.asset(
-                            'assets/success_animation.json',
-                            width: double.infinity,
-                            height: 500,
-                            fit: BoxFit.contain,
-                          ),
-                        );
+                          child: Container()
+                        //   Lottie.asset(
+                        //     'assets/success_animation.json',
+                        //     width: double.infinity,
+                        //     height: 500,
+                        //     fit: BoxFit.contain,
+                        //   ),
+                         );
                       }
                     },
                   ),
@@ -1229,6 +1224,15 @@ class _PrintPageState extends State<PrintPage> {
       // printToTwoPrinters(st_connectedDevicePref, st_connectedSecondPrinter);
 
        _connectAndPrint(st_connectedDevicePref);
+      Future.delayed(const Duration(seconds: 2), () {
+             Navigator.push(
+               context,
+               MaterialPageRoute(
+                 builder: (context) => HomeScreen(),
+               ),
+             );
+           });
+
     }
   }
 
@@ -1374,36 +1378,60 @@ class _PrintPageState extends State<PrintPage> {
         styles: const PosStyles(
           align: PosAlign.center,
           bold: true,
-          height: PosTextSize.size2,
+          height: PosTextSize.size1,
           width: PosTextSize.size1,
-          fontType: PosFontType.fontB,
         ),
       ),
     ]);
     if (st_companyAddress.length > 1) {
       if (st_companyAdressStatus) {
-        bytes += generator.text(
-          '' + st_companyAddress,
-          styles: PosStyles(
-            align: PosAlign.center, // ✅ Centered
-            bold: false,
-          ),
-          linesAfter: 0,
-        );
+        // bytes += generator.text(
+        //   '' + st_companyAddress,
+        //   styles: PosStyles(
+        //     align: PosAlign.center, // ✅ Centered
+        //     bold: false,
+        //   ),
+        //   linesAfter: 0,
+        // );
       }
-    }
-    if (st_companyPhone.length > 1) {
-      if (st_companyPhoneStatus) {
-        bytes += generator.text(
-          'Phone No: ' + st_companyPhone,
+      bytes += generator.row([
+        PosColumn(
+          text: st_companyAddress,
+          width: 12,
           styles: const PosStyles(
-            align: PosAlign.center, // ✅ Centered
+            align: PosAlign.center,
             bold: false,
             height: PosTextSize.size1,
             width: PosTextSize.size1,
           ),
-          linesAfter: 0,
-        );
+        ),
+      ]);
+    }
+    if (st_companyPhone.length > 1) {
+      if (st_companyPhoneStatus) {
+        // bytes += generator.text(
+        //   'Phone No: ' + st_companyPhone,
+        //   styles: const PosStyles(
+        //     align: PosAlign.center, // ✅ Centered
+        //     bold: false,
+        //     height: PosTextSize.size1,
+        //     width: PosTextSize.size1,
+        //   ),
+        //   linesAfter: 0,
+        // );
+
+        bytes += generator.row([
+          PosColumn(
+            text: 'Phone No: ' + st_companyPhone,
+            width: 12,
+            styles: const PosStyles(
+              align: PosAlign.center,
+              bold: false,
+              height: PosTextSize.size1,
+              width: PosTextSize.size1,
+            ),
+          ),
+        ]);
       }
     }
     if (vatStatus) {
@@ -1440,7 +1468,7 @@ class _PrintPageState extends State<PrintPage> {
           width: 12,
           styles: const PosStyles(
             align: PosAlign.center,
-            bold: true,
+            bold: false,
             height: PosTextSize.size1,
             width: PosTextSize.size1,
           ),
@@ -2315,13 +2343,12 @@ class _PrintPageState extends State<PrintPage> {
       String total,
       ) {
     List<int> bytes = [];
-
-    // Wrap product name only if it exceeds the available width.
-    final nameLines = wrapText(prodName, 22);
+    //prodName ='Haris Rahman CT chaliyathodi melattur house';
+    final nameLines = wrapText(prodName, 18);
 
     // First row
     bytes += generator.row([
-      PosColumn(text: '', width: 1), // Left margin
+      PosColumn(text: '', width: 1),
 
       PosColumn(
         text: srlNo.toString(),
@@ -2331,7 +2358,7 @@ class _PrintPageState extends State<PrintPage> {
 
       PosColumn(
         text: nameLines[0],
-        width: 4, // Reduced item width
+        width: 4,
         styles: cellStyle(PosAlign.left).copyWith(bold: true),
       ),
 
@@ -2341,11 +2368,7 @@ class _PrintPageState extends State<PrintPage> {
         styles: cellStyle(PosAlign.right),
       ),
 
-      // Extra gap
-      PosColumn(
-        text: '',
-        width: 1,
-      ),
+      PosColumn(text: '', width: 1),
 
       PosColumn(
         text: rate,
@@ -2359,22 +2382,13 @@ class _PrintPageState extends State<PrintPage> {
         styles: cellStyle(PosAlign.right),
       ),
     ]);
-    // Print remaining product name lines only if needed
+
+    // Remaining product name lines
     for (int i = 1; i < nameLines.length; i++) {
-      bytes += generator.row([
-        PosColumn(text: '', width: 2),
-
-        PosColumn(
-          text: nameLines[i],
-          width: 4,
-          styles: cellStyle(PosAlign.left),
-        ),
-
-        PosColumn(text: '', width: 1),
-        PosColumn(text: '', width: 1),
-        PosColumn(text: '', width: 2),
-        PosColumn(text: '', width: 2),
-      ]);
+      bytes += generator.text(
+        "        ${nameLines[i]}", // Adjust spaces if needed
+        styles: cellStyle(PosAlign.left),
+      );
     }
 
     return bytes;
