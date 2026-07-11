@@ -513,67 +513,6 @@ class _PrintPageState extends State<PrintPage> {
         .trim();
   }
 
-  // Future<List<int>> _generateTicket() async {
-  //   print('reachedTicketGeneration');
-  //   final profile = await CapabilityProfile.load();
-  //   var generator = Generator(PaperSize.mm58, profile);
-  //   String line = '-----------------------------------------------';
-  //   print('selectedPrinter $selectedPrinter');
-  //   //selectedPrinter = '3 inch';
-  //   if (selectedPrinter == '2 inch') {
-  //     print('if $selectedPrinter');
-  //     generator = Generator(PaperSize.mm58, profile);
-  //     line = '-------------------------------';
-  //   }
-  //   if (selectedPrinter == '3 inch') {
-  //     print('secondIf $selectedPrinter');
-  //     line = '-----------------------------------------------';
-  //     generator = Generator(PaperSize.mm80, profile);
-  //   }
-  //
-  //   // List<int> bytes = [];
-  //
-  //   String? st_invNo = widget.sales!.salesMaster?.invoiceNo.toString();
-  //   String? st_dateAndTime = widget.sales!.salesMaster?.invoiceDate.toString();
-  //   String? st_Time = widget.sales!.salesMaster?.invoiceTime.toString();
-  //   List<int> bytes = [];
-  //   String? st_paycash = widget.sales!.salesMaster?.cashAmount.toString();
-  //   String? st_paycard = widget.sales!.salesMaster?.cardAmount.toString();
-  //   bytes = await header_section(
-  //     generator,
-  //     st_invNo,
-  //     st_dateAndTime,
-  //     st_Time,
-  //     st_paycash,
-  //     st_paycard,
-  //   );
-  //   // String st_QRData = await createQRCode();
-  //
-  //   bytes += await printHeading(generator);
-  //   bytes.addAll(
-  //     generator.text(
-  //       line,
-  //       styles: PosStyles(align: PosAlign.center),
-  //       linesAfter: 0,
-  //     ),
-  //   );
-  //
-  //   bytes += await printItemDetails(generator);
-  //
-  //   bytes.addAll(
-  //     generator.text(
-  //       line,
-  //       styles: PosStyles(align: PosAlign.center),
-  //       linesAfter: 0,
-  //     ),
-  //   );
-  //
-  //   bytes += await printFooter(generator);
-  //
-  //   bytes += generator.cut();
-  //
-  //   return bytes;
-  // }
   Future<List<int>> _generateDailyClosingReport() async {
     final profile = await CapabilityProfile.load();
     var generator = Generator(PaperSize.mm58, profile);
@@ -1027,9 +966,17 @@ class _PrintPageState extends State<PrintPage> {
         );
       }
     } else {
-      print('reachedPrint');
-      final ticket = await _generateTicket();
-     // final ticket = await ThermalPrinterService().generateReceipt();
+      print('selectedPrinterSize$selectedPrinter');
+      //final ticket = await _generateTicket();
+      final st_companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? "";
+      final ticket ;
+      if (selectedPrinter == '2 inch') {
+         ticket = await ThermalPrinterService_2inches().generateReceipt(st_companyLogo,widget.sales);
+      }
+      else {
+         ticket = await ThermalPrinterService_3inches().generateReceipt(
+            st_companyLogo, widget.sales);
+      }
 
      // final result = await PrintBluetoothThermal.writeBytes(ticket);
       final result = await PrintBluetoothThermal.writeBytes(ticket);
