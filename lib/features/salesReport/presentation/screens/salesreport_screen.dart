@@ -1118,7 +1118,8 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                             const SizedBox(height: 8),
                             if (state is SalesReportLoading)
                               Text(
-                                '${(_loadStopwatch.elapsedMilliseconds / 1000).toStringAsFixed(1)}s',
+                                '',
+                               // '${(_loadStopwatch.elapsedMilliseconds / 1000).toStringAsFixed(1)}s',
                                 style: const TextStyle(
                                   color: Colors.red,
                                   fontWeight: FontWeight.bold,
@@ -1199,37 +1200,37 @@ class _SalesReportPageNEWState extends State<SalesReportPage> {
                       // Only start a fresh render-timer if this is a NEW list (avoids
                       // restarting the stopwatch on every unrelated rebuild, e.g. from
                       // setState calls triggered elsewhere).
-                      if (!identical(_lastMeasuredList, salesList)) {
-                        _lastMeasuredList = salesList;
-                        _listRenderSeconds = null;
-                        _renderStopwatch
-                          ..reset()
-                          ..start();
-
-                        // Fires right after this frame is actually painted on screen —
-                        // i.e. once the ListView has finished laying out/rendering.
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (!mounted) return;
-                          _renderStopwatch.stop();
-                          setState(() {
-                            _listRenderSeconds = _renderStopwatch.elapsedMilliseconds / 1000;
-                          });
-                        });
-                      }
+                      // if (!identical(_lastMeasuredList, salesList)) {
+                      //   _lastMeasuredList = salesList;
+                      //   _listRenderSeconds = null;
+                      //   _renderStopwatch
+                      //     ..reset()
+                      //     ..start();
+                      //
+                      //   // Fires right after this frame is actually painted on screen —
+                      //   // i.e. once the ListView has finished laying out/rendering.
+                      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+                      //     if (!mounted) return;
+                      //     _renderStopwatch.stop();
+                      //     setState(() {
+                      //       _listRenderSeconds = _renderStopwatch.elapsedMilliseconds / 1000;
+                      //     });
+                      //   });
+                      // }
 
                       return Column(
                         children: [
-                          if (_lastElapsedSeconds != null)
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Loaded in ${_lastElapsedSeconds!.toStringAsFixed(1)}s',
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                          //if (_lastElapsedSeconds != null)
+                            // Padding(
+                            //   padding: const EdgeInsets.all(8.0),
+                            //   child: Text(
+                            //     'Loaded in ${_lastElapsedSeconds!.toStringAsFixed(1)}s',
+                            //     style: const TextStyle(
+                            //       color: Colors.red,
+                            //       fontWeight: FontWeight.bold,
+                            //     ),
+                            //   ),
+                            // ),
                           if (_listRenderSeconds != null)
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0),

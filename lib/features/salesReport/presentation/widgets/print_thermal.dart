@@ -970,7 +970,21 @@ class _PrintPageState extends State<PrintPage> {
       //final ticket = await _generateTicket();
       final st_companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? "";
       final ticket ;
-      if (selectedPrinter == '2 inch') {
+      int compnyFontSize = 0;
+      try {
+        compnyFontSize = int.parse(companyNameFontSize);
+      } catch (_) {
+        compnyFontSize = 0;
+      }
+      if(compnyFontSize>0) {
+        if (compnyFontSize >= 25){
+          PosTextSize.size2; // Large
+        }
+        else{
+          PosTextSize.size1; // Large
+        }
+      }
+      if (selectedPrinter == '2inch') {
          ticket = await ThermalPrinterService_2inches().generateReceipt(st_companyLogo,widget.sales);
       }
       else {
@@ -1035,6 +1049,7 @@ class _PrintPageState extends State<PrintPage> {
               Center(
                 child:
                 Container(
+                  child: Text('Printing Started...!'),
                   color: Colors.white,
                 )
                 // Lottie.asset(
@@ -1066,7 +1081,12 @@ class _PrintPageState extends State<PrintPage> {
                         return Container();
                       } else {
                         return Center(
-                          child: Container()
+                          child: Expanded(
+                            child: Container(
+                              height: double.infinity,
+                              child: Text('Printer Checking..!'),
+                            ),
+                          )
                         //   Lottie.asset(
                         //     'assets/success_animation.json',
                         //     width: double.infinity,
@@ -1144,7 +1164,13 @@ class _PrintPageState extends State<PrintPage> {
     logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
     logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
     print('st_connectedDevicePref $st_connectedDevicePref');
-
+    final vatEnableStatus = await SharedPreferenceHelper().getVatStatus();
+    if(vatEnableStatus){
+      st_vatEnabled ==1;
+    }
+    else{
+      st_vatEnabled ==0;
+    }
     if (st_vatEnabled == '1') {
       if (st_vatType == 'VAT') {
         vatStatus = true;

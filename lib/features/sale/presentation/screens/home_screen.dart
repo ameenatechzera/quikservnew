@@ -744,8 +744,10 @@ class _HomeScreenState extends State<HomeScreen>
                 if (textScale > 1.2) maxWidthPerItem += 30;
 
                 double baseAspectRatio = screenWidth > 600 ? 0.8 : 0.71;
+                // final childAspectRatio =
+                //     baseAspectRatio / textScale.clamp(1.08, 1.7);
                 final childAspectRatio =
-                    baseAspectRatio / textScale.clamp(1.08, 1.7);
+                    baseAspectRatio / textScale.clamp(1.1, 1.7);
 
                 double imageHeight = 120;
                 if (textScale > 1.0) {
@@ -870,6 +872,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   flex: 5,
                                                   child: Text(
                                                     product.productName!,
+
                                                     maxLines: 2,
                                                     softWrap: true,
                                                     style: const TextStyle(
@@ -1594,9 +1597,11 @@ class _HomeScreenState extends State<HomeScreen>
                           maxItemWidth += 30 * (textScale.clamp(1.0, 1.6) - 1);
                         }
 
-                        double baseAspectRatio = 0.68;
-                        final double childAspectRatio =
-                            baseAspectRatio / textScale.clamp(1.08, 1.6);
+                        double baseAspectRatio = 0.63;
+                        // final double childAspectRatio =
+                        //     baseAspectRatio / textScale.clamp(1.08, 1.6);
+                        final childAspectRatio =
+                            baseAspectRatio / textScale.clamp(1.1, 1.7);
 
                         return ValueListenableBuilder<bool>(
                           valueListenable: showCartBar,
