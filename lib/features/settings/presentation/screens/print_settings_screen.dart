@@ -24,6 +24,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
   final ValueNotifier<String> selectedPrinterType = ValueNotifier('wifi');
   final ValueNotifier<String> selectedDeviceType = ValueNotifier('SUNMI');
   final ValueNotifier<bool> enableKotPrint = ValueNotifier(false);
+  final ValueNotifier<bool> enableKotPrintOnly = ValueNotifier(false);
   final ValueNotifier<String> selectedPaperSize = ValueNotifier('2 inch');
   final ValueNotifier<bool> changeMainPrinter = ValueNotifier(false);
   final ValueNotifier<bool> changeKitchenPrinter = ValueNotifier(false);
@@ -53,6 +54,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
   String deviceType = 'SUNMI';
   String? paperSize = '2 inch';
   String kotStatus = '0';
+  String kotOnlyStatus = '0';
   bool deviceListStatus = false;
   bool deviceListKOTStatus = false;
   String companyNameFontSize = '';
@@ -392,24 +394,53 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
 
                         const SizedBox(height: 18),
 
-                        //  const SizedBox(height: 18),
                         ValueListenableBuilder<bool>(
                           valueListenable: enableKotPrint,
                           builder: (context, value, _) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 80.0),
-                              child: printerSwitchRow(
-                                "Enable KOT Print",
-                                value,
-                                (newValue) {
-                                  enableKotPrint.value = newValue;
-                                  kotStatus = newValue ? '1' : '0';
-                                  kotStatusController.text = kotStatus;
-                                },
-                              ),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 80.0),
+                                  child: printerSwitchRow(
+                                    "Enable KOT Print",
+                                    value,
+                                        (newValue) {
+                                      enableKotPrint.value = newValue;
+                                      kotStatus = newValue ? '1' : '0';
+                                      kotStatusController.text = kotStatus;
+
+                                      // reset the dependent toggle when KOT print is turned off
+                                      if (!newValue) {
+                                        enableKotPrintOnly.value = false;
+                                        kotOnlyStatus = '0';
+                                      }
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+                                if (value) // only show when kotStatus == '1'
+                                  ValueListenableBuilder<bool>(
+                                    valueListenable: enableKotPrintOnly,
+                                    builder: (context, kotOnlyValue, _) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(right: 80.0),
+                                        child: printerSwitchRow(
+                                          "KOT Print Only",
+                                          kotOnlyValue,
+                                              (newValue) {
+                                            enableKotPrintOnly.value = newValue;
+                                            kotOnlyStatus = newValue ? '1' : '0';
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              ],
                             );
                           },
                         ),
+
 
                         const SizedBox(height: 18),
 

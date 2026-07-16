@@ -69,6 +69,7 @@ class RegisterCubit extends Cubit<RegisterState> {
         await SharedPreferenceHelper().setCompanyPhoneNo(company.phone);
         await SharedPreferenceHelper().setBaseUrl(company.baseUrl);
         await SharedPreferenceHelper().setVatIncludedStatus(company.isVatIncluded.toString());
+        await SharedPreferenceHelper().saveLogo(company.base64Logo.toString());
         bool vatEnabled = false;
         if(company.vatEnable==1){
           vatEnabled = true;

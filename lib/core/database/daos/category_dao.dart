@@ -3,7 +3,10 @@ import 'package:quikservnew/features/category/domain/entities/fetch_categories_e
 
 @dao
 abstract class CategoryDao {
-  @Query('SELECT * FROM tbl_category')
+  // @Query('SELECT * FROM tbl_category')
+  // Future<List<FetchCategoryDetailsEntity>> getAllCategories();
+
+  @Query('SELECT * FROM tbl_category ORDER BY categoryName COLLATE NOCASE ASC')
   Future<List<FetchCategoryDetailsEntity>> getAllCategories();
 
   @Insert(onConflict: OnConflictStrategy.replace)

@@ -19,6 +19,7 @@ class SharedPreferenceHelper {
   static const _kAppVersion = 'app_version';
   static const _KOTStatus = 'KOT_status';
   static const _PrintGap = 'print_gap';
+  static const _base64Logo = 'base64Logo';
   static const String _restaurantCodeKey = '_restaurantCode';
   // ✅ GLOBAL NOTIFIER (this is what HomeScreen listens to)
   static const String _deviceTypeKey = 'device_type';
@@ -340,6 +341,19 @@ class SharedPreferenceHelper {
   Future<String> getVatIncludedStatus() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("vatIncludedStatus") ?? '';
+  }
+
+
+  // Save the base64 logo string
+   Future<bool> saveLogo(String base64Logo) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString(_base64Logo, base64Logo);
+  }
+
+  // Retrieve it later
+   Future<String?> getLogo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_base64Logo);
   }
 
   /// ------------------ Expiry Date ------------------

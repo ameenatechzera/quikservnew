@@ -967,7 +967,8 @@ class _PrintPageState extends State<PrintPage> {
       }
     } else {
       print('selectedPrinterSize$selectedPrinter');
-      //final ticket = await _generateTicket();
+      final savedDeviceType = await SharedPreferenceHelper().getDeviceType();
+
       final st_companyLogo = await SharedPreferenceHelper().getCompanyLogo() ?? "";
       final ticket ;
       int compnyFontSize = 0;
@@ -984,13 +985,21 @@ class _PrintPageState extends State<PrintPage> {
           PosTextSize.size1; // Large
         }
       }
-      if (selectedPrinter == '2inch') {
-         ticket = await ThermalPrinterService_2inches().generateReceipt(st_companyLogo,widget.sales);
+      print('savedDeviceType $savedDeviceType');
+      if(savedDeviceType=='SUNMI'){
+        if (selectedPrinter == '2inch') {
+          ticket = await ThermalPrinterService_2inches().generateReceipt(st_companyLogo,widget.sales);
+        }
+        else {
+          ticket = await ThermalPrinterService_3inches().generateReceipt(
+              st_companyLogo, widget.sales);
+        }
       }
-      else {
-         ticket = await ThermalPrinterService_3inches().generateReceipt(
-            st_companyLogo, widget.sales);
+      else{
+         ticket = await _generateTicket();
       }
+
+
 
      // final result = await PrintBluetoothThermal.writeBytes(ticket);
       final result = await PrintBluetoothThermal.writeBytes(ticket);
@@ -1042,6 +1051,7 @@ class _PrintPageState extends State<PrintPage> {
     return Scaffold(
       // appBar: AppBar(title: Text('Bluetooth Thermal Print')),
       body: Container(
+        height: double.infinity,
         color: Colors.white,
         child: Expanded(
           child: Column(
@@ -1049,8 +1059,8 @@ class _PrintPageState extends State<PrintPage> {
               Center(
                 child:
                 Container(
-                  child: Text('Printing Started...!'),
-                  color: Colors.white,
+                  child: Center(child: Text('Printing Started...!')),
+                  color: Colors.red,
                 )
                 // Lottie.asset(
                 //   'assets/success_animation.json',
@@ -1078,13 +1088,15 @@ class _PrintPageState extends State<PrintPage> {
                     },
                     builder: (context, state) {
                       if (state is SaleFinishSuccess) {
-                        return Container();
+                        return Container(
+                          child: Center(child: Text('Printer Checking..!')),
+                        );
                       } else {
                         return Center(
                           child: Expanded(
                             child: Container(
                               height: double.infinity,
-                              child: Text('Printer Checking..!'),
+                              child: Center(child: Text('Printer Checking..!')),
                             ),
                           )
                         //   Lottie.asset(
@@ -2729,14 +2741,14 @@ class _PrintPageState extends State<PrintPage> {
         _statusTextController.text =
             'Bluetooth is on..Check your printer connection';
       });
-      Fluttertoast.showToast(
-        msg: "Bluetooth is on state ",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.grey,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+      // Fluttertoast.showToast(
+      //   msg: "Bluetooth is on state ",
+      //   toastLength: Toast.LENGTH_SHORT,
+      //   gravity: ToastGravity.BOTTOM,
+      //   backgroundColor: Colors.grey,
+      //   textColor: Colors.white,
+      //   fontSize: 16.0,
+      // );
       print("Bluetooth is ON");
       // context.read<SaleCubit>().saleSaveFinished(10);
     }

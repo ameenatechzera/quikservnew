@@ -243,6 +243,8 @@ class PrintSettingsHelper {
     await SharedPreferenceHelper().saveLogoHeight(heightValue.value);
     await SharedPreferenceHelper().saveLogoWidth(widthValue.value);
     await SharedPreferenceHelper().saveDescriptionPrint(footerController.text);
+    print('widthValue.value ${widthValue.value}');
+    print('heightValue.value ${heightValue.value}');
 
     context.read<SettingsCubit>().savePrinterSettingsToServer(
       SavePrinterSettingsRequest(

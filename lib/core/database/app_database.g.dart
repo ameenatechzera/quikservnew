@@ -149,7 +149,8 @@ class _$CategoryDao extends CategoryDao {
 
   @override
   Future<List<FetchCategoryDetailsEntity>> getAllCategories() async {
-    return _queryAdapter.queryList('SELECT * FROM tbl_category',
+    return _queryAdapter.queryList(
+        'SELECT * FROM tbl_category ORDER BY categoryName COLLATE NOCASE ASC',
         mapper: (Map<String, Object?> row) => FetchCategoryDetailsEntity(
             categoryId: row['categoryId'] as int?,
             categoryName: row['categoryName'] as String?,

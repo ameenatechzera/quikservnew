@@ -47,20 +47,12 @@ class ThermalPrinterService_3inches {
   Future<List<int>> generateReceipt(String st_companyLogo, SalesDetailsByMasterIdResult? sales, {
 
     String? logoUrl = 'https://example.com/logo.png', // <-- put your logo URL here
-
   }) async {
-    companyNameFontSize = (await (SharedPreferenceHelper()
-        .fetchCompanyNameFontSize()))!;
-    int compnyFontSize = 0;
-
-    try {
-      compnyFontSize = int.parse(companyNameFontSize);
-    } catch (_) {
-      compnyFontSize = 0;
-    }
-    // logoHeight = (await SharedPreferenceHelper().fetchLogoHeight())!;
-    // logoWidth = (await SharedPreferenceHelper().fetchLogoWidth())!;
     List<int> bytes = [];
+
+    final profile = await CapabilityProfile.load();
+    const paperSize = PaperSize.mm80; // 3 inch printer
+    final generator = Generator(paperSize, profile);
     final vatEnableStatus = await SharedPreferenceHelper().getVatStatus();
     if(vatEnableStatus){
       vatStatus = true;
@@ -68,11 +60,10 @@ class ThermalPrinterService_3inches {
     else{
       vatStatus = false;
     }
+    final st_userName = await SharedPreferenceHelper().getStaffName();
     print('vatStatus$vatStatus');
-    final profile = await CapabilityProfile.load();
-    final generator = Generator(PaperSize.mm80, profile); // 3 inch printer
-
     // ---------- LOGO (top center) ----------
+
     if (st_companyLogo != null && st_companyLogo.isNotEmpty) {
       try {
         final response = await http.get(Uri.parse(st_companyLogo));
@@ -81,13 +72,20 @@ class ThermalPrinterService_3inches {
             Uint8List.fromList(response.bodyBytes),
           );
           if (decodedImage != null) {
-            // 80mm (3") printers are ~576 dots wide at 203dpi.
-            const int printerWidthDots = 576;
+            // Derive the real printable width from the paper size the
+            // generator was actually configured with — don't hardcode
+            // a single value, since 58mm/2" and 80mm/3" printers differ.
+            // 80mm/3" printers are ~576 dots wide at 203dpi.
+            final int printerWidthDots = switch (paperSize) {
+              PaperSize.mm58 => 384,
+              PaperSize.mm80 => 576,
+              _ => 576, // safe default if unknown
+            };
 
-            // Practical display size for a logo — much smaller than full
-            // paper width so it doesn't dominate the receipt.
-            const int maxLogoWidth = 260;
-            const int maxLogoHeight = 180;
+            // Practical display size for a logo — scale relative to the
+            // actual paper width so it doesn't dominate the receipt.
+            final int maxLogoWidth = (printerWidthDots * 0.45).round();
+            const int maxLogoHeight = 220;
 
             // Scale down by whichever dimension is more constraining,
             // preserving aspect ratio. Only shrink — never upscale a
@@ -128,109 +126,117 @@ class ThermalPrinterService_3inches {
         // rest of the receipt still prints.
       }
     }
-    // if (st_companyLogo != null && st_companyLogo.isNotEmpty) {
-    //   try {
-    //     final response = await http.get(Uri.parse(st_companyLogo)).timeout(const Duration(seconds: 5));
-    //     if (response.statusCode == 200) {
-    //       img.Image? decodedImage = img.decodeImage(
-    //         Uint8List.fromList(response.bodyBytes),
-    //       );
-    //       if (decodedImage != null) {
-    //         // 80mm (3") printers are ~576 dots wide at 203dpi.
-    //         const int printerWidthDots = 576;
-    //         const int maxLogoWidth = 570; // just under full width
-    //
-    //         // Fetch user-customized dimensions (nullable if never set)
-    //         final int? userLogoWidth = await SharedPreferenceHelper().fetchLogoWidth() as int;
-    //         final int? userLogoHeight = (await SharedPreferenceHelper().fetchLogoHeight()) as int?;
-    //
-    //         // Decide target width: user value if set & valid, else default fallback,
-    //         // but never exceed the physical printer width.
-    //         int targetWidth = (userLogoWidth != null && userLogoWidth > 0)
-    //             ? userLogoWidth
-    //             : (decodedImage.width > maxLogoWidth ? maxLogoWidth : decodedImage.width);
-    //         targetWidth = targetWidth.clamp(1, maxLogoWidth);
-    //
-    //         if (userLogoHeight != null && userLogoHeight > 0) {
-    //           // User specified BOTH dimensions explicitly — resize to exact
-    //           // width x height (may distort aspect ratio, which is fine
-    //           // since it's an explicit user choice).
-    //           decodedImage = img.copyResize(
-    //             decodedImage,
-    //             width: targetWidth,
-    //             height: userLogoHeight,
-    //           );
-    //         } else {
-    //           // Only width given (or nothing given) — resize by width only,
-    //           // letting height scale proportionally to preserve aspect ratio.
-    //           decodedImage = img.copyResize(decodedImage, width: targetWidth);
-    //         }
-    //
-    //         // Centering canvas trick (unchanged) — still needed since printer
-    //         // width is fixed regardless of logo size.
-    //         final canvas = img.Image(width: printerWidthDots, height: decodedImage.height);
-    //         img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
-    //         final int xOffset = ((printerWidthDots - decodedImage.width) / 2).round();
-    //         img.compositeImage(canvas, decodedImage, dstX: xOffset, dstY: 0);
-    //
-    //         bytes += generator.image(canvas, align: PosAlign.center);
-    //       }
-    //     }
-    //   } catch (e) {
-    //     // If the logo fails to load/decode, skip it silently so the
-    //     // rest of the receipt still prints.
-    //   }
-    // }
-    String st_company ='',st_companyAddress='',st_companyPhone='';
+    String st_company ='',st_companyAddress='',st_companyPhone='' , footer_description ='';
     st_company = await SharedPreferenceHelper().getCompanyName() ?? "";
     st_companyAddress =
         await SharedPreferenceHelper().getCompanyAddress1() ?? "";
     st_companyPhone = await SharedPreferenceHelper().getCompanyPhoneNo() ?? "";
+    footer_description = (await SharedPreferenceHelper().fetchDescriptionPrint())!;
 
+    String formatted ='' , formattedTime='';
+    try {
+      formatted = DateFormat('dd-MM-yyyy').format(
+          DateTime.parse(sales!.salesMaster!.invoiceDate!));
+    }catch(_){
+      print('Date_conversionError');
+    }
+    try{
+      formattedTime = formatTo12Hour(sales!.salesMaster!.invoiceTime);
+    }catch(_){
+      print('Time_conversionError');
+    }
     // ---------- HEADER ----------
     // At double width (size2) an 80mm/3" printer fits roughly half as many
-    // characters per line as normal text (~24 instead of ~48). Wrap the
-    // company name to that width ourselves and join with \n in a single
-    // text() call, so every line — including wrapped ones — stays centered.
+    // characters per line as normal text (~24 instead of ~48, vs ~16/~32
+    // on 58mm/2" paper). Wrap the company name to that width ourselves and
+    // join with \n in a single text() call, so every line — including
+    // wrapped ones — stays centered.
     final List<String> st_companyLines = _wordWrap(st_company, 24);
-    if (compnyFontSize >= 25) {
-      bytes += generator.text(
-        st_companyLines.join('\n'),
-        styles: const PosStyles(
-          align: PosAlign.center,
-          bold: true,
-          height: PosTextSize.size2,
-          width: PosTextSize.size2,
-        ),
-      );
-    }
-    else{
-      bytes += generator.text(
-        st_companyLines.join('\n'),
-        styles: const PosStyles(
-          align: PosAlign.center,
-          bold: true,
-          height: PosTextSize.size1,
-          width: PosTextSize.size1,
-        ),
-      );
-    }
-    // bytes += generator.text(
-    //   st_companyLines.join('\n'),
-    //   styles: const PosStyles(
-    //     align: PosAlign.center,
-    //     bold: true,
-    //     height: PosTextSize.size2,
-    //     width: PosTextSize.size2,
-    //   ),
-    // );
-    bytes += generator.hr(ch: '-');
-    bytes += generator.text(
-      st_companyAddress+'\n PH :'+st_companyPhone,
-      styles: const PosStyles(align: PosAlign.center, bold: true),
-    );
-    bytes += generator.hr(ch: '-');
+    // Company name — split into individual lines so each one gets its own
+// centering calculation. Passing a single string with embedded '\n'
+// only centers the first line correctly, especially at size2 (double
+// width) where the character budget per line is much smaller — long
+// lines wrap and the wrapped remainder isn't centered.
+    for (final line in st_companyLines) {
+      if (line.trim().isEmpty) continue;
 
+
+      bytes += generator.row([
+        PosColumn(
+          text: '',
+          width: 3,
+          styles: const PosStyles(align: PosAlign.center, bold: true),
+        ),
+
+
+        PosColumn(
+          text: line.trim(),
+          width: 6,
+          styles: const PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
+        ),
+
+        PosColumn(
+          text: '',
+          width: 3,
+          styles: const PosStyles(align: PosAlign.center, bold: true),
+        ),
+
+      ]);
+
+    }
+
+// bytes += generator.hr(ch: '-');
+
+// Address and phone — same issue, split into two separate calls
+// instead of concatenating with '\n' into one string.
+//     bytes += generator.text(
+//       st_companyAddress,
+//       styles: const PosStyles(align: PosAlign.center, bold: true),
+//     );
+    bytes += generator.row([
+      PosColumn(
+        text: '',
+        width: 3,
+        styles: const PosStyles(align: PosAlign.center, bold: true),
+      ),
+
+
+      PosColumn(
+        text: st_companyAddress.trim(),
+        width: 6,
+        styles: const PosStyles(align: PosAlign.center, bold: true),
+      ),
+
+      PosColumn(
+        text: '',
+        width: 3,
+        styles: const PosStyles(align: PosAlign.center, bold: true),
+      ),
+
+    ]);
+
+    bytes += generator.row([
+
+
+      PosColumn(
+        text: '',
+        width: 1,
+        styles: const PosStyles(align: PosAlign.center, bold: true),
+      ),
+      PosColumn(
+        text:  'Phone No: $st_companyPhone',
+        width: 10,
+        styles: const PosStyles(align: PosAlign.center, bold: true),
+      ),
+
+      PosColumn(
+        text: '',
+        width: 1,
+        styles: const PosStyles(align: PosAlign.center, bold: true),
+      ),
+
+    ]);
+    bytes += generator.hr(ch: '-');
     // ---------- BILL INFO ----------
     bytes += generator.row([
       PosColumn(
@@ -246,12 +252,12 @@ class ThermalPrinterService_3inches {
     ]);
     bytes += generator.row([
       PosColumn(
-        text: 'Date: '+sales!.salesMaster!.invoiceDate.toString(),
+        text: 'Date: '+formatted.toString(),
         width: 7,
         styles: const PosStyles(align: PosAlign.left, bold: true),
       ),
       PosColumn(
-        text: ' '+sales!.salesMaster!.invoiceTime.toString(),
+        text: ' '+formattedTime.toString(),
         width: 5,
         styles: const PosStyles(align: PosAlign.right, bold: true),
       ),
@@ -264,9 +270,9 @@ class ThermalPrinterService_3inches {
 
     // ---------- ITEM TABLE HEADER ----------
     bytes += generator.row([
-      PosColumn(text: 'No', width: 1, styles: const PosStyles(align: PosAlign.left, bold: true)),
+      // PosColumn(text: 'No', width: 1, styles: const PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(text: 'Item', width: 4, styles: const PosStyles(align: PosAlign.left, bold: true)),
-      PosColumn(text: 'Qty', width: 2, styles: const PosStyles(align: PosAlign.left, bold: true)),
+      PosColumn(text: 'Qty', width: 3, styles: const PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(text: 'Rate', width: 2, styles: const PosStyles(align: PosAlign.right, bold: true)),
 
       PosColumn(text: 'Amt', width: 3, styles: const PosStyles(align: PosAlign.right, bold: true)),
@@ -283,7 +289,8 @@ class ThermalPrinterService_3inches {
       try {
         String? stQty = sales.salesDetails[i].qty.toString();
         dblQty = double.parse(stQty!);
-        st_unitwithQty = dblQty.toString() + ' ' + sales.salesDetails[i].unitName;
+        // st_unitwithQty = dblQty.toString() + ' ' + sales.salesDetails[i].unitName;
+        st_unitwithQty = dblQty.toString();
       } catch (_) {}
 
       String st_rate = sales.salesDetails[i].salesRate.toString();
@@ -304,12 +311,12 @@ class ThermalPrinterService_3inches {
       bytes += generator.row([
         PosColumn(
           text: '',
-          width: 1,
+          width: 2,
           styles: const PosStyles(align: PosAlign.left),
         ),
         PosColumn(
           text: st_unitwithQty,
-          width: 4,
+          width: 3,
           styles: const PosStyles(align: PosAlign.right, bold: true),
         ),
         PosColumn(
@@ -338,12 +345,12 @@ class ThermalPrinterService_3inches {
 
     String? st_paycash = sales!.salesMaster?.cashAmount.toString();
     String? st_paycard = sales!.salesMaster?.cardAmount.toString();
-    //vatStatus = true;
+
 
 
     ////////////////////////////////
     // Sub Total — normal size, smaller than Net Amount
-    if(vatStatus) {
+    if (vatStatus) {
       bytes += generator.row([
         PosColumn(
           text: 'Sub Total:',
@@ -356,9 +363,7 @@ class ThermalPrinterService_3inches {
           styles: const PosStyles(align: PosAlign.right, bold: true),
         ),
       ]);
-    }
 
-    if (vatStatus) {
       bytes += generator.row([
         PosColumn(
           text: 'Tax:',
@@ -393,16 +398,18 @@ class ThermalPrinterService_3inches {
       dblPaycashCheck = double.parse(st_paycash!);
     } catch (_) {}
     if (dblPaycashCheck > 0) {
+
+
       bytes += generator.row([
         PosColumn(
           text: 'Cash:',
           width: 7,
-          styles: const PosStyles(align: PosAlign.left, bold: true, fontType: PosFontType.fontB),
+          styles: const PosStyles(align: PosAlign.left, bold: true, height: PosTextSize.size1),
         ),
         PosColumn(
           text: st_paycash!,
           width: 5,
-          styles: const PosStyles(align: PosAlign.right, bold: true, fontType: PosFontType.fontB),
+          styles: const PosStyles(align: PosAlign.right, bold: true, height: PosTextSize.size1),
         ),
       ]);
     }
@@ -429,14 +436,14 @@ class ThermalPrinterService_3inches {
     bytes += generator.hr(ch: '-');
     String st_OrderNo = '${sales.salesMaster?.billTokenNo ?? ''}';
     // ---------- FOOTER ----------
-    bytes += generator.text('(Cashier)', styles: const PosStyles(align: PosAlign.center));
-   // bytes += generator.text('Kot No  : 0', styles: const PosStyles(align: PosAlign.left, bold: true));
+    bytes += generator.text('('+st_userName+')',styles: const PosStyles(align: PosAlign.center, bold:true));
+    // bytes += generator.text('Kot No  : 0', styles: const PosStyles(align: PosAlign.left, bold: true));
     bytes += generator.text(
       'Tocken No : '+st_OrderNo,
       styles: const PosStyles(align: PosAlign.left, bold: true, height: PosTextSize.size2),
     );
     bytes += generator.text(
-      'THANK YOU VISIT AGAIN\nPowered by Techzera',
+      footer_description,
       styles: const PosStyles(align: PosAlign.center, bold: true),
     );
 
@@ -444,6 +451,10 @@ class ThermalPrinterService_3inches {
     bytes += generator.cut();
 
     return bytes;
+  }
+  String formatTo12Hour(String time24) {
+    final parsed = DateFormat('HH:mm:ss').parse(time24); // adjust pattern below if needed
+    return DateFormat('hh:mm a').format(parsed);
   }
 }
 

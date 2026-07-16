@@ -47,6 +47,7 @@ class CompanyModel {
   final int receipt;
   final int payment;
   final String baseUrl;
+  final String base64Logo;
 
   CompanyModel({
     required this.companyId,
@@ -71,7 +72,8 @@ class CompanyModel {
     required this.sale,
     required this.receipt,
     required this.payment,
-    required this.baseUrl
+    required this.baseUrl,
+    required this.base64Logo
   });
 
   factory CompanyModel.fromJson(Map<String, dynamic> json) {
@@ -100,7 +102,8 @@ class CompanyModel {
       sale: json['sale'] ?? 0,
       receipt: json['receipt'] ?? 0,
       payment: json['payment'] ?? 0,
-        baseUrl: json['baseUrl'] ?? ''
+        baseUrl: json['baseUrl'] ?? '',
+        base64Logo: json['base64Logo'] ?? ''
     );
   }
 }
