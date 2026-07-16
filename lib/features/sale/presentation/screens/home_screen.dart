@@ -471,13 +471,13 @@ class _HomeScreenState extends State<HomeScreen>
 
               // ================= FILTER LOGIC =================
 
-              if (!isMenuMode) {
-                // ✅ NORMAL MODE → APPLY CATEGORY
-                if (selectedCategoryId != 0) {
-                  products = products
-                      .where((p) => p.categoryId == selectedCategoryId)
-                      .toList();
-                }
+              // if (!isMenuMode) {
+              // ✅ NORMAL MODE → APPLY CATEGORY
+              if (selectedCategoryId != 0) {
+                products = products
+                    .where((p) => p.categoryId == selectedCategoryId)
+                    .toList();
+                // }
               }
 
               // ✅ APPLY SEARCH
@@ -1549,11 +1549,27 @@ class _HomeScreenState extends State<HomeScreen>
                 // Apply search filter
                 return BlocBuilder<SaleCubit, SaleState>(
                   builder: (context, state) {
-                    // ✅ Get query from cubit
-                    final query = context.read<SaleCubit>().searchQuery;
+                    // // ✅ Get query from cubit
+                    // final query = context.read<SaleCubit>().searchQuery;
 
-                    final filteredProducts = searchProducts(products!, query);
+                    // final filteredProducts = searchProducts(products!, query);
+                    final saleCubit = context.read<SaleCubit>();
+                    final query = saleCubit.searchQuery;
+                    final selectedCategoryId = saleCubit.selectedCategoryId;
 
+                    final categoryFilteredProducts = selectedCategoryId == 0
+                        ? products!
+                        : products!
+                              .where(
+                                (product) =>
+                                    product.categoryId == selectedCategoryId,
+                              )
+                              .toList();
+
+                    final filteredProducts = searchProducts(
+                      categoryFilteredProducts,
+                      query,
+                    );
                     if (filteredProducts.isEmpty && query.isNotEmpty) {
                       return Center(
                         child: Column(
