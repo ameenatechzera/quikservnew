@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quikservnew/core/appdata/appdata.dart';
 import 'package:quikservnew/core/theme/colors.dart';
+import 'package:quikservnew/features/authentication/domain/parameters/register_server_params.dart';
+import 'package:quikservnew/features/authentication/presentation/bloc/registercubit/register_cubit.dart';
 import 'package:quikservnew/features/cart/data/models/cart_item_model.dart';
 import 'package:quikservnew/features/cart/domain/usecases/cart_manager.dart';
 import 'package:quikservnew/features/category/presentation/bloc/category_cubit.dart';
@@ -31,7 +33,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final CartManager cartManager;
   int _previousTabIndex = 0;
   final ValueNotifier<int> selectedSaleTab = ValueNotifier<int>(0);
@@ -91,8 +93,9 @@ class _HomeScreenState extends State<HomeScreen>
     );
     cartManager = CartManager();
     requestBluetoothPermissions();
+    WidgetsBinding.instance.addObserver(this);
 
-    // ✅ Load initial data ONCE (avoid calling inside build)
+    _checkRegisterServer(); // ✅ Load initial data ONCE (avoid calling inside build)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductCubit>().loadProductsFromLocal();
       context
@@ -107,6 +110,68 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  Future<void> _checkRegisterServer() async {
+    final helper = SharedPreferenceHelper();
+
+    final today = DateTime.now().toIso8601String().split('T').first;
+
+    final lastRegisterDate = await helper.getLastRegisterDate();
+
+    if (lastRegisterDate != today) {
+      final restaurantCode = await helper.getRestaurantCode();
+
+      await context.read<RegisterCubit>().refreshServerDetails(
+        RegisterServerRequest(slno: restaurantCode ?? ''),
+      );
+    }
+
+    await _checkExpiry();
+  }
+
+  Future<void> _checkExpiry() async {
+    final helper = SharedPreferenceHelper();
+
+    final expiryString = await helper.getExpiryDate();
+
+    if (expiryString.isEmpty) return;
+
+    final expiryDate = DateTime.tryParse(expiryString);
+
+    if (expiryDate == null) return;
+
+    if (DateTime.now().isAfter(expiryDate)) {
+      _showExpiryDialog();
+    }
+  }
+
+  void _showExpiryDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Subscription Expired"),
+          content: const Text("Please contact your administrator."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                SystemNavigator.pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkRegisterServer();
+    }
+  }
+
   @override
   void dispose() {
     itemTapBehaviorNotifier.removeListener(_itemTapListener);
@@ -117,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen>
     // Dispose animation controller
     _menuAnimationController.dispose();
     _searchController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

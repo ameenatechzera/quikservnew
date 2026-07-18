@@ -17,8 +17,6 @@ import 'package:quikservnew/features/salesReport/domain/entities/salesdetails_by
 import 'package:quikservnew/features/salesReport/domain/parameters/salesDetails_request_parameter.dart';
 import 'package:quikservnew/features/salesReport/domain/usecases/salesdetails_bymasterid_usecase.dart';
 import 'package:quikservnew/features/settings/data/models/fetch_settings_model.dart';
-import 'package:quikservnew/features/settings/domain/entities/loyalty_customer_entity.dart';
-import 'package:quikservnew/features/settings/domain/usecases/fetch_loyalty_customers_usecase.dart';
 import 'package:quikservnew/features/settings/domain/usecases/fetch_settings_usecase.dart';
 
 part 'sale_state.dart';
@@ -35,7 +33,6 @@ class SaleCubit extends Cubit<SaleState> {
   //final FetchLoyaltyCustomersUseCase _fetchLoyaltyCustomersUseCase;
 
   //use this while reload
-
 
   bool _isSearchBarVisible = false;
   bool _isMenuMode = false;
@@ -59,13 +56,13 @@ class SaleCubit extends Cubit<SaleState> {
     fetchLoyaltyDetailsBySearchUseCase,
     // required FetchLoyaltyCustomersUseCase fetchLoyaltyCustomersUseCase,
   }) : _saveSaleUseCase = saveSaleUseCase,
-        _productLocalRepository = productLocalRepository,
+       _productLocalRepository = productLocalRepository,
        _salesDetailsByMasterIdUseCase = salesDetailsByMasterIdUseCase,
        _fetchLoyaltyDetailsBySearchUseCase = fetchLoyaltyDetailsBySearchUseCase,
-  _fetchSettingsUseCase = fetchSettingsUseCase,
+       _fetchSettingsUseCase = fetchSettingsUseCase,
 
-  _fetchCategoriesUseCase = fetchCategoriesUseCase,
-        _categoryLocalRepository = categoryLocalRepository,
+       _fetchCategoriesUseCase = fetchCategoriesUseCase,
+       _categoryLocalRepository = categoryLocalRepository,
 
        //_fetchLoyaltyCustomersUseCase = fetchLoyaltyCustomersUseCase,
        super(SaleInitial());
@@ -151,16 +148,17 @@ class SaleCubit extends Cubit<SaleState> {
       emit(SaleError(error: e.toString()));
     }
   }
+
   //Fetch Products while reload
   Future<void> fetchProductsReload() async {
     print('FetchProducts');
     emit(ProductReloadLoading());
     final response = await fetchProductsUseCase();
     response.fold(
-          (failure) {
+      (failure) {
         emit(ProductReloadFailure(failure.message));
       },
-          (productResponse) async {
+      (productResponse) async {
         final productsList = productResponse.productDetails ?? [];
         try {
           await _productLocalRepository.saveProducts(productsList);
@@ -172,6 +170,7 @@ class SaleCubit extends Cubit<SaleState> {
       },
     );
   }
+
   //Fetch Settings while reload
   Future<void> fetchSettingsReload() async {
     emit(SettingsReloadLoading());
@@ -179,24 +178,27 @@ class SaleCubit extends Cubit<SaleState> {
     final response = await _fetchSettingsUseCase();
 
     response.fold(
-          (failure) => emit(SettingsReloadError(error: failure.message)),
-          (response) => emit(SettingsReloadLoaded(settings: response)),
+      (failure) => emit(SettingsReloadError(error: failure.message)),
+      (response) => emit(SettingsReloadLoaded(settings: response)),
     );
   }
+
   // --------------------- API Fetch ---------------------
   Future<void> fetchCategoriesReload() async {
     emit(CategoryReloadLoading());
 
     final response = await _fetchCategoriesUseCase();
 
-    response.fold((failure) => emit(CategoryReloadError(error: failure.message)), (
-        categoryResponse,
-        ) async {
-      final categoriesList = categoryResponse.categories ?? [];
-      await _categoryLocalRepository.saveCategories(categoriesList);
-      emit(CategoryReloadLoaded(categories: categoryResponse));
-    });
+    response.fold(
+      (failure) => emit(CategoryReloadError(error: failure.message)),
+      (categoryResponse) async {
+        final categoriesList = categoryResponse.categories ?? [];
+        await _categoryLocalRepository.saveCategories(categoriesList);
+        emit(CategoryReloadLoaded(categories: categoryResponse));
+      },
+    );
   }
+
   // --------------------- API Fetch SalesDetails By MasterId ---------------------
   Future<void> fetchSalesDetailsByMasterId(
     FetchSalesDetailsRequest request,
