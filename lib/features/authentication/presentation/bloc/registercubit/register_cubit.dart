@@ -68,16 +68,20 @@ class RegisterCubit extends Cubit<RegisterState> {
         await SharedPreferenceHelper().setCompanyAddress2(company.address2);
         await SharedPreferenceHelper().setCompanyPhoneNo(company.phone);
         await SharedPreferenceHelper().setBaseUrl(company.baseUrl);
-        await SharedPreferenceHelper().setVatIncludedStatus(company.isVatIncluded.toString());
+        await SharedPreferenceHelper().setVatIncludedStatus(
+          company.isVatIncluded.toString(),
+        );
         await SharedPreferenceHelper().saveLogo(company.base64Logo.toString());
         bool vatEnabled = false;
-        if(company.vatEnable==1){
+        if (company.vatEnable == 1) {
           vatEnabled = true;
         }
         print('company.vatEnable ${company.vatEnable}');
         await SharedPreferenceHelper().setVatStatus(vatEnabled);
         await SharedPreferenceHelper().setVatType(company.vatType!);
-        await SharedPreferenceHelper().setRestaurantCode(registerServerRequest.slno);
+        await SharedPreferenceHelper().setRestaurantCode(
+          registerServerRequest.slno,
+        );
 
         emit(RegisterSuccess(response));
       },
@@ -96,6 +100,58 @@ class RegisterCubit extends Cubit<RegisterState> {
       },
       (_) {
         emit(const ChangePasswordSuccess());
+      },
+    );
+  }
+
+  Future<void> refreshServerDetails(
+    RegisterServerRequest registerServerRequest,
+  ) async {
+    print("Register Server API Called");
+    final response = await _registerServerUseCase(registerServerRequest);
+
+    response.fold(
+      (failure) {
+        print(failure.message);
+      },
+      (response) async {
+        final company = response.companyDetails.first;
+
+        await SharedPreferenceHelper().setDatabaseName(
+          company.databaseName ?? '',
+        );
+
+        await SharedPreferenceHelper().setExpiryDate(company.expiryDate ?? '');
+
+        await SharedPreferenceHelper().setCompanyName(company.companyName);
+
+        await SharedPreferenceHelper().setCompanyAddress1(company.address1);
+
+        await SharedPreferenceHelper().setCompanyAddress2(company.address2);
+
+        await SharedPreferenceHelper().setCompanyPhoneNo(company.phone);
+
+        await SharedPreferenceHelper().setBaseUrl(company.baseUrl);
+
+        await SharedPreferenceHelper().setVatIncludedStatus(
+          company.isVatIncluded.toString(),
+        );
+
+        await SharedPreferenceHelper().saveLogo(company.base64Logo.toString());
+
+        bool vatEnabled = company.vatEnable == 1;
+
+        await SharedPreferenceHelper().setVatStatus(vatEnabled);
+
+        await SharedPreferenceHelper().setVatType(company.vatType!);
+
+        await SharedPreferenceHelper().setRestaurantCode(
+          registerServerRequest.slno,
+        );
+
+        await SharedPreferenceHelper().setLastRegisterDate(
+          DateTime.now().toIso8601String().split('T').first,
+        );
       },
     );
   }

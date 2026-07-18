@@ -11,7 +11,6 @@ class ApiConstants {
   /// Returns the full URL for Login endpoint
   static String getLoginPath(String baseUrl) {
     return '${baseUrl}login';
-
   }
 
   ///for units fetching
@@ -174,7 +173,6 @@ class ApiConstants {
     return '${baseUrl}salesmaster/item-wise-sales-summary';
   }
 
-
   ///for Day close report
   static String getDayCloseReportPath(String baseUrl) {
     return '${baseUrl}salesmaster/summary-report-payment-mode';
@@ -191,14 +189,18 @@ class ApiConstants {
   }
 
   //for Delete Account Groups
-  static String getDeleteAccountGroupsPath(String baseUrl,
-      String st_accountGroupId,) {
+  static String getDeleteAccountGroupsPath(
+    String baseUrl,
+    String st_accountGroupId,
+  ) {
     return '${baseUrl}accountgroup/delete-accountgroup/' + st_accountGroupId;
   }
 
   ///for Update Account Groups
-  static String getUpdateAccountGroupsPath(String baseUrl,
-      String st_accountGroupId,) {
+  static String getUpdateAccountGroupsPath(
+    String baseUrl,
+    String st_accountGroupId,
+  ) {
     return '${baseUrl}accountgroup/update-accountgroup/' + st_accountGroupId;
   }
 
@@ -254,7 +256,6 @@ class ApiConstants {
   static String fetchItemWiseReportNewReportPath(String baseUrl) {
     return '${baseUrl}salesmaster/item-wise-sales-summaryNew';
   }
-
 
   static String fetchSavePrinterSettingsPath(String baseUrl) {
     return '${baseUrl}settings/save-printerSettings';

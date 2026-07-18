@@ -343,15 +343,14 @@ class SharedPreferenceHelper {
     return prefs.getString("vatIncludedStatus") ?? '';
   }
 
-
   // Save the base64 logo string
-   Future<bool> saveLogo(String base64Logo) async {
+  Future<bool> saveLogo(String base64Logo) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.setString(_base64Logo, base64Logo);
   }
 
   // Retrieve it later
-   Future<String?> getLogo() async {
+  Future<String?> getLogo() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_base64Logo);
   }
@@ -565,5 +564,15 @@ class SharedPreferenceHelper {
   Future<String> getDeviceType() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_deviceTypeKey) ?? 'SUNMI';
+  }
+
+  Future<void> setLastRegisterDate(String date) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_register_date', date);
+  }
+
+  Future<String?> getLastRegisterDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('last_register_date');
   }
 }
