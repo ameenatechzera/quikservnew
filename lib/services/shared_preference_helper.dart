@@ -556,6 +556,8 @@ class SharedPreferenceHelper {
     return prefs.getString('printer_type') ?? 'Wifi';
   }
 
+
+
   /// ------------------ Device Type ------------------
   Future<void> setDeviceType(String deviceType) async {
     final prefs = await SharedPreferences.getInstance();

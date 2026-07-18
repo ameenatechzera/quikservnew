@@ -825,6 +825,7 @@ class _PrinterSettingsContentState extends State<PrinterSettingsContent> {
           Navigator.pop(context);
 
           print('paperSize $paperSize');
+          print('printerType $printerType');
           await SharedPreferenceHelper().savePrinterType(printerType);
           await SharedPreferenceHelper().saveSelectedPrinterSize(paperSize!);
           await SharedPreferenceHelper().saveCompanyNameFontSize(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
@@ -61,31 +63,39 @@ class ThermalPrinterService_3inches {
       vatStatus = false;
     }
     final st_userName = await SharedPreferenceHelper().getStaffName();
+    st_companyLogo ='';
+    try {
+      st_companyLogo = (await SharedPreferenceHelper().getLogo())!;
+    }catch(_){
+
+    }
     print('vatStatus$vatStatus');
     // ---------- LOGO (top center) ----------
 
     if (st_companyLogo != null && st_companyLogo.isNotEmpty) {
+
       try {
-        final response = await http.get(Uri.parse(st_companyLogo));
-        if (response.statusCode == 200) {
-          img.Image? decodedImage = img.decodeImage(
-            Uint8List.fromList(response.bodyBytes),
-          );
+        // st_companyLogo now holds a base64-encoded image string
+        // (e.g. retrieved from SharedPreferences) instead of a URL.
+        if (st_companyLogo.isNotEmpty) {
+          // Strip "data:image/jpeg;base64," prefix if present
+          final String cleanBase64 = st_companyLogo.contains(',')
+              ? st_companyLogo.split(',').last
+              : st_companyLogo;
+
+          final Uint8List logoBytes = base64Decode(cleanBase64);
+
+          img.Image? decodedImage = img.decodeImage(logoBytes);
+
           if (decodedImage != null) {
-            // Derive the real printable width from the paper size the
-            // generator was actually configured with — don't hardcode
-            // a single value, since 58mm/2" and 80mm/3" printers differ.
-            // 80mm/3" printers are ~576 dots wide at 203dpi.
-            final int printerWidthDots = switch (paperSize) {
-              PaperSize.mm58 => 384,
-              PaperSize.mm80 => 576,
-              _ => 576, // safe default if unknown
-            };
+            // 3-inch (80mm) paper is ~576 dots wide at 203dpi.
+            // Locked to 80mm since that's the target paper size here.
+            const int printerWidthDots = 576;
 
             // Practical display size for a logo — scale relative to the
             // actual paper width so it doesn't dominate the receipt.
             final int maxLogoWidth = (printerWidthDots * 0.45).round();
-            const int maxLogoHeight = 220;
+            const int maxLogoHeight = 180;
 
             // Scale down by whichever dimension is more constraining,
             // preserving aspect ratio. Only shrink — never upscale a
@@ -481,26 +491,33 @@ class ThermalPrinterService_2inches {
       vatStatus = false;
     }
     final st_userName = await SharedPreferenceHelper().getStaffName();
+    st_companyLogo ='';
+    try {
+      st_companyLogo = (await SharedPreferenceHelper().getLogo())!;
+    }catch(_){
+
+    }
     print('vatStatus$vatStatus');
     // ---------- LOGO (top center) ----------
 
     if (st_companyLogo != null && st_companyLogo.isNotEmpty) {
       try {
-        final response = await http.get(Uri.parse(st_companyLogo));
-        if (response.statusCode == 200) {
-          img.Image? decodedImage = img.decodeImage(
-            Uint8List.fromList(response.bodyBytes),
-          );
+        // st_companyLogo now holds a base64-encoded image string
+        // (e.g. retrieved from SharedPreferences) instead of a URL.
+        if (st_companyLogo.isNotEmpty) {
+          // Strip "data:image/jpeg;base64," prefix if present
+          final String cleanBase64 = st_companyLogo.contains(',')
+              ? st_companyLogo.split(',').last
+              : st_companyLogo;
+
+          final Uint8List logoBytes = base64Decode(cleanBase64);
+
+          img.Image? decodedImage = img.decodeImage(logoBytes);
+
           if (decodedImage != null) {
-            // Derive the real printable width from the paper size the
-            // generator was actually configured with — don't hardcode
-            // 576, since that's only correct for 80mm/3" printers.
-            // 58mm/2" printers are ~384 dots wide at 203dpi.
-            final int printerWidthDots = switch (PaperSize.mm58) {
-              PaperSize.mm58 => 384,
-              PaperSize.mm80 => 576,
-              _ => 384, // safe default if unknown
-            };
+            // 2-inch (58mm) paper is ~384 dots wide at 203dpi.
+            // Locked to 58mm since that's the target paper size here.
+            const int printerWidthDots = 384;
 
             // Practical display size for a logo — scale relative to the
             // actual paper width so it doesn't dominate the receipt.

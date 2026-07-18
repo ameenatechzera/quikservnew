@@ -64,6 +64,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
   void initState() {
     super.initState();
     companyNameController.text = widget.companyName;
+
     _loadSelectedDeviceType();
     PrintSettingsHelper().fetchPrinterSettings(
       selectedPrinterType: selectedPrinterType,
@@ -74,6 +75,7 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
       widthValue: widthValue,
       heightValue: heightValue,
       companyFontSizeController: companyFontSizeController,
+      footerDescriptionController: footerController,
       onLoaded:
           (
             fetchedPaperSize,
@@ -81,8 +83,10 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
             fetchedPrinterType,
             fetchedCompanyAddressStatus,
             fetchedCompanyPhoneStatus,
+            fetchedFooterDescription
           ) {
             setState(() {
+              footerController.text =fetchedFooterDescription;
               paperSize = fetchedPaperSize;
               companyNameFontSize = fetchedCompanyNameFontSize;
               if (fetchedPrinterType.isNotEmpty) {
@@ -709,6 +713,8 @@ class _PrintSettingsScreenState extends State<PrintSettingsScreen> {
                     ),
                   ),
                   onPressed: () async {
+                    print('printerType $printerType');
+                    await SharedPreferenceHelper().savePrinterType(printerType);
                     await _saveSelectedDeviceType();
                     Navigator.pop(context);
                     await PrintSettingsHelper().saveSettings(

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -107,9 +110,56 @@ class SubscriptionInfoCard extends StatelessWidget {
                                 //     size: 22,
                                 //   ),
                                 // ),
-                                child: FutureBuilder<String?>(
-                                  future: SharedPreferenceHelper()
-                                      .getCompanyLogo(),
+                                child:
+                                // FutureBuilder<String?>(
+                                //   future: SharedPreferenceHelper()
+                                //       .getCompanyLogo(),
+                                //   builder: (context, snapshot) {
+                                //     final logo = snapshot.data;
+                                //     print("LOGO VALUE => $logo");
+                                //
+                                //     if (logo == null || logo.isEmpty) {
+                                //       print("LOGO IS EMPTY");
+                                //       return const Center(
+                                //         child: Icon(
+                                //           Icons.restaurant_menu,
+                                //           color: Colors.white,
+                                //           size: 22,
+                                //         ),
+                                //       );
+                                //     }
+                                //     if (logo == null || logo.isEmpty) {
+                                //       return const Center(
+                                //         child: Icon(
+                                //           Icons.restaurant_menu,
+                                //           color: Colors.white,
+                                //           size: 22,
+                                //         ),
+                                //       );
+                                //     }
+                                //
+                                //     return ClipOval(
+                                //       child: Image.network(
+                                //         logo,
+                                //         width: 78,
+                                //         height: 78,
+                                //         fit: BoxFit.cover,
+                                //         errorBuilder:
+                                //             (context, error, stackTrace) {
+                                //               return const Center(
+                                //                 child: Icon(
+                                //                   Icons.restaurant_menu,
+                                //                   color: Colors.white,
+                                //                   size: 22,
+                                //                 ),
+                                //               );
+                                //             },
+                                //       ),
+                                //     );
+                                //   },
+                                // ),
+                                FutureBuilder<String?>(
+                                  future: SharedPreferenceHelper().getLogo(),
                                   builder: (context, snapshot) {
                                     final logo = snapshot.data;
                                     print("LOGO VALUE => $logo");
@@ -124,7 +174,19 @@ class SubscriptionInfoCard extends StatelessWidget {
                                         ),
                                       );
                                     }
-                                    if (logo == null || logo.isEmpty) {
+
+                                    Uint8List? imageBytes;
+                                    try {
+                                      // Strip "data:image/jpeg;base64," prefix if present
+                                      final cleanBase64 =
+                                      logo.contains(',') ? logo.split(',').last : logo;
+                                      imageBytes = base64Decode(cleanBase64);
+                                    } catch (e) {
+                                      print("LOGO DECODE ERROR => $e");
+                                      imageBytes = null;
+                                    }
+
+                                    if (imageBytes == null) {
                                       return const Center(
                                         child: Icon(
                                           Icons.restaurant_menu,
@@ -135,21 +197,20 @@ class SubscriptionInfoCard extends StatelessWidget {
                                     }
 
                                     return ClipOval(
-                                      child: Image.network(
-                                        logo,
+                                      child: Image.memory(
+                                        imageBytes,
                                         width: 78,
                                         height: 78,
                                         fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return const Center(
-                                                child: Icon(
-                                                  Icons.restaurant_menu,
-                                                  color: Colors.white,
-                                                  size: 22,
-                                                ),
-                                              );
-                                            },
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return const Center(
+                                            child: Icon(
+                                              Icons.restaurant_menu,
+                                              color: Colors.white,
+                                              size: 22,
+                                            ),
+                                          );
+                                        },
                                       ),
                                     );
                                   },

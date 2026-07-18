@@ -69,21 +69,26 @@ class PrintSettingsHelper {
     required ValueNotifier<double> widthValue,
     required ValueNotifier<double> heightValue,
     required TextEditingController companyFontSizeController,
+    required TextEditingController footerDescriptionController,
     required Function(
       String? paperSize,
       String companyNameFontSize,
       String printerType,
       bool stCompanyAddressStatus,
       bool stCompanyPhoneStatus,
+        String footerDescr
     )
     onLoaded,
   }) async {
+
     String? paperSize = await SharedPreferenceHelper()
         .loadSelectedPrinterSize();
     String companyNameFontSize =
         (await SharedPreferenceHelper().fetchCompanyNameFontSize()) ?? '';
     String printerType = '';
     final loadedPrinterType = await SharedPreferenceHelper().fetchPrinterType();
+    final footerDescription = await SharedPreferenceHelper().fetchDescriptionPrint();
+    print('loadedPrinterType $loadedPrinterType');
     if (loadedPrinterType.isNotEmpty) {
       printerType = loadedPrinterType;
       selectedPrinterType.value = loadedPrinterType.toLowerCase() == 'wifi'
@@ -122,6 +127,7 @@ class PrintSettingsHelper {
       printerType,
       stCompanyAddressStatus,
       stCompanyPhoneStatus,
+        footerDescription!
     );
   }
 
