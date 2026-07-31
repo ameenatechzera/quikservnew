@@ -195,7 +195,7 @@ class _PrintPageState extends State<PrintPage> {
         ),
       ]);
     }
-    if (selectedPrinter == '3 inch') {
+    if (selectedPrinter == '3inch') {
       bytes += generator.row([
         PosColumn(
           text: 'Token No',

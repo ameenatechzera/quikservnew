@@ -16,6 +16,7 @@ import 'package:quikservnew/services/shared_preference_helper.dart';
 /// break only if a single word is longer than [maxChars].
 String companyNameFontSize ='';
 bool vatStatus = false;
+String st_company ='',st_TinNo ='';
 List<String> _wordWrap(String text, int maxChars) {
   if (text.isEmpty) return [''];
   final words = text.split(' ');
@@ -172,24 +173,24 @@ class ThermalPrinterService_3inches {
 
 
       bytes += generator.row([
-        PosColumn(
-          text: '',
-          width: 3,
-          styles: const PosStyles(align: PosAlign.center, bold: true),
-        ),
+        // PosColumn(
+        //   text: '',
+        //   width: 3,
+        //   styles: const PosStyles(align: PosAlign.center, bold: true),
+        // ),
 
 
         PosColumn(
           text: line.trim(),
-          width: 6,
+          width: 12,
           styles: const PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
         ),
 
-        PosColumn(
-          text: '',
-          width: 3,
-          styles: const PosStyles(align: PosAlign.center, bold: true),
-        ),
+        // PosColumn(
+        //   text: '',
+        //   width: 3,
+        //   styles: const PosStyles(align: PosAlign.center, bold: true),
+        // ),
 
       ]);
 
@@ -204,24 +205,15 @@ class ThermalPrinterService_3inches {
 //       styles: const PosStyles(align: PosAlign.center, bold: true),
 //     );
     bytes += generator.row([
-      PosColumn(
-        text: '',
-        width: 3,
-        styles: const PosStyles(align: PosAlign.center, bold: true),
-      ),
+
 
 
       PosColumn(
         text: st_companyAddress.trim(),
-        width: 6,
+        width: 12,
         styles: const PosStyles(align: PosAlign.center, bold: true),
       ),
 
-      PosColumn(
-        text: '',
-        width: 3,
-        styles: const PosStyles(align: PosAlign.center, bold: true),
-      ),
 
     ]);
 
@@ -456,6 +448,8 @@ class ThermalPrinterService_3inches {
       footer_description,
       styles: const PosStyles(align: PosAlign.center, bold: true),
     );
+    String st_QRData = await createQRCode(sales);
+    bytes += generator.qrcode(st_QRData, align: PosAlign.center, size: QRSize.size6);
 
     bytes += generator.feed(2);
     bytes += generator.cut();
@@ -466,8 +460,57 @@ class ThermalPrinterService_3inches {
     final parsed = DateFormat('HH:mm:ss').parse(time24); // adjust pattern below if needed
     return DateFormat('hh:mm a').format(parsed);
   }
-}
 
+
+  Future<String> createQRCode(SalesDetailsByMasterIdResult sales) async {
+    st_company = await SharedPreferenceHelper().getCompanyName() ?? "";
+    //st_TinNo = await SharedPreferenceHelper().get() ?? "";
+
+    String? invoiceDate =
+    _formatDateDMY(sales?.salesMaster!.invoiceDate.toString());
+
+    String invoiceTotal =sales!.salesMaster!.grandTotal.toString();
+    String invoiceVatAmount = sales!.salesMaster!.vatAmount.toString();
+
+    int lenCompanyName = st_company.length;
+    int lenTinNo = st_TinNo.toString().length;
+    int lenInvoiceDate = invoiceDate!.length;
+    int lenInvoiceTotal = invoiceTotal.length;
+    int lenInvoiceVatAmount = invoiceVatAmount.length;
+
+    String strQRvariable = String.fromCharCode(1) +
+        String.fromCharCode(lenCompanyName) +
+        st_company.toString() +
+        String.fromCharCode(2) +
+        String.fromCharCode(lenTinNo) +          // was hardcoded 15
+        st_TinNo.toString() +
+        String.fromCharCode(3) +
+        String.fromCharCode(lenInvoiceDate) +    // was hardcoded 19
+        invoiceDate +
+        String.fromCharCode(4) +
+        String.fromCharCode(lenInvoiceTotal) +
+        invoiceTotal +                            // was vatAmount (wrong field)
+        String.fromCharCode(5) +
+        String.fromCharCode(lenInvoiceVatAmount) +
+        invoiceVatAmount;
+
+    // UTF-8 Encoding and Base64 Conversion
+    List<int> utf8text = utf8.encode(strQRvariable);
+    String qrdata = base64Encode(utf8text);
+    print('qrdata $qrdata');
+
+    return qrdata; // was returning strQRvariable (raw, non-encoded) before
+  }
+}
+String? _formatDateDMY(String? dateStr) {
+  DateTime dateTime = DateTime.parse(
+    dateStr!,
+  ); // Parse the string into a DateTime object
+  String formattedDate = DateFormat(
+    'dd-MM-yyyy HH:mm:ss',
+  ).format(dateTime); // Format the DateTime object
+  return formattedDate;
+}
 /// Wraps [text] into lines no longer than [maxChars], breaking on spaces
 /// where possible so words aren't split mid-way. Falls back to a hard
 /// break only if a single word is longer than [maxChars].
@@ -892,5 +935,7 @@ class ThermalPrinterService_2inches {
     final parsed = DateFormat('HH:mm:ss').parse(time24); // adjust pattern below if needed
     return DateFormat('hh:mm a').format(parsed);
   }
+
+
 }
 
