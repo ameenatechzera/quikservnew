@@ -104,6 +104,7 @@ class CartManager {
 
   /// Decrease quantity
   void decrementQuantity(String productCode, {double step = 1.0}) {
+    print('DecrementClick');
     final items = List<CartItem>.from(cartItems.value);
 
     final index = items.indexWhere((item) => item.productCode == productCode);
@@ -114,7 +115,7 @@ class CartManager {
     final newQty = item.qty - step;
 
     // Don't allow quantity less than 0.01
-    if (newQty < 0.01) return;
+    if (newQty < 0.0) return;
 
     items[index] = item.copyWith(qty: newQty);
 
